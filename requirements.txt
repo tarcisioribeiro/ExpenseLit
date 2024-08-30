@@ -1,0 +1,7 @@
+# Required Packages
+
+pillow==9.1.0
+matplotlib
+mysql-connector-python
+streamlit
+python-dotenv
