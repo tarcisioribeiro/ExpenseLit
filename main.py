@@ -1,9 +1,18 @@
+import os
+
+state_session_path = 'data/cache/session_state.py'
+
+if not os.path.exists(state_session_path):
+    with open(state_session_path, 'w') as archive:
+        archive.write("logged_user = ''")
+        archive.write("\nlogged_user_password = ''")
+
+
 from dictionary.sql import check_user_query
 from dictionary.vars import to_remove_list
 from functions.login import User
 from functions.create_user import CreateUser
 from functions.query_executor import QueryExecutor
-from time import sleep
 import streamlit as st
 
 
