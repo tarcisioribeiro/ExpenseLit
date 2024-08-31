@@ -71,8 +71,9 @@ class CreateUser:
                                 log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
                                 query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                sleep(0.75)
-                                st.rerun()
+                                with st.spinner(text="Recarregando..."):
+                                    sleep(5)
+                                    st.rerun()
 
                             elif check_user_quantity >= 1:
 
