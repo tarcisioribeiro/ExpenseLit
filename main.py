@@ -60,7 +60,7 @@ try:
                         with col6:
                             cl1, cl2 = st.columns(2)
                             with cl2:
-                                st.info(body="Conexão bem-sucedida ao banco de dados!")
+                                st.success(body="Conexão bem-sucedida ao banco de dados!", icon="✅")
 
                         with open(software_env_path, 'w') as env_archive:
                             env_archive.write("DB_PORT={}".format(db_port))
@@ -72,7 +72,7 @@ try:
                         with col6:
                             cl1, cl2 = st.columns(2)
                             with cl2:
-                                st.info(body="Dados gravados com sucesso!")
+                                st.success(body="Dados gravados com sucesso!", icon="✅")
                                 sleep(5)
                         
                         st.rerun()
@@ -148,6 +148,9 @@ try:
                     st.error(body="Erro ao conectar ao MySQL: O banco de dados {} não existe. Faça a importação do arquivo de backup/implantação.".format(db_config["database"]), icon="🚨")
                 else:
                     st.error(body="Erro ao conectar ao MySQL: {} .".format(error), icon="🚨")
+
+        except TypeError as type_error:
+            pass
 
 except KeyError:
     import streamlit as st
