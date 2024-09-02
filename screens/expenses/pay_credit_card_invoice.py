@@ -143,9 +143,9 @@ class CreditCardInvoice:
                     with cl32:
                         selected_card = st.selectbox(label="Selecione o cartão", options=user_cards)
 
-                        card_invoices_query.format(selected_card, logged_user, logged_user_password, actual_year)
+                        complete_card_invoices_query = card_invoices_query.format(selected_card, logged_user, logged_user_password, actual_year)
 
-                        card_invoices = query_executor.complex_consult_query(card_invoices_query)
+                        card_invoices = query_executor.complex_consult_query(complete_card_invoices_query)
                         card_invoices = query_executor.treat_numerous_simple_result(card_invoices, to_remove_list)
 
                         selected_month = st.selectbox(label="Selecione o mês", options=card_invoices)
