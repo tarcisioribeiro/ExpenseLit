@@ -1,5 +1,5 @@
 from data.cache.session_state import logged_user
-from dictionary.sql import check_user_query
+from dictionary.sql import check_user_query, check_if_user_document_exists_query, check_if_user_login_exists_query
 from dictionary.vars import to_remove_list
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -13,6 +13,31 @@ class CreateUser:
 
         query_executor = QueryExecutor()
         document = Documents()
+
+        def check_if_user_exists(login: str, document: str):
+            
+            formatted_check_if_user_document_exists_query = check_if_user_document_exists_query.format(document)
+            formatted_check_if_user_login_exists_query = check_if_user_login_exists_query.format(login)
+
+            check_if_user_document_exists = query_executor.simple_consult_query(formatted_check_if_user_document_exists_query)
+            check_if_user_document_exists = query_executor.treat_simple_result(check_if_user_document_exists, to_remove_list)
+            check_if_user_document_exists = int(check_if_user_document_exists)
+
+            check_if_user_login_exists = query_executor.simple_consult_query(formatted_check_if_user_login_exists_query)
+            check_if_user_login_exists = query_executor.treat_simple_result(check_if_user_login_exists, to_remove_list)
+            check_if_user_login_exists = int(check_if_user_login_exists)
+
+            if check_if_user_document_exists == 0 and check_if_user_login_exists == 0:
+                return True
+            else:
+                if check_if_user_login_exists >= 1 and check_if_user_document_exists == 0:
+                    st.error(body="O login {} já está em uso.".format(login))
+                elif check_if_user_document_exists >= 1 and check_if_user_login_exists == 0:
+                    st.error(body="O documento {} já está em uso.".format(document))
+                elif check_if_user_login_exists >= 1 and check_if_user_login_exists >= 1:
+                    st.error(body="O documento {} e o login {} já estão em uso.".format(document, login))
+                return False
+
 
         def main_menu():
 
@@ -61,11 +86,21 @@ class CreateUser:
                                 is_document_valid = document.validate_owner_document(user_document)
 
                         if user_login != "" and user_password != "" and user_name != "" and is_document_valid == True and user_sex != "":
+                            with cl2:
+                                st.success("O documento {} é válido.".format(user_document), icon="✅")
 
                             if check_user_quantity == 0:
                                 insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s)"""
                                 new_user_values = (user_login,user_password,user_name,user_document,user_sex)
                                 query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
+
+                                insert_new_creditor_query = """INSERT INTO credores (nome, cpf_cnpj) VALUES (%s, %s)"""
+                                new_creditor_values = (user_name,user_document)
+                                query_executor.insert_query(insert_new_creditor_query,new_creditor_values,"Novo credor cadastrado com sucesso!","Erro ao cadastrar novo credor:")
+
+                                insert_new_benefited_query = """INSERT INTO beneficiados (nome, cpf_cnpj) VALUES (%s, %s)"""
+                                new_benefited_values = (user_name,user_document)
+                                query_executor.insert_query(insert_new_benefited_query,new_benefited_values,"Novo beneficiado cadastrado com sucesso!","Erro ao cadastrar novo beneficiado:")
 
                                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                 log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
@@ -80,28 +115,28 @@ class CreateUser:
                                 with col6:
                                     cl1, cl2 = st.columns(2)
                                     with cl2:
-                                        check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};""".format(user_document)
-                                        check_if_user_exists = query_executor.simple_consult_query(check_if_user_document_exists_query)
-                                        check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, to_remove_list)
-                                        check_if_user_exists = int(check_if_user_exists)
+                                        is_data_valid = check_if_user_exists(user_login, user_document)
 
-                                        if check_if_user_exists == 0:
+                                        if is_data_valid == True:
                                             insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s)"""
                                             new_user_values = (user_login,user_password,user_name,user_document,user_sex)
                                             query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
+
+                                            insert_new_creditor_query = """INSERT INTO credores (nome, cpf_cnpj) VALUES (%s, %s)"""
+                                            new_creditor_values = (user_name,user_document)
+                                            query_executor.insert_query(insert_new_creditor_query,new_creditor_values,"Novo credor cadastrado com sucesso!","Erro ao cadastrar novo credor:")
+
+                                            insert_new_benefited_query = """INSERT INTO beneficiados (nome, cpf_cnpj) VALUES (%s, %s)"""
+                                            new_benefited_values = (user_name,user_document)
+                                            query_executor.insert_query(insert_new_benefited_query,new_benefited_values,"Novo beneficiado cadastrado com sucesso!","Erro ao cadastrar novo beneficiado:")
 
                                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                             log_values = (logged_user, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(user_name, user_document))
                                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                                             sleep(0.75)
-                                        elif check_if_user_exists >= 1:
-                                            st.error(
-                                                "Já existe um usuário cadastrado associado ao documento {}.".format(
-                                                    user_document
-                                                ),
-                                                icon="🚨",
-                                            )
+                                        elif is_data_valid >= False:
+                                            pass
 
                         elif user_login != "" and user_password != "" and user_name != "" and is_document_valid == False and user_sex != "":
                             with cl2:

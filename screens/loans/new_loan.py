@@ -26,10 +26,7 @@ class NewLoan:
                 with col2:
                     st.info(body="Você ainda não possui contas ou cartões cadastrados.")
 
-            elif (
-                len(user_current_accounts) >= 1
-                and user_current_accounts[0] != "Selecione uma opção"
-            ):
+            elif len(user_current_accounts) >= 1 and user_current_accounts[0] != "Selecione uma opção":
                 with col1:
                     st.subheader(body=":computer: Entrada de Dados")
 
@@ -44,26 +41,8 @@ class NewLoan:
                         category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories,)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
 
-                        total_account_revenue_query.format(
-                            account, logged_user, logged_user_password
-                        )
-
-                        total_account_expense_query: str = """
-                                    SELECT 
-                                        CAST(SUM(despesas.valor) AS DECIMAL (10, 2))
-                                    FROM
-                                        despesas
-                                            INNER JOIN
-                                        usuarios ON despesas.proprietario_despesa = usuarios.nome
-                                            AND despesas.documento_proprietario_despesa = usuarios.cpf
-                                    WHERE
-                                        despesas.pago = 'S'
-                                            AND despesas.conta = '{}'
-                                            AND usuarios.login = '{}'
-                                            AND usuarios.senha = '{}';"""
-                        total_account_expense_query.format(
-                            account, logged_user, logged_user_password
-                        )
+                        final_total_account_revenue_query = total_account_revenue_query.format(account, logged_user, logged_user_password)
+                        final_total_account_expense_query = total_account_expense_query.format(account, logged_user, logged_user_password)
 
                         creditors = query_executor.complex_consult_query(creditors_query)
                         creditors = query_executor.treat_numerous_simple_result(creditors, to_remove_list)
@@ -105,11 +84,11 @@ class NewLoan:
                             data_validation_expander = st.expander(label="Informações", expanded=True)
 
                             with data_validation_expander:
-                                str_selected_account_revenues = (query_executor.simple_consult_query(total_account_revenue_query))
+                                str_selected_account_revenues = (query_executor.simple_consult_query(final_total_account_revenue_query))
                                 str_selected_account_revenues = (query_executor.treat_simple_result(str_selected_account_revenues, to_remove_list))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
-                                str_selected_account_expenses = (query_executor.simple_consult_query(total_account_expense_query))
+                                str_selected_account_expenses = (query_executor.simple_consult_query(final_total_account_expense_query))
                                 str_selected_account_expenses = (query_executor.treat_simple_result(str_selected_account_expenses, to_remove_list))
                                 selected_account_expenses = float(str_selected_account_expenses)
 
@@ -211,8 +190,7 @@ class NewLoan:
 
             if len(user_current_accounts) == 0:
                 with col2:
-                    st.info(
-                        body="Você ainda não possui contas ou cartões cadastrados.")
+                    st.info(body="Você ainda não possui contas ou cartões cadastrados.")
 
             elif (
                 len(user_current_accounts) >= 1
@@ -223,59 +201,18 @@ class NewLoan:
 
                     with st.expander(label="Dados", expanded=True):
 
-                        id = query_executor.simple_consult_query(
-                            last_loan_id_query)
-                        id = query_executor.treat_simple_result(
-                            id, to_remove_list)
+                        id = query_executor.simple_consult_query(last_loan_id_query)
+                        id = query_executor.treat_simple_result(id, to_remove_list)
                         id = int(id) + 1
 
-                        description = st.text_input(
-                            label=":lower_left_ballpoint_pen: Descrição",
-                            placeholder="Informe uma descrição",
-                        )
-                        value = st.number_input(
-                            label=":dollar: Valor", step=0.01, min_value=0.01
-                        )
+                        description = st.text_input(label=":lower_left_ballpoint_pen: Descrição",placeholder="Informe uma descrição",)
+                        value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                         date = st.date_input(label=":date: Data")
-                        category = st.selectbox(
-                            label=":card_index_dividers: Categoria",
-                            options=expense_categories,
-                        )
-                        account = st.selectbox(
-                            label=":bank: Conta", options=user_current_accounts
-                        )
+                        category = st.selectbox(label=":card_index_dividers: Categoria",options=expense_categories,)
+                        account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
 
-                        total_account_revenue_query: str = """
-                                    SELECT 
-                                        CAST(SUM(receitas.valor) AS DECIMAL (10 , 2 ))
-                                    FROM
-                                        receitas
-                                            INNER JOIN
-                                        usuarios ON receitas.proprietario_receita = usuarios.nome
-                                            AND receitas.documento_proprietario_receita = usuarios.cpf
-                                    WHERE
-                                        receitas.recebido = 'S'
-                                            AND receitas.conta = '{}'
-                                            AND usuarios.login = '{}'
-                                            AND usuarios.senha = '{}';""".format(
-                            account, logged_user, logged_user_password
-                        )
-
-                        total_account_expense_query: str = """
-                                    SELECT 
-                                        CAST(SUM(despesas.valor) AS DECIMAL (10 , 2 ))
-                                    FROM
-                                        despesas
-                                            INNER JOIN
-                                        usuarios ON despesas.proprietario_despesa = usuarios.nome
-                                            AND despesas.documento_proprietario_despesa = usuarios.cpf
-                                    WHERE
-                                        despesas.pago = 'S'
-                                            AND despesas.conta = '{}'
-                                            AND usuarios.login = '{}'
-                                            AND usuarios.senha = '{}';""".format(
-                            account, logged_user, logged_user_password
-                        )
+                        final_total_account_revenue_query = total_account_revenue_query.format(account, logged_user, logged_user_password)
+                        final_total_account_expense_query = total_account_expense_query.format(account, logged_user, logged_user_password)
 
                         beneficiaries = query_executor.complex_consult_query(beneficiaries_query)
                         beneficiaries = query_executor.treat_numerous_simple_result(beneficiaries, to_remove_list)
@@ -318,11 +255,11 @@ class NewLoan:
                             data_validation_expander = st.expander(label="Informações", expanded=True)
 
                             with data_validation_expander:
-                                str_selected_account_revenues = (query_executor.simple_consult_query(total_account_revenue_query))
+                                str_selected_account_revenues = (query_executor.simple_consult_query(final_total_account_revenue_query))
                                 str_selected_account_revenues = (query_executor.treat_simple_result(str_selected_account_revenues, to_remove_list))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
-                                str_selected_account_expenses = (query_executor.simple_consult_query(total_account_expense_query))
+                                str_selected_account_expenses = (query_executor.simple_consult_query(final_total_account_expense_query))
                                 str_selected_account_expenses = (query_executor.treat_simple_result(str_selected_account_expenses, to_remove_list))
                                 selected_account_expenses = float(str_selected_account_expenses)
 

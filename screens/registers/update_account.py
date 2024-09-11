@@ -25,7 +25,7 @@ class UpdateAccounts:
                     get_account_first_value = st.number_input(label="Valor inicial", step=0.01, min_value=0.01)
                     confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
 
-                register_account = st.button(label="Registrar Conta")
+                register_account = st.button(label=":floppy_disk: Registrar Conta")
 
                 if confirm_values_ckecbox and register_account:
                     insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta) VALUES (%s, %s, %s, %s)"""
@@ -134,17 +134,19 @@ class UpdateAccounts:
             user_accounts = query_executor.treat_numerous_simple_result(user_accounts, to_remove_list)
 
             with col1:
-                with st.expander(label="Dados da conta", expanded=True):
+                
+                with st.expander(label="Dados", expanded=True):
                     account_selected = st.selectbox(label="Contas", options=user_accounts)
+                    account_type = st.selectbox(label="Tipo de conta", options=["Conta Corrente", "Conta Móvel", "Fundo de Garantia", "Vale Alimentação"])
+                    innactive_selected_account = st.selectbox(label="Inativar Conta", options=["S", "N"])
                     confirm_account_checkbox = st.checkbox(label="Confirmar dados")
-                    innactive_select = st.checkbox(label="Inativar Conta")
                         
-                confirm_update = st.button(label="Confirmar novos dados")
+                update_button = st.button(label=":floppy_disk: Atualizar conta")
 
-                if confirm_update and innactive_select and confirm_account_checkbox:
+                if update_button and confirm_account_checkbox:
                         
-                    inactivation_query = '''UPDATE contas SET inativa = 'S' WHERE nome_conta = '{}' AND proprietario_conta = '{}' AND documento_proprietario_conta = {}'''.format(account_selected, user_name, user_document)
-                    query_executor.update_table_unique_register(inactivation_query, "Conta atualizada com sucesso!", "Erro ao atualizar conta:")
+                    update_account_query = '''UPDATE contas SET inativa = '{}', tipo_conta = '{}' WHERE nome_conta = '{}' AND proprietario_conta = '{}' AND documento_proprietario_conta = {}'''.format(innactive_selected_account, account_type, account_selected, user_name, user_document)
+                    query_executor.update_table_unique_register(update_account_query, "Conta atualizada com sucesso!", "Erro ao atualizar conta:")
 
                     log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                     log_values = (logged_user, "Atualização", "Atualizou a conta {}.".format(account_selected))

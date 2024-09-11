@@ -867,5 +867,7 @@ check_user_query = '''
                     COUNT(id_usuario)
                 from 
                     usuarios;
-
                 '''
+
+check_if_user_document_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};'''
+check_if_user_login_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios WHERE login = '{}';'''

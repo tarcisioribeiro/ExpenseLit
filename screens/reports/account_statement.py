@@ -49,6 +49,7 @@ class AccountStatement:
             for i in range(len(statement_query_list)):
                 empty_list = query_executor.complex_compund_query(statement_query_list[i], 6, 'statement_')
 
+
                 description, value, date, time, category, account = (empty_list)
 
                 if len(description) == 0 and len(value) == 0 and len(date) == 0 and len(time) == 0 and len(category) == 0 and len(account) == 0:
@@ -79,8 +80,9 @@ class AccountStatement:
                         loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}")
                         loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
                         st.dataframe(loan_data_df, hide_index=True, use_container_width=True)
-
-                    return value
+            
+            if len(statement_query_list) == 1:
+                return value
 
         def main_menu():
 
