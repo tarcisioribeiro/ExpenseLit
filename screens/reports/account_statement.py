@@ -44,11 +44,8 @@ class AccountStatement:
 
         def consult_statement(statement_query_list: list):
 
-            empty_list: list
-
             for i in range(len(statement_query_list)):
                 empty_list = query_executor.complex_compund_query(statement_query_list[i], 6, 'statement_')
-
 
                 description, value, date, time, category, account = (empty_list)
 
@@ -81,8 +78,7 @@ class AccountStatement:
                         loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
                         st.dataframe(loan_data_df, hide_index=True, use_container_width=True)
             
-            if len(statement_query_list) == 1:
-                return value
+            return value
 
         def main_menu():
 
@@ -101,7 +97,7 @@ class AccountStatement:
                     final_data = st.date_input(label="Data de fim")
                     confirm_choice = st.checkbox(label="Confirmar dados")
 
-                consult_tables = st.button(label="Gerar Relatórios")
+                consult_tables = st.button(label=":chart: Gerar Relatórios")
 
             if confirm_choice and consult_tables:
 
@@ -118,17 +114,16 @@ class AccountStatement:
                             value = consult_statement(query_list)
 
                             with col6:
-                                if statement_option != "Despesas e Receitas":
-                                    with st.spinner(text="Aguarde..."):
-                                        sleep(1)
-                                    total_value = 0
-                                    for i in range(0, len(value)):
-                                        total_value += value[i]
+                                with st.spinner(text="Aguarde..."):
+                                    sleep(1)
+                                total_value = 0
+                                for i in range(0, len(value)):
+                                    total_value += value[i]
                                     medium_value = round((total_value / len(value)), 2)
-                                    with st.expander(label="Dados", expanded=True):
-                                        st.info(body="Quantidade de {}: {}.".format(statement_option, len(value)))
-                                        st.info(body="Valor total das {}: R$ {}.".format(statement_option, total_value))
-                                        st.info(body="Valor médio das {}: R$ {}.".format(statement_option, medium_value))
+                                with st.expander(label="Dados", expanded=True):
+                                    st.info(body="Quantidade de {}: {}.".format(statement_option, len(value)))
+                                    st.info(body="Valor total das {}: R$ {}.".format(statement_option, total_value))
+                                    st.info(body="Valor médio das {}: R$ {}.".format(statement_option, medium_value))
 
                                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                 log_values = (logged_user, "Consulta", "Consultou o relatório de {} entre o período de {} a {}.".format(statement_option, initial_data, final_data))
