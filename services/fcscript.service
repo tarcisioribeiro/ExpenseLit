@@ -1,8 +1,0 @@
-[Unit]
-Description=Controle Financeiro
-
-[Service]
-ExecStart=/usr/bin/fcscript.sh
-
-[Install]
-WantedBy=multi-user.target
