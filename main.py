@@ -74,8 +74,11 @@ try:
                             with cl2:
                                 st.success(body="Dados gravados com sucesso!", icon="✅")
                                 sleep(5)
-                        
-                        st.rerun()
+                                import subprocess
+                                command = "sudo systemctl restart fcscript.service"
+                                result = subprocess.run(command, shell=True, capture_output=True, text=True)
+                                print("Saída:", resultado.stdout)
+                                print("Erro:", resultado.stderr)
 
                 except mysql.connector.Error as error:
                     with col6:

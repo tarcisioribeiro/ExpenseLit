@@ -1,11 +1,17 @@
-FOLDER=($pwd)
+FOLDER=$(pwd)
 VENV_NAME="dependencies"
 
-sudo su
+echo $FOLDER
 cd $HOME
+echo ''
+echo $(pwd)
+echo ''
 python3 -m venv dependencies && cd dependencies
 source ./bin/activate
 cd $FOLDER && cd ..
+echo ''
+echo $(pwd)
+echo ''
 pip install -r requirements.txt
 
 echo "#!/bin/bash" >> fcscript.sh
