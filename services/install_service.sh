@@ -1,3 +1,5 @@
+#!/bin/bash
+
 FOLDER=$(pwd)
 VENV_NAME="dependencies"
 
