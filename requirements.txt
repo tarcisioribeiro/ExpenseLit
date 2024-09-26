@@ -1,5 +1,4 @@
-
-pillow==9.1.0
+pillow
 matplotlib
 mysql-connector-python
 streamlit
