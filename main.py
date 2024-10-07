@@ -77,8 +77,8 @@ try:
                                 import subprocess
                                 command = "sudo systemctl restart fcscript.service"
                                 result = subprocess.run(command, shell=True, capture_output=True, text=True)
-                                print("Saída:", resultado.stdout)
-                                print("Erro:", resultado.stderr)
+                                print("Saída:", result.stdout)
+                                print("Erro:", result.stderr)
 
                 except mysql.connector.Error as error:
                     with col6:
