@@ -22,7 +22,7 @@ class UpdateAccounts:
                     
                     account_name = st.selectbox(label="Nome da conta", options=accounts)
                     account_type = st.selectbox(label="Tipo da conta", options=accounts_type)
-                    get_account_first_value = st.number_input(label="Valor inicial", step=0.01, min_value=0.01)
+                    get_account_first_value = st.number_input(label="Valor inicial", step=0.01, min_value=0.00)
                     confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
 
                 register_account = st.button(label=":floppy_disk: Registrar Conta")

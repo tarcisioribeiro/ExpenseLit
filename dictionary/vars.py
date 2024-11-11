@@ -127,7 +127,7 @@ menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar r
 expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]
 revenue_categories: list = ["Selecione uma opção","Ajuste","Depósito","Prêmio","Salário","Vale","Rendimentos"]
 transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]
-accounts = ["Selecione uma opção","Ben Visa Vale","Carteira","Caixa","Mercado Pago","Nubank","Picpay","Sicoob"]
+accounts = ["Selecione uma opção","Ben Visa Vale","Carteira","Caixa","Mercado Pago","Nubank", "Pagbank", "Picpay","Sicoob"]
 accounts_type = ["Conta Corrente","Conta Salário","Fundo de Garantia","Vale Alimentação"]
 
 to_remove_list: list = ["'", ")", "(", ",", "Decimal", '"', "[", "]", "datetime.date"]
