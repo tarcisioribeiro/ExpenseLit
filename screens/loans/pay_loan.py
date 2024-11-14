@@ -136,7 +136,7 @@ class PayLoan:
 
                             confirm_values = st.checkbox(label="Confirmar valores")
 
-                        pay_button = st.button(label="Pagar valor de empréstimo")
+                        pay_button = st.button(label=":floppy_disk: Pagar valor de empréstimo")
 
                     st.divider()
 

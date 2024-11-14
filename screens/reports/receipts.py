@@ -285,7 +285,7 @@ class Receipts:
             )
 
             image.save(caminho_arquivo, dpi=(dpi, dpi))
-            st.image(caminho_arquivo, use_column_width=True)
+            st.image(caminho_arquivo, use_container_width=True)
 
             with open(caminho_arquivo, "rb") as file:
                 download_button = st.download_button(
@@ -400,7 +400,7 @@ class Receipts:
              absolute_app_path, today, actual_horary
             ) 
             image.save(caminho_arquivo, dpi=(dpi, dpi))
-            st.image(caminho_arquivo, use_column_width=True)
+            st.image(caminho_arquivo, use_container_width=True)
 
             with open(caminho_arquivo, "rb") as file:
                 download_button = st.download_button(
