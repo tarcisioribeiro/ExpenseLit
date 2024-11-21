@@ -19,11 +19,27 @@ from time import sleep
 
 
 class Receipts:
+    """
+        Classe contendo métodos para a geração de comprovantes.
+
+        Atributos:
+            get_receipt_data = faz a chamada da função que busca os dados do comprovante.
+            generate_receipt = faz a chamada da função que gera o comprovante.
+            generate_transfer_receipt = faz a chamada da função que gera o comprovante de transferência.
+    """
     def __init__(self):
 
         query_executor = QueryExecutor()
 
         def validate_query(table, date, account, value):
+            """
+            Realiza a validação da consulta de acordo com os parâmetros passados.
+
+            :param table: Define a tabela da consulta.
+            :param date: Define a data da consulta.
+            :param account: Define a conta da consulta.
+            :param value: Define o valor da consulta.
+            """
             if table == "despesas":
                 id_query = """
                             SELECT 
@@ -122,6 +138,13 @@ class Receipts:
 
         def execute_query(table, id):
 
+            """
+            Realiza a execução da consulta.
+
+            :param table: Define a tabela da consulta.
+            :param id: Define o valor do id da tabela na consulta.
+            """
+
             if table == "despesas_cartao_credito":
                 values_query = """SELECT id_despesa_cartao, descricao, valor, data, categoria, cartao FROM {} WHERE id_despesa_cartao = {};""".format(table, id)
             elif table == "receitas":
@@ -134,6 +157,12 @@ class Receipts:
             return consult_values
 
         def treat_receipt_values(receipt_list):
+
+            """
+            Realiza o tratamento dos valores da lista do comprovante.
+
+            :param receipt_list: Lista com os dados do comprovante.
+            """
 
             len_lists_receipt = 0
             for i in range(0, len(receipt_list)):
@@ -168,6 +197,20 @@ class Receipts:
                 return 0, '', 0, '1999-12-31', '', '' 
 
         def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
+
+            """
+            
+            Gera um comprovante de transferência.
+
+            :param id: O número de referência do comprovante.
+            :param description: A descrição da transferência.
+            :param value: O valor da transferência.
+            :param date: A data da transferência.
+            :param category: A categoria da transação.
+            :param origin_account: A conta de origem da transferência.
+            :param destiny_account: A conta de destino da transferência.
+            """
+
             reference_number = ""
             if id <= 9:
                 reference_number = """REF: 000{}""".format(id)
@@ -295,6 +338,19 @@ class Receipts:
                 )
 
         def generate_receipt(table, id, description, value, date, category, account):
+            """
+
+            Gera um comprovante de acordo com o tipo e valores informados.
+            
+            :param table: Recebe a tabela de quais os dados estão vindo.
+            :param id: O número de referência do comprovante.
+            :param description: A descrição passada pelo usuário.
+            :param value: O valor do comprovante.
+            :param date: A data do comprovante.
+            :param category: A categoria da transação do comprovante.
+            :param account: A conta do comprovante.
+            """
+
             if table == "receitas":
                 table = "RECEITA"
             elif table == "emprestimos":
@@ -410,6 +466,12 @@ class Receipts:
                 )
 
         def get_receipt_input():
+
+            """
+            
+            Interface para buscar os dados necessários.
+
+            """
             
             col4, col5, col6 = st.columns(3)
 

@@ -3,6 +3,9 @@ from screens.reports.receipts import Receipts
 from screens.reports.account_statement import AccountStatement
 
 class Reports:
+    """
+        Classe que representa a interface de relatórios.
+    """
     def __init__(self):
 
         call_receipts = Receipts()
@@ -11,6 +14,9 @@ class Reports:
         superior_menu_options = ["Consultar Comprovante", "Extrato Bancário"]
 
         def reports_interface():
+            """
+            Interface de relatórios.
+            """
 
             col1, col2, col3 = st.columns(3)
 

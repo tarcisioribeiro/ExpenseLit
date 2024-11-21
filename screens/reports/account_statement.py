@@ -9,6 +9,17 @@ import streamlit as st
 
 
 class AccountStatement:
+    """
+    Classe com métodos para a consulta do extrato bancário de uma conta (Despesas x Receitas).
+
+    Atributos:
+        main_menu = realiza a chamada da função do menu principal.
+    
+    Métodos:
+        mount_statement_query(): Realiza a formatação da consulta.
+        consult_statement(): Realiza a consulta.
+
+    """
 
     def __init__(self):
 
@@ -16,6 +27,14 @@ class AccountStatement:
         variable = Variables()
 
         def mount_statement_query(statement_type: str, accounts: list, initial_data: str, final_data: str):
+            """
+            Realiza a formatação da consulta do extrato.
+
+            :param statement_type: Define o tipo do extrato.
+            :param accounts: Define quais contas serão consultadas.
+            :param initial_data: Define a data inicial da consulta.
+            :param final_data: Define a data final da consulta.
+            """
 
             statement_query_list = []
 
@@ -43,6 +62,11 @@ class AccountStatement:
             return statement_query_list
 
         def consult_statement(statement_query_list: list):
+            """
+            Realiza a consulta do extrato bancário.
+
+            :param statement_query_list: Lista com os valores necessários para a consulta.
+            """
 
             for i in range(len(statement_query_list)):
                 empty_list = query_executor.complex_compund_query(statement_query_list[i], 6, 'statement_')
@@ -81,6 +105,9 @@ class AccountStatement:
             return value
 
         def main_menu():
+            """
+            Menu principal do Extrato Bancário.
+            """
 
             user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
             user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
