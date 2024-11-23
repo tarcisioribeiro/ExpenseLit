@@ -1,27 +1,9 @@
 #!/bin/bash
 
 FOLDER=$(pwd)
-VENV_NAME="dependencies"
-
-echo $FOLDER
-cd $HOME
-echo ''
-echo $(pwd)
-echo ''
-python3 -m venv dependencies && cd dependencies
-source ./bin/activate
-cd $FOLDER && cd ..
-echo ''
-echo $(pwd)
-echo ''
-pip install -r requirements.txt
 
 echo "#!/bin/bash" >> fcscript.sh
-echo "cd $HOME" >> fcscript.sh
-echo "source ./bin/activate" >> fcscript.sh
 echo "cd $FOLDER && cd .." >> fcscript.sh
-echo "pip install -r requirements.txt" >> fcscript.sh
-echo "cd /home/$(whoami)/repos/Finances_Controller/" >> fcscript.sh
 echo "streamlit run main.py --server.port 8501" >> fcscript.sh
 chmod +x fcscript.sh
 sudo mv fcscript.sh /usr/bin/
