@@ -12,190 +12,144 @@ import streamlit as st
 
 
 class CreditCardInvoice:
-
-    generate_receipt = Receipts()
-    query_executor = QueryExecutor()
-
-    def show_expenses(selected_card: str, selected_month: str):
+    def __init__(self):
 
         col1, col2, col3 = st.columns(3)
+
         credit_card = Credit_Card()
-        receipt_executor = Receipts()
+        generate_receipt = Receipts()
         query_executor = QueryExecutor()
+        call_time = GetActualTime()
 
-        month_expenses = credit_card.month_expenses(selected_card, selected_month)
+        def show_expenses(selected_card: str, selected_month: str):
 
-        if month_expenses == 0:
+            month_expenses = credit_card.month_expenses(selected_card, selected_month)
 
-            with col1:
+            if month_expenses == 0:
 
-                with st.expander(label="Informação", expanded=True):
-                    st.info(
-                        body="Você não tem valores a pagar neste cartão no mês de {}.".format(
-                            string_actual_month
-                        )
-                    )
+                with col1:
 
-        elif month_expenses > 0:
+                    with st.expander(label="Informação",expanded=True):
+                        st.info(body="Você não tem valores a pagar neste cartão no mês de {}.".format(string_actual_month))
 
-            id_list = credit_card.get_card_id_month_expenses(
-                selected_card, selected_month
-            )
+            elif month_expenses > 0:
 
-            descricao_list, valor_list, data_list, categoria_list, parcela_list = (
-                credit_card.month_complete_expenses(selected_card, selected_month)
-            )
+                id_list = credit_card.get_card_id_month_expenses(selected_card, selected_month)
 
-            credit_card_month_expenses_list_df = pd.DataFrame(
-                {
-                    "Descrição": descricao_list,
-                    "Valor": valor_list,
-                    "Data": data_list,
-                    "Categoria": categoria_list,
-                    "Parcela": parcela_list,
-                }
-            )
 
-            credit_card_month_expenses_list_df["Valor"] = (
-                credit_card_month_expenses_list_df["Valor"].apply(
-                    lambda x: f"R$ {x:.2f}"
-                )
-            )
+                descricao_list, valor_list, data_list, categoria_list, parcela_list = (credit_card.month_complete_expenses(selected_card, selected_month))
 
-            credit_card_month_expenses_list_df["Data"] = pd.to_datetime(
-                credit_card_month_expenses_list_df["Data"]
-            ).dt.strftime("%d/%m/%Y")
-
-            with col1:
-                st.subheader(body=":credit_card: Fatura de {}".format(selected_month))
-
-                with st.expander(label="Valores", expanded=True):
-
-                    st.info(
-                        body="Valor total da fatura: :heavy_dollar_sign:{:.2f}".format(
-                            month_expenses
-                        )
-                    )
-
-                    st.data_editor(
-                        credit_card_month_expenses_list_df,
-                        hide_index=True,
-                        use_container_width=True,
-                    )
-                    confirm_values_checkbox = st.checkbox(label="Confirmar valores")
-
-                description = "Fatura de Cartão Mês de {}".format(selected_month)
-                call_time = GetActualTime()
-                actual_horary = call_time.get_actual_time()
-
-                pay_button = st.button(label=":pencil: Pagar Fatura")
-                expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                values = (
-                    description,
-                    month_expenses,
-                    today,
-                    actual_horary,
-                    "Fatura Cartão",
-                    selected_card,
-                    user_name,
-                    user_document,
-                    "S",
+                credit_card_month_expenses_list_df = pd.DataFrame(
+                    {
+                        "Descrição": descricao_list,
+                        "Valor": valor_list,
+                        "Data": data_list,
+                        "Categoria": categoria_list,
+                        "Parcela": parcela_list,
+                    }
                 )
 
-                update_invoice_query = """
-                        UPDATE fechamentos_cartao SET fechado = 'S' WHERE nome_cartao = '{}' AND mes = '{}' AND ano = '{}' AND documento_titular = {};
-                        """.format(
-                    selected_card, selected_month, actual_year, user_document
+                credit_card_month_expenses_list_df["Valor"] = (
+                    credit_card_month_expenses_list_df["Valor"].apply(
+                        lambda x: f"R$ {x:.2f}"
+                    )
                 )
 
-            with col2:
-                if confirm_values_checkbox and pay_button:
+                credit_card_month_expenses_list_df["Data"] = pd.to_datetime(
+                    credit_card_month_expenses_list_df["Data"]
+                ).dt.strftime("%d/%m/%Y")         
 
-                    query_executor.update_table_registers(
-                        "despesas_cartao_credito", "despesa_cartao", id_list
-                    )
-                    query_executor.insert_query(
-                        expense_query, values, "Fatura paga com sucesso!", ""
-                    )
+                with col1:
+                    st.subheader(body=":credit_card: Fatura de {}".format(selected_month))
 
-                    query_executor.update_table_unique_register(
-                        update_invoice_query,
-                        "Fatura fechada com sucesso!",
-                        "Falha ao fechar fatura:",
-                    )
+                    with st.expander(label="Valores", expanded=True):
 
-                    log_query = """INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);"""
-                    log_values = (
-                        logged_user,
-                        "Registro",
-                        "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(
-                            month_expenses, selected_card
-                        ),
-                    )
-                    query_executor.insert_query(
-                        log_query, log_values, "Log gravado.", "Erro ao gravar log:"
-                    )
+                        st.info(body="Valor total da fatura: :heavy_dollar_sign:{:.2f}".format(month_expenses))
 
-                    with st.spinner(text="Aguarde..."):
-                        sleep(1.5)
-
-                    st.subheader(body="Comprovante")
-
-                    with st.expander(label="Arquivo", expanded=True):
-                        receipt_executor.generate_receipt(
-                            "despesas",
-                            id_list[0],
-                            description="Fatura Cartão de {}".format(selected_month),
-                            value=month_expenses,
-                            date=today,
-                            category="Fatura Cartão",
-                            account=selected_card,
+                        st.data_editor(
+                            credit_card_month_expenses_list_df, 
+                            hide_index=True,
+                            use_container_width=True,
                         )
+                        confirm_values_checkbox = st.checkbox(label="Confirmar valores")
 
-            with col3:
-                st.write("")
+                    description = "Fatura de Cartão Mês de {}".format(selected_month)
+                    actual_horary = call_time.get_actual_time()
 
-    def show_update_credit_card_invoices(self):
-
-        col1, col2, col3 = st.columns(3)
-
-        query_executor = QueryExecutor()
-
-        user_cards = query_executor.complex_consult_query(owner_cards_query)
-        user_cards = query_executor.treat_numerous_simple_result(
-            user_cards, to_remove_list
-        )
-
-        if len(user_cards) == 0:
-            with col2:
-                st.info(body="Você ainda não possui cartões cadastrados.")
-
-        elif len(user_cards) >= 1 and user_cards[0] != "Selecione uma opção":
-            with col3:
-
-                cl31, cl32 = st.columns(2)
-
-                with cl32:
-                    selected_card = st.selectbox(
-                        label="Selecione o cartão", options=user_cards
-                    )
-
-                    complete_card_invoices_query = card_invoices_query.format(
+                    pay_button = st.button(label=":pencil: Pagar Fatura")
+                    expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    values = (
+                        description,
+                        month_expenses,
+                        today,
+                        actual_horary,
+                        "Fatura Cartão",
                         selected_card,
-                        logged_user,
-                        logged_user_password,
-                        actual_year,
+                        user_name,
+                        user_document,
+                        "S",
                     )
 
-                    card_invoices = query_executor.complex_consult_query(
-                        complete_card_invoices_query
-                    )
-                    card_invoices = query_executor.treat_numerous_simple_result(
-                        card_invoices, to_remove_list
-                    )
+                    update_invoice_query = '''
+                        UPDATE fechamentos_cartao SET fechado = 'S' WHERE nome_cartao = '{}' AND mes = '{}' AND ano = '{}' AND documento_titular = {};
+                        '''.format(selected_card, selected_month, actual_year, user_document)
+                    
 
-                    selected_month = st.selectbox(
-                        label="Selecione o mês", options=card_invoices
-                    )
+                with col2:
+                    if confirm_values_checkbox and pay_button:
 
-            self.show_expenses(selected_card, selected_month)
+                        query_executor.update_table_registers("despesas_cartao_credito", "despesa_cartao", id_list)
+                        query_executor.insert_query(expense_query, values, "Fatura paga com sucesso!", "")
+
+                        query_executor.update_table_unique_register(update_invoice_query, "Fatura fechada com sucesso!", "Falha ao fechar fatura:")
+
+                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(month_expenses, selected_card))
+                        query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+
+                        with st.spinner(text="Aguarde..."):
+                            sleep(1.5)
+
+                        st.subheader(body="Comprovante")
+
+                        with st.expander(label="Arquivo", expanded=True):
+                            generate_receipt.generate_receipt(
+                                "despesas",
+                                id_list[0],
+                                description="Fatura Cartão de {}".format(selected_month),
+                                value=month_expenses,
+                                date=today,
+                                category="Fatura Cartão",
+                                account=selected_card,
+                            )
+
+                with col3:
+                    st.write("")
+
+        def show_update_credit_card_invoices():
+
+            user_cards = query_executor.complex_consult_query(owner_cards_query)
+            user_cards = query_executor.treat_numerous_simple_result(user_cards, to_remove_list)
+
+            if len(user_cards) == 0:
+                with col2:
+                    st.info(body="Você ainda não possui cartões cadastrados.")
+
+            elif len(user_cards) >= 1 and user_cards[0] != "Selecione uma opção":
+                with col3:
+
+                    cl31, cl32 = st.columns(2)
+
+                    with cl32:
+                        selected_card = st.selectbox(label="Selecione o cartão", options=user_cards)
+
+                        complete_card_invoices_query = card_invoices_query.format(selected_card, logged_user, logged_user_password, actual_year)
+
+                        card_invoices = query_executor.complex_consult_query(complete_card_invoices_query)
+                        card_invoices = query_executor.treat_numerous_simple_result(card_invoices, to_remove_list)
+
+                        selected_month = st.selectbox(label="Selecione o mês", options=card_invoices)
+
+                show_expenses(selected_card, selected_month)
+
+        self.show_update_credit_card_invoices = show_update_credit_card_invoices

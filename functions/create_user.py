@@ -9,18 +9,12 @@ import streamlit as st
 
 class CreateUser:
 
+    def __init__(self):
+
         query_executor = QueryExecutor()
         document = Documents()
 
-        def check_if_user_exists(self, login: str, document: str):
-            """
-            Realiza a verificação da existência do registro do usuário no banco de dados.
-            
-            :param login: Recebe o login do usuário.
-            :param document: Recebe o documento do usuário.
-            """
-
-            query_executor = QueryExecutor()
+        def check_if_user_exists(login: str, document: str):
             
             formatted_check_if_user_document_exists_query = check_if_user_document_exists_query.format(document)
             formatted_check_if_user_login_exists_query = check_if_user_login_exists_query.format(login)
@@ -45,14 +39,7 @@ class CreateUser:
                 return False
 
 
-        def main_menu(self):
-
-            """
-            Menu de cadastro de usuário.
-            """
-
-            query_executor = QueryExecutor()
-            document = Documents()
+        def main_menu():
 
             check_user_quantity = query_executor.simple_consult_query(check_user_query)
             check_user_quantity = query_executor.treat_simple_result(
@@ -128,7 +115,7 @@ class CreateUser:
                                 with col6:
                                     cl1, cl2 = st.columns(2)
                                     with cl2:
-                                        is_data_valid = self.check_if_user_exists(user_login, user_document)
+                                        is_data_valid = check_if_user_exists(user_login, user_document)
 
                                         if is_data_valid == True:
                                             insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s)"""
@@ -157,6 +144,9 @@ class CreateUser:
 
                     elif confirm_values == False:
                         st.warning(body=":warning: Revise os dados e confirme-os antes de prosseguir.")
+
+        self.main_menu = main_menu
+
 
 if __name__ == "__main__":
     create_user = CreateUser()

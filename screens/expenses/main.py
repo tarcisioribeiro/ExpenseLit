@@ -7,38 +7,42 @@ import streamlit as st
 
 class NewExpense:
 
-    def main_menu(self):
+    def __init__(self):
 
-        col1, col2, col3 = st.columns(3)
+        def expenses_main_menu():
 
-        with col1:
-            st.subheader("	:money_with_wings: Nova Despesa")
+            col1, col2, col3 = st.columns(3)
 
-        with col2:
-            menu_choice = st.selectbox(
-                label="Tipo de despesa",
-                options=[
-                    "Despesa em conta corrente",
-                    "Despesa de cartão",
-                    "Pagar fatura de cartão",
-                    "Pagar valores em aberto",
-                ],
-            )
+            with col1:
+                st.subheader("	:money_with_wings: Nova Despesa")
 
-        st.divider()
+            with col2:
+                menu_choice = st.selectbox(
+                    label="Tipo de despesa",
+                    options=[
+                        "Despesa em conta corrente",
+                        "Despesa de cartão",
+                        "Pagar fatura de cartão",
+                        "Pagar valores em aberto"
+                    ],
+                )
 
-        if menu_choice == "Despesa em conta corrente":
-            call_expense = NewCurrentExpense()
-            call_expense.new_expense()
+            st.divider()
 
-        elif menu_choice == "Despesa de cartão":
-            call_credit_card_expense = NewCreditCardExpense()
-            call_credit_card_expense.get_credit_card_expense()
+            if menu_choice == "Despesa em conta corrente":
+                call_expense = NewCurrentExpense()
+                call_expense.get_expense()
 
-        elif menu_choice == "Pagar fatura de cartão":
-            call_update_credit_card_invoices = CreditCardInvoice()
-            call_update_credit_card_invoices.show_update_credit_card_invoices()
+            elif menu_choice == "Despesa de cartão":
+                call_credit_card_expense = NewCreditCardExpense()
+                call_credit_card_expense.get_credit_card_expense()
 
-        elif menu_choice == "Pagar valores em aberto":
-            call_pay_loan = PayLoan()
-            call_pay_loan.show_loans()
+            elif menu_choice == "Pagar fatura de cartão":
+                call_update_credit_card_invoices = CreditCardInvoice()
+                call_update_credit_card_invoices.show_update_credit_card_invoices()
+
+            elif menu_choice == "Pagar valores em aberto":
+                call_pay_loan = PayLoan()
+                call_pay_loan.show_loans()
+
+        self.main_menu = expenses_main_menu
