@@ -3,6 +3,7 @@ from datetime import datetime
 from dictionary.sql import not_received_revenue_query
 from dictionary.vars import to_remove_list
 from functions.query_executor import QueryExecutor
+from functions.variables import Variables
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
@@ -15,6 +16,7 @@ class ConfirmRevenue:
 
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
+        variable = Variables()
 
         def get_not_received_revenue_id(
             description: str,
@@ -107,16 +109,23 @@ class ConfirmRevenue:
                                     "conta": final_str_account,
                                 }
                             )
-                            description_list.append(index_description)
+                            formatted_value = str(index_description["valor"])
+                            formatted_value = "R$ " + formatted_value.replace(".", ",")
+                            unformatted_data = index_description["data"]
+                            unformatted_data = datetime.strptime(unformatted_data, "%Y-%m-%d")
+                            formatted_data = unformatted_data.strftime("%d/%m/%Y")
+
+                            str_index_description = ""
+                            str_index_description = index_description["descrição"] + " - " + formatted_value + " - " + formatted_data + " - " + index_description["categoria"] + " - " + index_description["conta"]
+                            description_list.append(str_index_description)
 
                         selected_revenue = st.selectbox(
                             label="Selecione a receita", options=description_list
                         )
-                        st.info(selected_revenue)
 
                         confirm_selection = st.checkbox(label="Confirmar seleção")
 
-                    update_button = st.button(label="Receber valor")
+                    update_button = st.button(label=":white_check_mark: Receber valor")
 
                     if confirm_selection and update_button:
 

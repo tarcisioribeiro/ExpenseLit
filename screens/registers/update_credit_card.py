@@ -193,7 +193,7 @@ class UpdateCreditCards:
                             beggining_invoice_date = st.date_input(label="Início")
                             ending_invoice_date = st.date_input(label="Fim")
 
-                    register_invoice = st.button(label="Registrar fechamento")
+                    register_invoice = st.button(label=":floppy_disk: Registrar fechamento")
 
                     with col2:
                         data_expander = st.expander(label="Validação dos dados", expanded=True)
