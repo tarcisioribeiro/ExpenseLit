@@ -5,38 +5,49 @@ from screens.revenues.new_revenue import NewCurrentRevenue
 
 
 class NewRevenue:
+    """
+    Classe que representa o menu principal das receitas.
 
-    def __init__(self):
+    Attributes
+    ----------
+    main_menu()
+        Apresenta o menu principal das receitas.
+    """
+
+    def main_menu(self):
+        """
+        Apresenta o menu principal das receitas.
+        """
 
         new_fund_revenue = NewFundRevenue()
         confirm_revenue = ConfirmRevenue()
         new_current_revenue = NewCurrentRevenue()
 
-        def revenue_main_menu():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        menu_options = [
+            "Receita em Contas Correntes",
+            "Receita de Fundo de Garantia",
+            "Confirmar recebimento",
+        ]
 
-            menu_options = ["Receita em Contas Correntes", "Receita de Fundo de Garantia", "Confirmar recebimento"]
+        st.divider()
 
-            st.divider()
+        with col1:
+            st.subheader(body=":moneybag: Nova Receita")
 
-            with col1:
-                st.subheader(body=":moneybag: Nova Receita")
+        with col2:
 
-            with col2:
+            revenue_type = st.selectbox(label="Tipo de Receita", options=menu_options)
 
-                revenue_type = st.selectbox(label="Tipo de Receita", options=menu_options)
+        if revenue_type == menu_options[0]:
 
-            if revenue_type == menu_options[0]:
+            new_current_revenue.get_revenue()
 
-                new_current_revenue.get_revenue()
+        elif revenue_type == menu_options[1]:
 
-            elif revenue_type == menu_options[1]:
+            new_fund_revenue.new_fund_revenue()
 
-                new_fund_revenue.new_fund_revenue()
+        elif revenue_type == menu_options[2]:
 
-            elif revenue_type == menu_options[2]:
-
-                confirm_revenue.confirm_revenue()
-
-        self.main_menu = revenue_main_menu
+            confirm_revenue.confirm_revenue()

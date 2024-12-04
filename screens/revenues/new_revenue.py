@@ -10,105 +10,155 @@ import streamlit as st
 
 
 class NewCurrentRevenue:
-    def __init__(self):
+    """
+    Classe responsável pelo cadastro de novas receitas em contas correntes.
+
+    Attributes
+    ----------
+    new_fund_revenue()
+        Apresenta a tela que receberá os dados da nova receita em conta corrente, a inserindo no banco de dados assim que o usuário confirmar seu cadastro.
+    """
+
+    def get_revenue(self):
+        """
+        Apresenta a tela que receberá os dados da nova receita em conta corrente, a inserindo no banco de dados assim que o usuário confirmar seu cadastro.
+        """
 
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
         call_actual_time = GetActualTime()
 
-        user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
-        user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = query_executor.complex_consult_query(
+            user_current_accounts_query
+        )
+        user_current_accounts = query_executor.treat_numerous_simple_result(
+            user_current_accounts, to_remove_list
+        )
 
+        col4, col5, col6 = st.columns(3)
 
-        def new_revenue():
+        if len(user_current_accounts) == 0:
+            with col5:
+                st.info("Você ainda não possui contas correntes cadastradas.")
 
-            col4, col5, col6 = st.columns(3)
+        elif len(user_current_accounts) >= 1:
 
-            if len(user_current_accounts) == 0: 
-                   with col5:
-                       st.info("Você ainda não possui contas correntes cadastradas.")
+            with col4:
 
-            elif len(user_current_accounts) >= 1:
+                st.subheader(body=":computer: Entrada de Dados")
 
-                with col4:
+                with st.expander(label="Dados", expanded=True):
 
-                    st.subheader(body=":computer: Entrada de Dados")
+                    id = query_executor.simple_consult_query(last_revenue_id_query)
+                    id = query_executor.treat_simple_result(id, to_remove_list)
+                    id = int(id) + 1
 
-                    with st.expander(label="Dados", expanded=True):
+                    description = st.text_input(
+                        label=":lower_left_ballpoint_pen: Descrição",
+                        placeholder="Informe uma descrição",
+                    )
+                    value = st.number_input(label=":dollar: Valor", min_value=0.01)
+                    date = st.date_input(label=":date: Data")
+                    category = st.selectbox(
+                        label=":card_index_dividers: Categoria",
+                        options=revenue_categories,
+                    )
+                    account = st.selectbox(
+                        label=":bank: Conta", options=user_current_accounts
+                    )
+                    received = st.selectbox(
+                        label=":inbox_tray: Recebido", options=["S", "N"]
+                    )
 
-                        id = query_executor.simple_consult_query(last_revenue_id_query)
-                        id = query_executor.treat_simple_result(id, to_remove_list)
-                        id = int(id) + 1
+                    confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
-                        description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
-                        value = st.number_input(label=":dollar: Valor", min_value=0.01)
-                        date = st.date_input(label=":date: Data")
-                        category = st.selectbox(label=":card_index_dividers: Categoria", options=revenue_categories)
-                        account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
-                        received = st.selectbox(label=":inbox_tray: Recebido", options=["S", "N"])
+                send_revenue_button = st.button(
+                    label=":pencil: Gerar Comprovante", key="send_revenue_button"
+                )
 
-                        confirm_values_check_box = st.checkbox(label="Confirmar Dados")
+            with col6:
 
-                    send_revenue_button = st.button(label=":pencil: Gerar Comprovante", key="send_revenue_button")
+                if confirm_values_check_box and send_revenue_button:
 
-                with col6:
+                    with col5:
+                        with st.spinner("Aguarde..."):
+                            sleep(1)
 
-                    if confirm_values_check_box and send_revenue_button:
+                        st.subheader(body="Validação de Dados")
 
-                        with col5:
-                            with st.spinner("Aguarde..."):
-                                sleep(1)
+                        data_validation_expander = st.expander(
+                            label="Informações", expanded=True
+                        )
 
-                            st.subheader(body="Validação de Dados")
+                    if (
+                        description != ""
+                        and value >= 0.01
+                        and date != ""
+                        and category != "Selecione uma opção"
+                        and account != "Selecione uma opção"
+                    ):
+                        with data_validation_expander:
+                            st.success(body="Dados Válidos.")
 
-                            data_validation_expander = st.expander(label="Informações", expanded=True)
+                        actual_horary = call_actual_time.get_actual_time()
 
-                        if (
-                            description != ""
-                            and value >= 0.01
-                            and date != ""
-                            and category != "Selecione uma opção"
-                            and account != "Selecione uma opção"
-                        ):
-                            with data_validation_expander:
-                                st.success(body="Dados Válidos.")
+                        revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                        values = (
+                            description,
+                            value,
+                            date,
+                            actual_horary,
+                            category,
+                            account,
+                            user_name,
+                            user_document,
+                            received,
+                        )
+                        query_executor.insert_query(
+                            revenue_query,
+                            values,
+                            "Receita registrada com sucesso!",
+                            "Erro ao registrar receita:",
+                        )
 
-                            actual_horary = call_actual_time.get_actual_time()
-
-                            revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                            values = (
-                                description,
-                                value,
-                                date,
-                                actual_horary,
-                                category,
-                                account,
-                                user_name,
-                                user_document,
-                                received,
+                        log_query = """INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);"""
+                        if received == "S":
+                            log_values = (
+                                logged_user,
+                                "Registro",
+                                "Registrou uma receita no valor de R$ {} associada a conta {}.".format(
+                                    value, account
+                                ),
                             )
-                            query_executor.insert_query(
-                                revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
-                            
-                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            if received == 'S':
-                                log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(value, account))
-                            elif received == 'N':
-                                log_values = (logged_user, "Registro", "Registrou uma receita não recebida no valor de R$ {} associada a conta {}.".format(value, account))
-                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                        elif received == "N":
+                            log_values = (
+                                logged_user,
+                                "Registro",
+                                "Registrou uma receita não recebida no valor de R$ {} associada a conta {}.".format(
+                                    value, account
+                                ),
+                            )
+                        query_executor.insert_query(
+                            log_query, log_values, "Log gravado.", "Erro ao gravar log:"
+                        )
 
-                            with st.spinner("Aguarde..."):
-                                sleep(1)
+                        with st.spinner("Aguarde..."):
+                            sleep(1)
 
-                            st.subheader(
-                                body=":pencil: Comprovante de receita")
+                        st.subheader(body=":pencil: Comprovante de receita")
 
-                            receipt_executor.generate_receipt(
-                                'receitas', id, description, value, str(date), category, account)
+                        receipt_executor.generate_receipt(
+                            "receitas",
+                            id,
+                            description,
+                            value,
+                            str(date),
+                            category,
+                            account,
+                        )
 
-                        else:
-                            with data_validation_expander:
-                                st.error(
-                                    body=":warning: Algum dado está errado, revise-os.")
-
-        self.get_revenue = new_revenue
+                    else:
+                        with data_validation_expander:
+                            st.error(
+                                body=":warning: Algum dado está errado, revise-os."
+                            )

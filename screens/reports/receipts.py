@@ -19,11 +19,50 @@ from time import sleep
 
 
 class Receipts:
-    def __init__(self):
+        """
+        Classe responsável pela geração dos comprovantes de despesa, receita e transferências.
 
-        query_executor = QueryExecutor()
+        Attributes
+        ----------
+        validate_query(table, date, account, value)
+            Realiza a validação da consulta com base nos valores passados, retornando um valor booleano.
+        execute_query(table, id)
+            Realiza a execução da consulta no banco de dados de acordo com a tabela e o id passados.
+        treat_receipt_values(receipt_list)
+            Realiza o tratamento dos valores do comprovante.
+        generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account)
+            Gera o comprovante de transferência.
+        generate_receipt(id, description, value, date, category, origin_account, destiny_account)
+            Gera o comprovante de despesa e receita.
+        get_receipt_input()
+            Faz a coleta dos dados do comprovante.
+        """
 
-        def validate_query(table, date, account, value):
+        def validate_query(self, table: str, date: str, account: str, value: float):
+            """
+            Realiza a validação da consulta com base nos valores passados, retornando um valor booleano.
+
+            Parameters
+            ----------
+            table: str
+                Tabela da consulta.
+            date: str
+                Data da consulta.
+            account: str
+                Conta da consulta.
+            value: float
+                Valor da consulta.
+            
+            Returns
+            -------
+            id: int
+                O id da consulta.
+            data_exists: boolean
+                O valor booleano indicando se o registro existe ou não no banco de dados.
+            """
+
+            query_executor = QueryExecutor()
+
             if table == "despesas":
                 id_query = """
                             SELECT 
@@ -120,7 +159,24 @@ class Receipts:
 
             return id, data_exists
 
-        def execute_query(table, id):
+        def execute_query(self, table: str, id: int):
+            """
+            Realiza a execução da consulta no banco de dados de acordo com a tabela e o id passados.
+
+            Parameters
+            ----------
+            table: str
+                A tabela da consulta.
+            id: int
+                O id da consulta.
+
+            Returns
+            -------
+            consult_values: list
+                Os valores da consulta realizada no banco de dados.
+            """
+
+            query_executor = QueryExecutor()
 
             if table == "despesas_cartao_credito":
                 values_query = """SELECT id_despesa_cartao, descricao, valor, data, categoria, cartao FROM {} WHERE id_despesa_cartao = {};""".format(table, id)
@@ -133,7 +189,32 @@ class Receipts:
 
             return consult_values
 
-        def treat_receipt_values(receipt_list):
+        def treat_receipt_values(self, receipt_list: list):
+            """
+            Realiza o tratamento dos valores do comprovante.
+
+            Parameters
+            ----------
+            receipt_list: list
+                Lista com os dados do comprovante.
+            
+            Returns
+            -------
+            id: int
+                O id do comprovante.
+            description: str
+                A descrição do comprovante.
+            value: float
+                O valor do comprovante.
+            date: str
+                A data do comprovante.
+            category: str
+                A categoria do comprovante.
+            account: str
+                A conta do comprovante.
+            """
+
+            query_executor = QueryExecutor()
 
             len_lists_receipt = 0
             for i in range(0, len(receipt_list)):
@@ -167,7 +248,28 @@ class Receipts:
             else:
                 return 0, '', 0, '1999-12-31', '', '' 
 
-        def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
+        def generate_transfer_receipt(self, id: int, description: str, value: float, date: str, category: str, origin_account: str, destiny_account: str):
+            """
+            Gera o comprovante de transferência.
+
+            Parameters
+            ----------
+            id: int
+                O id do comprovante.
+            description: str
+                A descrição do comprovante.
+            value: float
+                O valor do comprovante.
+            date: str
+                A data do comprovante.
+            category: str
+                A categoria do comprovante.
+            origin_account: str
+                A conta de origem do comprovante.
+            destiny_account: str
+                A conta de destino do comprovante.
+            """
+
             reference_number = ""
             if id <= 9:
                 reference_number = """REF: 000{}""".format(id)
@@ -294,7 +396,26 @@ class Receipts:
                     file_name=caminho_arquivo,
                 )
 
-        def generate_receipt(table, id, description, value, date, category, account):
+        def generate_receipt(self, table: str, id: int, description: str, value: float, date: str, category: str, account: str):
+            """
+            Gera o comprovante de despesa e receita.
+
+            Parameters
+            ----------
+            id: int
+                O id do comprovante.
+            description: str
+                A descrição do comprovante.
+            value: float
+                O valor do comprovante.
+            date: str
+                A data do comprovante.
+            category: str
+                A categoria do comprovante.
+            account: str
+                A conta do comprovante.
+            """
+        
             if table == "receitas":
                 table = "RECEITA"
             elif table == "emprestimos":
@@ -409,7 +530,12 @@ class Receipts:
                     file_name="Relatorio_{}_{}.png".format(today, actual_horary),
                 )
 
-        def get_receipt_input():
+        def get_receipt_input(self):
+            """
+            Faz a coleta dos dados do comprovante.
+            """
+
+            query_executor = QueryExecutor()
             
             col4, col5, col6 = st.columns(3)
 
@@ -455,14 +581,14 @@ class Receipts:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        query_data, is_query_valid = validate_query(table, date, account, value)
+                        query_data, is_query_valid = self.validate_query(table, date, account, value)
 
                         if is_query_valid == True:
 
                             st.info("Registro encontrado: {}.".format(query_data))
 
                             with st.expander(label="Resultados", expanded=True):
-                                query = execute_query(table, query_data)
+                                query = self.execute_query(table, query_data)
 
                                 (
                                     id,
@@ -471,7 +597,7 @@ class Receipts:
                                     date,
                                     category,
                                     account,
-                                ) = treat_receipt_values(query)
+                                ) = self.treat_receipt_values(query)
 
                                 description = description.replace("'", "")
                                 formatted_date = datetime.strptime(date, "%Y-%m-%d")
@@ -516,7 +642,7 @@ class Receipts:
 
                             with col6:
                                 st.subheader(body=":pencil: Comprovante")
-                                generate_receipt(
+                                self.generate_receipt(
                                     table, id, description, value, date, category, account
                                 )
 
@@ -530,7 +656,3 @@ class Receipts:
 
             with col6:
                 st.write("")
-
-        self.get_receipt_data = get_receipt_input
-        self.generate_receipt = generate_receipt
-        self.generate_transfer_receipt = generate_transfer_receipt

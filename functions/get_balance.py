@@ -16,34 +16,86 @@ from functions.query_executor import QueryExecutor
 
 
 class GetBalance:
-    def __init__(self):
-        query_executor = QueryExecutor()
+        """
+        Classe responsável pelo cálculo total e detalhado das contas.
 
-        str_total_expenses = query_executor.simple_consult_query(total_expense_query)
-        str_total_expenses = query_executor.treat_simple_result(str_total_expenses, to_remove_list)
+        Attributes
+        ----------
+        calculate_total_revenues()
+            Realiza o cálculo do valor total das receitas e despesas.
+        balance()
+            Realiza o cálculo do saldo total.
+        accounts_balance()
+            Realiza o cálculo do saldo das contas.
+        list_values()
+            Realiza a consulta e retorno dos maiores e mais recentes registros de receitas e despesas.
+        """
+        
+        def calculate_total_revenues(self):
+            """
+            Realiza o cálculo do valor total das receitas e despesas.
 
-        if str_total_expenses == 'None':
-            total_expenses = 0.00
-        else:
-            total_expenses = float(str_total_expenses)
+            Returns
+            -------
+            total_revenues: float
+                O valor total das receitas.
+            total_expenses: float
+                O valor total das despesas.
+            """
 
-        str_total_revenues = query_executor.simple_consult_query(total_revenue_query)
-        str_total_revenues = query_executor.treat_simple_result(str_total_revenues, to_remove_list)
+            query_executor = QueryExecutor()
 
-        if str_total_revenues == 'None':
-            total_revenues = 0.00
+            str_total_expenses = query_executor.simple_consult_query(total_expense_query)
+            str_total_expenses = query_executor.treat_simple_result(str_total_expenses, to_remove_list)
+
+            if str_total_expenses == 'None':
+                total_expenses = 0.00
+            else:
+                total_expenses = float(str_total_expenses)
+
+            str_total_revenues = query_executor.simple_consult_query(total_revenue_query)
+            str_total_revenues = query_executor.treat_simple_result(str_total_revenues, to_remove_list)
+
+            if str_total_revenues == 'None':
+                total_revenues = 0.00
+                
+            else:
+                total_revenues = float(str_total_revenues)
+                
+            return total_revenues, total_expenses
+
+        def balance(self):
+            """
+            Realiza o cálculo do saldo total.
             
-        else:
-            total_revenues = float(str_total_revenues)
+            Returns
+            -------
+            balance: float
+                Retorna o valor do saldo total.
+            """
 
-        def get_balance():
+            total_revenues, total_expenses = self.calculate_total_revenues()
             if total_revenues is not None and total_expenses is not None:
                 balance = total_revenues - total_expenses
                 return balance
             else:
                 return None
 
-        def get_accounts_balance():
+        def accounts_balance(self):
+            """
+            Realiza o cálculo do saldo das contas.
+
+            Returns
+            -------
+            accounts: list
+                Lista das contas.
+            balance_list: list
+                Lista com o saldo das contas.
+            future_balance_list: list
+                Lista com o saldo futuro das contas.
+            """
+            query_executor = QueryExecutor()
+
             accounts_expenses = query_executor.complex_consult_query(accounts_expenses_query)
             accounts_expenses = query_executor.treat_numerous_simple_result(accounts_expenses, to_remove_list)
 
@@ -77,14 +129,26 @@ class GetBalance:
 
             return accounts, balance_list, future_balance_list
 
-        def list_values():
+        def list_values(self):
+            """
+            Realiza a consulta e retorno dos maiores e mais recentes registros de receitas e despesas.
+
+            Returns
+            -------
+            last_expenses: list
+                Lista com as últimas despesas.
+            last_revenues: list
+                Lista com as últimas receitas.
+            max_expenses: list
+                Lista com as maiores despesas.
+            max_revenues: list
+                Lista com as maiores receitas.
+            """
+            query_executor = QueryExecutor()
+
             last_expenses = query_executor.complex_consult_query(last_expense_query)
             last_revenues = query_executor.complex_consult_query(last_revenue_query)
             max_revenues = query_executor.complex_consult_query(max_revenue_query)
             max_expenses = query_executor.complex_consult_query(max_expense_query)
 
             return last_revenues, last_expenses, max_revenues, max_expenses
-
-        self.balance = get_balance
-        self.accounts_balance = get_accounts_balance
-        self.list_values = list_values

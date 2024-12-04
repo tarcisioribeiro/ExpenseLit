@@ -10,15 +10,34 @@ import streamlit as st
 
 
 class UpdateCreditCards:
-    def __init__(self):
+        """
+        Classe responsável por atualizar os dados e cadastrar o cartão de crédito.
 
-        call_credit_card = Credit_Card()
-        query_executor = QueryExecutor()
-        call_document = Documents()
+        Attributes
+        ----------
+        get_new_credit_card()
+            Realiza a coleta e cadastro de um novo cartão de crédito.
+        update_credit_card()
+            Realiza a coleta e atualização dos novos dados do cartão de crédito.
+        update_credit_card_invoices()
+            Realiza o cadastro das faturas do cartão de crédito.
+        show_interface()
+            Mostra a interface do cadastro e atualização do cartão de crédito.
+        """
+
+        
 
         col1, col2, col3 = st.columns(3)
 
-        def get_new_credit_card():
+        def get_new_credit_card(self):
+            """
+            Realiza a coleta e cadastro de um novo cartão de crédito.
+            """
+
+            col1, col2, col3 = st.columns(3)
+
+            query_executor = QueryExecutor()
+            call_document = Documents()
 
             user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
             user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -110,7 +129,13 @@ class UpdateCreditCards:
                                 else:
                                     st.error(body="Algum dado não foi informado. Revise-os.")
 
-        def update_credit_card():
+        def update_credit_card(self):
+            """
+            Realiza a coleta e atualização dos novos dados do cartão de crédito.
+            """
+
+            col1, col2, col3 = st.columns(3)
+            query_executor = QueryExecutor()
 
             credit_cards = query_executor.complex_consult_query(owner_cards_query)
             credit_cards = query_executor.treat_numerous_simple_result(credit_cards, to_remove_list)
@@ -171,7 +196,14 @@ class UpdateCreditCards:
                         log_values = (logged_user, "Registro", "Atualizou o limite do cartão {}.".format(card))
                         query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-        def update_credit_card_invoices():
+        def update_credit_card_invoices(self):
+            """
+            Realiza o cadastro das faturas do cartão de crédito.
+            """
+            col1, col2, col3 = st.columns(3)
+
+            query_executor = QueryExecutor()
+            call_credit_card = Credit_Card()
 
             credit_cards = query_executor.complex_consult_query(owner_cards_query)
             credit_cards = query_executor.treat_numerous_simple_result(credit_cards, to_remove_list)
@@ -236,7 +268,11 @@ class UpdateCreditCards:
                                         st.success(body="O ano informado é válido.")
                                         st.error(body="A data de ínicio da fatura não pode ser superior a data do fim da fatura.")
 
-        def show_interface():
+        def show_interface(self):
+            """
+            Mostra a interface do cadastro e atualização do cartão de crédito.
+            """
+            col1, col2, col3 = st.columns(3)
 
             with col3:
                 cm_cl1, cm_cl2 = st.columns(2)
@@ -253,12 +289,10 @@ class UpdateCreditCards:
                     )
 
             if cc_selected_option == "Cadastrar cartão":
-                get_new_credit_card()
+                self.get_new_credit_card()
 
             if cc_selected_option == "Atualizar cartão":
-                update_credit_card()
+                self.update_credit_card()
 
             if cc_selected_option == "Atualizar vencimentos de fatura":
-                update_credit_card_invoices()
-
-        self.credit_cards_interface = show_interface
+                self.update_credit_card_invoices()

@@ -5,34 +5,41 @@ import streamlit as st
 
 
 class Registers:
+    """
+    Classe que representa o menu principal dos cadastros.
 
-    def __init__(self):
+    Attributes
+    ----------
+    main_menu()
+        Representa o menu principal dos cadastros.
+    """
 
-        def registers_main_menu():
+    def main_menu(self):
+        """
+        Representa o menu principal dos cadastros.
+        """
 
-            col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-            registers_menu_options = ["Contas", "Cartões", "Usuários"]
+        registers_menu_options = ["Contas", "Cartões", "Usuários"]
 
-            with col1:
-                st.header(body=":memo: Cadastros")
+        with col1:
+            st.header(body=":memo: Cadastros")
 
-            with col2:
+        with col2:
 
-                selected_menu_option = st.selectbox(label="Menu", options=registers_menu_options)
+            selected_menu_option = st.selectbox(label="Menu", options=registers_menu_options)
 
-            st.divider()
-    
-            if selected_menu_option == registers_menu_options[0]:
-                call_account_update = UpdateAccounts()
-                call_account_update.show_interface()
+        st.divider()
 
-            elif selected_menu_option == registers_menu_options[1]:
-                call_credit_card_update = UpdateCreditCards()
-                call_credit_card_update.credit_cards_interface()
-            
-            elif selected_menu_option == registers_menu_options[2]:
-                call_create_user = CreateUser()
-                call_create_user.main_menu()
+        if selected_menu_option == registers_menu_options[0]:
+            call_account_update = UpdateAccounts()
+            call_account_update.show_interface()
 
-        self.main_menu = registers_main_menu
+        elif selected_menu_option == registers_menu_options[1]:
+            call_credit_card_update = UpdateCreditCards()
+            call_credit_card_update.show_interface()
+        
+        elif selected_menu_option == registers_menu_options[2]:
+            call_create_user = CreateUser()
+            call_create_user.main_menu()

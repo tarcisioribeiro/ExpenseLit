@@ -129,8 +129,9 @@ try:
                             st.session_state.is_logged_in = False
 
                         if st.session_state.is_logged_in:
-                            from screens.app import HomePage
-                            HomePage()
+                            from screens.app import App
+                            app = App()
+                            app.HomePage()
                         else:
                             try:
                                 call_user = User()
