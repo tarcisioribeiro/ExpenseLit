@@ -9,27 +9,12 @@ operational_system = os.name
 
 config_file_path: str = ".streamlit/config.toml"
 session_state_path: str = "data/cache/session_state.py"
-backup_sh_path: str = "services/backup.sh"
 absolute_app_path = os.getcwd()
 
 server_config = """
 [server]
 headless = true
 enableStaticServing = true
-"""
-
-light_theme_config = """[theme]
-primaryColor="#000033"
-backgroundColor="#CCCCCC"
-secondaryBackgroundColor="#03BB85"
-textColor="#000033"
-"""
-
-dark_theme_config = """[theme]
-primaryColor="#DCDCDC"
-backgroundColor="#333333"
-secondaryBackgroundColor="#084D6E"
-textColor="#FFFFF"
 """
 
 main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))

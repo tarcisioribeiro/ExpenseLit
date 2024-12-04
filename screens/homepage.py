@@ -51,7 +51,7 @@ class Home:
 
             credit_card = Credit_Card()
 
-            not_payed_expenses = credit_card.not_payed_expenses(selected_card="{}".format(selected_card))
+            not_payed_expenses = credit_card.not_payed_card_expenses(selected_card="{}".format(selected_card))
             month_expenses = credit_card.month_expenses(selected_card, string_actual_month)
             future_expenses = credit_card.future_expenses(selected_card="{}".format(selected_card))
             card_limit = credit_card.card_limit(selected_card=selected_card)

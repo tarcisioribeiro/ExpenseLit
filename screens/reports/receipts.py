@@ -445,7 +445,7 @@ class Receipts:
                         step=0.01,
                     )
 
-                send_value_button = st.button(label="Enviar dados")
+                send_value_button = st.button(label=":white_check_mark: Enviar dados")
 
                 if send_value_button:
 
