@@ -57,7 +57,7 @@ class User:
         else:
             return False
 
-    def get_user_doc_name(self):
+    def get_doc_name(self):
         """
         Realiza a busca do nome e documento do usuário.
 
@@ -141,7 +141,7 @@ class User:
                     login_button = st.button(label=":unlock: Entrar")
 
                     if login_button:
-                        if self.check_uservalidate_login(user, password):
+                        if self.validate_login(user, password):
                             with st.spinner("Aguarde..."):
                                 sleep(1)
                                 st.toast("Login bem-sucedido!")

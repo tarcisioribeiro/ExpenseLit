@@ -12,16 +12,39 @@ import streamlit as st
 
 
 class CreditCardInvoice:
-    def __init__(self):
+        """
+        Classe responsável pelo pagamento da fatura de cartão de crédito.
+
+        Attributes
+        ----------
+        show_expenses(selected_card, selected_month)
+            Exibe ao usuário as despesas do cartão de crédito no mês selecionado.
+        show_update_credit_card_invoices()
+            Exibe o menu de pagamento da fatura do cartão.
+        """
 
         col1, col2, col3 = st.columns(3)
 
         credit_card = Credit_Card()
-        generate_receipt = Receipts()
-        query_executor = QueryExecutor()
-        call_time = GetActualTime()
 
-        def show_expenses(selected_card: str, selected_month: str):
+        def show_expenses(self, selected_card: str, selected_month: str):
+            """
+            Exibe ao usuário as despesas do cartão de crédito no mês selecionado.
+
+            Parameters
+            ----------
+            selected_card: str
+                O cartão selecionado pelo usuário.
+            selected_month: str
+                O mês selecionado pelo usuário para exibição da fatura.
+            """
+
+            col1, col2, col3 = st.columns(3)
+
+            credit_card = Credit_Card()
+            call_time = GetActualTime()
+            query_executor = QueryExecutor()
+            generate_receipt = Receipts()
 
             month_expenses = credit_card.month_expenses(selected_card, selected_month)
 
@@ -126,7 +149,14 @@ class CreditCardInvoice:
                 with col3:
                     st.write("")
 
-        def show_update_credit_card_invoices():
+        def show_update_credit_card_invoices(self):
+            """
+            Exibe o menu de pagamento da fatura do cartão.
+            """
+
+            col1, col2, col3 = st.columns(3)
+
+            query_executor = QueryExecutor()
 
             user_cards = query_executor.complex_consult_query(owner_cards_query)
             user_cards = query_executor.treat_numerous_simple_result(user_cards, to_remove_list)
@@ -150,6 +180,4 @@ class CreditCardInvoice:
 
                         selected_month = st.selectbox(label="Selecione o mês", options=card_invoices)
 
-                show_expenses(selected_card, selected_month)
-
-        self.show_update_credit_card_invoices = show_update_credit_card_invoices
+                self.show_expenses(selected_card, selected_month)

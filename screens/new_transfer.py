@@ -15,7 +15,6 @@ from time import sleep
 
 
 class NewTransfer:
-
     """
     Classe que representa no programa a transferência de valores entre contas.
 

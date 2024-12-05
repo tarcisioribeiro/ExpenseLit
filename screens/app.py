@@ -14,14 +14,30 @@ from time import sleep
 
 
 class App:
+    """
+    Classe que representa a página inicial do aplicativo.
 
+    Attributes
+    ----------
+    logout()
+        Realiza a saída do usuário do aplicativo.
+    HomePage()
+        Exibe a página inicial do aplicativo.
+    """
 
     def logout(self):
+        """
+        Realiza a saída do usuário do aplicativo.
+        """
+
         st.session_state.is_logged_in = False
         st.rerun()
 
 
     def HomePage(self):
+        """
+        Exibe a página inicial do aplicativo.
+        """
 
         sidebar = st.sidebar
 
