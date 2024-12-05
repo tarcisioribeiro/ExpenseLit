@@ -5,6 +5,7 @@ from dictionary.sql import owner_cards_query, user_current_accounts_query
 from functions.credit_card import Credit_Card
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
+from functions.variables import Variables
 from time import sleep
 import streamlit as st
 
@@ -69,7 +70,7 @@ class UpdateCreditCards:
                             label="Conta associada", options=user_current_accounts
                         )
 
-                    send_form_button = st.button(label="Cadastrar cartão")
+                    send_form_button = st.button(label=":floppy_disk: Cadastrar cartão")
 
                     if send_form_button:
                         with col3:
@@ -200,6 +201,7 @@ class UpdateCreditCards:
             """
             Realiza o cadastro das faturas do cartão de crédito.
             """
+            variable = Variables()
             col1, col2, col3 = st.columns(3)
 
             query_executor = QueryExecutor()
@@ -216,7 +218,6 @@ class UpdateCreditCards:
                 with col1:
                     with st.expander(label="Dados da fatura", expanded=True):
                         card_name = st.selectbox(label="Cartão", options=credit_cards)
-                        card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
                         year = st.selectbox(label="Ano", options=years)
                         month = st.selectbox(label="Mês", options=months)
 
@@ -236,6 +237,8 @@ class UpdateCreditCards:
                             with st.expander(label="Validação dos dados", expanded=True):
 
                                 if card_name != "" and month != "" and beggining_invoice_date < ending_invoice_date:
+
+                                    card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
 
                                     with data_expander:
                                         st.success(body="Dados válidos.")

@@ -24,7 +24,7 @@ class NewTransfer:
         Realiza a coleta dos dados da transferência e a efetua.
     """
 
-    def new_transfer(self):
+    def get_transfer(self):
         """
         Apresenta na tela os dados que devem ser informados para que seja efetuada a transferência.
         """
