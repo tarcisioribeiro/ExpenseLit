@@ -15,7 +15,7 @@ FOLDER=$(pwd)
 #!/bin/bash
 
 while true; do
-    blue "Digite a senha de root:"
+    blue "\nDigite a senha de root:"
     read -s root_password
     blue "\nDigite a senha de root novamente: "
     read -s confirm_root_password
@@ -27,6 +27,8 @@ while true; do
         echo ""
         blue "Instalando dependências..."
         echo ""
+	    apt install nala -y
+	    sleep 1
         apt install build-essential git neofetch curl wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
         ufw enable
         ufw allow 8501
@@ -34,22 +36,23 @@ while true; do
         echo ""
         break
     else
-        red "Senha de root incorreta. Saindo..."
+        red "\nSenha de root incorreta. Saindo..."
         exit 1
     fi
 done
 
 while true; do
-    blue "Defina a senha do banco de dados: "
+    blue "\nDefina a senha do banco de dados: "
     read -s password
     blue "\nRepita a senha: "
     read -s confirmation
 
     if [ "$password" = "$confirmation" ]; then
-        green "\nSenhas coincidem. Configurando o banco de dados..."
+        green "\nSenhas coincidem. Configurando o banco de dados...\n"
         sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
         sleep 1
         echo ""
+        cd $FOLDER
         cd documentation/
         mysql -u root -p"$password" < implantation_financas.sql
         break
@@ -59,7 +62,10 @@ while true; do
 done
 
 cd $FOLDER
+sleep 1
+blue "\nCriando ambiente virtual...\n"
 python3 -m venv venv
+blue "\nAtivando ambiente virtual...\n"
 source venv/bin/activate
 pip install -r requirements.txt
 
@@ -83,6 +89,4 @@ sudo systemctl daemon-reload
 sudo systemctl start fcscript.service
 
 sleep 1
-echo ""
-green "Instalação concluída."
-echo ""
+green "\nInstalação concluída.\n"
