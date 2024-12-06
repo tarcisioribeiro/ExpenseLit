@@ -120,7 +120,7 @@ class AccountStatement:
                         }
                     )
 
-                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}")
+                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace('.', ','))
                     loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
                     st.dataframe(loan_data_df, hide_index=True, use_container_width=True)
         

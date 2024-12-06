@@ -10,6 +10,7 @@ from screens.registers.main import Registers
 from screens.reports.main import Reports
 from screens.revenues.main import NewRevenue
 from screens.new_transfer import NewTransfer
+from screens.configuration.main import Configuration
 from time import sleep
 
 
@@ -101,3 +102,7 @@ class App:
         elif sidebar_choice == "Cadastros":
             call_registers = Registers()
             call_registers.main_menu()
+
+        elif sidebar_choice == "Configurações":
+            configuration = Configuration()
+            configuration.main_menu()

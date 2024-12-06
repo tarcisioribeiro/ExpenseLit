@@ -530,7 +530,7 @@ class Receipts:
                     file_name="Relatorio_{}_{}.png".format(today, actual_horary),
                 )
 
-        def get_receipt_input(self):
+        def get_receipt_data(self):
             """
             Faz a coleta dos dados do comprovante.
             """

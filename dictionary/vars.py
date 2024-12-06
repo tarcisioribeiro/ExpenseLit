@@ -11,25 +11,22 @@ config_file_path: str = ".streamlit/config.toml"
 session_state_path: str = "data/cache/session_state.py"
 absolute_app_path = os.getcwd()
 
-dark_theme = '''
+dark_theme = '''[theme]
 primaryColor="#bd93f9"
 backgroundColor="#282a36"
 secondaryBackgroundColor="#44475a"
-textColor="#f8f8f2"
-'''
+textColor="#f8f8f2"'''
 
-light_theme = '''
+light_theme = '''[theme]
 primaryColor = "#bd93f9"
 backgroundColor = "#f8f8f2"
 secondaryBackgroundColor = "#e0e0e0"
-textColor = "#282a36"
-'''
+textColor = "#282a36"'''
 
 server_config = """
 [server]
 headless = true
-enableStaticServing = true
-"""
+enableStaticServing = true"""
 
 main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))
 
@@ -122,7 +119,7 @@ db_config = {
     "database": db_database,
 }
 
-menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar receita", "Registrar transferência", "Empréstimos", "Relatórios", "Cadastros"]
+menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar receita", "Registrar transferência", "Empréstimos", "Relatórios", "Cadastros", "Configurações"]
 expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]
 revenue_categories: list = ["Selecione uma opção","Ajuste","Depósito","Prêmio","Salário","Vale","Rendimentos"]
 transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]

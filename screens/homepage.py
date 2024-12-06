@@ -124,10 +124,10 @@ class Home:
             }
         )
         credit_card_data_df["Valor"] = credit_card_data_df["Valor"].apply(
-            lambda x: f"R$ {x:.2f}"
+            lambda x: f"R$ {x:.2f}".replace('.', ',')
         )
         credit_card_data_df["Porcentagem"] = credit_card_data_df["Porcentagem"].apply(
-            lambda x: f"{x:.2f}%"
+            lambda x: f"{x:.2f}%".replace('.', ',')
         )
         st.dataframe(credit_card_data_df, hide_index=True, use_container_width=True)
 
@@ -274,11 +274,11 @@ class Home:
                     )
 
                     balance_data_df["Valor"] = balance_data_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}"
+                        lambda x: f"R$ {x:.2f}".replace('.', ',')
                     )
                     balance_data_df["Valor Futuro"] = balance_data_df[
                         "Valor Futuro"
-                    ].apply(lambda x: f"R$ {x:.2f}")
+                    ].apply(lambda x: f"R$ {x:.2f}".replace('.', ','))
                     st.data_editor(
                         balance_data_df, hide_index=True, use_container_width=True
                     )
@@ -319,7 +319,7 @@ class Home:
                     )
 
                     revenue_df["Valor"] = revenue_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}"
+                        lambda x: f"R$ {x:.2f}".replace('.', ',')
                     )
                     revenue_df["Data"] = pd.to_datetime(revenue_df["Data"]).dt.strftime(
                         "%d/%m/%Y"
@@ -343,7 +343,7 @@ class Home:
                         ],
                     )
                     expense_df["Valor"] = expense_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}"
+                        lambda x: f"R$ {x:.2f}".replace('.', ',')
                     )
                     expense_df["Data"] = pd.to_datetime(expense_df["Data"]).dt.strftime(
                         "%d/%m/%Y"
@@ -368,7 +368,7 @@ class Home:
                     )
 
                     max_revenue_df["Valor"] = max_revenue_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}"
+                        lambda x: f"R$ {x:.2f}".replace('.', ',')
                     )
                     max_revenue_df["Data"] = pd.to_datetime(
                         max_revenue_df["Data"]
@@ -394,7 +394,7 @@ class Home:
                         ],
                     )
                     max_expense_df["Valor"] = max_expense_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}"
+                        lambda x: f"R$ {x:.2f}".replace('.', ',')
                     )
                     max_expense_df["Data"] = pd.to_datetime(
                         max_expense_df["Data"]
