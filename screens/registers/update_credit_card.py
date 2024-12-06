@@ -172,9 +172,9 @@ class UpdateCreditCards:
 
                         new_limit = st.number_input(label="Limite", min_value=0, max_value=cc_max_limit, step=1)
                         inactive = st.selectbox(label="Inativo", options=["S","N"])
-                        confirm_values = st.checkbox(label="Confirmar Dados")
+                        confirm_values = st.checkbox(label="Confirmar dsados")
 
-            send_data_button = st.button(label="Atualizar valores")
+            send_data_button = st.button(label=":floppy_disk: Atualizar valores")
 
             if confirm_values and send_data_button:
 

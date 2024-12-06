@@ -30,7 +30,7 @@ class Configuration:
         Apresenta o menu principal das configurações.
     """
 
-    def change_theme(self, theme_option: str):
+    def change_theme(self, theme_option: str, font_option: str):
         """
         Realiza a troca do tema de cores do sistema.
 
@@ -45,12 +45,22 @@ class Configuration:
         if theme_option == "Escuro":
             with open(config_archive, "w") as archive:
                 archive.write(dark_theme)
+                if font_option == "Selecione uma opção":
+                    pass
+                else:
+                    archive.write("\n")
+                    archive.write('font = "{}"'.format(font_option))
                 archive.write("\n")
                 archive.write(server_config)
 
         elif theme_option == "Claro":
             with open(config_archive, "w") as archive:
                 archive.write(light_theme)
+                if font_option == "Selecione uma opção":
+                    pass
+                else:
+                    archive.write("\n")
+                    archive.write('font = "{}"'.format(font_option))
                 archive.write("\n")
                 archive.write(server_config)
 
@@ -130,12 +140,13 @@ class Configuration:
         with col4:
             with st.expander(label="Aparência", expanded=True):
                 selected_theme = st.radio(label="Tema", options=["Escuro", "Claro"])
+                font_option = st.selectbox(label="Fonte", options=["Selecione uma opção", "sans serif", "serif", "monospace"])
 
             theme_confirm_option = st.button(label=":white_check_mark: Confirmar opção")
 
-        with col5:
+        with col4:
             if operational_system == "posix":
-                placeholder_text = "Ex: /home/usuario/Downloads"
+                placeholder_text = "Ex: /home/'usuario'/Downloads"
             elif operational_system == "nt":
                 placeholder_text = "Ex: C:\\Users\\usuario\\Downloads"
 
@@ -149,11 +160,12 @@ class Configuration:
             )
 
         if selected_theme != "" and theme_confirm_option:
-            with st.spinner(text="Aguarde..."):
+            with col5:
+                with st.spinner(text="Aguarde..."):
+                    sleep(2.5)
+                self.change_theme(selected_theme, font_option)
                 sleep(2.5)
-            self.change_theme(selected_theme)
-            sleep(2.5)
-            st.rerun()
+                st.rerun()
         else:
             ...
 
