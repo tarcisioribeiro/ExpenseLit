@@ -23,17 +23,12 @@ while true; do
     echo "$root_password" | sudo -S echo "Senha de root aceita."
 
     if [ $? -eq 0 ]; then
-        green "Você tem permissões de root. Continuando com o script..."
-        echo ""
-        blue "Instalando dependências..."
-        echo ""
-	    apt install nala -y
-	    sleep 1
+        green "\nVocê tem permissões de root. Continuando com o script..."
+        blue "\nInstalando dependências..."
         apt install build-essential git neofetch curl wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
         ufw enable
         ufw allow 8501
         ufw allow OpenSSH
-        echo ""
         break
     else
         red "\nSenha de root incorreta. Saindo..."
@@ -48,24 +43,20 @@ while true; do
     read -s confirmation
 
     if [ "$password" = "$confirmation" ]; then
-        green "\nSenhas coincidem. Configurando o banco de dados...\n"
+        green "\nSenhas coincidem. Configurando o banco de dados..."
         sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
-        sleep 1
-        echo ""
-        cd $FOLDER
         cd documentation/
         mysql -u root -p"$password" < implantation_financas.sql
         break
     else
-        red "\nAs senhas não coincidem. Tente novamente.\n"
+        red "\nAs senhas não coincidem. Tente novamente."
     fi
 done
 
 cd $FOLDER
-sleep 1
-blue "\nCriando ambiente virtual...\n"
+blue "\nCriando ambiente virtual..."
 python3 -m venv venv
-blue "\nAtivando ambiente virtual...\n"
+blue "\nAtivando ambiente virtual..."
 source venv/bin/activate
 pip install -r requirements.txt
 
@@ -88,5 +79,4 @@ sudo systemctl enable fcscript.service
 sudo systemctl daemon-reload
 sudo systemctl start fcscript.service
 
-sleep 1
 green "\nInstalação concluída.\n"
