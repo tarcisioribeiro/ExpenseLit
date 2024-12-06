@@ -105,7 +105,6 @@ class Configuration:
             modified_archive = Path(backup_shell_script_name)
             modified_archive.chmod(0o777)
 
-
             with st.spinner(text="Navegando ao diretório {}...".format(backup_path)):
                 sleep(2)
             with st.spinner(
@@ -114,6 +113,7 @@ class Configuration:
                 sleep(2)
             try:
                 subprocess.run(["bash", backup_shell_script_name], check=True, text=True, capture_output=True)
+                os.remove(backup_shell_script_name)
                 absolute_backup_archive_path = backup_path + "/" + backup_archive_name
                 modified_backup_archive = Path(absolute_backup_archive_path)
                 modified_backup_archive.chmod(0o777)
