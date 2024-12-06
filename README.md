@@ -9,6 +9,6 @@ Um aplicativo de controle financeiro feito em **Python**, através do framework 
 
 * Para poder utilizar o sistema, faça a instalação do serviço, através do usuário **root**, pelos comandos abaixo:
 
-        git clone httpś://github.com/tarcisiorbeiro/Finances_Controller.git
+        git clone https://github.com/tarcisioribeiro/Finances_Controller.git
         cd Finances_Controller/
-        ./services/install_service.sh
+        sudo ./services/install_service.sh
