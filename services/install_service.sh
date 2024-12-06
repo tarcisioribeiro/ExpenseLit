@@ -28,58 +28,60 @@ while true; do
         blue "Instalando dependências..."
         echo ""
         apt install build-essential git neofetch curl wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
+        ufw enable
+        ufw allow 8501
+        ufw allow OpenSSH
         echo ""
-
-        while true; do
-            blue "Defina a senha do banco de dados: "
-            read -s password
-            blue "\nRepita a senha: "
-            read -s confirmation
-
-            if [ "$password" = "$confirmation" ]; then
-                green "\nSenhas coincidem. Configurando o banco de dados..."
-                sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
-                sleep 1
-                echo ""
-                cd documentation/
-                mysql -u root -p"$password" < implantation_financas.sql
-                break
-            else
-                red "\nAs senhas não coincidem. Tente novamente.\n"
-            fi
-        done
-
-        cd $FOLDER
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-
-        echo "#!/bin/bash" >> fcscript.sh
-        echo "cd $FOLDER" >> fcscript.sh
-        echo "source venv/bin/activate" >> fcscript.sh
-        echo "streamlit run main.py --server.port 8501" >> fcscript.sh
-        chmod u+x fcscript.sh
-        sudo mv fcscript.sh /usr/bin/
-
-        echo "[Unit]" >> fcscript.service
-        echo "Description=Controle Financeiro" >> fcscript.service
-        echo "[Service]" >> fcscript.service
-        echo "ExecStart=/usr/bin/fcscript.sh" >> fcscript.service
-        echo "[Install]" >> fcscript.service
-        echo "WantedBy=multi-user.target" >> fcscript.service
-        sudo mv fcscript.service /lib/systemd/system
-
-        sudo systemctl enable fcscript.service
-        sudo systemctl daemon-reload
-        sudo systemctl start fcscript.service
-
-        sleep 1
-        echo ""
-        green "Instalação concluída."
-        echo ""
-        sleep 1 
     else
         red "Senha de root incorreta. Saindo..."
         exit 1
     fi
 done
+
+while true; do
+    blue "Defina a senha do banco de dados: "
+    read -s password
+    blue "\nRepita a senha: "
+    read -s confirmation
+
+    if [ "$password" = "$confirmation" ]; then
+        green "\nSenhas coincidem. Configurando o banco de dados..."
+        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
+        sleep 1
+        echo ""
+        cd documentation/
+        mysql -u root -p"$password" < implantation_financas.sql
+        break
+    else
+        red "\nAs senhas não coincidem. Tente novamente.\n"
+    fi
+done
+
+    cd $FOLDER
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
+    echo "#!/bin/bash" >> fcscript.sh
+    echo "cd $FOLDER" >> fcscript.sh
+    echo "source venv/bin/activate" >> fcscript.sh
+    echo "streamlit run main.py --server.port 8501" >> fcscript.sh
+    chmod u+x fcscript.sh
+    sudo mv fcscript.sh /usr/bin/
+
+    echo "[Unit]" >> fcscript.service
+    echo "Description=Controle Financeiro" >> fcscript.service
+    echo "[Service]" >> fcscript.service
+    echo "ExecStart=/usr/bin/fcscript.sh" >> fcscript.service
+    echo "[Install]" >> fcscript.service
+    echo "WantedBy=multi-user.target" >> fcscript.service
+    sudo mv fcscript.service /lib/systemd/system
+
+    sudo systemctl enable fcscript.service
+    sudo systemctl daemon-reload
+    sudo systemctl start fcscript.service
+
+    sleep 1
+    echo ""
+    green "Instalação concluída."
+    echo ""
