@@ -82,3 +82,4 @@ while true; do
         red "Senha de root incorreta. Saindo..."
         exit 1
     fi
+done
