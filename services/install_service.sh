@@ -32,6 +32,7 @@ while true; do
         ufw allow 8501
         ufw allow OpenSSH
         echo ""
+        break
     else
         red "Senha de root incorreta. Saindo..."
         exit 1
@@ -57,31 +58,31 @@ while true; do
     fi
 done
 
-    cd $FOLDER
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+cd $FOLDER
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
-    echo "#!/bin/bash" >> fcscript.sh
-    echo "cd $FOLDER" >> fcscript.sh
-    echo "source venv/bin/activate" >> fcscript.sh
-    echo "streamlit run main.py --server.port 8501" >> fcscript.sh
-    chmod u+x fcscript.sh
-    sudo mv fcscript.sh /usr/bin/
+echo "#!/bin/bash" >> fcscript.sh
+echo "cd $FOLDER" >> fcscript.sh
+echo "source venv/bin/activate" >> fcscript.sh
+echo "streamlit run main.py --server.port 8501" >> fcscript.sh
+chmod u+x fcscript.sh
+sudo mv fcscript.sh /usr/bin/
 
-    echo "[Unit]" >> fcscript.service
-    echo "Description=Controle Financeiro" >> fcscript.service
-    echo "[Service]" >> fcscript.service
-    echo "ExecStart=/usr/bin/fcscript.sh" >> fcscript.service
-    echo "[Install]" >> fcscript.service
-    echo "WantedBy=multi-user.target" >> fcscript.service
-    sudo mv fcscript.service /lib/systemd/system
+echo "[Unit]" >> fcscript.service
+echo "Description=Controle Financeiro" >> fcscript.service
+echo "[Service]" >> fcscript.service
+echo "ExecStart=/usr/bin/fcscript.sh" >> fcscript.service
+echo "[Install]" >> fcscript.service
+echo "WantedBy=multi-user.target" >> fcscript.service
+sudo mv fcscript.service /lib/systemd/system
 
-    sudo systemctl enable fcscript.service
-    sudo systemctl daemon-reload
-    sudo systemctl start fcscript.service
+sudo systemctl enable fcscript.service
+sudo systemctl daemon-reload
+sudo systemctl start fcscript.service
 
-    sleep 1
-    echo ""
-    green "Instalação concluída."
-    echo ""
+sleep 1
+echo ""
+green "Instalação concluída."
+echo ""
