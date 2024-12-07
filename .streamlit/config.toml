@@ -3,7 +3,7 @@ primaryColor = "#bd93f9"
 backgroundColor = "#f8f8f2"
 secondaryBackgroundColor = "#e0e0e0"
 textColor = "#282a36"
-font = "serif"
+font = "sans serif"
 
 [server]
 headless = true
