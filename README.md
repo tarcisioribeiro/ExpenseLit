@@ -2,12 +2,15 @@
 
 Um aplicativo de controle financeiro feito em **Python**, através do framework **Streamlit**. Integrado ao banco de dados **MySQL**, permite o controle de receitas e despesas.
 
-* Primeiramente, assegure-se de ter os seguintes pacotes instalados em sua distro **Linux**:
-        
-        build-essential git neofetch curl wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl
+## Instalação em ambiente **Linux**
 
-* Para poder utilizar o sistema, faça a instalação do serviço, através do usuário **root**, pelos comandos abaixo:
+* Para poder utilizar o sistema, faça a instalação do serviço, abrindo um terminal, e executando os comandos abaixo:
 
-        git clone https://github.com/tarcisioribeiro/ExpenseLit_.git
+        sudo apt update
+        sudo apt upgrade
+        sudo apt install git
+        git clone https://github.com/tarcisioribeiro/ExpenseLit.git
         cd Finances_Controller/
         sudo ./services/install_service.sh
+
+A execução do script **install_service.sh** automaticamente realizará a instalação das dependências e configuração do ambiente da aplicação.
