@@ -2,67 +2,21 @@ import pandas as pd
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from datetime import datetime
-from dictionary.vars import (
-    accounts,
-    accounts_images_paths,
-    operational_system,
-    today,
-    actual_horary,
-    to_remove_list,
-    absolute_app_path,
-    accounts_images,
-    transfer_image
-)
+from dictionary.vars import accounts, accounts_images_paths, operational_system, today, actual_horary, to_remove_list, absolute_app_path, accounts_images, transfer_image
+from dictionary.sql import user_current_accounts_query
 from functions.query_executor import QueryExecutor
+from functions.variables import Variables
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
 
 
 class Receipts:
-        """
-        Classe responsável pela geração dos comprovantes de despesa, receita e transferências.
+    def __init__(self):
 
-        Attributes
-        ----------
-        validate_query(table, date, account, value)
-            Realiza a validação da consulta com base nos valores passados, retornando um valor booleano.
-        execute_query(table, id)
-            Realiza a execução da consulta no banco de dados de acordo com a tabela e o id passados.
-        treat_receipt_values(receipt_list)
-            Realiza o tratamento dos valores do comprovante.
-        generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account)
-            Gera o comprovante de transferência.
-        generate_receipt(id, description, value, date, category, origin_account, destiny_account)
-            Gera o comprovante de despesa e receita.
-        get_receipt_input()
-            Faz a coleta dos dados do comprovante.
-        """
+        query_executor = QueryExecutor()
+        variable = Variables()
 
-        def validate_query(self, table: str, date: str, account: str, value: float):
-            """
-            Realiza a validação da consulta com base nos valores passados, retornando um valor booleano.
-
-            Parameters
-            ----------
-            table: str
-                Tabela da consulta.
-            date: str
-                Data da consulta.
-            account: str
-                Conta da consulta.
-            value: float
-                Valor da consulta.
-            
-            Returns
-            -------
-            id: int
-                O id da consulta.
-            data_exists: boolean
-                O valor booleano indicando se o registro existe ou não no banco de dados.
-            """
-
-            query_executor = QueryExecutor()
-
+        def validate_query(table, date, account, value):
             if table == "despesas":
                 id_query = """
                             SELECT 
@@ -159,24 +113,7 @@ class Receipts:
 
             return id, data_exists
 
-        def execute_query(self, table: str, id: int):
-            """
-            Realiza a execução da consulta no banco de dados de acordo com a tabela e o id passados.
-
-            Parameters
-            ----------
-            table: str
-                A tabela da consulta.
-            id: int
-                O id da consulta.
-
-            Returns
-            -------
-            consult_values: list
-                Os valores da consulta realizada no banco de dados.
-            """
-
-            query_executor = QueryExecutor()
+        def execute_query(table, id):
 
             if table == "despesas_cartao_credito":
                 values_query = """SELECT id_despesa_cartao, descricao, valor, data, categoria, cartao FROM {} WHERE id_despesa_cartao = {};""".format(table, id)
@@ -189,32 +126,7 @@ class Receipts:
 
             return consult_values
 
-        def treat_receipt_values(self, receipt_list: list):
-            """
-            Realiza o tratamento dos valores do comprovante.
-
-            Parameters
-            ----------
-            receipt_list: list
-                Lista com os dados do comprovante.
-            
-            Returns
-            -------
-            id: int
-                O id do comprovante.
-            description: str
-                A descrição do comprovante.
-            value: float
-                O valor do comprovante.
-            date: str
-                A data do comprovante.
-            category: str
-                A categoria do comprovante.
-            account: str
-                A conta do comprovante.
-            """
-
-            query_executor = QueryExecutor()
+        def treat_receipt_values(receipt_list):
 
             len_lists_receipt = 0
             for i in range(0, len(receipt_list)):
@@ -248,27 +160,7 @@ class Receipts:
             else:
                 return 0, '', 0, '1999-12-31', '', '' 
 
-        def generate_transfer_receipt(self, id: int, description: str, value: float, date: str, category: str, origin_account: str, destiny_account: str):
-            """
-            Gera o comprovante de transferência.
-
-            Parameters
-            ----------
-            id: int
-                O id do comprovante.
-            description: str
-                A descrição do comprovante.
-            value: float
-                O valor do comprovante.
-            date: str
-                A data do comprovante.
-            category: str
-                A categoria do comprovante.
-            origin_account: str
-                A conta de origem do comprovante.
-            destiny_account: str
-                A conta de destino do comprovante.
-            """
+        def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
 
             reference_number = ""
             if id <= 9:
@@ -396,26 +288,8 @@ class Receipts:
                     file_name=caminho_arquivo,
                 )
 
-        def generate_receipt(self, table: str, id: int, description: str, value: float, date: str, category: str, account: str):
-            """
-            Gera o comprovante de despesa e receita.
+        def generate_receipt(table, id, description, value, date, category, account):
 
-            Parameters
-            ----------
-            id: int
-                O id do comprovante.
-            description: str
-                A descrição do comprovante.
-            value: float
-                O valor do comprovante.
-            date: str
-                A data do comprovante.
-            category: str
-                A categoria do comprovante.
-            account: str
-                A conta do comprovante.
-            """
-        
             if table == "receitas":
                 table = "RECEITA"
             elif table == "emprestimos":
@@ -530,129 +404,113 @@ class Receipts:
                     file_name="Relatorio_{}_{}.png".format(today, actual_horary),
                 )
 
-        def get_receipt_data(self):
-            """
-            Faz a coleta dos dados do comprovante.
-            """
+        def get_receipt_input():
 
-            query_executor = QueryExecutor()
-            
             col4, col5, col6 = st.columns(3)
 
-            with col4:
-                st.subheader(body=":computer: Entrada de dados")
+            user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
+            user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
-                with st.expander(label="Filtros", expanded=True):
-                    report_type = st.selectbox(
-                        label="Relatório",
-                        options=[
-                            "Despesa",
-                            "Despesa de Cartão",
-                            "Receita",
-                            "Empréstimos",
-                        ],
-                    )
+            if len(user_current_accounts) > 0:
 
-                    if report_type == "Despesa":
-                        table = "despesas"
-                    elif report_type == "Despesa de Cartão":
-                        table = "despesas_cartao_credito"
-                    elif report_type == "Receita":
-                        table = "receitas"
-                    elif report_type == "Empréstimos":
-                        table = "emprestimos"
+                with col4:
 
-                    date = st.date_input(label="Data")
-                    account = st.selectbox(label="Conta", options=accounts)
-                    value = st.number_input(
-                        label="Valor",
-                        placeholder="Informe o valor",
-                        min_value=0.01,
-                        step=0.01,
-                    )
+                    receipt_options = {
+                        "Despesa": "despesas",
+                        "Despesa de Cartão": "despesas_cartao_credito",
+                        "Receita": "receitas",
+                        "Empréstimo": "emprestimos"
+                    }
 
-                send_value_button = st.button(label=":white_check_mark: Enviar dados")
+                    with st.expander(label="Filtros", expanded=True):
+                        report_type = st.selectbox(label="Relatório", options=receipt_options.keys())
+                        date = st.date_input(label="Data")
+                        account = st.selectbox(label="Conta", options=accounts)
+                        value = st.number_input(label="Valor",placeholder="Informe o valor",min_value=0.01,step=0.01)
+                        confirm_data = st.checkbox(label="Confirmar dados")
 
-                if send_value_button:
+                    send_value_button = st.button(label=":white_check_mark: Enviar dados")
 
-                    with col5:
-                        st.subheader(body=":page_facing_up: Resultados")
+                    if send_value_button and confirm_data:
 
-                        with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                        table = receipt_options[report_type]
 
-                        query_data, is_query_valid = self.validate_query(table, date, account, value)
-
-                        if is_query_valid == True:
-
-                            st.info("Registro encontrado: {}.".format(query_data))
-
-                            with st.expander(label="Resultados", expanded=True):
-                                query = self.execute_query(table, query_data)
-
-                                (
-                                    id,
-                                    description,
-                                    value,
-                                    date,
-                                    category,
-                                    account,
-                                ) = self.treat_receipt_values(query)
-
-                                description = description.replace("'", "")
-                                formatted_date = datetime.strptime(date, "%Y-%m-%d")
-                                formatted_date = formatted_date.strftime("%d/%m/%Y")
-
-                                formatted_value = str(value)
-                                formatted_value = "R$ " + formatted_value.replace(".", ",")
-
-                                if value % 1 == 0 or len(str(value)) == 3:
-                                    formatted_value = formatted_value + "0"
-
-                                category = category.replace("'", "")
-                                account = account.replace("'", "")
-
-                                credit_card_data_df = pd.DataFrame(
-                                    {
-                                        "Categoria": [
-                                            "Descrição",
-                                            "Valor",
-                                            "Data",
-                                            "Categoria",
-                                            "Conta",
-                                        ],
-                                        "Valor": [
-                                            description,
-                                            formatted_value,
-                                            formatted_date,
-                                            category,
-                                            account,
-                                        ],
-                                    }
-                                )
-
-                                st.dataframe(
-                                    credit_card_data_df,
-                                    hide_index=True,
-                                    use_container_width=True,
-                                )
+                        with col5:
+                            st.subheader(body=":page_facing_up: Resultados")
 
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            with col6:
-                                st.subheader(body=":pencil: Comprovante")
-                                self.generate_receipt(
-                                    table, id, description, value, date, category, account
-                                )
+                            query_data, is_query_valid = validate_query(table, date, account, value)
 
-                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(report_type, date, account))
-                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            if is_query_valid == True:
 
-                        elif is_query_valid == False:
-                            with st.expander(label="Resultados", expanded=True):
-                                st.info("Nenhum resultado Encontrado.")
+                                st.info("Registro encontrado: {}.".format(query_data))
 
-            with col6:
-                st.write("")
+                                with st.expander(label="Resultados", expanded=True):
+                                    
+                                    query = execute_query(table, query_data)
+                                    id, description, value, date, category, account = treat_receipt_values(query)
+
+                                    description = description.replace("'", "")
+                                    formatted_date = datetime.strptime(date, "%Y-%m-%d")
+                                    formatted_date = formatted_date.strftime("%d/%m/%Y")
+
+                                    formatted_value = str(value)
+                                    formatted_value = "R$ " + formatted_value.replace(".", ",")
+
+                                    if value % 1 == 0 or len(str(value)) == 3:
+                                        formatted_value = formatted_value + "0"
+
+                                    category = category.replace("'", "")
+                                    account = account.replace("'", "")
+
+                                    credit_card_data_df = pd.DataFrame(
+                                        {
+                                            "Categoria": [
+                                                "Descrição",
+                                                "Valor",
+                                                "Data",
+                                                "Categoria",
+                                                "Conta",
+                                            ],
+                                            "Valor": [
+                                                description,
+                                                formatted_value,
+                                                formatted_date,
+                                                category,
+                                                account,
+                                            ],
+                                        }
+                                    )
+
+                                    st.dataframe(
+                                        credit_card_data_df,
+                                        hide_index=True,
+                                        use_container_width=True,
+                                    )
+
+                                with st.spinner(text="Aguarde..."):
+                                    sleep(2.5)
+
+                                with col6:
+                                    st.subheader(body=":pencil: Comprovante")
+                                    generate_receipt(
+                                        table, id, description, value, date, category, account
+                                    )
+
+                                log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(report_type, date, account))
+                                query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+
+                            elif is_query_valid == False:
+                                with st.expander(label="Resultados", expanded=True):
+                                    st.info("Nenhum resultado Encontrado.")
+
+            elif len(user_current_accounts) == 0:
+                with col5:
+                    st.warning(body="Você ainda não possui contas cadastradas.")
+                    
+        self.get_receipt_data = get_receipt_input
+        self.generate_receipt = generate_receipt
+        self.generate_transfer_receipt = generate_transfer_receipt

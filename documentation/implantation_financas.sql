@@ -33,11 +33,11 @@ DROP TABLE IF EXISTS `beneficiados`;
 CREATE TABLE `beneficiados` (
   `id_beneficiado` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) DEFAULT NULL,
-  `cpf_cnpj` bigint NOT NULL,
-  `tel_celular` varchar(11) NOT NULL DEFAULT '0',
+  `documento` bigint NOT NULL,
+  `telefone` varchar(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_beneficiado`),
-  UNIQUE KEY `chave_beneficiado` (`nome`,`cpf_cnpj`,`tel_celular`),
-  UNIQUE KEY `idx_beneficiado` (`nome`,`cpf_cnpj`)
+  UNIQUE KEY `chave_beneficiado` (`nome`,`documento`,`telefone`),
+  UNIQUE KEY `idx_beneficiado` (`nome`,`documento`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -129,11 +129,11 @@ DROP TABLE IF EXISTS `credores`;
 CREATE TABLE `credores` (
   `id_credor` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
-  `cpf_cnpj` bigint NOT NULL,
-  `tel_celular` varchar(11) NOT NULL DEFAULT '0',
+  `documento` bigint NOT NULL,
+  `telefone` varchar(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_credor`),
-  UNIQUE KEY `chave_credor` (`nome`,`cpf_cnpj`,`tel_celular`),
-  UNIQUE KEY `idx_credor` (`nome`,`cpf_cnpj`)
+  UNIQUE KEY `chave_credor` (`nome`,`documento`,`telefone`),
+  UNIQUE KEY `idx_credor` (`nome`,`documento`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -242,8 +242,8 @@ CREATE TABLE `emprestimos` (
   KEY `fk_emprestimos_contas` (`conta`),
   KEY `fk_beneficiado_emprestimo` (`devedor`,`documento_devedor`),
   KEY `fk_credor_emprestimo` (`credor`,`documento_credor`),
-  CONSTRAINT `fk_beneficiado_emprestimo` FOREIGN KEY (`devedor`, `documento_devedor`) REFERENCES `beneficiados` (`nome`, `cpf_cnpj`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_credor_emprestimo` FOREIGN KEY (`credor`, `documento_credor`) REFERENCES `credores` (`nome`, `cpf_cnpj`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_beneficiado_emprestimo` FOREIGN KEY (`devedor`, `documento_devedor`) REFERENCES `beneficiados` (`nome`, `documento`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_credor_emprestimo` FOREIGN KEY (`credor`, `documento_credor`) REFERENCES `credores` (`nome`, `documento`) ON DELETE RESTRICT,
   CONSTRAINT `fk_emprestimos_contas` FOREIGN KEY (`conta`) REFERENCES `contas` (`nome_conta`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -403,6 +403,7 @@ CREATE TABLE `usuarios` (
   `senha` varchar(100) NOT NULL,
   `nome` varchar(100) NOT NULL,
   `cpf` bigint NOT NULL,
+  `telefone` varchar(11),
   `sexo` char(1) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `chave_usuario` (`login`,`senha`),

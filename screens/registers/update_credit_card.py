@@ -5,40 +5,20 @@ from dictionary.sql import owner_cards_query, user_current_accounts_query
 from functions.credit_card import Credit_Card
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
-from functions.variables import Variables
 from time import sleep
 import streamlit as st
 
 
 class UpdateCreditCards:
-        """
-        Classe responsável por atualizar os dados e cadastrar o cartão de crédito.
+    def __init__(self):
 
-        Attributes
-        ----------
-        get_new_credit_card()
-            Realiza a coleta e cadastro de um novo cartão de crédito.
-        update_credit_card()
-            Realiza a coleta e atualização dos novos dados do cartão de crédito.
-        update_credit_card_invoices()
-            Realiza o cadastro das faturas do cartão de crédito.
-        show_interface()
-            Mostra a interface do cadastro e atualização do cartão de crédito.
-        """
-
-        
+        call_credit_card = Credit_Card()
+        query_executor = QueryExecutor()
+        call_document = Documents()
 
         col1, col2, col3 = st.columns(3)
 
-        def get_new_credit_card(self):
-            """
-            Realiza a coleta e cadastro de um novo cartão de crédito.
-            """
-
-            col1, col2, col3 = st.columns(3)
-
-            query_executor = QueryExecutor()
-            call_document = Documents()
+        def get_new_credit_card():
 
             user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
             user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -70,7 +50,7 @@ class UpdateCreditCards:
                             label="Conta associada", options=user_current_accounts
                         )
 
-                    send_form_button = st.button(label=":floppy_disk: Cadastrar cartão")
+                    send_form_button = st.button(label="Cadastrar cartão")
 
                     if send_form_button:
                         with col3:
@@ -130,13 +110,7 @@ class UpdateCreditCards:
                                 else:
                                     st.error(body="Algum dado não foi informado. Revise-os.")
 
-        def update_credit_card(self):
-            """
-            Realiza a coleta e atualização dos novos dados do cartão de crédito.
-            """
-
-            col1, col2, col3 = st.columns(3)
-            query_executor = QueryExecutor()
+        def update_credit_card():
 
             credit_cards = query_executor.complex_consult_query(owner_cards_query)
             credit_cards = query_executor.treat_numerous_simple_result(credit_cards, to_remove_list)
@@ -172,9 +146,9 @@ class UpdateCreditCards:
 
                         new_limit = st.number_input(label="Limite", min_value=0, max_value=cc_max_limit, step=1)
                         inactive = st.selectbox(label="Inativo", options=["S","N"])
-                        confirm_values = st.checkbox(label="Confirmar dsados")
+                        confirm_values = st.checkbox(label="Confirmar Dados")
 
-            send_data_button = st.button(label=":floppy_disk: Atualizar valores")
+            send_data_button = st.button(label="Atualizar valores")
 
             if confirm_values and send_data_button:
 
@@ -197,15 +171,7 @@ class UpdateCreditCards:
                         log_values = (logged_user, "Registro", "Atualizou o limite do cartão {}.".format(card))
                         query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-        def update_credit_card_invoices(self):
-            """
-            Realiza o cadastro das faturas do cartão de crédito.
-            """
-            variable = Variables()
-            col1, col2, col3 = st.columns(3)
-
-            query_executor = QueryExecutor()
-            call_credit_card = Credit_Card()
+        def update_credit_card_invoices():
 
             credit_cards = query_executor.complex_consult_query(owner_cards_query)
             credit_cards = query_executor.treat_numerous_simple_result(credit_cards, to_remove_list)
@@ -218,6 +184,7 @@ class UpdateCreditCards:
                 with col1:
                     with st.expander(label="Dados da fatura", expanded=True):
                         card_name = st.selectbox(label="Cartão", options=credit_cards)
+                        card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
                         year = st.selectbox(label="Ano", options=years)
                         month = st.selectbox(label="Mês", options=months)
 
@@ -226,7 +193,7 @@ class UpdateCreditCards:
                             beggining_invoice_date = st.date_input(label="Início")
                             ending_invoice_date = st.date_input(label="Fim")
 
-                    register_invoice = st.button(label=":floppy_disk: Registrar fechamento")
+                    register_invoice = st.button(label="Registrar fechamento")
 
                     with col2:
                         data_expander = st.expander(label="Validação dos dados", expanded=True)
@@ -237,8 +204,6 @@ class UpdateCreditCards:
                             with st.expander(label="Validação dos dados", expanded=True):
 
                                 if card_name != "" and month != "" and beggining_invoice_date < ending_invoice_date:
-
-                                    card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
 
                                     with data_expander:
                                         st.success(body="Dados válidos.")
@@ -271,11 +236,7 @@ class UpdateCreditCards:
                                         st.success(body="O ano informado é válido.")
                                         st.error(body="A data de ínicio da fatura não pode ser superior a data do fim da fatura.")
 
-        def show_interface(self):
-            """
-            Mostra a interface do cadastro e atualização do cartão de crédito.
-            """
-            col1, col2, col3 = st.columns(3)
+        def show_interface():
 
             with col3:
                 cm_cl1, cm_cl2 = st.columns(2)
@@ -292,10 +253,12 @@ class UpdateCreditCards:
                     )
 
             if cc_selected_option == "Cadastrar cartão":
-                self.get_new_credit_card()
+                get_new_credit_card()
 
             if cc_selected_option == "Atualizar cartão":
-                self.update_credit_card()
+                update_credit_card()
 
             if cc_selected_option == "Atualizar vencimentos de fatura":
-                self.update_credit_card_invoices()
+                update_credit_card_invoices()
+
+        self.credit_cards_interface = show_interface

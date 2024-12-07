@@ -531,7 +531,7 @@ name_query: str = (
 sex_query: str = "SELECT sexo FROM usuarios WHERE login = '{}' AND senha = '{}'".format(
     logged_user, logged_user_password
 )
-doc_name_query = """SELECT usuarios.nome, usuarios.cpf FROM usuarios WHERE login = '{}' AND senha = '{}'""".format(
+doc_name_query = """SELECT usuarios.nome, usuarios.cpf, usuarios.telefone FROM usuarios WHERE login = '{}' AND senha = '{}'""".format(
     logged_user, logged_user_password
 )
 
@@ -621,7 +621,7 @@ beneficiaries_query = """
         beneficiados
             INNER JOIN
         usuarios ON beneficiados.nome <> usuarios.nome
-            AND beneficiados.cpf_cnpj <> usuarios.cpf
+            AND beneficiados.documento <> usuarios.cpf
     WHERE
         usuarios.login = '{}'
             AND usuarios.senha = '{}';""".format(
@@ -635,7 +635,7 @@ creditors_query = """
         credores
             INNER JOIN
         usuarios ON credores.nome <> usuarios.nome
-            AND credores.cpf_cnpj <> usuarios.cpf
+            AND credores.documento <> usuarios.cpf
     WHERE
         usuarios.login = '{}'
             AND usuarios.senha = '{}';""".format(
@@ -645,12 +645,12 @@ creditors_query = """
 creditor_doc_name_query = """
     SELECT 
         credores.nome,
-        credores.cpf_cnpj
+        credores.documento
     FROM
         credores
             INNER JOIN
         usuarios ON credores.nome = usuarios.nome
-            AND credores.cpf_cnpj = usuarios.cpf
+            AND credores.documento = usuarios.cpf
     WHERE
         usuarios.login = '{}'
         AND usuarios.senha = '{}';""".format(
@@ -663,8 +663,8 @@ debtors_query: str = (
         emprestimos.devedor
     FROM
         emprestimos	
-        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.cpf_cnpj
-        INNER JOIN credores ON emprestimos.credor = credores.nome AND emprestimos.documento_credor = credores.cpf_cnpj
+        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.documento
+        INNER JOIN credores ON emprestimos.credor = credores.nome AND emprestimos.documento_credor = credores.documento
         INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
     WHERE
         pago = 'N'
@@ -695,8 +695,8 @@ total_loan_value_query: str = """
         COALESCE(SUM(emprestimos.valor - emprestimos.valor_pago), 0)
     FROM
         emprestimos
-        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.cpf_cnpj
-        INNER JOIN credores ON emprestimos.credor = credores.nome AND emprestimos.documento_credor = credores.cpf_cnpj
+        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.documento
+        INNER JOIN credores ON emprestimos.credor = credores.nome AND emprestimos.documento_credor = credores.documento
         INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
     WHERE
         emprestimos.devedor = '{}'
@@ -718,7 +718,7 @@ not_payed_loans_query = """
     FROM
         emprestimos
         INNER JOIN usuarios ON emprestimos.devedor = usuarios.nome AND emprestimos.documento_devedor = usuarios.cpf
-        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.cpf_cnpj
+        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.documento
     WHERE
         usuarios.login = '{}'
         AND usuarios.senha = '{}'
@@ -873,3 +873,14 @@ check_if_user_document_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios 
 check_if_user_login_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios WHERE login = '{}';'''
 
 months_query = '''SELECT nome_mes FROM meses;'''
+
+creditors_quantity_query = '''SELECT 
+    COUNT(id_credor)
+FROM
+    credores
+        INNER JOIN
+    usuarios ON credores.nome = usuarios.nome
+        AND credores.documento = usuarios.cpf
+WHERE
+    usuarios.login <> '{}'
+        AND usuarios.senha <> '{}';'''.format(logged_user, logged_user_password)
