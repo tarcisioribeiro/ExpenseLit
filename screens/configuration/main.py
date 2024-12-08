@@ -4,12 +4,10 @@ from dictionary.vars import (
     light_theme,
     server_config,
     operational_system,
-    db_password,
-    db_database,
-    db_user,
     today,
     absolute_app_path
 )
+from dictionary.db_config import db_password, db_database, db_user
 from functions.get_actual_time import GetActualTime
 from pathlib import Path
 from time import sleep
@@ -19,28 +17,9 @@ import os
 
 
 class Configuration:
-    """
-    Classe que representa a tela de configurações do sistema.
-
-    Attributes
-    ----------
-    change_theme(theme_option)
-        Realiza a troca do tema de cores do sistema.
-    main_menu()
-        Apresenta o menu principal das configurações.
-    """
-
     def __init__(self):
 
         def change_theme(theme_option: str, font_option: str):
-            """
-            Realiza a troca do tema de cores do sistema.
-
-            Parameters
-            ----------
-            theme_option: str
-                O tema escolhido para o usuário.
-            """
 
             config_archive: str = absolute_app_path + "/.streamlit/config.toml"
 
@@ -67,16 +46,7 @@ class Configuration:
                     archive.write(server_config)
 
         def make_backup(backup_path: str, operational_system: str = operational_system):
-            """
-            Realiza o backup do banco de dados da aplicação, salvando o arquivo no diretório informado pelo usuário.
-
-            Parameters
-            ----------
-            backup_path: str
-                O diretório escolhido pelo usuário.
-            operational_system: str
-                O sistema operacional que está sendo utilizado, que é definido automaticamente pela importação e utilização do módulo **os**.
-            """
+            
             time = GetActualTime()
             actual_time = time.get_actual_time()
             actual_time = actual_time.replace(":", "_")
@@ -123,9 +93,6 @@ class Configuration:
                     st.error(body="Erro ao executar o script: {}".format(error.stderr), icon="🚨")
 
         def main_menu():
-            """
-            Apresenta o menu principal das configurações.
-            """
 
             col1, col2, col3 = st.columns(3)
 

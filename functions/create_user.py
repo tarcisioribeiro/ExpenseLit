@@ -65,7 +65,7 @@ class CreateUser:
                 with col6:
                     cl1, cl2 = st.columns(2)
                     with cl2:
-                        st.warning(body=":warning: Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
+                        st.warning(body="Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
 
             with col5:
                 with st.expander(label="Dados do usuário", expanded=True):
@@ -148,9 +148,9 @@ class CreateUser:
 
                     elif user_login != "" and user_password != "" and user_name != "" and is_document_valid == False and user_sex != "":
                         with cl2:
-                            st.error("O documento {} é inválido.".format(user_document),icon="🚨")
+                            st.error("O documento {} é inválido.".format(user_document))
 
-                elif confirm_values == False:
+                elif confirm_values == False and insert_new_user_button:
                     st.warning(body=":warning: Revise os dados e confirme-os antes de prosseguir.")
 
         self.main_menu = main_menu

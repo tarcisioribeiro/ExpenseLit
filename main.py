@@ -60,7 +60,7 @@ try:
                         with col6:
                             cl1, cl2 = st.columns(2)
                             with cl2:
-                                st.success(body="Conexão bem-sucedida ao banco de dados!", icon="✅")
+                                st.success(body="Conexão bem-sucedida ao banco de dados!")
 
                         with open(software_env_path, 'w') as env_archive:
                             env_archive.write("DB_PORT={}".format(db_port))
@@ -72,7 +72,7 @@ try:
                         with col6:
                             cl1, cl2 = st.columns(2)
                             with cl2:
-                                st.success(body="Dados gravados com sucesso!", icon="✅")
+                                st.success(body="Dados gravados com sucesso!")
                                 sleep(5)
                                 import subprocess
                                 command = "sudo systemctl restart fcscript.service"
@@ -107,7 +107,7 @@ try:
     if os.path.isfile(software_env_path):
 
         try:
-            from dictionary.vars import db_config
+            from dictionary.db_config import db_config
 
             connection = mysql.connector.connect(**db_config)
             

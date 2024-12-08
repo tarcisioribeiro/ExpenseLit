@@ -1,6 +1,6 @@
 from data.cache.session_state import logged_user, logged_user_password
+from dictionary.db_config import db_config
 from dictionary.vars import (
-    db_config,
     actual_year,
     to_remove_list,
     string_actual_month

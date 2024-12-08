@@ -1,4 +1,4 @@
-from dictionary.vars import db_config
+from dictionary.db_config import db_config
 import mysql.connector
 import streamlit as st
 

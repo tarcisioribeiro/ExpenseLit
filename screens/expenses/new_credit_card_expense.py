@@ -2,7 +2,8 @@ import mysql.connector
 import streamlit as st
 from data.cache.session_state import logged_user
 from datetime import timedelta
-from dictionary.vars import db_config, expense_categories, to_remove_list
+from dictionary.db_config import db_config
+from dictionary.vars import expense_categories, to_remove_list
 from dictionary.sql import last_credit_card_expense_id_query, owner_cards_query
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime

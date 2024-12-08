@@ -1,9 +1,7 @@
 from datetime import datetime
-from dotenv import load_dotenv
 from PIL import Image
 import os
 
-load_dotenv()
 
 operational_system = os.name
 
@@ -104,20 +102,6 @@ elif actual_month == 11:
     string_actual_month = "Novembro"
 elif actual_month == 12:
     string_actual_month = "Dezembro"
-
-db_host = os.getenv("DB_HOST")
-db_port = os.getenv("DB_PORT")
-db_user = os.getenv("DB_USER")
-db_password =  os.getenv("DB_PASSWORD")
-db_database = os.getenv("DB_NAME")
-
-db_config = {
-    "host": db_host,
-    "port": db_port,
-    "user": db_user,
-    "password": db_password,
-    "database": db_database,
-}
 
 menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar receita", "Registrar transferência", "Empréstimos", "Relatórios", "Cadastros", "Configurações"]
 expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]

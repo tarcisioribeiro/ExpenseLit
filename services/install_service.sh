@@ -101,7 +101,7 @@ sudo systemctl start fcscript.service
 
 green "\nInstalação concluída."
 
-link=$(python3 get_ipv4.py)
+link=$(python3 services/get_ipv4.py)
 
 blue "Você pode realizar o acesso a aplicação através dos seguintes links:\n"
 green "$link"
