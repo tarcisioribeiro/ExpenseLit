@@ -3,7 +3,7 @@ import streamlit as st
 from data.cache.session_state import logged_user
 from datetime import timedelta
 from dictionary.db_config import db_config
-from dictionary.vars import expense_categories, to_remove_list
+from dictionary.vars import expense_categories, to_remove_list, decimal_values
 from dictionary.sql import last_credit_card_expense_id_query, owner_cards_query
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
@@ -82,6 +82,13 @@ class NewCreditCardExpense:
                         card = st.selectbox(label=":credit_card: Cartão", options=user_cards)
                         remaining_limit = call_credit_card.card_remaining_limit(selected_card=card)
 
+                        str_remaining_limit = str(remaining_limit)
+                        str_remaining_limit = str_remaining_limit.replace(".", ",")
+
+                        last_two_digits = str_remaining_limit[-2:]
+                        if last_two_digits in decimal_values:
+                            str_remaining_limit = str_remaining_limit + "0"
+
                         parcel = st.number_input(label=":pencil: Parcelas", min_value=1, step=1)
                         inputed_credit_card_code = st.number_input(label=":credit_card: Informe o código do cartão", step=1)
 
@@ -112,8 +119,7 @@ class NewCreditCardExpense:
                             data_expander = st.expander(label="Avisos", expanded=True)
 
                             with data_expander:
-
-                                st.info(body="Limite restante do cartão: R$ {}".format(round(remaining_limit, 2)))
+                                st.info(body="Limite restante do cartão: R$ {}".format(str_remaining_limit))
 
                         if (
                             description != ""
@@ -169,5 +175,5 @@ class NewCreditCardExpense:
                                 if inputed_credit_card_code != credit_card_code:
                                     st.error(body="Código do cartão inválido.")
 
-        self.get_credit_card_expense = new_credit_card_expense
+        self.main_menu = new_credit_card_expense
         self.insert_credit_card_expense = insert_new_credit_card_expense

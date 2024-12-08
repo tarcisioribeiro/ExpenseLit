@@ -38,7 +38,7 @@ class GetBalance:
 
         def get_balance():
             if total_revenues is not None and total_expenses is not None:
-                balance = total_revenues - total_expenses
+                balance = round((total_revenues - total_expenses), 2)
                 return balance
             else:
                 return None

@@ -5,7 +5,6 @@ from dictionary.vars import expense_categories, to_remove_list
 from dictionary.sql import last_loan_id_query, creditor_doc_name_query, user_current_accounts_query, creditors_query, doc_name_query, total_account_revenue_query, total_account_expense_query
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
-from functions.variables import Variables
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -16,7 +15,6 @@ class NewLoan:
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
         call_time = GetActualTime()
-        variable = Variables()
 
         col1, col2, col3 = st.columns(3)
 
@@ -96,9 +94,7 @@ class NewLoan:
                                     sleep(1)
                                 st.subheader(body="Validação de Dados")
 
-                                data_validation_expander = st.expander(label="Informações", expanded=True)
-
-                                with data_validation_expander:
+                                with st.expander(label="Informações", expanded=True):
                                     str_selected_account_revenues = (query_executor.simple_consult_query(final_total_account_revenue_query))
                                     str_selected_account_revenues = (query_executor.treat_simple_result(str_selected_account_revenues, to_remove_list))
                                     selected_account_revenues = float(str_selected_account_revenues)
@@ -110,8 +106,11 @@ class NewLoan:
                                     account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
 
                             if description != "" and value >= 0.01 and date and category != "Selecione uma opção" and account != "Selecione uma opção":
-                                with data_validation_expander:
-                                    st.success(body="Dados válidos.")
+                                with col2:
+                                    description = "Empréstimo - " + description
+
+                                    with st.expander(label="Informações", expanded=True):
+                                        st.success(body="Dados válidos.")
 
                                 expense_query = '''INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
                                 expense_values = (description, value, date, actual_horary, category, account, creditor_name, creditor_document, "S")
@@ -137,7 +136,7 @@ class NewLoan:
                                 receipt_executor.generate_receipt('emprestimos', id, description, value, str(date), category, account)
 
                             else:
-                                with data_validation_expander:
+                                with st.expander(label="Informações", expanded=True):
                                     if description == "":
                                         st.error(body="A descrição está vazia.")
                                     if category == "Selecione uma opção":
@@ -236,8 +235,12 @@ class NewLoan:
                                     account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
 
                             if description != "" and ((value >= 0.01) and (value <= account_available_value)) and date and category != "Selecione uma opção" and account != "Selecione uma opção":
-                                with st.expander(label="Informações", expanded=True):
-                                    st.success(body="Dados válidos.")
+
+                                description = "Empréstimo - " + description
+
+                                with col2:
+                                    with st.expander(label="Informações", expanded=True):
+                                        st.success(body="Dados válidos.")
 
                                 expense_query = '''INSERT INTO despesas (descricao,valor,data,horario,categoria,conta,proprietario_despesa,documento_proprietario_despesa,pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
                                 expense_values = (description, value, date, actual_horary, category, account, creditor_name, creditor_document, "S")

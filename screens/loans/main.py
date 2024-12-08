@@ -11,7 +11,7 @@ class Loan:
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.subheader(":bank: Novo Empréstimo")
+                st.header(":bank: Novo Empréstimo")
 
             with col2:
                 loan_menu_choice = st.selectbox(

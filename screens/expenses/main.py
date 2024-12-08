@@ -14,35 +14,22 @@ class NewExpense:
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.subheader("	:money_with_wings: Nova Despesa")
+                st.header(":money_with_wings: Nova Despesa")
 
             with col2:
-                menu_choice = st.selectbox(
-                    label="Tipo de despesa",
-                    options=[
-                        "Despesa em conta corrente",
-                        "Despesa de cartão",
-                        "Pagar fatura de cartão",
-                        "Pagar valores em aberto"
-                    ],
-                )
+                menu_options = {
+                    "Despesa em conta corrente": NewCurrentExpense(),
+                    "Despesa de cartão": NewCreditCardExpense(),
+                    "Pagar fatura de cartão": CreditCardInvoice(),
+                    "Pagar valores em aberto": PayLoan()
+                }
+
+                menu_choice = st.selectbox(label="Tipo de despesa", options=menu_options)
 
             st.divider()
 
-            if menu_choice == "Despesa em conta corrente":
-                call_expense = NewCurrentExpense()
-                call_expense.get_expense()
-
-            elif menu_choice == "Despesa de cartão":
-                call_credit_card_expense = NewCreditCardExpense()
-                call_credit_card_expense.get_credit_card_expense()
-
-            elif menu_choice == "Pagar fatura de cartão":
-                call_update_credit_card_invoices = CreditCardInvoice()
-                call_update_credit_card_invoices.show_update_credit_card_invoices()
-
-            elif menu_choice == "Pagar valores em aberto":
-                call_pay_loan = PayLoan()
-                call_pay_loan.show_loans()
+            if menu_choice:
+                call_interface = menu_options[menu_choice]
+                call_interface.main_menu()
 
         self.main_menu = expenses_main_menu

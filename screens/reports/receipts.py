@@ -2,10 +2,9 @@ import pandas as pd
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from datetime import datetime
-from dictionary.vars import accounts, accounts_images_paths, operational_system, today, actual_horary, to_remove_list, absolute_app_path, accounts_images, transfer_image
+from dictionary.vars import accounts_images_paths, operational_system, today, actual_horary, to_remove_list, absolute_app_path, accounts_images, transfer_image, decimal_values
 from dictionary.sql import user_current_accounts_query
 from functions.query_executor import QueryExecutor
-from functions.variables import Variables
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
 
@@ -14,7 +13,6 @@ class Receipts:
     def __init__(self):
 
         query_executor = QueryExecutor()
-        variable = Variables()
 
         def validate_query(table, date, account, value):
             if table == "despesas":
@@ -206,7 +204,7 @@ class Receipts:
             dpi = 300
             image = Image.new("RGB", (width, height), "white")
             draw = ImageDraw.Draw(image)
-            font_size = 16
+            font_size = 20
 
             if operational_system == "nt":
                 font = ImageFont.truetype("cour.ttf", font_size)
@@ -288,31 +286,39 @@ class Receipts:
                     file_name=caminho_arquivo,
                 )
 
-        def generate_receipt(table, id, description, value, date, category, account):
+        def generate_receipt(table: str, id, description: str, value: float, date, category: str, account: str):
 
-            if table == "receitas":
-                table = "RECEITA"
-            elif table == "emprestimos":
-                table = "EMPRÉSTIMO"
-            elif table == "despesas":
-                table = "DESPESA"
-            elif table == "despesas_cartao_credito":
-                table = "DESPESA DE CARTÃO"
+            table_dictionary = {
+                "receitas": "Receita",
+                "emprestimos": "Empréstimo",
+                "despesas": "Despesa",
+                "despesas_cartao_credito": "Despesa de Cartão"
+            }
+
+            table = table_dictionary[table]
+
+            value = round(value, 2)
+            value = str(value)
+            value = value.replace(".", ",")
+
+            last_two_digits = value[-2:]
+            if last_two_digits in decimal_values:
+                value = value + "0"
 
             reference_number = ""
             if id <= 9:
-                reference_number = """REF: 000{}""".format(id)
+                reference_number = """Ref: 000{}""".format(id)
             if id >= 10 and id <= 99:
-                reference_number = """REF: 00{}""".format(id)
+                reference_number = """Ref: 00{}""".format(id)
             if id >= 100 and id <= 999:
-                reference_number = """REF: 0{}""".format(id)
+                reference_number = """Ref: 0{}""".format(id)
 
-            table = table.upper()
-            description = description.upper()
+            table = table.capitalize()
+            description = description.capitalize()
             description = description.replace("'", "")
-            category = category.upper()
+            category = category.capitalize()
             category = category.replace("'", "")
-            account = account.upper()
+            account = account.capitalize()
             account = account.replace("'", "")
 
             date = datetime.strptime(date, "%Y-%m-%d")
@@ -322,7 +328,7 @@ class Receipts:
             dpi = 300
             image = Image.new("RGB", (width, height), "white")
             draw = ImageDraw.Draw(image)
-            font_size = 16
+            font_size = 20
 
             if operational_system == "nt":
                 font = ImageFont.truetype("cour.ttf", font_size)
@@ -350,7 +356,7 @@ class Receipts:
                     font_size,
                 )
 
-            header_text = "COMPROVANTE DE {}".format(table)
+            header_text = "Comprovante de {}".format(table)
             header_text_width, header_text_height = draw.textsize(
                 header_text, font=header_font
             )
@@ -358,33 +364,29 @@ class Receipts:
             draw.text(header_position, header_text, fill="black", font=header_font)
 
             draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
-            draw.text((20, 60), f"DESCRIÇÃO: {description}", fill="black", font=font)
-            draw.text((20, 90), f"VALOR: R$ {value:.2f}", fill="black", font=font)
-            draw.text((20, 120), f"DATA: {date}", fill="black", font=font)
-            draw.text((20, 150), f"CATEGORIA: {category}", fill="black", font=font)
-            draw.text((20, 180), f"CONTA: {account}", fill="black", font=font)
+            draw.text((20, 60), f"Descrição: {description}", fill="black", font=font)
+            draw.text((20, 90), f"Valor: R$ {value}", fill="black", font=font)
+            draw.text((20, 120), f"Data: {date}", fill="black", font=font)
+            draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
+            draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
             draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
-            draw.line(
-                [(width - 240, height - 60), (width - 20, height - 60)],
-                fill="black",
-                width=2,
-            )
+            draw.line([(width - 240, height - 60), (width - 20, height - 60)], fill="black", width=2)
             draw.text((20, height - 40), reference_number, fill="black", font=font)
 
             image_number = 0
-            if account == "BEN VISA VALE":
+            if account == "Ben Visa Vale":
                 image_number = 0
-            if account == "CARTEIRA":
+            if account == "Carteira":
                 image_number = 1
-            if account == "CAIXA":
+            if account == "Caixa":
                 image_number = 2
-            if account == "MERCADO PAGO":
+            if account == "Mercado Pago":
                 image_number = 3
-            if account == "NUBANK":
+            if account == "Nubank":
                 image_number = 4
-            if account == "PICPAY":
+            if account == "Picpay":
                 image_number = 5
-            if account == "SICOOB":
+            if account == "Sicoob":
                 image_number = 6
 
             pasted_image = Image.open(accounts_images_paths[image_number])
@@ -422,10 +424,12 @@ class Receipts:
                         "Empréstimo": "emprestimos"
                     }
 
+                    st.subheader(body=":computer: Entrada de dados")
+
                     with st.expander(label="Filtros", expanded=True):
                         report_type = st.selectbox(label="Relatório", options=receipt_options.keys())
                         date = st.date_input(label="Data")
-                        account = st.selectbox(label="Conta", options=accounts)
+                        account = st.selectbox(label="Conta", options=user_current_accounts)
                         value = st.number_input(label="Valor",placeholder="Informe o valor",min_value=0.01,step=0.01)
                         confirm_data = st.checkbox(label="Confirmar dados")
 
@@ -511,6 +515,6 @@ class Receipts:
                 with col5:
                     st.warning(body="Você ainda não possui contas cadastradas.")
                     
-        self.get_receipt_data = get_receipt_input
+        self.main_menu = get_receipt_input
         self.generate_receipt = generate_receipt
         self.generate_transfer_receipt = generate_transfer_receipt

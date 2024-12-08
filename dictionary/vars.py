@@ -60,8 +60,6 @@ static_sicoob_image: str = "app/static/sicoob.png"
 static_transfer_image: str = "app/static/transfer.png"
 
 static_accounts_images: list = [static_ben_visa_vale_image,static_caixa_image,static_wallet_image,static_mercado_pago_image,static_nubank_image,static_picpay_image,static_sicoob_image]
-
-months: list = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
 years: list = [2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033]
 
 today = datetime.now()
@@ -107,7 +105,8 @@ menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar r
 expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]
 revenue_categories: list = ["Selecione uma opção","Ajuste","Depósito","Prêmio","Salário","Vale","Rendimentos"]
 transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]
-accounts = ["Selecione uma opção","Ben Visa Vale","Carteira","Caixa","Mercado Pago","Nubank", "Pagbank", "Picpay","Sicoob"]
 accounts_type = ["Conta Corrente","Conta Salário","Fundo de Garantia","Vale Alimentação"]
 
 to_remove_list: list = ["'", ")", "(", ",", "Decimal", '"', "[", "]", "datetime.date"]
+
+decimal_values = [",0", ",1", ",2", ",3", ",4", ",5", ",6", ",7", ",8", ",9", "0,0"]

@@ -2,7 +2,7 @@ import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import last_expense_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query
 from dictionary.user_stats import user_name, user_document
-from dictionary.vars import to_remove_list, expense_categories
+from dictionary.vars import to_remove_list, expense_categories, decimal_values
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from screens.reports.receipts import Receipts
@@ -38,26 +38,31 @@ class NewCurrentExpense:
                         id = query_executor.simple_consult_query(last_expense_id_query)
                         id = query_executor.treat_simple_result(id, to_remove_list)
 
+                        options = {
+                            "Sim": "S",
+                            "Não": "N"
+                        }
+
                         id = int(id) + 1
                         description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
                         value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                         date = st.date_input(label=":date: Data")
                         category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
-                        payed = st.selectbox(label=":outbox_tray: Pago", options=["S", "N"])
+                        payed = st.selectbox(label=":outbox_tray: Pago", options=options.keys())
 
                         confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
                         total_account_revenue_complete_query = total_account_revenue_query.format(account, logged_user, logged_user_password)
                         total_account_expense_complete_query = total_account_expense_query.format(account, logged_user, logged_user_password)
                         
-                    generate_receipt_button = st.button(
-                        label=":pencil: Gerar Comprovante", key="generate_receipt_button"
-                    )                    
+                    generate_receipt_button = st.button(label=":pencil: Gerar Comprovante", key="generate_receipt_button")                    
 
                 with col3:
                     
                     if confirm_values_check_box and generate_receipt_button:
+
+                        payed = options[payed]
 
                         with col2:
                             with st.spinner(text="Aguarde..."):
@@ -79,10 +84,15 @@ class NewCurrentExpense:
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
+                                available_value = str(account_available_value)
+                                available_value = available_value.replace(".", ",")
+                                last_two_digits = available_value[-2:]
+                                if last_two_digits in decimal_values:
+                                    available_value = available_value + "0"
 
 
                         with data_validation_expander:
-                            st.info(body="Valor disponível da conta {}: R$ {}".format(account, account_available_value))
+                            st.info(body="Valor disponível da conta {}: R$ {}".format(account, available_value))
 
                         if (
                             description != ""
@@ -129,4 +139,4 @@ class NewCurrentExpense:
                                 if value > account_available_value:
                                     st.error(body="O valor da despesa não pode ser maior que o valor disponível em conta.")
 
-        self.get_expense = new_expense
+        self.main_menu = new_expense

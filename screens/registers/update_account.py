@@ -1,8 +1,10 @@
 from data.cache.session_state import logged_user
-from dictionary.vars import accounts, accounts_type, today, actual_horary, to_remove_list
+from dictionary.vars import accounts_type, today, actual_horary, to_remove_list
+from dictionary.app_vars import months, account_models
 from dictionary.sql import user_all_current_accounts_query
 from dictionary.user_stats import user_name, user_document
 from functions.query_executor import QueryExecutor
+from time import sleep
 import streamlit as st
 
 
@@ -18,16 +20,22 @@ class UpdateAccounts:
 
             with col1:
 
+                st.subheader(body=":computer: Entrada de dados")
+
                 with st.expander(label="Dados cadastrais", expanded=True):
                     
-                    account_name = st.selectbox(label="Nome da conta", options=accounts)
-                    account_type = st.selectbox(label="Tipo da conta", options=accounts_type)
-                    get_account_first_value = st.number_input(label="Valor inicial", step=0.01, min_value=0.00)
-                    confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
+                    account_name = st.selectbox(label=":lower_left_ballpoint_pen: Nome da conta", options=account_models)
+                    account_type = st.selectbox(label=":card_index_dividers: Tipo da conta", options=accounts_type)
+                    get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.00)
+                    confirm_values_ckecbox = st.checkbox(label="Confirmar dados")
 
                 register_account = st.button(label=":floppy_disk: Registrar Conta")
 
                 if confirm_values_ckecbox and register_account:
+                    with col2:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2)
+
                     insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta) VALUES (%s, %s, %s, %s)"""
                     new_account_values = (
                         account_name,

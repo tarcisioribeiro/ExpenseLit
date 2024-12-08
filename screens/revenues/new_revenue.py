@@ -32,7 +32,7 @@ class NewCurrentRevenue:
 
                 with col4:
 
-                    st.subheader(body=":computer: Entrada de Dados")
+                    st.subheader(body=":computer: Entrada de dados")
 
                     with st.expander(label="Dados", expanded=True):
 
@@ -111,4 +111,4 @@ class NewCurrentRevenue:
                                 st.error(
                                     body=":warning: Algum dado está errado, revise-os.")
 
-        self.get_revenue = new_revenue
+        self.main_menu = new_revenue

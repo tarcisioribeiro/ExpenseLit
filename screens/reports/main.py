@@ -2,21 +2,16 @@ import streamlit as st
 from screens.reports.receipts import Receipts
 from screens.reports.account_statement import AccountStatement
 
+
 class Reports:
-    """
-        Classe que representa a interface de relatórios.
-    """
     def __init__(self):
 
-        call_receipts = Receipts()
-        call_statement = AccountStatement()
-
-        superior_menu_options = ["Consultar Comprovante", "Extrato Bancário"]
+        superior_menu_options = {
+            "Consultar Comprovante": Receipts(),
+            "Extrato Bancário": AccountStatement(),
+        }
 
         def reports_interface():
-            """
-            Interface de relatórios.
-            """
 
             col1, col2, col3 = st.columns(3)
 
@@ -28,14 +23,12 @@ class Reports:
                 cm_cl1, cm_cl2 = st.columns(2)
 
                 with cm_cl2:
-                    menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options)
+                    menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options.keys())
 
-            if menu_selected_option == superior_menu_options[0]:
-                st.divider()
-                call_receipts.get_receipt_data()
+            st.divider()
 
-            elif menu_selected_option == superior_menu_options[1]:
-                st.divider()
-                call_statement.main_menu()
+            if menu_selected_option:
+                call_interface = superior_menu_options[menu_selected_option]
+                call_interface.main_menu()
 
-        self.interface = reports_interface
+        self.main_menu = reports_interface

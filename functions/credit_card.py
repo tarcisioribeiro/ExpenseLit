@@ -7,6 +7,7 @@ from dictionary.vars import (
 )
 from dictionary.user_stats import user_document
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 import mysql.connector
 import re
 import streamlit as st
@@ -17,6 +18,7 @@ class Credit_Card:
     def __init__(self):
 
         query_executor = QueryExecutor()
+        variable = Variable()
 
         def get_card_month(selected_card: str):
 
@@ -82,9 +84,7 @@ class Credit_Card:
                 if connection.is_connected():
                     connection.close()
 
-        def get_credit_card_month_expenses(selected_card: str, selected_month: str):
-
-            actual_month = get_card_month(selected_card)
+        def get_credit_card_month_expenses(selected_card: str, year: int, selected_month: str):
 
             credit_card_month_expenses_query: str = """
                 SELECT 
@@ -108,7 +108,7 @@ class Credit_Card:
                         AND usuarios.senha = '{}'
                 ;""".format(
                 selected_card,
-                actual_year,
+                year,
                 selected_month,
                 logged_user,
                 logged_user_password,
@@ -131,7 +131,7 @@ class Credit_Card:
                 if connection.is_connected():
                     connection.close()
 
-        def get_complete_card_month_expenses(selected_card: str, selected_month: str):
+        def get_complete_card_month_expenses(selected_card: str, year: int, selected_month: str):
 
             actual_month = get_card_month(selected_card)
 
@@ -161,7 +161,7 @@ class Credit_Card:
                     AND usuarios.senha = '{}';
                     """.format(
                 selected_card,
-                actual_year,
+                year,
                 selected_month,
                 logged_user,
                 logged_user_password,
@@ -203,9 +203,7 @@ class Credit_Card:
                 if connection.is_connected():
                     connection.close()
 
-        def get_card_id_month_expenses(selected_card: str, selected_month: str):
-
-            actual_month = get_card_month(selected_card)
+        def get_card_id_month_expenses(selected_card: str, year: int, selected_month: str):
 
             credit_card_id_expenses_query = """
             SELECT 
@@ -229,7 +227,7 @@ class Credit_Card:
                     AND pago = 'N';
                     """.format(
                 selected_card,
-                actual_year,
+                year,
                 selected_month,
                 logged_user,
                 logged_user_password,
@@ -396,7 +394,7 @@ class Credit_Card:
         def get_credit_card_remaining_limit(selected_card: str):
             card_total_limit = get_credit_card_limit(selected_card)
             not_payed_expenses = get_credit_card_not_payed_expenses(selected_card)
-            month_card_expenses = get_credit_card_month_expenses(selected_card, string_actual_month)
+            month_card_expenses = get_credit_card_month_expenses(selected_card, actual_year, string_actual_month)
             future_card_expenses = get_credit_card_next_expenses(selected_card)
             total_card_expenses = month_card_expenses + future_card_expenses + not_payed_expenses
             remaining_limit = card_total_limit - total_card_expenses

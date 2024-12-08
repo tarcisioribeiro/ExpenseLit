@@ -16,18 +16,9 @@ class ConfirmRevenue:
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
 
-        def get_not_received_revenue_id(
-            description: str,
-            value: float,
-            date: str,
-            time: str,
-            category: str,
-            account: str,
-        ):
+        def get_not_received_revenue_id(description: str, value: float, date: str, time: str, category: str, account: str):
 
-            get_id_query = """SELECT id FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(
-                description, value, date, time, category, account
-            )
+            get_id_query = """SELECT id FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
             id = query_executor.simple_consult_query(get_id_query)
             id = query_executor.treat_simple_result(id, to_remove_list)
             id = int(id)
@@ -36,23 +27,14 @@ class ConfirmRevenue:
 
         def update_not_received_revenues(id: int):
 
-            update_not_received_query = (
-                """UPDATE receitas SET recebido = "S" WHERE id = {};""".format(id)
-            )
-
-            query_executor.update_table_unique_register(
-                update_not_received_query,
-                "Receita atualizada com sucesso!",
-                "Erro ao atualizar receita:",
-            )
+            update_not_received_query = """UPDATE receitas SET recebido = "S" WHERE id = {};""".format(id)
+            query_executor.update_table_unique_register(update_not_received_query, "Receita atualizada com sucesso!", "Erro ao atualizar receita:")
 
         def show_not_received_values():
 
             col4, col5, col6 = st.columns(3)
 
-            revenue_values = query_executor.complex_compund_query(
-                not_received_revenue_query, 6, "not_received"
-            )
+            revenue_values = query_executor.complex_compund_query(not_received_revenue_query, 6, "not_received")
 
             if len(revenue_values[0]) >= 1:
 
@@ -61,9 +43,7 @@ class ConfirmRevenue:
 
                     with st.expander(label="Dados", expanded=True):
 
-                        description, value, date, time, category, account = (
-                            revenue_values
-                        )
+                        description, value, date, time, category, account = (revenue_values)
 
                         loan_data_df = pd.DataFrame(
                             {
@@ -76,15 +56,11 @@ class ConfirmRevenue:
                         )
 
                         loan_data_df["Valor"] = loan_data_df["Valor"].apply(
-                            lambda x: f"R$ {x:.2f}"
+                            lambda x: f"R$ {x:.2f}".replace(".", ",")
                         )
-                        loan_data_df["Data"] = pd.to_datetime(
-                            loan_data_df["Data"]
-                        ).dt.strftime("%d/%m/%Y")
+                        loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
 
-                        st.dataframe(
-                            loan_data_df, hide_index=True, use_container_width=True
-                        )
+                        st.dataframe(loan_data_df, hide_index=True, use_container_width=True)
 
                         description_list = []
 
@@ -107,16 +83,21 @@ class ConfirmRevenue:
                                     "conta": final_str_account,
                                 }
                             )
-                            description_list.append(index_description)
 
-                        selected_revenue = st.selectbox(
-                            label="Selecione a receita", options=description_list
-                        )
-                        st.info(selected_revenue)
+                            formatted_data = str(index_description["data"])
+                            formatted_data = datetime.strptime(formatted_data, "%Y-%m-%d")
+                            formatted_data = formatted_data.strftime("%d/%m/%Y")
+
+
+                            formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
+
+                            description_list.append(formatted_description)
+
+                        selected_revenue = st.selectbox(label="Selecione a receita", options=description_list)
 
                         confirm_selection = st.checkbox(label="Confirmar seleção")
 
-                    update_button = st.button(label="Receber valor")
+                    update_button = st.button(label=":floppy_disk: Receber valor")
 
                     if confirm_selection and update_button:
 
@@ -156,7 +137,6 @@ class ConfirmRevenue:
             elif len(revenue_values[0]) == 0:
 
                 with col5:
-
                     st.info("Você não possui valores a receber.")
 
-        self.confirm_revenue = show_not_received_values
+        self.main_menu = show_not_received_values

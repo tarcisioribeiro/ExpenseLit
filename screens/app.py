@@ -31,11 +31,21 @@ class App:
                 name, sex = call_user.check_user()
                 call_user.show_user(name, sex)
 
-            sidebar_choice = sidebar.selectbox(label="Menu", options=list(menu_options))
+            sidebar_menu_dictionary = {
+                "Início": Home(),
+                "Registrar despesa": NewExpense(),
+                "Registrar receita": NewRevenue(),
+                "Empréstimos": Loan(),
+                "Registrar transferência": NewTransfer(),
+                "Relatórios": Reports(),
+                "Cadastros": Registers(),
+                "Configurações": Configuration()
+            }
+
+            sidebar_choice = sidebar.selectbox(label="Menu", options=list(sidebar_menu_dictionary.keys()))
 
             sidebar.divider()
 
-            sidebar_home_button = sidebar.button(label=":house: Início")
             sidebar_reload_button = sidebar.button(label=":cd: Recarregar")
             sidebar_logoff_button = sidebar.button(label=":lock: Sair")
 
@@ -57,39 +67,10 @@ class App:
                         st.toast("Saindo do sistema...")
                         sleep(1)
                         logout()
-
-
-            if sidebar_choice == "Selecione uma opção" or sidebar_home_button:
-                call_home = Home()
-                call_home.show_balance()
-
-            elif sidebar_choice == "Registrar despesa":
-                call_expenses = NewExpense()
-                call_expenses.main_menu()
-
-            elif sidebar_choice == "Empréstimos":
-                call_loan = Loan()
-                call_loan.main_menu()
-                
-            elif sidebar_choice == "Registrar receita":
-                call_revenue = NewRevenue()
-                call_revenue.main_menu()
-
-            elif sidebar_choice == "Registrar transferência":
-                call_transfer = NewTransfer()
-                call_transfer.get_transfer()
-
-            elif sidebar_choice == "Relatórios":
-                call_report = Reports()
-                call_report.interface()
-
-            elif sidebar_choice == "Cadastros":
-                call_registers = Registers()
-                call_registers.main_menu()
-
-            elif sidebar_choice == "Configurações":
-                configuration = Configuration()
-                configuration.main_menu()
+            
+            if sidebar_choice:
+                call_interface = sidebar_menu_dictionary[sidebar_choice]
+                call_interface.main_menu()
 
         self.logout = logout
         self.HomePage = HomePage

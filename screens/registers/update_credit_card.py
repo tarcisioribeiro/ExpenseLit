@@ -1,10 +1,12 @@
 from data.cache.session_state import logged_user
-from dictionary.vars import months, years, to_remove_list
+from dictionary.vars import years, to_remove_list
+from dictionary.app_vars import months, years
 from dictionary.user_stats import user_name, user_document
 from dictionary.sql import owner_cards_query, user_current_accounts_query
 from functions.credit_card import Credit_Card
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
+from functions.variable import Variable
 from time import sleep
 import streamlit as st
 
@@ -15,6 +17,7 @@ class UpdateCreditCards:
         call_credit_card = Credit_Card()
         query_executor = QueryExecutor()
         call_document = Documents()
+        variable = Variable()
 
         col1, col2, col3 = st.columns(3)
 
@@ -29,28 +32,31 @@ class UpdateCreditCards:
 
             elif len(user_current_accounts) >= 1:
                 with col1:
+                    st.subheader(body=":computer: Entrada de dados")
+
                     with st.expander(label="Dados cadastrais", expanded=True):
-                        card_name = st.text_input(label="Nome do cartão")
-                        card_number = st.text_input(label="Número do Cartão")
-                        owner_name = st.text_input(label="Nome do Titular")
+                        card_name = st.text_input(label=":lower_left_ballpoint_pen: Nome do cartão")
+                        card_number = st.text_input(label=":lower_left_ballpoint_pen: Número do Cartão")
+                        owner_name = st.text_input(label=":lower_left_ballpoint_pen: Nome do Titular")
+                        expire_date = st.date_input(label=":calendar: Data de validade")
+
+                    confirm_credit_card_values = st.checkbox(label="Confirmar dados")
 
                 with col2:
+                    st.subheader(body="")
+
                     with st.expander(label="Dados confidenciais", expanded=True):
-                        expire_date = st.date_input(label="Data de validade")
                         security_code = st.number_input(
-                            label="Código de segurança",
+                            label=":lock: Código de segurança",
                             step=1,
                             min_value=1,
                             max_value=999,
                         )
-                        credit_limit_value = st.number_input(
-                            label="Limite do cartão", step=0.01, min_value=0.01
-                        )
-                        associated_account = st.selectbox(
-                            label="Conta associada", options=user_current_accounts
-                        )
+                        confirm_security_code = st.number_input(label=":lock: Confirme o código de segurança", step=1, min_value=1, max_value=999)
+                        credit_limit_value = st.number_input(label=":dollar: Limite do cartão", step=0.01, min_value=0.01)
+                        associated_account = st.selectbox(label=":bank: Conta associada", options=user_current_accounts)
 
-                    send_form_button = st.button(label="Cadastrar cartão")
+                    send_form_button = st.button(label=":floppy_disk: Cadastrar cartão")
 
                     if send_form_button:
                         with col3:
@@ -74,8 +80,8 @@ class UpdateCreditCards:
                                         st.success(body="Número de cartão válido.")
                                         st.success(body="Documento Válido.")
 
-                                        new_credit_card_query = """INSERT INTO cartao_credito (nome_cartao, numero_cartao, nome_titular, proprietario_cartao, documento_titular, data_validade, codigo_seguranca, limite_credito, conta_associada)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                                        new_credit_card_query = """INSERT INTO cartao_credito (nome_cartao, numero_cartao, nome_titular, proprietario_cartao, documento_titular, data_validade, codigo_seguranca, limite_credito, limite_maximo, conta_associada)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                                         new_credit_card_values = (
                                             card_name,
                                             card_number,
@@ -84,6 +90,7 @@ class UpdateCreditCards:
                                             user_document,
                                             expire_date,
                                             security_code,
+                                            credit_limit_value,
                                             credit_limit_value,
                                             associated_account,
                                         )
@@ -120,51 +127,36 @@ class UpdateCreditCards:
                 cc1, cc2 = st.columns(2)
 
                 with cc2:
-
                     card = st.selectbox(label="Escolha um cartão", options=credit_cards)
 
             with col1:
+                    st.subheader(body=":computer: Entrada de Dados")
 
-                    cc_max_limit_query = '''
-                    SELECT 
-                        limite_maximo
-                    FROM
-                        cartao_credito
-                    WHERE
-                        nome_cartao = '{}'
-                    AND proprietario_cartao = '{}'
-                    AND documento_titular = {}'''.format(card, user_name, user_document)
+                    cc_max_limit_query = '''SELECT limite_maximo FROM cartao_credito WHERE nome_cartao = '{}' AND proprietario_cartao = '{}' AND documento_titular = {}'''.format(card, user_name, user_document)
                     cc_max_limit = query_executor.simple_consult_query(cc_max_limit_query)
                     cc_max_limit = query_executor.treat_simple_result(cc_max_limit, to_remove_list)
-
                     cc_max_limit = float(cc_max_limit)
-                    cc_max_limit = int(cc_max_limit)
 
-                    sleep(1)
+                    inactive_options = {
+                        "Sim": "S",
+                        "Não": "N",
+                    }
 
                     with st.expander(label="Dados", expanded=True):
-
-                        new_limit = st.number_input(label="Limite", min_value=0, max_value=cc_max_limit, step=1)
-                        inactive = st.selectbox(label="Inativo", options=["S","N"])
+                        new_limit = st.number_input(label=":heavy_dollar_sign: Limite", min_value=0.00, max_value=cc_max_limit, step=0.01)
+                        inactive = st.selectbox(label="Inativo", options=inactive_options.keys())
                         confirm_values = st.checkbox(label="Confirmar Dados")
 
-            send_data_button = st.button(label="Atualizar valores")
+            send_data_button = st.button(label=":floppy_disk: Atualizar valores")
 
             if confirm_values and send_data_button:
-
-                new_limit_query = '''
-                UPDATE cartao_credito 
-                SET 
-                    limite_credito = {},
-                    inativo = '{}'
-                WHERE
-                    nome_cartao = '{}'
-                    AND proprietario_cartao = '{}'
-                    AND documento_titular = {};'''.format(new_limit, inactive, card, user_name, user_document)
+                
+                inactive = inactive_options[inactive]
+                new_limit_query = '''UPDATE cartao_credito SET limite_credito = {}, inativo = '{}' WHERE nome_cartao = '{}' AND proprietario_cartao = '{}' AND documento_titular = {};'''.format(new_limit, inactive, card, user_name, user_document)
 
                 with col2:
                     with st.spinner(text='Aguarde...'):
-                        sleep(1)
+                        sleep(2.5)
                         query_executor.update_table_unique_register(new_limit_query, "Limite atualizado com sucesso!", "Erro ao atualizar limite:")
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
@@ -182,31 +174,29 @@ class UpdateCreditCards:
 
             elif len(credit_cards) >= 1:
                 with col1:
+                    st.subheader(body=":computer: Entrada de dados")
+
                     with st.expander(label="Dados da fatura", expanded=True):
                         card_name = st.selectbox(label="Cartão", options=credit_cards)
                         card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
                         year = st.selectbox(label="Ano", options=years)
                         month = st.selectbox(label="Mês", options=months)
+                        beggining_invoice_date = st.date_input(label="Início")
+                        ending_invoice_date = st.date_input(label="Fim")
 
-                        if year != '' or year > 0:
-
-                            beggining_invoice_date = st.date_input(label="Início")
-                            ending_invoice_date = st.date_input(label="Fim")
-
-                    register_invoice = st.button(label="Registrar fechamento")
-
-                    with col2:
-                        data_expander = st.expander(label="Validação dos dados", expanded=True)
+                    register_invoice = st.button(label=":floppy_disk: Registrar fechamento")
 
                     if register_invoice:
 
                         with col2:
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2)
+
+                            st.subheader(body="")
+
                             with st.expander(label="Validação dos dados", expanded=True):
-
                                 if card_name != "" and month != "" and beggining_invoice_date < ending_invoice_date:
-
-                                    with data_expander:
-                                        st.success(body="Dados válidos.")
+                                    st.success(body="Dados válidos.")
 
                                     new_credit_card_invoice_query = """INSERT INTO fechamentos_cartao (nome_cartao, numero_cartao, documento_titular, ano, mes, data_comeco_fatura, data_fim_fatura) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                                     new_credit_card_invoice_values = (
@@ -241,24 +231,17 @@ class UpdateCreditCards:
             with col3:
                 cm_cl1, cm_cl2 = st.columns(2)
 
-                cc_menu_options = [
-            "Cadastrar cartão",
-            "Atualizar cartão",
-            "Atualizar vencimentos de fatura",
-            ]
+                cc_menu_options = {
+                    "Cadastrar cartão": get_new_credit_card,
+                    "Atualizar cartão": update_credit_card,
+                    "Atualizar vencimentos de fatura": update_credit_card_invoices
+                }
 
                 with cm_cl2:
-                    cc_selected_option = st.selectbox(
-                        label="Menu", options=cc_menu_options
-                    )
+                    cc_selected_option = st.selectbox(label="Menu", options=cc_menu_options)
 
-            if cc_selected_option == "Cadastrar cartão":
-                get_new_credit_card()
-
-            if cc_selected_option == "Atualizar cartão":
-                update_credit_card()
-
-            if cc_selected_option == "Atualizar vencimentos de fatura":
-                update_credit_card_invoices()
+            if cc_selected_option:
+                call_function = cc_menu_options[cc_selected_option]
+                call_function()
 
         self.credit_cards_interface = show_interface

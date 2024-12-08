@@ -2,7 +2,6 @@ from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import user_current_accounts_query, expenses_statement_query, revenues_statement_query
 from dictionary.vars import to_remove_list
 from functions.query_executor import QueryExecutor
-from functions.variables import Variables
 from time import sleep
 import pandas as pd
 import streamlit as st
@@ -13,7 +12,6 @@ class AccountStatement:
     def __init__(self):
 
         query_executor = QueryExecutor()
-        variable = Variables()
 
         def mount_statement_query(statement_type: str, accounts: list, initial_data: str, final_data: str):
 

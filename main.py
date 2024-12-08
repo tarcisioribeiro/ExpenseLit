@@ -26,7 +26,7 @@ try:
         col1, col2, col3 = st.columns(3)
 
         with col2:
-            st.error(body="Não foi configurado o ambiente de conexão. Informe os dados de conexão.", icon="🚨")
+            st.error(body="Não foi configurado o ambiente de conexão. Informe os dados de conexão.")
         
         st.divider()
 

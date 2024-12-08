@@ -2,6 +2,7 @@ from datetime import datetime
 from functions.credit_card import Credit_Card
 from functions.get_balance import GetBalance
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from dictionary.sql import (
     fund_expense_query,
     fund_revenue_query,
@@ -15,7 +16,7 @@ from dictionary.sql import (
     owner_active_cards_query
 )
 from dictionary.user_stats import user_name, user_sex
-from dictionary.vars import to_remove_list, string_actual_month
+from dictionary.vars import to_remove_list, string_actual_month, decimal_values, actual_year
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
@@ -25,57 +26,39 @@ class Home:
 
     def __init__(self):
 
+        call_balance = GetBalance()
+        balance = call_balance.balance()
+        accounts_list, accounts_balance, future_accounts_balance = call_balance.accounts_balance()
+        last_revenues, last_expenses, max_revenue, max_expense = call_balance.list_values()
+        variable = Variable()
+
         query_executor = QueryExecutor()
 
-        def treat_complex_string(str_passed: str):
+        def treat_complex_string(value_passed: float):
+            str_value = str(value_passed)            
+            str_value = str_value.replace(".", ",")
+            last_two_values = str_value[-2:]
 
-            list_to_treat = list(str_passed)
-            point_position = list_to_treat.index(".")
-            list_treated = list_to_treat[: point_position + 3]
+            if last_two_values in decimal_values:
+                str_value = str_value + "0"
 
-            final_str = ""
-
-            for i in range(0, len(list_treated)):
-                final_str += list_treated[i]
-            
-            final_index = final_str[-1]
-            penultimate_index = final_str[-2]
-
-            last_str = penultimate_index + final_index
-
-            aux_list = list_treated[-2:]
-            aux_str = ""
-            if "." in aux_list:
-                aux_str += aux_list[1] + "0"
-            if last_str == '.0':
-                final_str = final_str + "0"
-            else:
-                aux_str += aux_list[0] + aux_list[1]
-            
-            final_str = final_str.replace(".", ",")
-
-            return final_str
+            return str_value
 
         def mount_card_graph(selected_card: str):
-
             credit_card = Credit_Card()
+            int_actual_year = int(actual_year)
 
-            not_payed_expenses = credit_card.not_payed_expenses(selected_card="{}".format(selected_card))
-            month_expenses = credit_card.month_expenses(selected_card, string_actual_month)
-            future_expenses = credit_card.future_expenses(selected_card="{}".format(selected_card))
-            card_limit = credit_card.card_limit(selected_card=selected_card)
+            not_payed_expenses = credit_card.not_payed_expenses(selected_card)
+            month_expenses = credit_card.month_expenses(selected_card, int_actual_year, string_actual_month)
+            future_expenses = credit_card.future_expenses(selected_card)
+            card_limit = credit_card.card_limit(selected_card)
             remaining_limit = credit_card.card_remaining_limit(selected_card)
 
             st.info(body="Cartão {}".format(selected_card))
             credit_card_data_df = pd.DataFrame(
                 {
                     "Categoria": ["Faturas não pagas", "Mês Atual", "Futuro", "Limite Restante"],
-                    "Valor": [
-                        not_payed_expenses,
-                        month_expenses,
-                        future_expenses,
-                        remaining_limit,
-                    ],
+                    "Valor": [not_payed_expenses, month_expenses, future_expenses,remaining_limit],
                     "Porcentagem": [
                         (not_payed_expenses / card_limit) * 100 if card_limit != 0 else 0,
                         (month_expenses / card_limit) * 100 if card_limit != 0 else 0,
@@ -88,51 +71,52 @@ class Home:
             credit_card_data_df["Porcentagem"] = credit_card_data_df["Porcentagem"].apply(lambda x: f"{x:.2f}%".replace(".", ","))
             st.dataframe(credit_card_data_df, hide_index=True, use_container_width=True)
 
-        def show_balance():
+        def mount_balance():
+            values_list = []
 
-            call_balance = GetBalance()
-            balance = call_balance.balance()
-            accounts_list, accounts_balance, future_accounts_balance = call_balance.accounts_balance()
-            last_revenues, last_expenses, max_revenue, max_expense = call_balance.list_values()
-
-            str_balance = str(balance)
-            final_str_balance = treat_complex_string(str_balance)
+            final_str_balance = treat_complex_string(balance)
+            values_list.append(final_str_balance)
 
             ticket_revenue_ammount = query_executor.simple_consult_query(ticket_revenue_query)
             ticket_revenue_ammount = query_executor.treat_simple_result(ticket_revenue_ammount, to_remove_list)
             ticket_revenue_ammount = float(ticket_revenue_ammount)
-
             ticket_expense_ammount = query_executor.simple_consult_query(ticket_expense_query)
             ticket_expense_ammount = query_executor.treat_simple_result(ticket_expense_ammount, to_remove_list)
             ticket_expense_ammount = float(ticket_expense_ammount)
-
             ticket_ammount = ticket_revenue_ammount - ticket_expense_ammount
-            str_ticket_ammount = str(ticket_ammount)
-            final_str_ticket_ammount = treat_complex_string(str_ticket_ammount)
+            final_str_ticket_ammount = treat_complex_string(ticket_ammount)
+            values_list.append(final_str_ticket_ammount)
 
             fund_revenue_ammount = query_executor.simple_consult_query(fund_revenue_query)
             fund_revenue_ammount = query_executor.treat_simple_result(fund_revenue_ammount, to_remove_list)
             fund_revenue_ammount = float(fund_revenue_ammount)
-
             fund_expense_ammount = query_executor.simple_consult_query(fund_expense_query)
             fund_expense_ammount = query_executor.treat_simple_result(fund_expense_ammount, to_remove_list)
             fund_expense_ammount = float(fund_expense_ammount)
-
             fund_ammount = fund_revenue_ammount - fund_expense_ammount
-            str_fund_ammount = str(fund_ammount)
-            final_str_fund_ammount = treat_complex_string(str_fund_ammount)
+            final_str_fund_ammount = treat_complex_string(fund_ammount)
+            values_list.append(final_str_fund_ammount)
 
             loan_ammount = query_executor.simple_consult_query(loan_expense_query)
             loan_ammount = query_executor.treat_simple_result(loan_ammount, to_remove_list)
-            str_loan_ammount = str(loan_ammount)
-            final_str_loan_ammount = treat_complex_string(str_loan_ammount)
+            final_str_loan_ammount = treat_complex_string(loan_ammount)
+            values_list.append(final_str_loan_ammount)
 
             debts_ammount = query_executor.simple_consult_query(debts_expense_query)
             debts_ammount = query_executor.treat_simple_result(debts_ammount, to_remove_list)
-            str_debts_ammount = str(debts_ammount)
-            final_str_debts_ammount = treat_complex_string(str_debts_ammount)
+            final_str_debts_ammount = treat_complex_string(debts_ammount)
+            values_list.append(final_str_debts_ammount)
+            
+            return values_list
+            
+        def show_balance():
 
             col1, col2, col3 = st.columns(3)
+
+            balance_values_list = mount_balance()
+
+            with col1:
+                st.header(":moneybag: Controle Financeiro")
 
             with col2:
                 
@@ -168,15 +152,15 @@ class Home:
 
                 with st.expander(label="Valores principais", expanded=True):
                     st.text(body="O seu saldo total é:", help="Valor considerando saldo em contas correntes.")
-                    st.info(body=":heavy_dollar_sign: {}".format(final_str_balance))
+                    st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[0]))
                     st.text(body="Saldo de Vale Disponível:", help="Valor considerando saldo de vales alimentação e refeição.")
-                    st.info(body=":heavy_dollar_sign: {}".format(final_str_ticket_ammount))
+                    st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[1]))
                     st.text(body="Fundo de garantia:", help="Valor considerando saldos de fundo de garantia.")
-                    st.info(body=":heavy_dollar_sign: {}".format(final_str_fund_ammount))
+                    st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[2]))
                     st.text(body="Empréstimos não recebidos:", help="Valores de empréstimos realizados que ainda não recebidos.")
-                    st.info(body=":heavy_dollar_sign: {}".format(final_str_loan_ammount))
+                    st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[3]))
                     st.text(body="Valores a pagar:", help="Dívidas e empréstimos contraídos que ainda não foram pagos.")
-                    st.info(body=":heavy_dollar_sign: {}".format(final_str_debts_ammount))
+                    st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[4]))
 
                 with st.expander(label="Contas", expanded=True):
                     if balance > 0 and len(accounts_balance) > 0:
@@ -212,20 +196,9 @@ class Home:
                     st.info(body=":arrow_up_small: Últimas receitas")
 
                     if len(last_revenues) > 0:
-                        revenue_df = pd.DataFrame(
-                            last_revenues,
-                            columns=[
-                                "Descrição",
-                                "Valor",
-                                "Data",
-                                "Categoria",
-                                "Conta",
-                            ],
-                        )
-
+                        revenue_df = pd.DataFrame(last_revenues, columns=["Descrição", "Valor", "Data", "Categoria", "Conta"])
                         revenue_df["Valor"] = revenue_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                         revenue_df["Data"] = pd.to_datetime(revenue_df["Data"]).dt.strftime("%d/%m/%Y")
-
                         st.dataframe(revenue_df, hide_index=True, use_container_width=True)
                     else:
                         st.warning(body="Você ainda não possui receitas registradas.")
@@ -233,16 +206,7 @@ class Home:
                     st.info(body=":arrow_down_small: Últimas despesas")
 
                     if len(last_expenses) > 0:
-                        expense_df = pd.DataFrame(
-                            last_expenses,
-                            columns=[
-                                "Descrição",
-                                "Valor",
-                                "Data",
-                                "Categoria",
-                                "Conta",
-                            ],
-                        )
+                        expense_df = pd.DataFrame(last_expenses, columns=["Descrição", "Valor", "Data", "Categoria", "Conta"])
                         expense_df["Valor"] = expense_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                         expense_df["Data"] = pd.to_datetime(expense_df["Data"]).dt.strftime("%d/%m/%Y")
                         st.dataframe(expense_df, hide_index=True, use_container_width=True)
@@ -253,21 +217,10 @@ class Home:
                     st.info(body=":arrow_up_small: Maiores receitas")
 
                     if len(max_revenue) > 0:
-                        max_revenue_df = pd.DataFrame(
-                            max_revenue,
-                            columns=[
-                                "Descrição",
-                                "Valor",
-                                "Data",
-                                "Categoria",
-                                "Conta",
-                            ],
-                        )
-
+                        max_revenue_df = pd.DataFrame(max_revenue, columns=["Descrição", "Valor", "Data", "Categoria", "Conta"])
                         max_revenue_df["Valor"] = max_revenue_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                         max_revenue_df["Data"] = pd.to_datetime(max_revenue_df["Data"]).dt.strftime("%d/%m/%Y")
                         st.dataframe(max_revenue_df, hide_index=True, use_container_width=True)
-
                     else:
                         st.warning(body="Você ainda não possui receitas registradas.")
 
@@ -301,18 +254,10 @@ class Home:
                         fig, ax = plt.subplots()
                         wedges, texts, autotexts = ax.pie(account_df["Valor"], labels=None, autopct="", startangle=90)
                         ax.axis("equal")
-                        legend_labels = ["{} - {:.1f}%".format(category, (value / account_df["Valor"].sum()) * 100)
-                            for category, value in zip(
-                                account_df["Categoria"], account_df["Valor"]
-                            )
+                        legend_labels = ["{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
+                            for category, value in zip(account_df["Categoria"], account_df["Valor"])
                         ]
-                        ax.legend(
-                            wedges,
-                            legend_labels,
-                            title="Legenda",
-                            loc="center left",
-                            bbox_to_anchor=(1, 0.5),
-                        )
+                        ax.legend(wedges, legend_labels, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
                         ax.set_title("Despesas por Categoria - Contas Correntes")
                         st.pyplot(fig)
                     else:
@@ -332,7 +277,7 @@ class Home:
                         )
                         ax.axis("equal")
                         legend_labels = [
-                            "{} - {:.1f}%".format(category, (value / credit_card_df["Valor"].sum()) * 100)
+                            "{} - {:.2f}%".format(category, (value / credit_card_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(
                                 credit_card_df["Categoria"], credit_card_df["Valor"]
                             )
@@ -359,7 +304,7 @@ class Home:
                         fig, ax = plt.subplots()
                         wedges, texts, autotexts = ax.pie(account_df["Valor"], labels=None, autopct="", startangle=90)
                         ax.axis("equal")
-                        legend_labels = ["{} - {:.1f}%".format(category, (value / account_df["Valor"].sum()) * 100)
+                        legend_labels = ["{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(
                                 account_df["Categoria"], account_df["Valor"]
                             )
@@ -377,4 +322,4 @@ class Home:
                     else:
                         st.warning(body="Você ainda não possui receitas registradas.")
 
-        self.show_balance = show_balance
+        self.main_menu = show_balance

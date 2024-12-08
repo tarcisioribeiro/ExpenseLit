@@ -22,21 +22,28 @@ class Creditors:
                 st.warning(body="Em desenvolvimento.", icon="⚠️")            
 
         def new_creditor():
+
             with col1:
+                st.subheader(body=":computer: Entrada de dados")
+
                 with st.expander(label="Dados do credor", expanded=True):
-                    creditor_name = st.text_input(label="Nome", max_chars=100)
-                    creditor_document = st.text_input(label="Documento")
-                    creditor_phone = st.text_input(label="Telefone/Celular", max_chars=11)
+                    creditor_name = st.text_input(label=":lower_left_ballpoint_pen: Nome", max_chars=100)
+                    creditor_document = st.text_input(label=":lower_left_ballpoint_pen: Documento")
+                    creditor_phone = st.text_input(label=":telephone_receiver: Telefone/Celular", max_chars=11)
                     confirm_creditor_data = st.checkbox(label="Confirmar dados")
 
                 register_new_creditor = st.button(label=":floppy_disk: Cadastrar credor")
 
                 if confirm_creditor_data and register_new_creditor:
                     with col2:
+                        st.subheader(body="")
                         with st.spinner(text="Aguarde..."):
                             sleep(2)
                         with st.expander(label="Validação dos dados", expanded=True):
+
                             is_document_valid = document.validate_owner_document(creditor_document)
+                            
+
                             if is_document_valid == True and creditor_name != '' and creditor_phone != '':
                                 creditor_document = int(creditor_document)
                                 st.success(body="Documento válido.")
@@ -61,6 +68,9 @@ class Creditors:
                                         st.error(body="Este documento já está sendo utilizado por outro credor.")
                                     if creditor_phone == user_phone:
                                         st.error(body="Este número de telefone já está sendo utilizado.")
+                            
+                            elif is_document_valid == False:
+                                st.error(body="O documento {} informado não é válido.".format(creditor_document))
 
         def main_menu():
             menu_options = ["Cadastrar credor", "Atualizar credor"]

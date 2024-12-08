@@ -844,8 +844,8 @@ total_account_expense_query: str = """
                                             AND usuarios.senha = '{}';"""
 
 card_invoices_query = '''
-                            SELECT 
-                                fechamentos_cartao.mes
+                            SELECT
+                                CONCAT(fechamentos_cartao.mes, " de ", fechamentos_cartao.ano)
                             FROM
                                 fechamentos_cartao
                                     INNER JOIN
@@ -857,7 +857,6 @@ card_invoices_query = '''
                                 fechamentos_cartao.nome_cartao = '{}'
                                     AND usuarios.login = '{}'
                                     AND usuarios.senha = '{}'
-                                    AND fechamentos_cartao.ano = '{}'
                                     AND fechamentos_cartao.fechado = 'N'
                             ORDER BY fechamentos_cartao.data_comeco_fatura;
                         '''

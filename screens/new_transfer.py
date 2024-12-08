@@ -16,7 +16,7 @@ class NewTransfer:
         call_time = GetActualTime()
 
         def new_transfer():
-            st.subheader(body=":currency_exchange: Nova Transferência")
+            st.header(body=":currency_exchange: Nova Transferência")
 
             st.divider()
 
@@ -34,10 +34,16 @@ class NewTransfer:
             elif len(user_current_accounts) >= 2:
 
                 with col1:
-                    st.subheader(body=":computer: Entrada de Dados")
+                    st.subheader(body=":computer: Entrada de dados")
+
                     with st.expander(label="Dados", expanded=True):
                         to_treat_id = query_executor.simple_consult_query(last_transfer_id_query)
                         id = (int(query_executor.treat_simple_result(to_treat_id, to_remove_list))+ 1)
+
+                        options = {
+                            "Sim": "S",
+                            "Não": "N"
+                        }
 
                         description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
                         value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
@@ -45,23 +51,22 @@ class NewTransfer:
                         category = st.selectbox(label=":card_index_dividers: Categoria", options=transfer_categories)
                         origin_account = st.selectbox(label=":bank: Conta de Origem", options=user_current_accounts)
                         destiny_account = st.selectbox(label=":bank: Conta de Destino", options=user_current_accounts)
-                        transfered = st.selectbox(label=":inbox_tray: Transferido", options=["S", "N"])
+                        transfered = st.selectbox(label=":inbox_tray: Transferido", options=options)
 
                         user_doc_name = query_executor.complex_consult_query(query=doc_name_query)
                         treated_user_doc_name = query_executor.treat_complex_result(user_doc_name, to_remove_list)
 
                         confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
-                        total_account_revenue_complete_query = total_account_revenue_query.format(
-                            origin_account, logged_user, logged_user_password
-                        )
-
+                        total_account_revenue_complete_query = total_account_revenue_query.format(origin_account, logged_user, logged_user_password)
                         total_account_expense_complete_query = total_account_expense_query.format(origin_account, logged_user, logged_user_password)
 
                     generate_receipt_button = st.button(label=":pencil: Gerar Comprovante", key="generate_receipt_button")
 
                 with col3:
                     if confirm_values_check_box and generate_receipt_button:
+
+                        transfered = options[transfered]
 
                         with col2:
 
@@ -179,4 +184,4 @@ class NewTransfer:
                                         body="A conta de origem e a conta de destino não podem ser a mesma."
                                     )
 
-        self.get_transfer = new_transfer
+        self.main_menu = new_transfer

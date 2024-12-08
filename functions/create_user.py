@@ -67,17 +67,26 @@ class CreateUser:
                     with cl2:
                         st.warning(body="Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
 
-            with col5:
+            with col4:
+                st.subheader(body=":computer: Entrada de dados")
+
                 with st.expander(label="Dados do usuário", expanded=True):
+                    user_login = st.text_input(label=":lock: Login de usuário",max_chars=25,help="O nome do usuário deve ter no máximo 25 caracteres.")
+                    user_password = st.text_input(label=":key: Senha de usuário",max_chars=100,help="A senha deve conter no máximo 100 caracteres.",type="password")
+                    confirm_user_password = st.text_input(label=":key: Confirme a senha do usuário",max_chars=100,help="A senha deve conter no máximo 100 caracteres.",type="password")
+                    user_name = st.text_input(label=":lower_left_ballpoint_pen: Nome completo do usuário",max_chars=100,help="Informe aqui seu nome completo.",)
 
-                    user_login = st.text_input(label="Login de usuário",max_chars=25,help="O nome do usuário deve ter no máximo 25 caracteres.",)
-                    user_password = st.text_input(label="Senha de usuário",max_chars=100,help="A senha deve conter no máximo 100 caracteres.",type="password")
-                    user_name = st.text_input(label="Nome completo do usuário",max_chars=100,help="Informe aqui seu nome completo.",)
-                    user_document = st.text_input(label="CPF do usuário")
-                    user_phone = st.text_input(label="Telefone/Celular")
+                confirm_values = st.checkbox(label="Confirmar dados")
+
+            with col5:
+                st.subheader(body="")
+
+                with st.expander(label="Dados do usuário", expanded=True):
+                    user_document = st.text_input(label=":notebook_with_decorative_cover: CPF do usuário", help="Informe um CPF real e válido.")
+                    user_phone = st.text_input(label=":telephone_receiver: Telefone/Celular", max_chars=11, help="Informe o número de telefone da seguinte forma: 12944781122")
+                    user_email = st.text_input(label=":email: Email", max_chars=100, help="Informe um email válido. O email não deve ter mais de 100 caracteres.")
                     user_sex = st.selectbox(label="Sexo do usuário", options=sex_options.keys())
-                    confirm_values = st.checkbox(label="Confirmar dados")
-
+                    
                 insert_new_user_button = st.button(label=":floppy_disk: Cadastrar novo usuário")
 
                 if insert_new_user_button and confirm_values:

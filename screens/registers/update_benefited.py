@@ -23,16 +23,20 @@ class Benefited:
 
         def new_benefited():
             with col1:
+                st.subheader(body=":computer: Entrada de dados")
+
                 with st.expander(label="Dados do credor", expanded=True):
-                    benefited_name = st.text_input(label="Nome", max_chars=100)
-                    benefited_document = st.text_input(label="Documento")
-                    benefited_phone = st.text_input(label="Telefone/Celular", max_chars=11)
+                    benefited_name = st.text_input(label=":lower_left_ballpoint_pen: Nome", max_chars=100)
+                    benefited_document = st.text_input(label=":lower_left_ballpoint_pen: Documento")
+                    benefited_phone = st.text_input(label=":telephone_receiver: Telefone/Celular", max_chars=11)
                     confirm_benefited_data = st.checkbox(label="Confirmar dados")
 
-                register_new_creditor = st.button(label=":floppy_disk: Cadastrar credor")
+                register_new_creditor = st.button(label=":floppy_disk: Cadastrar beneficiado")
 
                 if confirm_benefited_data and register_new_creditor:
                     with col2:
+                        st.subheader(body="")
+
                         with st.spinner(text="Aguarde..."):
                             sleep(2)
                         with st.expander(label="Validação dos dados", expanded=True):
