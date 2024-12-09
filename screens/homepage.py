@@ -304,11 +304,14 @@ class Home:
                         fig, ax = plt.subplots()
                         wedges, texts, autotexts = ax.pie(account_df["Valor"], labels=None, autopct="", startangle=90)
                         ax.axis("equal")
-                        legend_labels = ["{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
+                        
+                        legend_labels = [
+                            "{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(
                                 account_df["Categoria"], account_df["Valor"]
                             )
                         ]
+
                         ax.legend(
                             wedges,
                             legend_labels,

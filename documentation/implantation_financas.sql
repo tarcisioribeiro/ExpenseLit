@@ -102,6 +102,7 @@ CREATE TABLE `contas` (
   `tipo_conta` varchar(50) NOT NULL,
   `proprietario_conta` varchar(100) NOT NULL,
   `documento_proprietario_conta` bigint NOT NULL,
+  `caminho_arquivo_imagem` TEXT,
   `inativa` char(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`id_conta`),
   UNIQUE KEY `chave_conta` (`nome_conta`,`tipo_conta`,`proprietario_conta`,`documento_proprietario_conta`),
@@ -404,6 +405,7 @@ CREATE TABLE `usuarios` (
   `nome` varchar(100) NOT NULL,
   `cpf` bigint NOT NULL,
   `telefone` varchar(11),
+  `email` varchar(100),
   `sexo` char(1) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `chave_usuario` (`login`,`senha`),
@@ -430,3 +432,38 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2024-07-28 20:19:00
+
+DROP TABLE IF EXISTS `meses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `meses` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `numero_mes` tinyint NOT NULL,
+  `nome_mes` varchar(20) NOT NULL,
+  `abreviacao` varchar(5) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `meses`
+--
+
+LOCK TABLES `meses` WRITE;
+/*!40000 ALTER TABLE `meses` DISABLE KEYS */;
+INSERT INTO `meses` VALUES (1,1,'Janeiro','Jan'),(2,2,'Fevereiro','Fev'),(3,3,'Março','Mar'),(4,4,'Abril','Abr'),(5,5,'Maio','Mai'),(6,6,'Junho','Jun'),(7,7,'Julho','Jul'),(8,8,'Agosto','Ago'),(9,9,'Setembro','Set'),(10,10,'Outubro','Out'),(11,11,'Novembro','Nov'),(12,12,'Dezembro','Dez');
+/*!40000 ALTER TABLE `meses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+CREATE TABLE `anos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ano` int NOT NULL,
+  `bissexto` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+LOCK TABLES `meses` WRITE;
+/*!40000 ALTER TABLE `meses` DISABLE KEYS */;
+INSERT INTO `anos` VALUES (1, 2020, 1), (2, 2021, 0), (3, 2022, 0), (4, 2023, 0), (5, 2024, 1), (6, 2025, 0), (7, 2026, 0), (8, 2027, 0), (9, 2028, 1);
+/*!40000 ALTER TABLE `meses` ENABLE KEYS */;
+UNLOCK TABLES;

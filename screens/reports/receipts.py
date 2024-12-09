@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
+from dictionary.user_stats import user_name
 from datetime import datetime
 from dictionary.vars import accounts_images_paths, operational_system, today, actual_horary, to_remove_list, absolute_app_path, accounts_images, transfer_image, decimal_values
 from dictionary.sql import user_current_accounts_query
@@ -333,17 +334,11 @@ class Receipts:
             if operational_system == "nt":
                 font = ImageFont.truetype("cour.ttf", font_size)
             elif operational_system == "posix":
-                font = ImageFont.truetype(
-                    "{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path),
-                    font_size,
-                )
+                font = ImageFont.truetype("{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path), font_size)
 
             border_color = "black"
             border_width = 4
-            border_box = [
-                (border_width, border_width),
-                (width - border_width, height - border_width),
-            ]
+            border_box = [(border_width, border_width),(width - border_width, height - border_width)]
             draw.rectangle(border_box, outline=border_color, width=border_width)
 
             header_font_size = 20
@@ -371,6 +366,7 @@ class Receipts:
             draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
             draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
             draw.line([(width - 240, height - 60), (width - 20, height - 60)], fill="black", width=2)
+            draw.text((520, 360), f"Ass: {user_name}", fill="black", font=font)
             draw.text((20, height - 40), reference_number, fill="black", font=font)
 
             image_number = 0

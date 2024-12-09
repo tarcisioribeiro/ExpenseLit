@@ -158,5 +158,7 @@ data/receipts/pay_stub/*.png
 data/receipts/revenues/*.png
 data/receipts/transfers/*.png
 data/receipts/reports/*.png
+library/images/accounts/*.png
+library/images/accounts/*.jpg
 data/cache/session_state.py
 services/temp_backup.sh

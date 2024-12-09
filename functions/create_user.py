@@ -100,14 +100,14 @@ class CreateUser:
                         with cl2:
                             is_document_valid = document.validate_owner_document(user_document)
 
-                    if user_login != "" and user_password != "" and user_name != "" and is_document_valid == True and user_phone != "" and user_sex != "":
+                    if user_login != "" and ((user_password != "" and confirm_user_password != "") and user_password == confirm_user_password) and user_name != "" and is_document_valid == True and user_phone != "" and user_email != "":
                         with cl2:
                             st.success("O documento {} é válido.".format(user_document))
                             sleep(3)
 
                         if check_user_quantity == 0:
-                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, sexo) VALUES (%s, %s, %s, %s, %s, %s)"""
-                            new_user_values = (user_login,user_password,user_name,user_document,user_phone,user_sex)
+                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+                            new_user_values = (user_login,user_password,user_name,user_document,user_phone,user_email,user_sex)
                             query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
 
                             insert_new_creditor_query = """INSERT INTO credores (nome, documento, telefone) VALUES (%s, %s, %s)"""
@@ -135,8 +135,8 @@ class CreateUser:
                                     is_data_valid = check_if_user_exists(user_login, user_document)
 
                                     if is_data_valid == True:
-                                        insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s)"""
-                                        new_user_values = (user_login,user_password,user_name,user_document,user_sex)
+                                        insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s, %s)"""
+                                        new_user_values = (user_login,user_password,user_name,user_document,user_email,user_sex)
                                         query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
 
                                         insert_new_creditor_query = """INSERT INTO credores (nome, documento) VALUES (%s, %s)"""
@@ -155,12 +155,25 @@ class CreateUser:
                                     elif is_data_valid >= False:
                                         pass
 
-                    elif user_login != "" and user_password != "" and user_name != "" and is_document_valid == False and user_sex != "":
+                    elif user_login == "" or user_password == "" or confirm_user_password == "" or (user_password != confirm_user_password) or user_name == "" or is_document_valid == False or user_email == "" or user_phone == "":
                         with cl2:
-                            st.error("O documento {} é inválido.".format(user_document))
+                            if is_document_valid == False:
+                                st.error("O documento {} é inválido.".format(user_document))
+                            if user_login == "":
+                                st.error("O login de usuário não foi preenchido.")
+                            if user_password == "":
+                                st.error("A senha não foi preenchida.")
+                            if confirm_user_password == "":
+                                st.error("A confirmação da senha não foi preenchida.")
+                            if user_password != confirm_user_password:
+                                st.error("As senhas não coincidem.")
+                            if user_name == "":
+                                st.error("O nome do usuário não foi preenchido.")
+                            if user_email == "":
+                                st.error("O email de usuário não foi preenchido.")
 
                 elif confirm_values == False and insert_new_user_button:
-                    st.warning(body=":warning: Revise os dados e confirme-os antes de prosseguir.")
+                    st.warning(body="Revise os dados e confirme-os antes de prosseguir.")
 
         self.main_menu = main_menu
 

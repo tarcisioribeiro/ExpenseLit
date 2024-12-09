@@ -36,6 +36,11 @@ class NewCurrentRevenue:
 
                     with st.expander(label="Dados", expanded=True):
 
+                        options = {
+                            "Sim": "S",
+                            "Não": "N"
+                        }
+
                         id = query_executor.simple_consult_query(last_revenue_id_query)
                         id = query_executor.treat_simple_result(id, to_remove_list)
                         id = int(id) + 1
@@ -45,7 +50,7 @@ class NewCurrentRevenue:
                         date = st.date_input(label=":date: Data")
                         category = st.selectbox(label=":card_index_dividers: Categoria", options=revenue_categories)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
-                        received = st.selectbox(label=":inbox_tray: Recebido", options=["S", "N"])
+                        received = st.selectbox(label=":inbox_tray: Recebido", options=options.keys())
 
                         confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
@@ -54,6 +59,8 @@ class NewCurrentRevenue:
                 with col6:
 
                     if confirm_values_check_box and send_revenue_button:
+
+                        received = options[received]
 
                         with col5:
                             with st.spinner("Aguarde..."):
