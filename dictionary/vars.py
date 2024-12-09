@@ -27,40 +27,9 @@ headless = true
 enableStaticServing = true"""
 
 main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))
-
-ben_visa_vale_image: str = Image.open("{}/library/images/ben_visa_vale.png".format(absolute_app_path))
-caixa_image: str = Image.open("{}/library/images/caixa.png".format(absolute_app_path))
-wallet_image: str = Image.open("{}/library/images/wallet.png".format(absolute_app_path))
-mercado_pago_image: str = Image.open("{}/library/images/mercado_pago.png".format(absolute_app_path))
-nubank_image: str = Image.open("{}/library/images/nubank.png".format(absolute_app_path))
-picpay_image: str = Image.open("{}/library/images/picpay.png".format(absolute_app_path))
-sicoob_image: str = Image.open("{}/library/images/sicoob.png".format(absolute_app_path))
 transfer_image: str = Image.open("{}/library/images/transfer.png".format(absolute_app_path))
 
-accounts_images: list = [ben_visa_vale_image,caixa_image,wallet_image,mercado_pago_image,nubank_image,picpay_image,sicoob_image]
-
-ben_visa_vale_image_path = ("{}/library/images/ben_visa_vale.png".format(absolute_app_path))
-caixa_image_path = "{}/library/images/caixa.png".format(absolute_app_path)
-wallet_image_path = "{}/library/images/wallet.png".format(absolute_app_path)
-mercado_pago_image_path = ("{}/library/images/mercado_pago.png".format(absolute_app_path))
-nubank_image_path = "{}/library/images/nubank.png".format(absolute_app_path)
-picpay_image_path = "{}/library/images/picpay.png".format(absolute_app_path)
-sicoob_image_path = "{}/library/images/sicoob.png".format(absolute_app_path)
 transfer_image_path = "{}/library/images/transfer.png".format(absolute_app_path)
-
-accounts_images_paths: list = [ben_visa_vale_image_path,wallet_image_path,caixa_image_path,mercado_pago_image_path,nubank_image_path,picpay_image_path,sicoob_image_path]
-
-static_ben_visa_vale_image: str = "app/static/ben_visa_vale.png"
-static_caixa_image: str = "app/static/caixa.png"
-static_wallet_image: str = "app/static/wallet.png"
-static_mercado_pago_image: str = "app/static/mercado_pago.png"
-static_nubank_image: str = "app/static/nubank.png"
-static_picpay_image: str = "app/static/picpay.png"
-static_sicoob_image: str = "app/static/sicoob.png"
-static_transfer_image: str = "app/static/transfer.png"
-
-static_accounts_images: list = [static_ben_visa_vale_image,static_caixa_image,static_wallet_image,static_mercado_pago_image,static_nubank_image,static_picpay_image,static_sicoob_image]
-years: list = [2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033]
 
 today = datetime.now()
 today = today.date()
@@ -74,34 +43,29 @@ first_month_day = first_month_day.date()
 today = str(today)
 first_month_day = str(first_month_day)
 
-string_actual_month = ""
+months_dictionary = {
+    1: "Janeiro",
+    2: "Fevereiro",
+    3: "Março",
+    4: "Abril",
+    5: "Maio",
+    6: "Junho",
+    7: "Julho",
+    8: "Agosto",
+    9: "Setembro",
+    10: "Outubro",
+    11: "Novembro",
+    12: "Dezembro"
+}
 
-if actual_month == 1:
-    string_actual_month = "Janeiro"
-elif actual_month == 2:
-    string_actual_month = "Fevereiro"
-elif actual_month == 3:
-    string_actual_month = "Março"
-elif actual_month == 4:
-    string_actual_month = "Abril"
-elif actual_month == 5:
-    string_actual_month = "Maio"
-elif actual_month == 6:
-    string_actual_month = "Junho"
-elif actual_month == 7:
-    string_actual_month = "Julho"
-elif actual_month == 8:
-    string_actual_month = "Agosto"
-elif actual_month == 9:
-    string_actual_month = "Setembro"
-elif actual_month == 10:
-    string_actual_month = "Outubro"
-elif actual_month == 11:
-    string_actual_month = "Novembro"
-elif actual_month == 12:
-    string_actual_month = "Dezembro"
+string_actual_month = months_dictionary[actual_month]
 
-menu_options: list = ["Selecione uma opção", "Registrar despesa", "Registrar receita", "Registrar transferência", "Empréstimos", "Relatórios", "Cadastros", "Configurações"]
+special_caracters_dictionary = {
+    "í": "i",
+    "ú": "u",
+    "ô": "o",
+}
+
 expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]
 revenue_categories: list = ["Selecione uma opção","Ajuste","Depósito","Prêmio","Salário","Vale","Rendimentos"]
 transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]
@@ -110,3 +74,5 @@ accounts_type = ["Conta Corrente","Conta Salário","Fundo de Garantia","Vale Ali
 to_remove_list: list = ["'", ")", "(", ",", "Decimal", '"', "[", "]", "datetime.date"]
 
 decimal_values = [",0", ",1", ",2", ",3", ",4", ",5", ",6", ",7", ",8", ",9", "0,0"]
+
+SAVE_FOLDER = absolute_app_path + "/library/images/accounts/"

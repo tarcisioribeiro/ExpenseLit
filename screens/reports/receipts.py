@@ -3,8 +3,8 @@ import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.user_stats import user_name
 from datetime import datetime
-from dictionary.vars import accounts_images_paths, operational_system, today, actual_horary, to_remove_list, absolute_app_path, accounts_images, transfer_image, decimal_values
-from dictionary.sql import user_current_accounts_query
+from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, decimal_values, SAVE_FOLDER
+from dictionary.sql import user_current_accounts_query, account_image_query
 from functions.query_executor import QueryExecutor
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
@@ -161,6 +161,24 @@ class Receipts:
 
         def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
 
+            origin_account_image = query_executor.simple_consult_query(account_image_query.format(origin_account, logged_user, logged_user_password))
+            origin_account_image = query_executor.treat_simple_result(origin_account_image, to_remove_list)
+            origin_account_image_path = SAVE_FOLDER + origin_account_image
+            origin_pasted_image = Image.open(origin_account_image_path)
+
+            destiny_account_image = query_executor.simple_consult_query(account_image_query.format(destiny_account, logged_user, logged_user_password))
+            destiny_account_image = query_executor.treat_simple_result(destiny_account_image, to_remove_list)
+            destiny_account_image_path = SAVE_FOLDER + destiny_account_image
+            destiny_pasted_image = Image.open(destiny_account_image_path)
+
+            float_value = round(value, 2)
+            str_value = str(float_value)
+            str_value = str_value.replace(".", ",")
+
+            last_two_digits = str_value[-2:]
+            if last_two_digits in decimal_values:
+                str_value = str_value + "0"
+
             reference_number = ""
             if id <= 9:
                 reference_number = """REF: 000{}""".format(id)
@@ -168,39 +186,7 @@ class Receipts:
                 reference_number = """REF: 00{}""".format(id)
             if id >= 100 and id <= 999:
                 reference_number = """REF: 0{}""".format(id)
-
-            origin_pasted_image = ""
-            if origin_account == "Ben Visa Vale":
-                origin_pasted_image = accounts_images[0]
-            elif origin_account == "Caixa":
-                origin_pasted_image = accounts_images[1]
-            elif origin_account == "Carteira":
-                origin_pasted_image = accounts_images[2]
-            elif origin_account == "Mercado Pago":
-                origin_pasted_image = accounts_images[3]
-            elif origin_account == "Nubank":
-                origin_pasted_image = accounts_images[4]
-            elif origin_account == "Picpay":
-                origin_pasted_image = accounts_images[5]
-            elif origin_account == "Sicoob":
-                origin_pasted_image = accounts_images[6]
-
-            destiny_pasted_image = ""
-            if destiny_account == "Ben Visa Vale":
-                destiny_pasted_image = accounts_images[0]
-            elif destiny_account == "Caixa":
-                destiny_pasted_image = accounts_images[1]
-            elif destiny_account == "Carteira":
-                destiny_pasted_image = accounts_images[2]
-            elif destiny_account == "Mercado Pago":
-                destiny_pasted_image = accounts_images[3]
-            elif destiny_account == "Nubank":
-                destiny_pasted_image = accounts_images[4]
-            elif destiny_account == "Picpay":
-                destiny_pasted_image = accounts_images[5]
-            elif destiny_account == "Sicoob":
-                destiny_pasted_image = accounts_images[6]
-
+            
             width, height = 800, 400
             dpi = 300
             image = Image.new("RGB", (width, height), "white")
@@ -223,11 +209,6 @@ class Receipts:
             ]
             draw.rectangle(border_box, outline=border_color, width=border_width)
 
-            description = description.upper()
-            category = category.upper()
-            origin_account = origin_account.upper()
-            destiny_account = destiny_account.upper()
-
             header_font_size = 20
 
             if operational_system == "nt":
@@ -238,7 +219,7 @@ class Receipts:
                     font_size,
                 )
 
-            header_text = "COMPROVANTE DE TRANSFERENCIA"
+            header_text = "Comprovante de Transferência"
             header_text_width, header_text_height = draw.textsize(
                 header_text, font=header_font
             )
@@ -246,48 +227,34 @@ class Receipts:
             draw.text(header_position, header_text, fill="black", font=header_font)
 
             draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
-            draw.text((20, 60), f"DESCRIÇÃO: {description}", fill="black", font=font)
-            draw.text((20, 90), f"VALOR: R$ {value:.2f}", fill="black", font=font)
-            draw.text(
-                (20, 120), f"DATA: {date.strftime('%d/%m/%Y')}", fill="black", font=font
-            )
-            draw.text((20, 150), f"CATEGORIA: {category}", fill="black", font=font)
-            draw.text(
-                (20, 180), f"CONTA DE ORIGEM: {origin_account}", fill="black", font=font
-            )
-            draw.text(
-                (20, 210),
-                f"CONTA DE DESTINO: {destiny_account}",
-                fill="black",
-                font=font,
-            )
+            draw.text((20, 60), f"Descrição: {description}", fill="black", font=font)
+            draw.text((20, 90), f"Valor: R$ {str_value}", fill="black", font=font)
+            draw.text((20, 120), f"Data: {date.strftime('%d/%m/%Y')}", fill="black", font=font)
+            draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
+            draw.text((20, 180), f"Conta de Origem: {origin_account}", fill="black", font=font)
+            draw.text((20, 210), f"Conta de Destino: {destiny_account}", fill="black",font=font)
             draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
-            draw.line(
-                [(width - 240, height - 60), (width - 20, height - 60)],
-                fill="black",
-                width=2,
-            )
+            draw.line([(width - 320, height - 60), (width - 20, height - 60)],fill="black", width=2)
+            draw.text((520, 360), f"ASS.: {user_name}", fill="black", font=font)
             draw.text((680, height - 40), reference_number, fill="black", font=font)
 
             image.paste(origin_pasted_image, (20, 250))
             image.paste(transfer_image, (170, 250))
             image.paste(destiny_pasted_image, (320, 250))
 
-            caminho_arquivo = "{}/data/receipts/transfers/Comprovante_de_transferencia_{}_{}.png".format(
-               absolute_app_path, today, actual_horary
-            )
+            caminho_arquivo = "{}/data/receipts/transfers/Comprovante_de_transferencia_{}_{}.png".format(absolute_app_path, today, actual_horary)
 
             image.save(caminho_arquivo, dpi=(dpi, dpi))
             st.image(caminho_arquivo, use_container_width=True)
 
             with open(caminho_arquivo, "rb") as file:
-                download_button = st.download_button(
-                    label=":floppy_disk: Baixar imagem",
-                    data=file,
-                    file_name=caminho_arquivo,
-                )
+                download_button = st.download_button(label=":floppy_disk: Baixar imagem", data=file, file_name=caminho_arquivo)
 
         def generate_receipt(table: str, id, description: str, value: float, date, category: str, account: str):
+
+            account_image = query_executor.simple_consult_query(account_image_query.format(account, logged_user, logged_user_password))
+            account_image = query_executor.treat_simple_result(account_image, to_remove_list)
+            account_image_path = SAVE_FOLDER + account_image
 
             table_dictionary = {
                 "receitas": "Receita",
@@ -308,18 +275,16 @@ class Receipts:
 
             reference_number = ""
             if id <= 9:
-                reference_number = """Ref: 000{}""".format(id)
+                reference_number = """REF: 000{}""".format(id)
             if id >= 10 and id <= 99:
-                reference_number = """Ref: 00{}""".format(id)
+                reference_number = """REF: 00{}""".format(id)
             if id >= 100 and id <= 999:
-                reference_number = """Ref: 0{}""".format(id)
+                reference_number = """REF: 0{}""".format(id)
 
             table = table.capitalize()
-            description = description.capitalize()
             description = description.replace("'", "")
             category = category.capitalize()
             category = category.replace("'", "")
-            account = account.capitalize()
             account = account.replace("'", "")
 
             date = datetime.strptime(date, "%Y-%m-%d")
@@ -365,27 +330,11 @@ class Receipts:
             draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
             draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
             draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
-            draw.line([(width - 240, height - 60), (width - 20, height - 60)], fill="black", width=2)
-            draw.text((520, 360), f"Ass: {user_name}", fill="black", font=font)
+            draw.line([(width - 400, height - 60), (width - 20, height - 60)], fill="black", width=2)
+            draw.text((400, 360), f"ASS.: {user_name}", fill="black", font=font)
             draw.text((20, height - 40), reference_number, fill="black", font=font)
 
-            image_number = 0
-            if account == "Ben Visa Vale":
-                image_number = 0
-            if account == "Carteira":
-                image_number = 1
-            if account == "Caixa":
-                image_number = 2
-            if account == "Mercado Pago":
-                image_number = 3
-            if account == "Nubank":
-                image_number = 4
-            if account == "Picpay":
-                image_number = 5
-            if account == "Sicoob":
-                image_number = 6
-
-            pasted_image = Image.open(accounts_images_paths[image_number])
+            pasted_image = Image.open(account_image_path)
 
             image.paste(pasted_image, (20, 220))
 

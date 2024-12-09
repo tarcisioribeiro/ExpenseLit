@@ -42,9 +42,7 @@ class CreateUser:
         def main_menu():
 
             check_user_quantity = query_executor.simple_consult_query(check_user_query)
-            check_user_quantity = query_executor.treat_simple_result(
-                check_user_quantity, to_remove_list
-            )
+            check_user_quantity = query_executor.treat_simple_result(check_user_quantity, to_remove_list)
             check_user_quantity = int(check_user_quantity)
 
             sex_options = {
@@ -92,7 +90,7 @@ class CreateUser:
                 if insert_new_user_button and confirm_values:
                     with col4:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2)
+                            sleep(2.5)
                     user_sex = sex_options[user_sex]
 
                     with col6:
@@ -135,16 +133,16 @@ class CreateUser:
                                     is_data_valid = check_if_user_exists(user_login, user_document)
 
                                     if is_data_valid == True:
-                                        insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s, %s)"""
-                                        new_user_values = (user_login,user_password,user_name,user_document,user_email,user_sex)
+                                        insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+                                        new_user_values = (user_login,user_password,user_name,user_document,user_phone,user_email,user_sex)
                                         query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
 
-                                        insert_new_creditor_query = """INSERT INTO credores (nome, documento) VALUES (%s, %s)"""
-                                        new_creditor_values = (user_name,user_document)
+                                        insert_new_creditor_query = """INSERT INTO credores (nome, documento, telefone) VALUES (%s, %s, %s)"""
+                                        new_creditor_values = (user_name,user_document, user_phone)
                                         query_executor.insert_query(insert_new_creditor_query,new_creditor_values,"Novo credor cadastrado com sucesso!","Erro ao cadastrar novo credor:")
 
-                                        insert_new_benefited_query = """INSERT INTO beneficiados (nome, documento) VALUES (%s, %s)"""
-                                        new_benefited_values = (user_name,user_document)
+                                        insert_new_benefited_query = """INSERT INTO beneficiados (nome, documento, telefone) VALUES (%s, %s, %s)"""
+                                        new_benefited_values = (user_name,user_document, user_phone)
                                         query_executor.insert_query(insert_new_benefited_query,new_benefited_values,"Novo beneficiado cadastrado com sucesso!","Erro ao cadastrar novo beneficiado:")
 
                                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
@@ -176,7 +174,6 @@ class CreateUser:
                     st.warning(body="Revise os dados e confirme-os antes de prosseguir.")
 
         self.main_menu = main_menu
-
 
 if __name__ == "__main__":
     create_user = CreateUser()

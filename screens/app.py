@@ -1,6 +1,5 @@
 import streamlit as st
 from data.cache.session_state import logged_user
-from dictionary.vars import menu_options
 from functions.query_executor import QueryExecutor
 from functions.login import User
 from screens.expenses.main import NewExpense

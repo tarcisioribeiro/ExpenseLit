@@ -19,7 +19,6 @@ class NewCurrentRevenue:
         user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
         user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
-
         def new_revenue():
 
             col4, col5, col6 = st.columns(3)
@@ -64,38 +63,20 @@ class NewCurrentRevenue:
 
                         with col5:
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
-                            st.subheader(body="Validação de Dados")
+                            st.subheader(body="Validação de dados")
 
-                            data_validation_expander = st.expander(label="Informações", expanded=True)
-
-                        if (
-                            description != ""
-                            and value >= 0.01
-                            and date != ""
-                            and category != "Selecione uma opção"
-                            and account != "Selecione uma opção"
-                        ):
-                            with data_validation_expander:
-                                st.success(body="Dados Válidos.")
+                        if description != "" and category != "Selecione uma opção":
+                            with col5:
+                                with st.expander(label="Informações", expanded=True):
+                                    st.success(body="Dados Válidos.")
 
                             actual_horary = call_actual_time.get_actual_time()
 
                             revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                            values = (
-                                description,
-                                value,
-                                date,
-                                actual_horary,
-                                category,
-                                account,
-                                user_name,
-                                user_document,
-                                received,
-                            )
-                            query_executor.insert_query(
-                                revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
+                            values = (description, value, date, actual_horary, category, account, user_name, user_document, received)
+                            query_executor.insert_query(revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
                             
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             if received == 'S':
@@ -105,17 +86,17 @@ class NewCurrentRevenue:
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
-                            st.subheader(
-                                body=":pencil: Comprovante de receita")
+                            st.subheader(body=":pencil: Comprovante de receita")
+                            receipt_executor.generate_receipt('receitas', id, description, value, str(date), category, account)
 
-                            receipt_executor.generate_receipt(
-                                'receitas', id, description, value, str(date), category, account)
-
-                        else:
-                            with data_validation_expander:
-                                st.error(
-                                    body=":warning: Algum dado está errado, revise-os.")
+                        elif description == "" or category == "Selecione uma opção":
+                            with col5:
+                                with st.expander(label="Informações", expanded=True):
+                                    if description == "":
+                                        st.error(body="A descrição deve ser preenchida.")
+                                    if category == "Selecione uma opção":
+                                        st.error(body="Informe uma categoria de receita.")
 
         self.main_menu = new_revenue

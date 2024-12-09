@@ -51,7 +51,7 @@ class NewCurrentExpense:
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
                         payed = st.selectbox(label=":outbox_tray: Pago", options=options.keys())
 
-                        confirm_values_check_box = st.checkbox(label="Confirmar Dados")
+                        confirm_values_check_box = st.checkbox(label="Confirmar dados")
 
                         total_account_revenue_complete_query = total_account_revenue_query.format(account, logged_user, logged_user_password)
                         total_account_expense_complete_query = total_account_expense_query.format(account, logged_user, logged_user_password)
@@ -66,7 +66,7 @@ class NewCurrentExpense:
 
                         with col2:
                             with st.spinner(text="Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
                             st.subheader(body="Validação de Dados")
 
@@ -126,7 +126,7 @@ class NewCurrentExpense:
                             st.subheader(body=":pencil: Comprovante de despesa")
 
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
                             receipt_executor.generate_receipt('despesas', id, description, value, str(date), category, account)
 

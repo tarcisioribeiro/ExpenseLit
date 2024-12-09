@@ -18,7 +18,7 @@ class ConfirmRevenue:
 
         def get_not_received_revenue_id(description: str, value: float, date: str, time: str, category: str, account: str):
 
-            get_id_query = """SELECT id FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
+            get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
             id = query_executor.simple_consult_query(get_id_query)
             id = query_executor.treat_simple_result(id, to_remove_list)
             id = int(id)
@@ -27,14 +27,14 @@ class ConfirmRevenue:
 
         def update_not_received_revenues(id: int):
 
-            update_not_received_query = """UPDATE receitas SET recebido = "S" WHERE id = {};""".format(id)
+            update_not_received_query = """UPDATE receitas SET recebido = "S" WHERE id_receita = {};""".format(id)
             query_executor.update_table_unique_register(update_not_received_query, "Receita atualizada com sucesso!", "Erro ao atualizar receita:")
 
         def show_not_received_values():
 
             col4, col5, col6 = st.columns(3)
 
-            revenue_values = query_executor.complex_compund_query(not_received_revenue_query, 6, "not_received")
+            revenue_values = query_executor.complex_compund_query(not_received_revenue_query, 7, "not_received")
 
             if len(revenue_values[0]) >= 1:
 
@@ -43,21 +43,10 @@ class ConfirmRevenue:
 
                     with st.expander(label="Dados", expanded=True):
 
-                        description, value, date, time, category, account = (revenue_values)
+                        revenue_id, description, value, date, time, category, account = (revenue_values)
 
-                        loan_data_df = pd.DataFrame(
-                            {
-                                "Descrição": description,
-                                "Valor": value,
-                                "Data": date,
-                                "Categoria": category,
-                                "Conta": account,
-                            }
-                        )
-
-                        loan_data_df["Valor"] = loan_data_df["Valor"].apply(
-                            lambda x: f"R$ {x:.2f}".replace(".", ",")
-                        )
+                        loan_data_df = pd.DataFrame({"ID": revenue_id, "Descrição": description, "Horário": time, "Valor": value, "Data": date, "Categoria": category, "Conta": account})
+                        loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                         loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
 
                         st.dataframe(loan_data_df, hide_index=True, use_container_width=True)
@@ -73,24 +62,13 @@ class ConfirmRevenue:
                             query_str_date = str_date.strftime("%Y-%m-%d")
                             final_str_account = str(account[i])
 
-                            index_description.update(
-                                {
-                                    "descrição": description[i],
-                                    "valor": str_value,
-                                    "data": query_str_date,
-                                    "horario": time[i],
-                                    "categoria": category[i],
-                                    "conta": final_str_account,
-                                }
-                            )
+                            index_description.update({"descrição": description[i], "valor": str_value, "data": query_str_date, "horario": time[i], "categoria": category[i], "conta": final_str_account})
 
                             formatted_data = str(index_description["data"])
                             formatted_data = datetime.strptime(formatted_data, "%Y-%m-%d")
                             formatted_data = formatted_data.strftime("%d/%m/%Y")
 
-
                             formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
-
                             description_list.append(formatted_description)
 
                         selected_revenue = st.selectbox(label="Selecione a receita", options=description_list)
@@ -100,31 +78,29 @@ class ConfirmRevenue:
                     update_button = st.button(label=":floppy_disk: Receber valor")
 
                     if confirm_selection and update_button:
-
-                        final_description = str(selected_revenue["descrição"])
-                        final_value = float(selected_revenue["valor"])
-                        final_date = str(selected_revenue["data"])
-                        final_category = str(selected_revenue["categoria"])
-                        final_account = str(selected_revenue["conta"])
-
                         with col5:
-                            st.success(body="Sucesso!")
-
-                        with col6:
-                            
-                            st.subheader(body="Comprovante")
-
                             with st.spinner(text="Aguarde..."):
-                                sleep(2)
+                                sleep(2.5)
 
-                            final_id = get_not_received_revenue_id(
-                                description=selected_revenue["descrição"],
-                                value=selected_revenue["valor"],
-                                date=selected_revenue["data"],
-                                time=selected_revenue["horario"],
-                                category=selected_revenue["categoria"],
-                                account=selected_revenue["conta"],
-                            )
+                            final_description = str(index_description["descrição"])
+                            final_value = float(index_description["valor"])
+                            final_date = str(index_description["data"])
+                            final_category = str(index_description["categoria"])
+                            final_account = str(index_description["conta"])
+
+                            with st.subheader(body="Validação de dados"):
+                                with st.expander(label="Dados", expanded=True):
+                                    st.info(body="Descrição: {}".format(final_description))
+                                    st.info(body="Valor: :heavy_dollar_sign: {}".format(final_value))
+                                    st.info(body="Categoria: {}".format(final_category))
+                                    st.info(body="Conta: {}".format(final_account))
+                            
+                        with col6:
+                            st.subheader(body="Comprovante")
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
+
+                            final_id = get_not_received_revenue_id(description=index_description["descrição"], value=index_description["valor"], date=index_description["data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
                             
                             update_not_received_revenues(id=final_id)
 
@@ -133,6 +109,14 @@ class ConfirmRevenue:
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+
+                    elif update_button and confirm_selection == False:
+                        with col5:
+                            st.subheader(body="")
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
+                            with st.expander(label="Aviso", expanded=True):
+                                st.warning(body="Confirme os dados antes de prosseguir.")
 
             elif len(revenue_values[0]) == 0:
 

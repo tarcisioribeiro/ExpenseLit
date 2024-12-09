@@ -1,6 +1,6 @@
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
-from dictionary.vars import transfer_categories, to_remove_list
+from dictionary.vars import transfer_categories, to_remove_list, decimal_values
 from dictionary.sql import (last_transfer_id_query,doc_name_query,user_current_accounts_query, total_account_revenue_query, total_account_expense_query)
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -87,10 +87,15 @@ class NewTransfer:
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
+                                str_account_available_value = str(account_available_value)
+                                str_account_available_value = str_account_available_value.replace(".", ",")
+                                last_two_digits = str_account_available_value[-2:]
+                                if last_two_digits in decimal_values:
+                                    str_account_available_value = str_account_available_value + "0"
 
                         with data_validation_expander:
 
-                            st.info(body="Saldo disponível da conta de origem: R$ {}".format(account_available_value))
+                            st.info(body="Saldo disponível da conta de origem: R$ {}".format(str_account_available_value))
 
                         if (
                             description != ""

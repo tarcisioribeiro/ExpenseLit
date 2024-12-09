@@ -726,7 +726,7 @@ not_payed_loans_query = """
     logged_user, logged_user_password
 )
 
-not_received_revenue_query = """SELECT descricao, valor, data, horario, categoria, conta
+not_received_revenue_query = """SELECT id_receita, descricao, valor, data, horario, categoria, conta
 FROM
     receitas
         INNER JOIN
@@ -883,3 +883,17 @@ FROM
 WHERE
     usuarios.login <> '{}'
         AND usuarios.senha <> '{}';'''.format(logged_user, logged_user_password)
+
+account_image_query = '''
+    SELECT 
+        contas.caminho_arquivo_imagem
+    FROM
+        contas
+            INNER JOIN
+        usuarios ON contas.documento_proprietario_conta = usuarios.cpf
+            AND contas.proprietario_conta = usuarios.nome
+    WHERE
+        contas.nome_conta = '{}'
+            AND usuarios.login = '{}'
+            AND usuarios.senha = '{}';
+'''

@@ -1,6 +1,6 @@
 from data.cache.session_state import logged_user
-from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, absolute_app_path
-from dictionary.app_vars import months, account_models
+from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary
+from dictionary.app_vars import account_models
 from dictionary.sql import user_all_current_accounts_query
 from dictionary.user_stats import user_name, user_document
 from functions.query_executor import QueryExecutor
@@ -18,7 +18,6 @@ class UpdateAccounts:
         query_executor = QueryExecutor()
 
         col1, col2, col3 = st.columns(3)
-        SAVE_FOLDER = absolute_app_path + "/library/images/accounts/"
 
         def get_new_account():
 
@@ -30,7 +29,7 @@ class UpdateAccounts:
                     
                     account_name = st.selectbox(label=":lower_left_ballpoint_pen: Nome da conta", options=account_models)
                     account_type = st.selectbox(label=":card_index_dividers: Tipo da conta", options=accounts_type)
-                    get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.00)
+                    get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.01, help="Não é possíveç cadastrar uma conta sem um valor inicial.")
                     get_account_image = st.file_uploader(label=":camera: Imagem da conta", type=['png', 'jpg'])
                     confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
 
@@ -38,9 +37,21 @@ class UpdateAccounts:
 
                 if confirm_values_ckecbox and register_account:
                     with col2:
-                        st.subheader(body="")
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
+
+                        st.subheader(body=":white_check_mark: Validação de dados")
+                        data_expander = st.expander(label="Dados", expanded=True)
+
+                        with data_expander:
+                            str_value = str(get_account_first_value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_values = str_value[-2:]
+                            if last_two_values in decimal_values:
+                                str_value = str_value + "0"
+                            st.info(body="Nome da conta: {}".format(account_name))
+                            st.info(body="Tipo da conta: {}".format(account_type))
+                            st.info(body="Aporte inicial: :heavy_dollar_sign: {}".format(str_value))
 
                         if get_account_image:
                             image = Image.open(get_account_image)
@@ -49,12 +60,17 @@ class UpdateAccounts:
                             treated_account_name = str(account_name)
                             treated_account_name = treated_account_name.replace(" ", "_").lower()
 
+                            for special_char, replacement in special_caracters_dictionary.items():
+                                treated_account_name = treated_account_name.replace(special_char, replacement)
+
                             new_file_name = SAVE_FOLDER + treated_account_name + ext
                             library_file_name =  treated_account_name + ext
 
                             save_path = os.path.join(SAVE_FOLDER, new_file_name)
                             image.save(save_path)
-                            st.success(body="A imagem foi salva em: {}".format(save_path))
+
+                            with data_expander:
+                                st.success(body="A imagem foi salva em: {}".format(save_path))
 
                         insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""
                         new_account_values = (account_name, account_type, user_name, user_document, library_file_name)
