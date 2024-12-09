@@ -47,10 +47,10 @@ class UpdateAccounts:
                             name, ext = os.path.splitext(get_account_image.name)
 
                             treated_account_name = str(account_name)
-                            treated_account_name = treated_account_name.lower().split()
+                            treated_account_name = treated_account_name.replace(" ", "_").lower()
 
-                            new_file_name = SAVE_FOLDER + treated_account_name[0] + "_" + treated_account_name[1] + "_" + treated_account_name[2] + ext
-                            library_file_name =  treated_account_name[0] + "_" + treated_account_name[1] + "_" + treated_account_name[2] + ext
+                            new_file_name = SAVE_FOLDER + treated_account_name + ext
+                            library_file_name =  treated_account_name + ext
 
                             save_path = os.path.join(SAVE_FOLDER, new_file_name)
                             image.save(save_path)
