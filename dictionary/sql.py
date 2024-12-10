@@ -725,6 +725,27 @@ not_payed_loans_query = """
     logged_user, logged_user_password
 )
 
+not_received_loans_query = """
+    SELECT
+        emprestimos.id_emprestimo AS 'ID',
+        emprestimos.descricao AS 'Descrição',
+        emprestimos.valor AS 'Valor',
+        emprestimos.valor_pago AS 'Valor Pago',
+        emprestimos.valor - emprestimos.valor_pago AS 'Valor a Pagar',
+        emprestimos.data AS 'Data',
+        emprestimos.categoria AS 'Categoria',
+        emprestimos.conta AS 'Conta',
+        emprestimos.credor AS 'Credor'
+    FROM
+        emprestimos
+        INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
+    WHERE
+        usuarios.login = '{}'
+        AND usuarios.senha = '{}'
+        AND pago = 'N';""".format(
+    logged_user, logged_user_password
+)
+
 not_received_revenue_query = """SELECT id_receita, descricao, valor, data, horario, categoria, conta
 FROM
     receitas

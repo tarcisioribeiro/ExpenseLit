@@ -1,7 +1,7 @@
 from data.cache.session_state import logged_user
 from dictionary.sql import last_revenue_id_query, user_fund_accounts_query
 from dictionary.user_stats import user_name, user_document
-from dictionary.vars import to_remove_list
+from dictionary.vars import to_remove_list, decimal_values
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from screens.reports.receipts import Receipts
@@ -97,11 +97,14 @@ class NewFundRevenue:
                             )
                             query_executor.insert_query(revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
 
+                            str_value = str(value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_digits = str_value[-2:]
+                            if last_two_digits in decimal_values:
+                                str_value = str_value + "0"
+
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            if received == 'S':
-                                log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(value, account))
-                            elif received == 'N':
-                                log_values = (logged_user, "Registro", "Registrou uma receita não recebida no valor de R$ {} associada a conta {}.".format(value, account))
+                            log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(str_value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
 

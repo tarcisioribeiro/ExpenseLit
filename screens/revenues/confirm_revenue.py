@@ -121,7 +121,7 @@ class ConfirmRevenue:
                             receipt_executor.generate_receipt(table="receitas",id=final_id,description=final_description,value=final_value,date=final_date,category=final_category,account=final_account)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(value, account))
+                            log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(str_final_value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                     elif update_button and confirm_selection == False:

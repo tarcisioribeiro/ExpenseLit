@@ -158,9 +158,15 @@ class NewCreditCardExpense:
                                 )
                                 insert_new_credit_card_expense(credit_card_expense_query, values)
 
-                                log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                log_values = (logged_user, "Registro", "Registrou uma despesa de cartão no valor de R$ {} associada a conta {}.".format(value, card))
-                                query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            str_value = str(value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_digits = str_value[-2:]
+                            if last_two_digits in decimal_values:
+                                str_value = str_value + "0"
+
+                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                            log_values = (logged_user, "Registro", "Registrou uma despesa de cartão no valor de R$ {} associada a conta {}.".format(str_value, card))
+                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             receipt_executor.generate_receipt('despesas_cartao_credito', input_id, description, value, str(date), category, card)
 

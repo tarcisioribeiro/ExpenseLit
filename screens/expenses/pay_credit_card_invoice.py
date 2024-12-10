@@ -70,8 +70,14 @@ class CreditCardInvoice:
                     query_executor.insert_query(expense_query, values, "Fatura paga com sucesso!", "")
                     query_executor.update_table_unique_register(update_invoice_query, "Fatura fechada com sucesso!", "Falha ao fechar fatura:")
 
+                    str_value = str(month_expenses)
+                    str_value = str_value.replace(".", ",")
+                    last_two_digits = str_value[-2:]
+                    if last_two_digits in decimal_values:
+                        str_value = str_value + "0"
+
                     log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                    log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(month_expenses, selected_card))
+                    log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, selected_card))
                     query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                     with st.spinner(text="Aguarde..."):

@@ -103,8 +103,14 @@ class NewCurrentExpense:
                             values = (description, value, date, actual_horary, category, account, user_name, user_document, payed)
                             query_executor.insert_query(expense_query, values, "Despesa registrada com sucesso!", "Erro ao registrar despesa:")
 
+                            str_value = str(value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_digits = str_value[-2:]
+                            if last_two_digits in decimal_values:
+                                str_value = str_value + "0"
+
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(value, account))
+                            log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             st.subheader(body=":pencil: Comprovante de Despesa")

@@ -118,8 +118,14 @@ class NewTransfer:
                             query_executor.insert_query(expense_query,expense_values,"Despesa registrada com sucesso!","Erro ao registrar despesa:")
                             query_executor.insert_query(revenue_query,revenue_values,"Receita registrada com sucesso!","Erro ao registrar receita:")
 
+                            str_value = str(value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_digits = str_value[-2:]
+                            if last_two_digits in decimal_values:
+                                str_value = str_value + "0"
+
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(value, origin_account, destiny_account))
+                            log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(str_value, origin_account, destiny_account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             st.subheader(body=":pencil: Comprovante de Transferência")
@@ -245,8 +251,14 @@ class NewTransfer:
                             query_executor.insert_query(expense_query,expense_values,"Despesa registrada com sucesso!","Erro ao registrar despesa:")
                             query_executor.insert_query(revenue_query,revenue_values,"Receita registrada com sucesso!","Erro ao registrar receita:")
 
+                            str_value = str(value)
+                            str_value = str_value.replace(".", ",")
+                            last_two_digits = str_value[-2:]
+                            if last_two_digits in decimal_values:
+                                str_value = str_value + "0"
+
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(value, origin_account, destiny_account))
+                            log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(str_value, origin_account, destiny_account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             st.subheader(body=":pencil: Comprovante de Transferência")

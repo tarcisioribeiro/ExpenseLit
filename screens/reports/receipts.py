@@ -219,7 +219,7 @@ class Receipts:
             if id >= 100 and id <= 999:
                 reference_number = """REF: 0{}""".format(id)
             
-            width, height = 800, 400
+            width, height = 900, 450
             dpi = 300
             image = Image.new("RGB", (width, height), "white")
             draw = ImageDraw.Draw(image)
@@ -266,9 +266,9 @@ class Receipts:
             draw.text((20, 180), f"Conta de Origem: {origin_account}", fill="black", font=font)
             draw.text((20, 210), f"Conta de Destino: {destiny_account}", fill="black",font=font)
             draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
-            draw.line([(width - 320, height - 60), (width - 20, height - 60)],fill="black", width=2)
-            draw.text((520, 360), f"ASS.: {user_name}", fill="black", font=font)
-            draw.text((680, height - 40), reference_number, fill="black", font=font)
+            draw.line([(width - 400, height - 60), (width - 20, height - 60)],fill="black", width=2)
+            draw.text((520, 400), f"ASS.: {user_name}", fill="black", font=font)
+            draw.text((20, height - 40), reference_number, fill="black", font=font)
 
             image.paste(origin_pasted_image, (20, 250))
             image.paste(transfer_image, (170, 250))

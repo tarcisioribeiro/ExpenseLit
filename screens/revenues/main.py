@@ -2,6 +2,7 @@ import streamlit as st
 from screens.revenues.confirm_revenue import ConfirmRevenue
 from screens.revenues.new_fund_revenue import NewFundRevenue
 from screens.revenues.new_revenue import NewCurrentRevenue
+from screens.loans.receive_loan import ReceiveLoan
 
 
 class NewRevenue:
@@ -11,7 +12,8 @@ class NewRevenue:
         menu_options = {
             "Receita em Contas Correntes": NewCurrentRevenue(),
             "Receita de Fundo de Garantia": NewFundRevenue(),
-            "Confirmar Recebimento": ConfirmRevenue(),
+            "Receber Valores em Aberto": ReceiveLoan(),
+            "Confirmar Receita": ConfirmRevenue(),
         }
 
         def revenue_main_menu():
