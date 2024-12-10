@@ -18,12 +18,8 @@ class Reports:
             with col1:
                 st.header(body=":ledger: Relatórios")
 
-            with col3:
-
-                cm_cl1, cm_cl2 = st.columns(2)
-
-                with cm_cl2:
-                    menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options.keys())
+            with col2:
+                menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options.keys())
 
             st.divider()
 

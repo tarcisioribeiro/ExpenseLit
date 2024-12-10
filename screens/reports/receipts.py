@@ -6,6 +6,7 @@ from datetime import datetime
 from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, decimal_values, SAVE_FOLDER
 from dictionary.sql import user_current_accounts_query, account_image_query
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
 
@@ -14,8 +15,10 @@ class Receipts:
     def __init__(self):
 
         query_executor = QueryExecutor()
+        variable = Variable()
 
-        def validate_query(table, date, account, value):
+        def validate_query(table: str, date, account: str, value: float):
+
             if table == "despesas":
                 id_query = """
                             SELECT 
@@ -102,24 +105,32 @@ class Receipts:
 
             data_exists = False
 
-            id = query_executor.simple_consult_query(id_query)
-            id = query_executor.treat_simple_result(id, to_remove_list)
 
-            if id is not None:
-                data_exists = True
-            else:
-                data_exists = False
+            id = query_executor.complex_consult_query(id_query)
+            id = query_executor.treat_numerous_simple_result(id, to_remove_list)
+            
+            if len(id) >= 1:
+                ids_string = ""
 
-            return id, data_exists
+                for i in range(0, len(id)):
+                    if i == 0:
+                        ids_string = id[i]
+                    else:
+                        ids_string = ids_string + ", " + id[i]
 
-        def execute_query(table, id):
+                return ids_string, True
+
+            elif len(id) == 0:
+                return 0, False
+
+        def execute_query(table: str, id_list):
 
             if table == "despesas_cartao_credito":
-                values_query = """SELECT id_despesa_cartao, descricao, valor, data, categoria, cartao FROM {} WHERE id_despesa_cartao = {};""".format(table, id)
+                values_query = """SELECT descricao, valor, data, horario, categoria, cartao FROM {} WHERE id_despesa_cartao IN({});""".format(table, id_list)
             elif table == "receitas":
-                values_query = """SELECT id_receita, descricao, valor, data, categoria, conta FROM {} WHERE id_receita = {};""".format(table, id)
+                values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_receita IN({});""".format(table, id_list)
             elif table == "despesas":
-                values_query = """SELECT id_despesa, descricao, valor, data, categoria, conta FROM {} WHERE id_despesa = {};""".format(table, id)
+                values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_despesa IN({});""".format(table, id_list)
 
             consult_values = query_executor.complex_compund_query(values_query, 6, "query_values")
 
@@ -133,31 +144,52 @@ class Receipts:
 
             if len(receipt_list) >= 5 and len_lists_receipt >= 5:
 
-                id = receipt_list[0]
-                id = query_executor.treat_simple_result(id, to_remove_list)
-                id = int(id)
+                description = receipt_list[0]
+                description_list = []
 
-                description = receipt_list[1]
-                description = query_executor.treat_simple_result(description, to_remove_list)
+                for i in range(0, len(description)):
+                    aux_description = query_executor.treat_simple_result(description[i], to_remove_list)
+                    description_list.append(aux_description)
 
-                value = receipt_list[2]
-                value = query_executor.treat_simple_result(value, to_remove_list)
-                value = float(value)
+                value = receipt_list[1]
+                value_list = []
 
-                date = receipt_list[3]
-                date = query_executor.treat_simple_result(date, to_remove_list)
-                date = date.replace(" ", "-")
+                for i in range(0, len(value)):
+                    aux_value = query_executor.treat_simple_result(value[i], to_remove_list)
+                    aux_value = float(aux_value)
+                    value_list.append(aux_value)
+
+                date = receipt_list[2]
+                date_list = []
+                
+                for i in range(0, len(date)):
+                    aux_date = query_executor.treat_simple_result(date[i], to_remove_list)
+                    aux_date = aux_date.replace(" ", "-")
+                    date_list.append(aux_date)
+
+                time = receipt_list[3]
+                time_list = []
+
+                for i in range(0, len(time)):
+                    aux_time = query_executor.treat_simple_result(time[i], to_remove_list)
+                    aux_time = str(aux_time)
+                    time_list.append(aux_time)
 
                 category = receipt_list[4]
-                category = query_executor.treat_simple_result(category, to_remove_list)
+                category_list = []
+
+                for i in range(0, len(category)):
+                    aux_category = query_executor.treat_simple_result(category[i], to_remove_list)
+                    category_list.append(aux_category)
 
                 account = receipt_list[5]
-                account = query_executor.treat_simple_result(account, to_remove_list)
+                account_list = []
 
-                return id, description, value, date, category, account
-            
-            else:
-                return 0, '', 0, '1999-12-31', '', '' 
+                for i in range(0, len(account)):
+                    aux_account = query_executor.treat_simple_result(account[i], to_remove_list)
+                    account_list.append(aux_account)
+
+                return description_list, value_list, date_list, time_list, category_list, account_list
 
         def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
 
@@ -369,7 +401,7 @@ class Receipts:
                         "Empréstimo": "emprestimos"
                     }
 
-                    st.subheader(body=":computer: Entrada de dados")
+                    st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Filtros", expanded=True):
                         report_type = st.selectbox(label="Relatório", options=receipt_options.keys())
@@ -385,76 +417,87 @@ class Receipts:
                         table = receipt_options[report_type]
 
                         with col5:
-                            st.subheader(body=":page_facing_up: Resultados")
-
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
+                            st.subheader(body=":page_facing_up: Resultados")
 
                             query_data, is_query_valid = validate_query(table, date, account, value)
 
                             if is_query_valid == True:
 
-                                st.info("Registro encontrado: {}.".format(query_data))
-
                                 with st.expander(label="Resultados", expanded=True):
-                                    
+
+                                    st.info("Registro(s) encontrado(s): {}.".format(query_data))
+
                                     query = execute_query(table, query_data)
-                                    id, description, value, date, category, account = treat_receipt_values(query)
+                                    description, value, date, time, category, account = treat_receipt_values(query)
 
-                                    description = description.replace("'", "")
-                                    formatted_date = datetime.strptime(date, "%Y-%m-%d")
-                                    formatted_date = formatted_date.strftime("%d/%m/%Y")
+                                    str_value_list = []
 
-                                    formatted_value = str(value)
-                                    formatted_value = "R$ " + formatted_value.replace(".", ",")
+                                    for i in range(0, len(value)):
+                                        aux_value = str(value[i])
+                                        aux_value = aux_value.replace(".", ",")
+                                        last_two_digits = aux_value[-2:]
+                                        if last_two_digits in decimal_values:
+                                            aux_value = aux_value + "0"
+                                        aux_value = 'R$ ' + aux_value
+                                        str_value_list.append(aux_value)
 
-                                    if value % 1 == 0 or len(str(value)) == 3:
-                                        formatted_value = formatted_value + "0"
+                                    formatted_date_list = []
 
-                                    category = category.replace("'", "")
-                                    account = account.replace("'", "")
+                                    for i in range(0, len(date)):
+                                        aux_date = date[i]
+                                        aux_date = datetime.strptime(aux_date, '%Y-%m-%d')
+                                        aux_date = aux_date.strftime('%d/%m/%Y')
+                                        formatted_date_list.append(aux_date)
+                                    
+                                    str_ids_list = []
+                                    aux_str = query_data.replace(",", "").split()
+                                    str_ids_list = aux_str
+                                    
+                                    ids_list = []
+                                    for i in range(0, len(str_ids_list)):
+                                        aux_int = int(str_ids_list[i])
+                                        ids_list.append(aux_int)
 
-                                    credit_card_data_df = pd.DataFrame(
+                                    data_df = pd.DataFrame(
                                         {
-                                            "Categoria": [
-                                                "Descrição",
-                                                "Valor",
-                                                "Data",
-                                                "Categoria",
-                                                "Conta",
-                                            ],
-                                            "Valor": [
-                                                description,
-                                                formatted_value,
-                                                formatted_date,
-                                                category,
-                                                account,
-                                            ],
-                                        }
-                                    )
+                                            "Descrição": description,
+                                            "Valor": str_value_list,
+                                            "Data": formatted_date_list,
+                                            "Categoria": category,
+                                            "Conta": account
+                                        })
 
-                                    st.dataframe(
-                                        credit_card_data_df,
-                                        hide_index=True,
-                                        use_container_width=True,
-                                    )
+                                    st.dataframe(data_df, hide_index=True, use_container_width=True)
 
-                                with st.spinner(text="Aguarde..."):
-                                    sleep(2.5)
+                                    confirm_register_selection = st.checkbox(label="Confirmar seleção")
 
-                                with col6:
-                                    st.subheader(body=":pencil: Comprovante")
-                                    generate_receipt(
-                                        table, id, description, value, date, category, account
-                                    )
+                                generate_receipt_button = st.button(label=":pencil: Gerar Comprovante")
 
-                                log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(report_type, date, account))
-                                query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                                if confirm_register_selection == True and generate_receipt_button:
+                                    with st.spinner(text="Aguarde..."):
+                                        sleep(2.5)
+
+                                    with col6:
+                                        st.subheader(body=":pencil: Comprovante")
+                                        generate_receipt(table, 106, description, value, date, category, account)
+
+                                    log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                    log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(report_type, date, account))
+                                    query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             elif is_query_valid == False:
                                 with st.expander(label="Resultados", expanded=True):
                                     st.info("Nenhum resultado Encontrado.")
+
+                    elif confirm_data == False and send_value_button:
+                        with col5:
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
+                            st.subheader(body=":white_check_mark: Validação de dados")
+                            with st.expander(label="Avisos", expanded=True):
+                                st.warning(body="Revise e confirme os dados antes de prosseguir.")
 
             elif len(user_current_accounts) == 0:
                 with col5:

@@ -31,7 +31,7 @@ class NewCurrentRevenue:
 
                 with col4:
 
-                    st.subheader(body=":computer: Entrada de dados")
+                    st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Dados", expanded=True):
 
@@ -65,7 +65,7 @@ class NewCurrentRevenue:
                             with st.spinner("Aguarde..."):
                                 sleep(2.5)
 
-                            st.subheader(body="Validação de dados")
+                            st.subheader(body=":white_check_mark: Validação de Dados")
 
                         if description != "" and category != "Selecione uma opção":
                             with col5:
@@ -88,7 +88,7 @@ class NewCurrentRevenue:
                             with st.spinner("Aguarde..."):
                                 sleep(2.5)
 
-                            st.subheader(body=":pencil: Comprovante de receita")
+                            st.subheader(body=":pencil: Comprovante de Receita")
                             receipt_executor.generate_receipt('receitas', id, description, value, str(date), category, account)
 
                         elif description == "" or category == "Selecione uma opção":

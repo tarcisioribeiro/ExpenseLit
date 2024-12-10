@@ -91,8 +91,8 @@ class NewLoan:
 
                             with col2:
                                 with st.spinner("Aguarde..."):
-                                    sleep(1)
-                                st.subheader(body="Validação de Dados")
+                                    sleep(2.5)
+                                st.subheader(body=":white_check_mark: Validação de dados")
 
                                 with st.expander(label="Informações", expanded=True):
                                     str_selected_account_revenues = (query_executor.simple_consult_query(final_total_account_revenue_query))
@@ -128,7 +128,7 @@ class NewLoan:
                                 log_values = (logged_user, "Registro", "Tomou um empréstimo no valor de R$ {} associado a conta {}.".format(value, account))
                                 query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                st.subheader(body=":pencil: Comprovante de empréstimo")
+                                st.subheader(body=":pencil: Comprovante de Empréstimo")
 
                                 with st.spinner("Aguarde..."):
                                     sleep(1)
@@ -218,9 +218,9 @@ class NewLoan:
                             with col2:
 
                                 with st.spinner("Aguarde..."):
-                                    sleep(1)
+                                    sleep(2.5)
 
-                                st.subheader(body="Validação de Dados")
+                                st.subheader(body=":white_check_mark: Validação de dados")
 
                                 with st.expander(label="Informações", expanded=True):
 
@@ -254,7 +254,7 @@ class NewLoan:
                                 log_values = (logged_user, "Registro", "Registrou um empréstimo no valor de R$ {} a partir da conta {}.".format(value, account))
                                 query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                st.subheader(body=":pencil: Comprovante de empréstimo")
+                                st.subheader(body=":pencil: Comprovante de Empréstimo")
 
                                 with st.spinner("Aguarde..."):
                                     sleep(1)

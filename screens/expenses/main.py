@@ -1,6 +1,7 @@
 from screens.expenses.new_expense import NewCurrentExpense
 from screens.expenses.new_credit_card_expense import NewCreditCardExpense
 from screens.expenses.pay_credit_card_invoice import CreditCardInvoice
+from screens.expenses.confirm_expense import ConfirmExpense
 from screens.loans.pay_loan import PayLoan
 import streamlit as st
 
@@ -21,6 +22,7 @@ class NewExpense:
                     "Despesa em conta corrente": NewCurrentExpense(),
                     "Despesa de cartão": NewCreditCardExpense(),
                     "Pagar fatura de cartão": CreditCardInvoice(),
+                    "Confirmar pagamento": ConfirmExpense(),
                     "Pagar valores em aberto": PayLoan()
                 }
 

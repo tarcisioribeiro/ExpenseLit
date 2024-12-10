@@ -116,7 +116,7 @@ class Home:
             balance_values_list = mount_balance()
 
             with col1:
-                st.header(":moneybag: Controle Financeiro")
+                st.header(":dollar: Controle Financeiro")
 
             with col2:
                 
@@ -148,9 +148,9 @@ class Home:
             col4, col5, col6 = st.columns(3)
 
             with col4:
-                st.subheader(body=":dollar: Saldos e Valores")
+                st.subheader(body=":chart: Saldos e Valores")
 
-                with st.expander(label="Valores principais", expanded=True):
+                with st.expander(label=":chart: Valores principais", expanded=True):
                     st.text(body="O seu saldo total é:", help="Valor considerando saldo em contas correntes.")
                     st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[0]))
                     st.text(body="Saldo de Vale Disponível:", help="Valor considerando saldo de vales alimentação e refeição.")
@@ -162,7 +162,7 @@ class Home:
                     st.text(body="Valores a pagar:", help="Dívidas e empréstimos contraídos que ainda não foram pagos.")
                     st.info(body=":heavy_dollar_sign: {}".format(balance_values_list[4]))
 
-                with st.expander(label="Contas", expanded=True):
+                with st.expander(label=":bank: Contas", expanded=True):
                     if balance > 0 and len(accounts_balance) > 0:
                         balance_data_df = pd.DataFrame(
                             {
@@ -179,7 +179,7 @@ class Home:
                     else:
                         st.info("Você ainda não possui contas.")
 
-                with st.expander(label="Cartão de crédito", expanded=True):
+                with st.expander(label=":credit_card: Cartões de crédito", expanded=True):
                     cards_result = query_executor.complex_consult_query(owner_active_cards_query)
                     cards_result = query_executor.treat_numerous_simple_result(cards_result, to_remove_list)
 

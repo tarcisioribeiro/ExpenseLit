@@ -68,7 +68,7 @@ class NewCurrentExpense:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            st.subheader(body="Validação de Dados")
+                            st.subheader(body=":white_check_mark: Validação de Dados")
 
                             data_validation_expander = st.expander(label="Informações", expanded=True)
 
@@ -94,36 +94,20 @@ class NewCurrentExpense:
                         with data_validation_expander:
                             st.info(body="Valor disponível da conta {}: R$ {}".format(account, available_value))
 
-                        if (
-                            description != ""
-                            and value >= 0.01 and value <= account_available_value
-                            and date
-                            and category != "Selecione uma opção"
-                            and account != "Selecione uma opção"
-                        ):
+                        if description != "" and value <= account_available_value and category != "Selecione uma opção":
                             with data_validation_expander:
                                 st.success(body="Dados Válidos.")
 
                             actual_horary = call_time.get_actual_time()                      
                             expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                            values = (
-                                description,
-                                value,
-                                date,
-                                actual_horary,
-                                category,
-                                account,
-                                user_name,
-                                user_document,
-                                payed,
-                            )
+                            values = (description, value, date, actual_horary, category, account, user_name, user_document, payed)
                             query_executor.insert_query(expense_query, values, "Despesa registrada com sucesso!", "Erro ao registrar despesa:")
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                            st.subheader(body=":pencil: Comprovante de despesa")
+                            st.subheader(body=":pencil: Comprovante de Despesa")
 
                             with st.spinner("Aguarde..."):
                                 sleep(2.5)

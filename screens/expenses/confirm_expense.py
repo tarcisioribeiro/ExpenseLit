@@ -1,6 +1,6 @@
 from data.cache.session_state import logged_user
 from datetime import datetime
-from dictionary.sql import not_received_revenue_query
+from dictionary.sql import not_payed_expense_query
 from dictionary.vars import to_remove_list, today, decimal_values
 from functions.query_executor import QueryExecutor
 from screens.reports.receipts import Receipts
@@ -9,41 +9,41 @@ import pandas as pd
 import streamlit as st
 
 
-class ConfirmRevenue:
+class ConfirmExpense:
 
     def __init__(self):
 
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
 
-        def get_not_received_revenue_id(description: str, value: float, date: str, time: str, category: str, account: str):
+        def get_not_payed_expense_id(description: str, value: float, date: str, time: str, category: str, account: str):
 
-            get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
+            get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
             id = query_executor.simple_consult_query(get_id_query)
             id = query_executor.treat_simple_result(id, to_remove_list)
             id = int(id)
 
             return id
 
-        def update_not_received_revenues(id: int, new_date: str):
+        def update_not_payed_expenses(id: int, new_date: str):
 
-            update_not_received_query = """UPDATE receitas SET data = "{}", recebido = "S" WHERE id_receita = {};""".format(new_date, id)
-            query_executor.update_table_unique_register(update_not_received_query, "Receita atualizada com sucesso!", "Erro ao atualizar receita:")
+            update_not_payed_query = """UPDATE despesas SET data = "{}", pago = "S" WHERE id_despesa = {};""".format(new_date, id)
+            query_executor.update_table_unique_register(update_not_payed_query, "Despesa atualizada com sucesso!", "Erro ao atualizar receita:")
 
         def show_not_received_values():
 
             col4, col5, col6 = st.columns(3)
 
-            revenue_values = query_executor.complex_compund_query(not_received_revenue_query, 7, "not_received")
+            expense_values = query_executor.complex_compund_query(not_payed_expense_query, 7, "not_payed")
 
-            if len(revenue_values[0]) >= 1:
+            if len(expense_values[0]) >= 1:
 
                 with col4:
                     st.subheader(body=":computer: Valores")
 
                     with st.expander(label="Dados", expanded=True):
 
-                        revenue_id, description, value, date, time, category, account = (revenue_values)
+                        expense_id, description, value, date, time, category, account = (expense_values)
 
                         time_list = []
 
@@ -51,7 +51,7 @@ class ConfirmRevenue:
                             aux_time = query_executor.treat_simple_result(time[i], to_remove_list)
                             time_list.append(aux_time)
 
-                        loan_data_df = pd.DataFrame({"ID": revenue_id, "Descrição": description, "Valor": value, "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
+                        loan_data_df = pd.DataFrame({"ID": expense_id, "Descrição": description, "Valor": value, "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
                         loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                         loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
 
@@ -77,11 +77,11 @@ class ConfirmRevenue:
                             formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
                             description_list.append(formatted_description)
 
-                        selected_revenue = st.selectbox(label="Selecione a receita", options=description_list)
+                        selected_revenue = st.selectbox(label="Selecione a despesa", options=description_list)
 
                         confirm_selection = st.checkbox(label="Confirmar seleção")
 
-                    update_button = st.button(label=":floppy_disk: Receber valor")
+                    update_button = st.button(label=":floppy_disk: Confirmar pagamento")
 
                     if confirm_selection and update_button:
                         with col5:
@@ -114,14 +114,14 @@ class ConfirmRevenue:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            final_id = get_not_received_revenue_id(description=index_description["descrição"], value=index_description["valor"], date=index_description["data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
+                            final_id = get_not_payed_expense_id(description=index_description["descrição"], value=index_description["valor"], date=index_description["data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
                             
-                            update_not_received_revenues(id=final_id, new_date=today)
+                            update_not_payed_expenses(id=final_id, new_date=today)
 
-                            receipt_executor.generate_receipt(table="receitas",id=final_id,description=final_description,value=final_value,date=final_date,category=final_category,account=final_account)
+                            receipt_executor.generate_receipt(table="despesas",id=final_id,description=final_description,value=final_value,date=final_date,category=final_category,account=final_account)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(value, account))
+                            log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(value, account))
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                     elif update_button and confirm_selection == False:
@@ -132,7 +132,7 @@ class ConfirmRevenue:
                             with st.expander(label="Aviso", expanded=True):
                                 st.warning(body="Confirme os dados antes de prosseguir.")
 
-            elif len(revenue_values[0]) == 0:
+            elif len(expense_values[0]) == 0:
 
                 with col5:
                     st.info("Você não possui valores a receber.")

@@ -17,7 +17,7 @@ class PayLoan:
         receipt_generator = Receipts()
 
         def show_loans():
-
+            
             not_payed_loans = query_executor.complex_compund_query(not_payed_loans_query, 9, "not_payed_loan")
             
             if len(not_payed_loans[0]) >= 1:
@@ -60,12 +60,6 @@ class PayLoan:
                         total_loan_value = total_loan_value.replace(".", ",")
                         
                         st.info(body="Valor total: :heavy_dollar_sign: {}".format(total_loan_value))
-
-                with col5:
-
-                    st.subheader(body="")
-
-                    with st.expander(label="Seleção de dados", expanded=True):
 
                         user_accounts = query_executor.complex_consult_query(user_current_accounts_query)
                         user_accounts = query_executor.treat_numerous_simple_result(user_accounts, to_remove_list)
@@ -147,13 +141,15 @@ class PayLoan:
                 with col5:
 
                     if confirm_values:
-                        
+
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
+                        st.subheader(body=":white_check_mark: Validação de Dados")
+
                         if paying_value > 0:
 
-                            with col4:
+                            with col5:
 
                                 with st.expander(label="Dados", expanded=True):
 
@@ -194,7 +190,7 @@ class PayLoan:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            with col4:
+                            with col5:
                                 with st.expander(label="Aviso", expanded=True):
                                     st.warning(body="O valor pago precisa ser maior do que 0.")
 
@@ -230,7 +226,9 @@ class PayLoan:
                                 with st.spinner(text="Aguarde..."):
                                     sleep(2.5)
 
-                                receipt_generator.generate_receipt(table="despesas", id=last_expense_id, description='Pagamento de empréstimo - {}'.format(debt), value=paying_value, date=today, category='Pagamento de Empréstimo', account=selected_account)
+                                st.subheader(body=":pencil: Comprovante de Pagamento de Empréstimo")
+
+                                receipt_generator.generate_receipt(table="despesas", id=last_expense_id, description=debt, value=paying_value, date=today, category='Pagamento de Empréstimo', account=selected_account)
 
                                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                 log_values = (logged_user, "Registro", "Pagou R$ {} de um empréstimo tomado na conta {}.".format(paying_value, account))

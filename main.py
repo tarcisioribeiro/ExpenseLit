@@ -48,13 +48,7 @@ try:
                     sleep(3)
                 
                 try:
-                    connection = mysql.connector.connect(
-                        host=db_hostname,
-                        database='financas',
-                        user=db_user,
-                        password=db_password,
-                        port=db_port 
-                    )
+                    connection = mysql.connector.connect(host=db_hostname, database='financas', user=db_user, password=db_password, port=db_port)
                     
                     if connection.is_connected():
                         with col6:
@@ -85,11 +79,11 @@ try:
                         cl1, cl2 = st.columns(2)
                         with cl2:
                             if error.errno == 1049:
-                                st.error(body="Erro ao conectar ao MySQL: O banco de dados financas não existe. Faça a importação do arquivo de backup/implantação.", icon="🚨")
+                                st.error(body="Erro ao conectar ao MySQL: O banco de dados financas não existe. Faça a importação do arquivo de backup/implantação.")
                             elif error.errno == 1045:
-                                st.error(body="Conexão não realizada. Revise os dados de conexão e tente novamente.", icon="🚨")
+                                st.error(body="Conexão não realizada. Revise os dados de conexão e tente novamente.")
                             else:
-                                st.error(body="Erro ao conectar ao MySQL: {} .".format(error), icon="🚨")
+                                st.error(body="Erro ao conectar ao MySQL: {} .".format(error))
 
 
     if not os.path.isfile(session_state_path):
@@ -109,12 +103,10 @@ try:
         try:
             from dictionary.db_config import db_config
 
+
             connection = mysql.connector.connect(**db_config)
-            
             if connection.is_connected():
-
                 def main():
-
                     query_executor = QueryExecutor()
                     user_quantity = query_executor.simple_consult_query(check_user_query)
                     user_quantity = query_executor.treat_simple_result(user_quantity, to_remove_list)
@@ -149,9 +141,9 @@ try:
 
             with col2:
                 if error.errno == 1049:
-                    st.error(body="Erro ao conectar ao MySQL: O banco de dados {} não existe. Faça a importação do arquivo de backup/implantação.".format(db_config["database"]), icon="🚨")
+                    st.error(body="Erro ao conectar ao MySQL: O banco de dados {} não existe. Faça a importação do arquivo de backup/implantação.".format(db_config["database"]))
                 else:
-                    st.error(body="Erro ao conectar ao MySQL: {} .".format(error), icon="🚨")
+                    st.error(body="Erro ao conectar ao MySQL: {} .".format(error))
 
         except TypeError as type_error:
             pass

@@ -114,7 +114,7 @@ class NewCreditCardExpense:
                             with st.spinner("Aguarde..."):
                                 sleep(1)
                     
-                            st.subheader(body="Validação de Dados")
+                            st.subheader(body=":white_check_mark: Validação de Dados")
 
                             data_expander = st.expander(label="Avisos", expanded=True)
 
@@ -132,7 +132,7 @@ class NewCreditCardExpense:
                             with data_expander:
                                 st.success(body="Dados válidos.")
 
-                            st.subheader(body=":pencil: Comprovante de despesa de cartão")
+                            st.subheader(body=":pencil: Comprovante de Despesa de Cartão")
                             with st.spinner("Aguarde..."):
                                 sleep(1)
 

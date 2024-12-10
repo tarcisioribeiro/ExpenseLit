@@ -3,11 +3,10 @@ from datetime import date
 from dictionary.vars import to_remove_list, today
 from dictionary.app_vars import months, years
 from dictionary.user_stats import user_name, user_document
-from dictionary.sql import owner_cards_query, user_current_accounts_query
+from dictionary.sql import owner_cards_query, user_current_accounts_query, credit_card_expire_date_query
 from functions.credit_card import Credit_Card
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
-from functions.variable import Variable
 from time import sleep
 import streamlit as st
 
@@ -18,7 +17,6 @@ class UpdateCreditCards:
         call_credit_card = Credit_Card()
         query_executor = QueryExecutor()
         call_document = Documents()
-        variable = Variable()
 
         today_list = today.split("-")
         for i in range(0, len(today_list)):
@@ -28,6 +26,9 @@ class UpdateCreditCards:
         today_datetime = date(today_list[0], today_list[1], today_list[2])
 
         col1, col2, col3 = st.columns(3)
+
+        with col3:
+            cm_cl1, cm_cl2 = st.columns(2)
 
         def get_new_credit_card():
 
@@ -172,26 +173,39 @@ class UpdateCreditCards:
                     st.subheader(body=":computer: Entrada de dados")
 
                     with st.expander(label="Dados da fatura", expanded=True):
-                        card_name = st.selectbox(label="Cartão", options=credit_cards)
+                        card_name = st.selectbox(label=":credit_card: Cartão", options=credit_cards)
                         card_number, owner_name, owner_document, card_code = call_credit_card.credit_card_key(card=card_name)
-                        year = st.selectbox(label="Ano", options=years)
-                        month = st.selectbox(label="Mês", options=months)
-                        beggining_invoice_date = st.date_input(label="Início")
-                        ending_invoice_date = st.date_input(label="Fim")
+                        year = st.selectbox(label=":calendar: Ano", options=years)
+                        month = st.selectbox(label=":calendar: Mês", options=months)
+                        beggining_invoice_date = st.date_input(label=":calendar: Início da Fatura")
+                        ending_invoice_date = st.date_input(label=":calendar: Fim da Fatura")
+                        confirm_invoice_data = st.checkbox(label="Confirmar dados")
 
                     register_invoice = st.button(label=":floppy_disk: Registrar fechamento")
 
-                    if register_invoice:
+                    if register_invoice and confirm_invoice_data == True:
+
+                        credit_card_expire_date = query_executor.simple_consult_query(credit_card_expire_date_query.format(user_document, card_name, user_name))
+                        credit_card_expire_date = query_executor.treat_simple_result(credit_card_expire_date, to_remove_list)
+                        credit_card_expire_date = credit_card_expire_date.split()
+                        credit_card_expire_date_formatted = date(int(credit_card_expire_date[0]), int(credit_card_expire_date[1]), int(credit_card_expire_date[2]))
+                        str_credit_card_expire_date_formatted = credit_card_expire_date_formatted.strftime('%d/%m/%Y')
 
                         with col2:
+
                             with st.spinner(text="Aguarde..."):
-                                sleep(2)
+                                sleep(2.5)
 
-                            st.subheader(body="")
+                            st.subheader(body=":white_check_mark: Validação dos dados")
 
-                            with st.expander(label="Validação dos dados", expanded=True):
-                                if card_name != "" and month != "" and beggining_invoice_date < ending_invoice_date:
+                            with st.expander(label="Aviso", expanded=True):
+
+                                if (beggining_invoice_date < ending_invoice_date) and beggining_invoice_date <= credit_card_expire_date_formatted and ending_invoice_date <= credit_card_expire_date_formatted:
                                     st.success(body="Dados válidos.")
+                                    st.info(body=":credit_card: Cartão: {}".format(card_name))
+                                    st.info(body=":calendar: Mês: {}".format(month))
+                                    st.info(body=":calendar: Início da fatura: {}".format(beggining_invoice_date.strftime('%d/%m/%Y')))
+                                    st.info(body=":calendar: Fim da fatura: {}".format(ending_invoice_date.strftime('%d/%m/%Y')))
 
                                     new_credit_card_invoice_query = """INSERT INTO fechamentos_cartao (nome_cartao, numero_cartao, documento_titular, ano, mes, data_comeco_fatura, data_fim_fatura) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                                     new_credit_card_invoice_values = (card_name, card_number, owner_document, year, month, beggining_invoice_date, ending_invoice_date)
@@ -202,30 +216,35 @@ class UpdateCreditCards:
                                     log_values = (logged_user, "Cadastro", "Cadastrou um fechamento do cartão {}.".format(card_name))
                                     query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                else:
+                                elif beggining_invoice_date > ending_invoice_date or beggining_invoice_date > credit_card_expire_date_formatted or ending_invoice_date > credit_card_expire_date_formatted:
                                     if beggining_invoice_date >= ending_invoice_date:
-                                        st.error(body="O ano informado é inválido.")
-                                        st.error(body="A data de ínicio da fatura não pode ser superior a data do fim da fatura.")
-                                    elif beggining_invoice_date < ending_invoice_date:
-                                        st.error(body="O ano informado é inválido.")
+                                        st.error(body="A data de ínicio da fatura não pode ser igual ou superior a data do fim da fatura.")
+                                    if beggining_invoice_date > credit_card_expire_date_formatted:
+                                        st.error(body="A data de início da fatura não pode exceder a validade do cartão.")
+                                        st.info(body="A data de validade do cartão é {}.".format(str_credit_card_expire_date_formatted))
+                                    if ending_invoice_date > credit_card_expire_date_formatted:
+                                        st.error(body="A data de fim da fatura não pode exceder a validade do cartão.")
+                                        st.info(body="A data de validade do cartão é {}.".format(str_credit_card_expire_date_formatted))
+                                    if beggining_invoice_date < ending_invoice_date:
                                         st.success(body="Datas da fatura válidas.")
-                                    elif beggining_invoice_date >= ending_invoice_date:
-                                        st.success(body="O ano informado é válido.")
-                                        st.error(body="A data de ínicio da fatura não pode ser superior a data do fim da fatura.")
+                                    
+                    elif register_invoice and confirm_invoice_data == False:
+                        with col2:
+                            st.subheader(body="")
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
+                            with st.expander(label="Aviso", expanded=True):
+                                st.warning(body="Confirme os dados antes de prosseguir.")
 
         def show_interface():
+            cc_menu_options = {
+                "Cadastrar cartão": get_new_credit_card,
+                "Atualizar cartão": update_credit_card,
+                "Atualizar vencimentos de fatura": update_credit_card_invoices
+            }
 
-            with col3:
-                cm_cl1, cm_cl2 = st.columns(2)
-
-                cc_menu_options = {
-                    "Cadastrar cartão": get_new_credit_card,
-                    "Atualizar cartão": update_credit_card,
-                    "Atualizar vencimentos de fatura": update_credit_card_invoices
-                }
-
-                with cm_cl2:
-                    cc_selected_option = st.selectbox(label="Menu", options=cc_menu_options)
+            with cm_cl2:
+                cc_selected_option = st.selectbox(label="Menu", options=cc_menu_options)
 
             if cc_selected_option:
                 call_function = cc_menu_options[cc_selected_option]

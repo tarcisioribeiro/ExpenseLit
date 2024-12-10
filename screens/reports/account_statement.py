@@ -88,7 +88,7 @@ class AccountStatement:
             if len(user_current_accounts) > 0:
 
                 with col4:
-
+                    st.subheader(body=":computer: Entrada de Dados")
                     with st.expander(label="Dados", expanded=True):
 
                         statement_option = st.selectbox(label="Tipos de extrato", options=["Selecione uma opção", "Despesas", "Receitas", "Despesas e Receitas"])

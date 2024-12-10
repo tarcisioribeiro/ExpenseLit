@@ -32,10 +32,10 @@ class App:
 
             sidebar_menu_dictionary = {
                 "Início": Home(),
-                "Registrar despesa": NewExpense(),
-                "Registrar receita": NewRevenue(),
-                "Empréstimos": Loan(),
-                "Registrar transferência": NewTransfer(),
+                "Registrar Despesa": NewExpense(),
+                "Registrar Receita": NewRevenue(),
+                "Registrar Transferência": NewTransfer(),
+                "Registrar Empréstimo": Loan(),
                 "Relatórios": Reports(),
                 "Cadastros": Registers(),
                 "Configurações": Configuration()

@@ -35,10 +35,10 @@ class Benefited:
 
                 if confirm_benefited_data and register_new_creditor:
                     with col2:
-                        st.subheader(body="")
+                        st.subheader(body=":white_check_mark: Validação de dados")
 
                         with st.spinner(text="Aguarde..."):
-                            sleep(2)
+                            sleep(2.5)
                         with st.expander(label="Validação dos dados", expanded=True):
                             is_document_valid = document.validate_owner_document(benefited_document)
                             if is_document_valid == True and benefited_name != '' and benefited_phone != '':

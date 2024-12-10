@@ -32,7 +32,7 @@ class NewFundRevenue:
 
                 with col4:
 
-                    st.subheader(body=":computer: Entrada de dados")
+                    st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Dados", expanded=True):
 
@@ -64,7 +64,7 @@ class NewFundRevenue:
                         with col5:
 
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
                             st.subheader(body="Validação de Dados")
 
@@ -105,11 +105,10 @@ class NewFundRevenue:
                             query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
 
-                            st.subheader(
-                                body=":pencil: Comprovante de receita")
+                            st.subheader(body=":pencil: Comprovante de Receita")
 
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
                             receipt_executor.generate_receipt('receitas', id, description, value, str(date), category, account)
 

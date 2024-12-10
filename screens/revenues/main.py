@@ -11,7 +11,7 @@ class NewRevenue:
         menu_options = {
             "Receita em Contas Correntes": NewCurrentRevenue(),
             "Receita de Fundo de Garantia": NewFundRevenue(),
-            "Confirmar recebimento": ConfirmRevenue(),
+            "Confirmar Recebimento": ConfirmRevenue(),
         }
 
         def revenue_main_menu():

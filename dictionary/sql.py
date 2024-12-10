@@ -718,7 +718,6 @@ not_payed_loans_query = """
     FROM
         emprestimos
         INNER JOIN usuarios ON emprestimos.devedor = usuarios.nome AND emprestimos.documento_devedor = usuarios.cpf
-        INNER JOIN beneficiados ON emprestimos.devedor = beneficiados.nome AND emprestimos.documento_devedor = beneficiados.documento
     WHERE
         usuarios.login = '{}'
         AND usuarios.senha = '{}'
@@ -763,6 +762,43 @@ WHERE
     logged_user, logged_user_password
 )
 
+not_payed_expense_query = """SELECT id_despesa, descricao, valor, data, horario, categoria, conta
+FROM
+    despesas
+        INNER JOIN
+    contas ON contas.nome_conta = despesas.conta
+        AND contas.proprietario_conta = despesas.proprietario_despesa
+        AND contas.documento_proprietario_conta = despesas.documento_proprietario_despesa
+        INNER JOIN
+    usuarios ON despesas.documento_proprietario_despesa = usuarios.cpf
+        AND despesas.proprietario_despesa = usuarios.nome
+WHERE
+    despesas.pago = 'N'
+        AND despesas.data < '2099-12-31'
+        AND usuarios.login = '{}'
+        AND usuarios.senha = '{}';""".format(
+    logged_user, logged_user_password
+)
+
+not_payed_expenses_ids_query = """SELECT 
+    despesas.id_despesa
+FROM
+    despesas
+        INNER JOIN
+    contas ON contas.nome_conta = despesas.conta
+        AND contas.proprietario_conta = despesas.proprietario_despesa
+        AND contas.documento_proprietario_conta = despesas.documento_proprietario_despesa
+        INNER JOIN
+    usuarios ON despesas.documento_proprietario_despesa = usuarios.cpf
+        AND despesas.proprietario_despesa = usuarios.nome
+WHERE
+    despesas.pago = 'N'
+        AND despesas.data < '2099-12-31'
+        AND usuarios.login = '{}'
+        AND usuarios.senha = '{}';""".format(
+    logged_user, logged_user_password
+)
+
 expenses_statement_query = """
                 SELECT 
                     despesas.descricao,
@@ -789,7 +825,7 @@ expenses_statement_query = """
                         AND usuarios.senha = '{}';
             """
 
-revenues_statement_query = '''
+revenues_statement_query = """
                 SELECT 
                     receitas.descricao,
                     receitas.valor,
@@ -813,7 +849,7 @@ revenues_statement_query = '''
                         AND receitas.conta IN {}
                         AND usuarios.login = '{}'
                         AND usuarios.senha = '{}';
-            '''
+            """
 
 total_account_revenue_query: str = """
                                         SELECT 
@@ -843,7 +879,7 @@ total_account_expense_query: str = """
                                             AND usuarios.login = '{}'
                                             AND usuarios.senha = '{}';"""
 
-card_invoices_query = '''
+card_invoices_query = """
                             SELECT
                                 CONCAT(fechamentos_cartao.mes, " de ", fechamentos_cartao.ano)
                             FROM
@@ -859,21 +895,25 @@ card_invoices_query = '''
                                     AND usuarios.senha = '{}'
                                     AND fechamentos_cartao.fechado = 'N'
                             ORDER BY fechamentos_cartao.data_comeco_fatura;
-                        '''
+                        """
 
-check_user_query = '''
+check_user_query = """
                 SELECT 
                     COUNT(id_usuario)
                 from 
                     usuarios;
-                '''
+                """
 
-check_if_user_document_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};'''
-check_if_user_login_exists_query = '''SELECT COUNT(id_usuario) FROM usuarios WHERE login = '{}';'''
+check_if_user_document_exists_query = (
+    """SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};"""
+)
+check_if_user_login_exists_query = (
+    """SELECT COUNT(id_usuario) FROM usuarios WHERE login = '{}';"""
+)
 
-months_query = '''SELECT nome_mes FROM meses;'''
+months_query = """SELECT nome_mes FROM meses;"""
 
-creditors_quantity_query = '''SELECT 
+creditors_quantity_query = """SELECT 
     COUNT(id_credor)
 FROM
     credores
@@ -882,9 +922,11 @@ FROM
         AND credores.documento = usuarios.cpf
 WHERE
     usuarios.login <> '{}'
-        AND usuarios.senha <> '{}';'''.format(logged_user, logged_user_password)
+        AND usuarios.senha <> '{}';""".format(
+    logged_user, logged_user_password
+)
 
-account_image_query = '''
+account_image_query = """
     SELECT 
         contas.caminho_arquivo_imagem
     FROM
@@ -896,4 +938,6 @@ account_image_query = '''
         contas.nome_conta = '{}'
             AND usuarios.login = '{}'
             AND usuarios.senha = '{}';
-'''
+"""
+
+credit_card_expire_date_query = """SELECT cartao_credito.data_validade FROM cartao_credito WHERE cartao_credito.documento_titular = {} AND cartao_credito.nome_cartao = "{}" AND cartao_credito.proprietario_cartao = "{}";"""

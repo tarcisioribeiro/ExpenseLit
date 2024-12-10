@@ -36,13 +36,12 @@ class Creditors:
 
                 if confirm_creditor_data and register_new_creditor:
                     with col2:
-                        st.subheader(body="")
+                        st.subheader(body=":white_check_mark: Validação de Dados")
                         with st.spinner(text="Aguarde..."):
-                            sleep(2)
-                        with st.expander(label="Validação dos dados", expanded=True):
+                            sleep(2.5)
+                        with st.expander(label="Aviso", expanded=True):
 
                             is_document_valid = document.validate_owner_document(creditor_document)
-                            
 
                             if is_document_valid == True and creditor_name != '' and creditor_phone != '':
                                 creditor_document = int(creditor_document)
