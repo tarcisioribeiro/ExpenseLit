@@ -373,7 +373,7 @@ class Credit_Card:
                     card_number = str_card_key_list[0]
                     card_owner = str_card_key_list[1]
                     card_owner_document = int(str_card_key_list[2])
-                    card_security_code = int(str_card_key_list[3])
+                    card_security_code = str_card_key_list[3]
 
                     return (
                         card_number,

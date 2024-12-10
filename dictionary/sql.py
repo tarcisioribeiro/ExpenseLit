@@ -735,7 +735,7 @@ not_received_loans_query = """
         emprestimos.data AS 'Data',
         emprestimos.categoria AS 'Categoria',
         emprestimos.conta AS 'Conta',
-        emprestimos.credor AS 'Credor'
+        emprestimos.devedor AS 'Devedor'
     FROM
         emprestimos
         INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf

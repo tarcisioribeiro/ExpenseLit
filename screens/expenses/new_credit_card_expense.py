@@ -90,14 +90,9 @@ class NewCreditCardExpense:
                             str_remaining_limit = str_remaining_limit + "0"
 
                         parcel = st.number_input(label=":pencil: Parcelas", min_value=1, step=1)
-                        inputed_credit_card_code = st.number_input(label=":credit_card: Informe o código do cartão", step=1)
+                        inputed_credit_card_code = st.text_input(label=":credit_card: Informe o código do cartão", max_chars=3)
 
-                        (
-                            credit_card_number,
-                            credit_card_owner,
-                            credit_card_owner_document,
-                            credit_card_code
-                        ) = call_credit_card.credit_card_key(card=card)
+                        credit_card_number, credit_card_owner, credit_card_owner_document, credit_card_code = call_credit_card.credit_card_key(card=card)
 
                         confirm_values_checkbox = st.checkbox(label="Confirmar Dados")
 
@@ -112,7 +107,7 @@ class NewCreditCardExpense:
                         with col2:
                             
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
                     
                             st.subheader(body=":white_check_mark: Validação de Dados")
 
@@ -134,7 +129,7 @@ class NewCreditCardExpense:
 
                             st.subheader(body=":pencil: Comprovante de Despesa de Cartão")
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(2.5)
 
                             for i in range(0, parcel):
                                 if i >= 1:

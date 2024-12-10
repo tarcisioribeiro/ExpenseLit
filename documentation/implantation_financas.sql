@@ -80,7 +80,7 @@ CREATE TABLE `cartao_credito` (
   `proprietario_cartao` varchar(100) NOT NULL,
   `documento_titular` bigint NOT NULL,
   `data_validade` date NOT NULL,
-  `codigo_seguranca` int NOT NULL,
+  `codigo_seguranca` VARCHAR(3) NOT NULL,
   `limite_credito` decimal(10,2) NOT NULL DEFAULT '0.00',
   `limite_maximo` decimal(10,2) NOT NULL DEFAULT '0.00',
   `conta_associada` varchar(100) NOT NULL,

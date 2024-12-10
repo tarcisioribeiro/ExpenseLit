@@ -28,7 +28,7 @@ class ReceiveLoan:
 
                     id, description, total_value, received_value, remaining_value, date, category, account, benefited = not_received_loans
 
-                    loan_data_df = pd.DataFrame({"Descrição": description, "Valor Total": total_value, "Valor Recebido": received_value, "Valor a Receber": remaining_value, "Data": date, "Categoria": category, "Conta": account, "credor": benefited})
+                    loan_data_df = pd.DataFrame({"Descrição": description, "Valor Total": total_value, "Valor Recebido": received_value, "Valor a Receber": remaining_value, "Data": date, "Categoria": category, "Conta": account, "Devedor": benefited})
 
                     loan_data_df["Valor Total"] = loan_data_df["Valor Total"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
                     loan_data_df["Valor Recebido"] = loan_data_df["Valor Recebido"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
