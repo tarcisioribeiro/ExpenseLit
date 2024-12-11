@@ -1,5 +1,5 @@
 from data.cache.session_state import logged_user
-from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary
+from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary, default_account_image
 from dictionary.app_vars import account_models
 from dictionary.sql import user_all_current_accounts_query
 from dictionary.user_stats import user_name, user_document
@@ -16,6 +16,7 @@ class UpdateAccounts:
     def __init__(self):
         
         query_executor = QueryExecutor()
+        variable = Variable()
 
         col1, col2, col3 = st.columns(3)
 
@@ -53,18 +54,12 @@ class UpdateAccounts:
                             st.info(body="Tipo da conta: {}".format(account_type))
                             st.info(body="Aporte inicial: :heavy_dollar_sign: {}".format(str_value))
 
-                        if get_account_image:
+                        if type(get_account_image).__name__ != "NoneType":
                             image = Image.open(get_account_image)
-                            name, ext = os.path.splitext(get_account_image.name)
+                            name, ext = os.path.splitext(default_account_image.name)
 
-                            treated_account_name = str(account_name)
-                            treated_account_name = treated_account_name.replace(" ", "_").lower()
-
-                            for special_char, replacement in special_caracters_dictionary.items():
-                                treated_account_name = treated_account_name.replace(special_char, replacement)
-
-                            new_file_name = SAVE_FOLDER + treated_account_name + ext
-                            library_file_name =  treated_account_name + ext
+                            new_file_name = SAVE_FOLDER + name + ext
+                            library_file_name = name + ext
 
                             save_path = os.path.join(SAVE_FOLDER, new_file_name)
                             image.save(save_path)
@@ -72,9 +67,18 @@ class UpdateAccounts:
                             with data_expander:
                                 st.success(body="A imagem foi salva em: {}".format(save_path))
 
-                        insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""
-                        new_account_values = (account_name, account_type, user_name, user_document, library_file_name)
-                        query_executor.insert_query(insert_account_query, new_account_values, "Conta cadastrada com sucesso!", "Erro ao cadastrar conta:")
+                            insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""
+                            new_account_values = (account_name, account_type, user_name, user_document, library_file_name)
+                            query_executor.insert_query(insert_account_query, new_account_values, "Conta cadastrada com sucesso!", "Erro ao cadastrar conta:")
+
+                        elif type(get_account_image).__name__ == "NoneType":
+
+                            new_file_name = default_account_image
+                            library_file_name =  default_account_image
+
+                            insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""
+                            new_account_values = (account_name, account_type, user_name, user_document, library_file_name)
+                            query_executor.insert_query(insert_account_query, new_account_values, "Conta cadastrada com sucesso!", "Erro ao cadastrar conta:")
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                         log_values = (logged_user, "Cadastro", "Cadastrou a conta {}.".format(account_name))
@@ -96,6 +100,15 @@ class UpdateAccounts:
                         query_executor.insert_query(new_account_first_future_revenue_query, new_account_first_future_revenue_values, "Aporte inicial registrado com sucesso!", "Erro ao registrar aporte inicial:")
                         query_executor.insert_query(new_account_first_expense_query, new_account_first_expense_values, "Valor inicial registrado com sucesso!", "Erro ao registrar valor inicial:")
                         query_executor.insert_query(new_account_first_future_expense_query, new_account_first_future_expense_values, "Valor inicial registrado com sucesso!", "Erro ao registrar valor inicial:")
+
+                elif confirm_values_ckecbox == False and register_account:
+                    with col3:
+                        cm_cl1, cm_cl2 = st.columns(2)
+
+                    with cm_cl2:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.warning(body="Revise e confirme os dados antes de prosseguir.")
 
         def update_account():
 
