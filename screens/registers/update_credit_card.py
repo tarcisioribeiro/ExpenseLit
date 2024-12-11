@@ -42,7 +42,7 @@ class UpdateCreditCards:
             elif len(user_current_accounts) >= 1:
                 with col1:
 
-                    st.subheader(body=":computer: Entrada de dados")
+                    st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Dados cadastrais", expanded=True):
                         card_name = st.text_input(label=":lower_left_ballpoint_pen: Nome do cartão")
@@ -64,53 +64,58 @@ class UpdateCreditCards:
 
                     if send_form_button and confirm_credit_card_values:
                         with col3:
-                            with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
                             cm_cl1, cm_cl2 = st.columns(2)
-                        with cm_cl1:
-                            is_card_valid = call_document.validate_credit_card(card_number=card_number)
-                            is_document_valid = (call_document.validate_owner_document(owner_document=user_document))
+                            with cm_cl2:
+                                with st.spinner(text="Aguarde..."):
+                                    sleep(2.5)
+                                is_card_valid = call_document.validate_credit_card(card_number=card_number)
+                                is_document_valid = (call_document.validate_owner_document(owner_document=user_document))
 
-                            if card_name != "" and card_number != "" and owner_name != "" and (security_code == confirm_security_code) and (today_datetime < expire_date):
-                                if is_document_valid == True and is_card_valid == True:
-                                    st.success(body="Número de cartão válido.")
-                                    st.success(body="Documento Válido.")
+                                if card_name != "" and card_number != "" and owner_name != "" and security_code != "" and confirm_security_code != "" and (security_code == confirm_security_code) and (today_datetime < expire_date):
+                                    if is_document_valid == True and is_card_valid == True:
+                                        st.success(body="Número de cartão válido.")
+                                        st.success(body="Documento Válido.")
 
-                                    new_credit_card_query = """INSERT INTO cartao_credito (nome_cartao, numero_cartao, nome_titular, proprietario_cartao, documento_titular, data_validade, codigo_seguranca, limite_credito, limite_maximo, conta_associada)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-                                    new_credit_card_values = (card_name, card_number, owner_name, user_name, user_document, expire_date, security_code, credit_limit_value, credit_limit_value, associated_account)
-                                    query_executor.insert_query(new_credit_card_query, new_credit_card_values, "Cartão cadastrado com sucesso!", "Erro ao cadastrar cartão")
+                                        new_credit_card_query = """INSERT INTO cartao_credito (nome_cartao, numero_cartao, nome_titular, proprietario_cartao, documento_titular, data_validade, codigo_seguranca, limite_credito, limite_maximo, conta_associada)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                                        new_credit_card_values = (card_name, card_number, owner_name, user_name, user_document, expire_date, security_code, credit_limit_value, credit_limit_value, associated_account)
+                                        query_executor.insert_query(new_credit_card_query, new_credit_card_values, "Cartão cadastrado com sucesso!", "Erro ao cadastrar cartão")
 
-                                    log_query = '''INSERT INTO logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                    log_values = (logged_user, "Cadastro", "Cadastrou o cartão {} associado a conta {}.".format(card_name, associated_account))
-                                    query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                                        log_query = '''INSERT INTO logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                        log_values = (logged_user, "Cadastro", "Cadastrou o cartão {} associado a conta {}.".format(card_name, associated_account))
+                                        query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                elif is_card_valid == False and is_document_valid == True:
-                                    st.error(body="Número de cartão inválido.")
-                                    st.success(body="Documento Válido.")
+                                    elif is_card_valid == False and is_document_valid == True:
+                                        st.error(body="Número de cartão inválido.")
+                                        st.success(body="Documento Válido.")
 
-                                elif is_document_valid == False and is_card_valid == True:
-                                    st.success(body="Número de cartão válido.")
-                                    st.error(body="Documento inválido.")
+                                    elif is_document_valid == False and is_card_valid == True:
+                                        st.success(body="Número de cartão válido.")
+                                        st.error(body="Documento inválido.")
 
-                                elif is_document_valid == False and is_card_valid == False:
-                                    st.error(body="Número de cartão inválido.")
-                                    st.error(body="Documento inválido.")
+                                    elif is_document_valid == False and is_card_valid == False:
+                                        st.error(body="Número de cartão inválido.")
+                                        st.error(body="Documento inválido.")
 
-                            elif card_name == "" or card_number == "" or owner_name == "" or (security_code != confirm_security_code) or (today_datetime >= expire_date):
-                                if card_name == "":
-                                    st.error(body="O nome do cartão deve ser preenchido.")
-                                if card_number == "":
-                                    st.error(body="O número do cartão deve ser preenchido.")
-                                if owner_name == "":
-                                    st.error(body="O nome do proprietário do cartão deve ser preenchido.")
-                                if today_datetime >= expire_date:
-                                    st.error(body="A data de validade do cartão não pode ser menor ou igual a data atual.")
-                                if security_code != confirm_security_code:
-                                    st.error(body="Os códigos de segurança não coincidem.")
+                                elif card_name == "" or card_number == "" or owner_name == "" or security_code == "" or confirm_security_code == "" and (security_code != confirm_security_code) or (today_datetime >= expire_date):
+                                    with cm_cl2:
+                                        if card_name == "":
+                                            st.error(body="O nome do cartão deve ser preenchido.")
+                                        if card_number == "":
+                                            st.error(body="O número do cartão deve ser preenchido.")
+                                        if owner_name == "":
+                                            st.error(body="O nome do proprietário do cartão deve ser preenchido.")
+                                        if today_datetime >= expire_date:
+                                            st.error(body="A data de validade do cartão não pode ser menor ou igual a data atual.")
+                                        if security_code != confirm_security_code:
+                                            st.error(body="Os códigos de segurança não coincidem.")
 
                     elif send_form_button and confirm_credit_card_values == False:
+                        with col3:
+                            cm_cl1, cm_cl2 = st.columns(2)
                         with cm_cl2:
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
                             st.warning(body="Revise e confirme os dados antes de prosseguir.")
 
         def update_credit_card():
@@ -170,7 +175,7 @@ class UpdateCreditCards:
 
             elif len(credit_cards) >= 1:
                 with col1:
-                    st.subheader(body=":computer: Entrada de dados")
+                    st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Dados da fatura", expanded=True):
                         card_name = st.selectbox(label=":credit_card: Cartão", options=credit_cards)
@@ -196,7 +201,7 @@ class UpdateCreditCards:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            st.subheader(body=":white_check_mark: Validação dos dados")
+                            st.subheader(body=":white_check_mark: Validação dos Dados")
 
                             with st.expander(label="Aviso", expanded=True):
 

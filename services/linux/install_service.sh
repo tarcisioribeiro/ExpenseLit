@@ -28,7 +28,7 @@ while true; do
         green "\nVocê tem permissões de root. Continuando com o script..."
         sleep 1
         blue "\nInstalando dependências..."
-        sleep 1
+        sleep 5
         apt install build-essential openssh-server git neofetch curl net-tools wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
         ufw enable
         ufw allow 8501
@@ -54,7 +54,7 @@ while true; do
 
     if [ "$password" = "$confirmation" ]; then
         green "\nSenhas coincidem. Configurando o banco de dados..."
-        sleep 1
+        sleep 5
         sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
         cd documentation/
         mysql -u root -p"$password" < implantation_financas.sql
@@ -70,38 +70,40 @@ clear
 
 cd $FOLDER
 blue "\nCriando ambiente virtual..."
-sleep 1
+sleep 5
 python3 -m venv venv
 blue "\nAtivando ambiente virtual..."
-sleep 1
+sleep 5
 source venv/bin/activate
 pip install -r requirements.txt
 
 sleep 1
 clear
 
-echo "#!/bin/bash" >> fcscript.sh
-echo "cd $FOLDER" >> fcscript.sh
-echo "source venv/bin/activate" >> fcscript.sh
-echo "streamlit run main.py --server.port 8501" >> fcscript.sh
-chmod u+x fcscript.sh
-sudo mv fcscript.sh /usr/bin/
+echo "#!/bin/bash" >> expenselit.sh
+echo "cd $FOLDER" >> expenselit.sh
+echo "source venv/bin/activate" >> expenselit.sh
+echo "streamlit run main.py --server.port 8501" >> expenselit.sh
+chmod u+x expenselit.sh
+sudo mv expenselit.sh /usr/bin/
 
-echo "[Unit]" >> fcscript.service
-echo "Description=Controle Financeiro" >> fcscript.service
-echo "[Service]" >> fcscript.service
-echo "ExecStart=/usr/bin/fcscript.sh" >> fcscript.service
-echo "[Install]" >> fcscript.service
-echo "WantedBy=multi-user.target" >> fcscript.service
-sudo mv fcscript.service /lib/systemd/system
+echo "[Unit]" >> expenselit.service
+echo "Description=ExpenseLit - Controle Financeiro" >> expenselit.service
+echo "[Service]" >> expenselit.service
+echo "ExecStart=/usr/bin/expenselit.sh" >> expenselit.service
+echo "[Install]" >> expenselit.service
+echo "WantedBy=multi-user.target" >> expenselit.service
+sudo mv expenselit.service /lib/systemd/system
 
-sudo systemctl enable fcscript.service
+sudo systemctl enable expenselit.service
 sudo systemctl daemon-reload
-sudo systemctl start fcscript.service
+sudo systemctl start expenselit.service
 
 green "\nInstalação concluída."
 
 link=$(python3 services/linux/get_ipv4.py)
+
+sleep 5
 
 blue "Você pode realizar o acesso a aplicação através dos seguintes links:\n"
 green "$link"

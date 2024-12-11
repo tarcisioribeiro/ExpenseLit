@@ -23,7 +23,7 @@ class UpdateAccounts:
 
             with col1:
 
-                st.subheader(body=":computer: Entrada de dados")
+                st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados cadastrais", expanded=True):
                     
@@ -40,7 +40,7 @@ class UpdateAccounts:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        st.subheader(body=":white_check_mark: Validação de dados")
+                        st.subheader(body=":white_check_mark: Validação de Dados")
                         data_expander = st.expander(label="Dados", expanded=True)
 
                         with data_expander:

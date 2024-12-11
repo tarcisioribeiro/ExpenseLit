@@ -102,7 +102,7 @@ class ConfirmExpense:
                             if last_two_digits in decimal_values:
                                 str_final_value = str_final_value + "0"
 
-                            with st.subheader(body=":white_check_mark: Validação de dados"):
+                            with st.subheader(body=":white_check_mark: Validação de Dados"):
                                 with st.expander(label="Dados", expanded=True):
                                     st.info(body="Descrição: {}".format(final_description))
                                     st.info(body="Valor: :heavy_dollar_sign: {}".format(str_final_value))

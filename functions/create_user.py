@@ -52,8 +52,8 @@ class CreateUser:
 
             if check_user_quantity == 0:
                 col1, col2, col3 = st.columns(3)
-                with col2:
-                    st.subheader(body=":floppy_disk: Cadastro de usuário")
+                with col1:
+                    st.header(body=":floppy_disk: Cadastro de usuário")
                 st.divider()
 
             col4, col5, col6 = st.columns(3)
@@ -66,7 +66,7 @@ class CreateUser:
                         st.warning(body="Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
 
             with col4:
-                st.subheader(body=":computer: Entrada de dados")
+                st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados do usuário", expanded=True):
                     user_login = st.text_input(label=":lock: Login de usuário",max_chars=25,help="O nome do usuário deve ter no máximo 25 caracteres.")
@@ -171,7 +171,10 @@ class CreateUser:
                                 st.error("O email de usuário não foi preenchido.")
 
                 elif confirm_values == False and insert_new_user_button:
-                    st.warning(body="Revise os dados e confirme-os antes de prosseguir.")
+                    with cl2:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.warning(body="Revise os dados e confirme-os antes de prosseguir.")
 
         self.main_menu = main_menu
 

@@ -23,7 +23,7 @@ class Benefited:
 
         def new_benefited():
             with col1:
-                st.subheader(body=":computer: Entrada de dados")
+                st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados do credor", expanded=True):
                     benefited_name = st.text_input(label=":lower_left_ballpoint_pen: Nome", max_chars=100)
@@ -35,7 +35,7 @@ class Benefited:
 
                 if confirm_benefited_data and register_new_creditor:
                     with col2:
-                        st.subheader(body=":white_check_mark: Validação de dados")
+                        st.subheader(body=":white_check_mark: Validação de Dados")
 
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)

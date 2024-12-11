@@ -24,7 +24,7 @@ class Creditors:
         def new_creditor():
 
             with col1:
-                st.subheader(body=":computer: Entrada de dados")
+                st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados do credor", expanded=True):
                     creditor_name = st.text_input(label=":lower_left_ballpoint_pen: Nome", max_chars=100)
