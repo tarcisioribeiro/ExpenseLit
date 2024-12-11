@@ -1,4 +1,4 @@
-from dictionary.vars import absolute_app_path, dark_theme, server_config, light_theme, operational_system
+from dictionary.vars import absolute_app_path, dark_theme, server_config, light_theme, fonts_dictionary
 from time import sleep
 import streamlit as st
 
@@ -9,6 +9,7 @@ class ChangeTheme:
         def change_theme(theme_option: str, font_option: str):
 
             config_archive: str = absolute_app_path + "/.streamlit/config.toml"
+            style_archive: str = absolute_app_path + "/dictionary/style.py"
 
             if theme_option == "Escuro":
                 with open(config_archive, "w") as archive:
@@ -31,6 +32,12 @@ class ChangeTheme:
                         archive.write('font = "{}"'.format(font_option))
                     archive.write("\n")
                     archive.write(server_config)
+            
+            if font_option != "Selecione uma opção":
+                font_archive = fonts_dictionary[font_option]
+
+                with open(style_archive, "w") as new_style_archive:
+                    new_style_archive.write('system_font = "{}"'.format(font_archive))
     
         def main_menu():
 

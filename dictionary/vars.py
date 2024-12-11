@@ -26,6 +26,12 @@ server_config = """
 headless = true
 enableStaticServing = true"""
 
+fonts_dictionary = {
+    "sans serif": "/library/fonts/sans_serif/Roboto_Regular.ttf",
+    "serif": "/library/fonts/serif/CrimsonText-Regular.ttf",
+    "monospace": "/library/fonts/monospace/CourierPrime-Regular.ttf"
+}
+
 main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))
 transfer_image: str = Image.open("{}/library/images/transfer.png".format(absolute_app_path))
 

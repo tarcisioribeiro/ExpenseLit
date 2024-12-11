@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.user_stats import user_name
+from dictionary.style import system_font
 from datetime import datetime
 from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, decimal_values, SAVE_FOLDER
 from dictionary.sql import user_current_accounts_query, account_image_query
@@ -229,7 +230,7 @@ class Receipts:
                 font = ImageFont.truetype("cour.ttf", font_size)
             elif operational_system == "posix":
                 font = ImageFont.truetype(
-                    "{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path),
+                    "{}{}".format(absolute_app_path, system_font),
                     font_size,
                 )
 
@@ -247,7 +248,7 @@ class Receipts:
                 header_font = ImageFont.truetype("cour.ttf", header_font_size)
             elif operational_system == "posix":
                 header_font = ImageFont.truetype(
-                    "{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path),
+                    "{}{}".format(absolute_app_path, system_font),
                     font_size,
                 )
 
@@ -267,7 +268,7 @@ class Receipts:
             draw.text((20, 210), f"Conta de Destino: {destiny_account}", fill="black",font=font)
             draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
             draw.line([(width - 400, height - 60), (width - 20, height - 60)],fill="black", width=2)
-            draw.text((520, 400), f"ASS.: {user_name}", fill="black", font=font)
+            draw.text((520, 400), f"{user_name}", fill="black", font=font)
             draw.text((20, height - 40), reference_number, fill="black", font=font)
 
             image.paste(origin_pasted_image, (20, 250))
@@ -331,7 +332,7 @@ class Receipts:
             if operational_system == "nt":
                 font = ImageFont.truetype("cour.ttf", font_size)
             elif operational_system == "posix":
-                font = ImageFont.truetype("{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path), font_size)
+                font = ImageFont.truetype("{}{}".format(absolute_app_path, system_font), font_size)
 
             border_color = "black"
             border_width = 4
@@ -344,7 +345,7 @@ class Receipts:
                 header_font = ImageFont.truetype("cour.ttf", font_size)
             elif operational_system == "posix":
                 header_font = ImageFont.truetype(
-                    "{}/library/fonts/Roboto_Regular.ttf".format(absolute_app_path),
+                    "{}{}".format(absolute_app_path, system_font),
                     font_size,
                 )
 
@@ -363,7 +364,7 @@ class Receipts:
             draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
             draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
             draw.line([(width - 400, height - 60), (width - 20, height - 60)], fill="black", width=2)
-            draw.text((400, 360), f"ASS.: {user_name}", fill="black", font=font)
+            draw.text((400, 360), f"{user_name}", fill="black", font=font)
             draw.text((20, height - 40), reference_number, fill="black", font=font)
 
             pasted_image = Image.open(account_image_path)
@@ -425,7 +426,7 @@ class Receipts:
 
                             if is_query_valid == True:
 
-                                with st.expander(label="Resultados", expanded=True):
+                                with st.expander(label=":bar_chart: Resultados", expanded=True):
 
                                     st.info("Registro(s) encontrado(s): {}.".format(query_data))
 
