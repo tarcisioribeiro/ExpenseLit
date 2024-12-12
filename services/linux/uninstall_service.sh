@@ -10,6 +10,8 @@ blue() {
     echo -e "\033[34m$1\033[0m"
 }
 
+actual_date=$(date +"%Y-%m-%d")
+actual_horary=$(date +"%H_%M_%S")
 FOLDER=$(pwd)
 
 #!/bin/bash
@@ -51,8 +53,8 @@ while true; do
 
     if [ "$password" = "$confirmation" ]; then
         green "\nSenhas coincidem. Realizando o backup do banco de dados..."
-        sleep 2
-        mysqldump -uroot -p"$password" --databases financas >> backup_financas.sql
+        sleep 1
+        mysqldump -uroot -p"$password" --databases financas >> backup_financas_{actual_date}_{actual_horary}.sql
         chmod 777 backup_financas.sql
         break
     else
@@ -61,14 +63,17 @@ while true; do
     fi
 done
 
+cp -r library/images/accounts/ .
+chmod 777 -R accounts/
+mkdir ExpenseLit_data_backup_{actual_date}_{actual_horary}/
+
 sleep 1
 
 cd $FOLDER
 blue "\nDesativando ambiente virtual..."
-sleep 2
-deactivate
+sleep 1
 blue "\nRemovendo ambiente virtual..."
-sleep 2
+sleep 1
 rm -r venv
 
 sleep 1
