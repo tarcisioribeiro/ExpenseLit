@@ -69,6 +69,7 @@ chmod 777 -R "accounts/"
 mkdir "$backup_directory_name"
 mv "$database_backup_filename" "$backup_directory_name"
 mv "accounts/" "$backup_directory_name"
+mv "$backup_directory_name" $HOME
 
 sleep 1
 
