@@ -13,8 +13,8 @@ blue() {
 
 actual_date=$(date +"%Y-%m-%d")
 actual_horary=$(date +"%H_%M_%S")
-database_backup_filename="backup_financas_$actual_date_$actual_horary.sql"
-backup_directory_name="ExpenseLit_data_backup_$actual_date_$actual_horary"
+database_backup_filename="backup_financas_${actual_date}_${actual_horary}.sql"
+backup_directory_name="ExpenseLit_data_backup_${actual_date}_${actual_horary}"
 FOLDER=$(pwd)
 
 while true; do
