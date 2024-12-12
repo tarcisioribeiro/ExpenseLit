@@ -30,8 +30,8 @@ class UpdateAccounts:
                     
                     account_name = st.selectbox(label=":lower_left_ballpoint_pen: Nome da conta", options=account_models)
                     account_type = st.selectbox(label=":card_index_dividers: Tipo da conta", options=accounts_type)
-                    get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.01, help="Não é possíveç cadastrar uma conta sem um valor inicial.")
-                    get_account_image = st.file_uploader(label=":camera: Imagem da conta", type=['png', 'jpg'])
+                    get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.01, help="Não é possível cadastrar uma conta sem um valor inicial.")
+                    get_account_image = st.file_uploader(label=":camera: Imagem da conta", type=['png', 'jpg'], help="O envio da imagem não é obrigatório.")
                     confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
 
                 register_account = st.button(label=":floppy_disk: Registrar Conta")                        

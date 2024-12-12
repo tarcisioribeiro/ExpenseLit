@@ -19,11 +19,11 @@ class NewExpense:
 
             with col2:
                 menu_options = {
-                    "Despesa em conta corrente": NewCurrentExpense(),
-                    "Despesa de cartão": NewCreditCardExpense(),
-                    "Pagar fatura de cartão": CreditCardInvoice(),
-                    "Confirmar pagamento": ConfirmExpense(),
-                    "Pagar valores em aberto": PayLoan()
+                    "Despesa em Conta Corrente": NewCurrentExpense(),
+                    "Despesa de Cartão": NewCreditCardExpense(),
+                    "Pagar Fatura de Cartão": CreditCardInvoice(),
+                    "Confirmar Pagamento": ConfirmExpense(),
+                    "Pagar Valores em Aberto": PayLoan()
                 }
 
                 menu_choice = st.selectbox(label="Tipo de despesa", options=menu_options)
