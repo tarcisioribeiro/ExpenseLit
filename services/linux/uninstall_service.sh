@@ -28,7 +28,7 @@ while true; do
         green "\nVocê tem permissões de root. Continuando com o script..."
         sleep 1
         blue "\nDesativando o serviço da aplicação..."
-        sleep 5
+        sleep 2
         sudo systemctl stop expenselit.service
         sudo systemctl disable expenselit.service
         break
@@ -40,7 +40,6 @@ while true; do
 done
 
 sleep 1
-clear
 
 while true; do
     blue "\nDigte a senha do banco de dados: "
@@ -52,8 +51,9 @@ while true; do
 
     if [ "$password" = "$confirmation" ]; then
         green "\nSenhas coincidem. Realizando o backup do banco de dados..."
-        sleep 5
-        mysqldump -uroot -p "$password" --databases financas >> backup_financas.sql
+        sleep 2
+        mysqldump -uroot -p"$password" --databases financas >> backup_financas.sql
+        chmod 777 backup_financas.sql
         break
     else
         red "\nAs senhas não coincidem. Tente novamente."
@@ -62,17 +62,15 @@ while true; do
 done
 
 sleep 1
-clear
 
 cd $FOLDER
 blue "\nDesativando ambiente virtual..."
-sleep 5
-deactive
+sleep 2
+deactivate
 blue "\nRemovendo ambiente virtual..."
-sleep 5
+sleep 2
 rm -r venv
 
 sleep 1
-clear
 
 green "\nDesinstalação concluída."
