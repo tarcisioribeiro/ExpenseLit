@@ -1,4 +1,5 @@
 #!/bin/bash
+
 red() {
     echo -e "\033[31m$1\033[0m"
 }
@@ -12,11 +13,9 @@ blue() {
 
 actual_date=$(date +"%Y-%m-%d")
 actual_horary=$(date +"%H_%M_%S")
-database_backup_filename=$"backup_financas_$actual_date_$actual_horary.sql"
-backup_directory_name=$"ExpenseLit_data_backup_$actual_date_$actual_horary"
+database_backup_filename="backup_financas_$actual_date_$actual_horary.sql"
+backup_directory_name="ExpenseLit_data_backup_$actual_date_$actual_horary"
 FOLDER=$(pwd)
-
-#!/bin/bash
 
 while true; do
     blue "\nDigite a senha de root:"
@@ -57,7 +56,7 @@ while true; do
         green "\nSenhas coincidem. Realizando o backup do banco de dados..."
         sleep 1
         mysqldump -uroot -p"$password" --databases financas >> $database_backup_filename
-        chmod 777 $database_backup_filename
+        chmod 700 $database_backup_filename
         break
     else
         red "\nAs senhas não coincidem. Tente novamente."
@@ -65,15 +64,14 @@ while true; do
     fi
 done
 
-cp -r library/images/accounts/ .
-chmod 777 -R accounts/
-mkdir $backup_directory_name
-mv $database_backup_filename $backup_directory_name
-mv accounts/ $backup_directory_name
+cp -r "library/images/accounts/" .
+chmod 777 -R "accounts/"
+mkdir "$backup_directory_name"
+mv "$database_backup_filename" "$backup_directory_name"
+mv "accounts/" "$backup_directory_name"
 
 sleep 1
 
-cd $FOLDER
 blue "\nDesativando ambiente virtual..."
 sleep 1
 blue "\nRemovendo ambiente virtual..."
