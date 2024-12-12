@@ -12,8 +12,8 @@ blue() {
 
 actual_date=$(date +"%Y-%m-%d")
 actual_horary=$(date +"%H_%M_%S")
-database_backup_filename = "backup_financas_$actual_date_$actual_horary.sql"
-backup_directory_name = "ExpenseLit_data_backup_$actual_date_$actual_horary"
+database_backup_filename=$"backup_financas_$actual_date_$actual_horary.sql"
+backup_directory_name=$"ExpenseLit_data_backup_$actual_date_$actual_horary"
 FOLDER=$(pwd)
 
 #!/bin/bash
@@ -57,7 +57,7 @@ while true; do
         green "\nSenhas coincidem. Realizando o backup do banco de dados..."
         sleep 1
         mysqldump -uroot -p"$password" --databases financas >> $database_backup_filename
-        chmod 777 backup_financas.sql
+        chmod 777 $database_backup_filename
         break
     else
         red "\nAs senhas não coincidem. Tente novamente."
