@@ -1,4 +1,5 @@
 #!/bin/bash
+
 red() {
     echo -e "\033[31m$1\033[0m"
 }
@@ -11,8 +12,6 @@ blue() {
 }
 
 FOLDER=$(pwd)
-
-#!/bin/bash
 
 while true; do
     blue "\nDigite a senha de root:"
@@ -29,7 +28,7 @@ while true; do
         sleep 1
         blue "\nInstalando dependências..."
         sleep 5
-        apt install build-essential openssh-server git neofetch curl net-tools wget mysql-server python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
+        apt install build-essential openssh-server git neofetch curl net-tools wget python3-venv python3-tk python3-pip python3.10-full python3.10-dev dkms perl gcc make default-libmysqlclient-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev llvm xz-utils tk-dev libffi-dev liblzma-dev python3-openssl -y
         ufw enable
         ufw allow 8501
         ufw allow OpenSSH
@@ -44,26 +43,57 @@ done
 sleep 1
 clear
 
+if ! command -v mysql &> /dev/null; then
+    red "MySQL não está instalado. Instalando agora..."
+    sleep 2
+    sudo apt update && sudo apt install -y mysql-server
+    if [ $? -ne 0 ]; then
+        red "Erro ao instalar o MySQL. Saindo."
+        exit 1
+    fi
+    green "MySQL instalado com sucesso."
+fi
+
+# Solicitar senha do usuário
 while true; do
     blue "\nDefina a senha do banco de dados: "
     read -s password
-    sleep 1
     blue "\nRepita a senha: "
     read -s confirmation
-    sleep 1
-
     if [ "$password" = "$confirmation" ]; then
-        green "\nSenhas coincidem. Configurando o banco de dados..."
-        sleep 5
-        sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password';"
-        cd documentation/
-        mysql -u root -p"$password" < implantation_financas.sql
+        green "\nSenhas coincidem. Verificando acesso ao MySQL..."
+        sleep 2
+        mysql -u root -p"$password" -e "QUIT" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            green "Senha correta. Conexão com o MySQL estabelecida."
+        else
+            red "Senha incorreta ou não configurada. Configurando agora..."
+            sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password'; FLUSH PRIVILEGES;"
+            if [ $? -eq 0 ]; then
+                green "Senha de root configurada com sucesso."
+            else
+                red "Erro ao configurar a senha de root. Saindo."
+                exit 1
+            fi
+        fi
         break
     else
         red "\nAs senhas não coincidem. Tente novamente."
-        sleep 1
     fi
 done
+
+db_script="documentation/implantation_financas.sql"
+if [ -f "$db_script" ]; then
+    blue "\nExecutando script de implantação do banco de dados..."
+    mysql -u root -p"$password" < "$db_script"
+    if [ $? -eq 0 ]; then
+        green "Script de implantação executado com sucesso."
+    else
+        red "Erro ao executar o script de implantação."
+    fi
+else
+    red "Script de implantação não encontrado em '$db_script'."
+fi
 
 sleep 1
 clear
