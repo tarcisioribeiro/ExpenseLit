@@ -141,6 +141,6 @@ class ConfirmExpense:
             elif len(expense_values[0]) == 0:
 
                 with col5:
-                    st.info("Você não possui valores a receber.")
+                    st.info("Você não possui valores futuros a pagar aguardando confirmação.")
 
         self.main_menu = show_not_received_values

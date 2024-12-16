@@ -1,9 +1,10 @@
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
-from dictionary.vars import transfer_categories, to_remove_list, decimal_values
+from dictionary.vars import transfer_categories, to_remove_list
 from dictionary.sql import (last_transfer_id_query,doc_name_query ,user_current_accounts_query, total_account_revenue_query, total_account_expense_query, user_fund_accounts_query)
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -14,6 +15,7 @@ class NewTransfer:
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
         call_time = GetActualTime()
+        variable = Variable()
 
         def new_fund_account_transfer():
             col4, col5, col6 = st.columns(3)
@@ -89,11 +91,7 @@ class NewTransfer:
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
-                                str_account_available_value = str(account_available_value)
-                                str_account_available_value = str_account_available_value.replace(".", ",")
-                                last_two_digits = str_account_available_value[-2:]
-                                if last_two_digits in decimal_values:
-                                    str_account_available_value = str_account_available_value + "0"
+                                str_account_available_value =  variable.treat_complex_string(account_available_value)
 
                         with data_validation_expander:
 
@@ -118,11 +116,7 @@ class NewTransfer:
                             query_executor.insert_query(expense_query,expense_values,"Despesa registrada com sucesso!","Erro ao registrar despesa:")
                             query_executor.insert_query(revenue_query,revenue_values,"Receita registrada com sucesso!","Erro ao registrar receita:")
 
-                            str_value = str(value)
-                            str_value = str_value.replace(".", ",")
-                            last_two_digits = str_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_value = str_value + "0"
+                            str_value = variable.treat_complex_string(value)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(str_value, origin_account, destiny_account))
@@ -222,11 +216,7 @@ class NewTransfer:
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
-                                str_account_available_value = str(account_available_value)
-                                str_account_available_value = str_account_available_value.replace(".", ",")
-                                last_two_digits = str_account_available_value[-2:]
-                                if last_two_digits in decimal_values:
-                                    str_account_available_value = str_account_available_value + "0"
+                                str_account_available_value = variable.treat_complex_string(account_available_value)
 
                         with data_validation_expander:
 
@@ -251,11 +241,7 @@ class NewTransfer:
                             query_executor.insert_query(expense_query,expense_values,"Despesa registrada com sucesso!","Erro ao registrar despesa:")
                             query_executor.insert_query(revenue_query,revenue_values,"Receita registrada com sucesso!","Erro ao registrar receita:")
 
-                            str_value = str(value)
-                            str_value = str_value.replace(".", ",")
-                            last_two_digits = str_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_value = str_value + "0"
+                            str_value = variable.treat_complex_string(value)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma transferência no valor de R$ {} da conta {} para a conta {}.".format(str_value, origin_account, destiny_account))

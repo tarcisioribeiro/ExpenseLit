@@ -2,9 +2,10 @@ import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import last_expense_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query
 from dictionary.user_stats import user_name, user_document
-from dictionary.vars import to_remove_list, expense_categories, decimal_values
+from dictionary.vars import to_remove_list, expense_categories
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -15,6 +16,7 @@ class NewCurrentExpense:
         call_time = GetActualTime()
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
+        variable = Variable()
 
         def new_expense():     
 
@@ -84,12 +86,7 @@ class NewCurrentExpense:
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
-                                available_value = str(account_available_value)
-                                available_value = available_value.replace(".", ",")
-                                last_two_digits = available_value[-2:]
-                                if last_two_digits in decimal_values:
-                                    available_value = available_value + "0"
-
+                                available_value = variable.treat_complex_string(account_available_value)
 
                         with data_validation_expander:
                             st.info(body="Valor disponível da conta {}: R$ {}".format(account, available_value))
@@ -103,11 +100,7 @@ class NewCurrentExpense:
                             values = (description, value, date, actual_horary, category, account, user_name, user_document, payed)
                             query_executor.insert_query(expense_query, values, "Despesa registrada com sucesso!", "Erro ao registrar despesa:")
 
-                            str_value = str(value)
-                            str_value = str_value.replace(".", ",")
-                            last_two_digits = str_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_value = str_value + "0"
+                            str_value = variable.treat_complex_string(value)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))

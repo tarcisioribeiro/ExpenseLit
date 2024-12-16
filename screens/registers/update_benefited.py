@@ -19,7 +19,7 @@ class Benefited:
 
         def update_benefited():
             with col2:
-                st.warning(body="Em desenvolvimento.", icon="⚠️")            
+                st.warning(body="Em desenvolvimento.")            
 
         def new_benefited():
             with col1:

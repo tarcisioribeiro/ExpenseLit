@@ -1,9 +1,20 @@
+from dictionary.vars import decimal_values
 import streamlit as st
 
 
 class Variable:
 
     def __init__(self):
+
+        def treat_complex_string(value_passed: float):
+            str_value = str(value_passed)            
+            str_value = str_value.replace(".", ",")
+            last_two_values = str_value[-2:]
+
+            if last_two_values in decimal_values:
+                str_value = str_value + "0"
+
+            return str_value
 
         def create_variable(name, value):
             globals()[name] = value
@@ -25,3 +36,4 @@ class Variable:
 
         self.create = create_variable
         self.debug = debug_variable
+        self.treat_complex_string = treat_complex_string

@@ -1,12 +1,13 @@
 from data.cache.session_state import logged_user
 from datetime import date
-from dictionary.vars import to_remove_list, today
+from dictionary.vars import to_remove_list, today, decimal_values
 from dictionary.app_vars import months, years
 from dictionary.user_stats import user_name, user_document
 from dictionary.sql import owner_cards_query, user_current_accounts_query, credit_card_expire_date_query
 from functions.credit_card import Credit_Card
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
+from functions.variable import Variable
 from time import sleep
 import streamlit as st
 
@@ -17,6 +18,7 @@ class UpdateCreditCards:
         call_credit_card = Credit_Card()
         query_executor = QueryExecutor()
         call_document = Documents()
+        variable = Variable()
 
         today_list = today.split("-")
         for i in range(0, len(today_list)):
@@ -158,6 +160,13 @@ class UpdateCreditCards:
                 with col2:
                     with st.spinner(text='Aguarde...'):
                         sleep(2.5)
+
+                        formatted_limit = variable.treat_complex_string(new_limit)
+                        
+                        st.subheader(body=":white_check_mark: Validação de Dados")
+                        with st.expander(label="Avisos", expanded=True):
+                            st.info(body="Novo limite: R$ {}".format(formatted_limit))
+
                         query_executor.update_table_unique_register(new_limit_query, "Limite atualizado com sucesso!", "Erro ao atualizar limite:")
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''

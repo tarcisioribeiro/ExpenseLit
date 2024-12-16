@@ -19,7 +19,7 @@ class Creditors:
 
         def update_creditor():
             with col2:
-                st.warning(body="Em desenvolvimento.", icon="⚠️")            
+                st.warning(body="Em desenvolvimento.")            
 
         def new_creditor():
 

@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 from data.cache.session_state import logged_user
 from dictionary.sql import not_payed_loans_query, user_current_accounts_query, doc_name_query, last_expense_id_query
-from dictionary.vars import to_remove_list, today, decimal_values
+from dictionary.vars import to_remove_list, today
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -15,6 +16,7 @@ class PayLoan:
         call_time = GetActualTime()
         query_executor = QueryExecutor()
         receipt_generator = Receipts()
+        variable = Variable()
 
         def show_loans():
             
@@ -154,29 +156,16 @@ class PayLoan:
                                 with st.expander(label="Dados", expanded=True):
 
                                     to_pay_value = (paying_value + payed_actual_value)
-                                    str_paying_value = str(paying_value)
-                                    str_paying_value = str_paying_value.replace(".", ",")
-                                    last_two_digits = str_paying_value[-2:]
-                                    if last_two_digits in decimal_values:
-                                        str_paying_value = str_paying_value + "0"
+                                    str_paying_value = variable.treat_complex_string(paying_value)
 
                                     st.info(body="Valor sendo pago: :heavy_dollar_sign: {}".format(str_paying_value))
 
-                                    str_to_pay_value = str(to_pay_value)
-                                    str_to_pay_value = str_to_pay_value.replace(".", ",")
-                                    last_two_digits = str_to_pay_value[-2:]
-                                    if last_two_digits in decimal_values:
-                                        str_to_pay_value = str_to_pay_value + "0"
+                                    str_to_pay_value = variable.treat_complex_string(to_pay_value)
 
                                     st.info(body="Valor pago atualizado: :heavy_dollar_sign: {}".format(str_to_pay_value))
 
                                     remaining_to_pay_value = total_actual_value - (paying_value + payed_actual_value)
-                                    str_remaining_to_pay_value = str(remaining_to_pay_value)
-                                    str_remaining_to_pay_value = str_remaining_to_pay_value.replace(".", ",")
-                                    last_two_digits = str_remaining_to_pay_value[-2:]
-                                    
-                                    if last_two_digits in decimal_values:
-                                        str_remaining_to_pay_value = str_remaining_to_pay_value + "0"
+                                    str_remaining_to_pay_value = variable.treat_complex_string(remaining_to_pay_value)
 
                                     st.info('Valor restante a pagar: :heavy_dollar_sign: {}'.format(str_remaining_to_pay_value))
 

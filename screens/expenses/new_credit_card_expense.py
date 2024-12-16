@@ -3,11 +3,12 @@ import streamlit as st
 from data.cache.session_state import logged_user
 from datetime import timedelta
 from dictionary.db_config import db_config
-from dictionary.vars import expense_categories, to_remove_list, decimal_values
+from dictionary.vars import expense_categories, to_remove_list
 from dictionary.sql import last_credit_card_expense_id_query, owner_cards_query
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -18,7 +19,7 @@ class NewCreditCardExpense:
         call_credit_card = Credit_Card()
         query_executor = QueryExecutor()
         call_time = GetActualTime()
-
+        variable = Variable()
         receipt_executor = Receipts()
 
         def get_last_credit_card_expense_id():
@@ -82,12 +83,7 @@ class NewCreditCardExpense:
                         card = st.selectbox(label=":credit_card: Cartão", options=user_cards)
                         remaining_limit = call_credit_card.card_remaining_limit(selected_card=card)
 
-                        str_remaining_limit = str(remaining_limit)
-                        str_remaining_limit = str_remaining_limit.replace(".", ",")
-
-                        last_two_digits = str_remaining_limit[-2:]
-                        if last_two_digits in decimal_values:
-                            str_remaining_limit = str_remaining_limit + "0"
+                        str_remaining_limit = variable.treat_complex_string(remaining_limit)
 
                         parcel = st.number_input(label=":pencil: Parcelas", min_value=1, step=1)
                         inputed_credit_card_code = st.text_input(label=":credit_card: Informe o código do cartão", max_chars=3)
@@ -153,11 +149,7 @@ class NewCreditCardExpense:
                                 )
                                 insert_new_credit_card_expense(credit_card_expense_query, values)
 
-                            str_value = str(value)
-                            str_value = str_value.replace(".", ",")
-                            last_two_digits = str_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_value = str_value + "0"
+                            str_value = variable.treat_complex_string(value)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma despesa de cartão no valor de R$ {} associada a conta {}.".format(str_value, card))

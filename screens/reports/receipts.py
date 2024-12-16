@@ -4,7 +4,7 @@ from data.cache.session_state import logged_user, logged_user_password
 from dictionary.user_stats import user_name
 from dictionary.style import system_font
 from datetime import datetime
-from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, decimal_values, SAVE_FOLDER
+from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, SAVE_FOLDER
 from dictionary.sql import user_current_accounts_query, account_image_query
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
@@ -205,12 +205,8 @@ class Receipts:
             destiny_pasted_image = Image.open(destiny_account_image_path)
 
             float_value = round(value, 2)
-            str_value = str(float_value)
-            str_value = str_value.replace(".", ",")
 
-            last_two_digits = str_value[-2:]
-            if last_two_digits in decimal_values:
-                str_value = str_value + "0"
+            str_value = variable.treat_complex_string(float_value)
 
             reference_number = ""
             if id <= 9:
@@ -297,14 +293,8 @@ class Receipts:
             }
 
             table = table_dictionary[table]
-
             value = round(value, 2)
-            value = str(value)
-            value = value.replace(".", ",")
-
-            last_two_digits = value[-2:]
-            if last_two_digits in decimal_values:
-                value = value + "0"
+            value = variable.treat_complex_string(value)
 
             reference_number = ""
             if id <= 9:
@@ -436,11 +426,7 @@ class Receipts:
                                     str_value_list = []
 
                                     for i in range(0, len(value)):
-                                        aux_value = str(value[i])
-                                        aux_value = aux_value.replace(".", ",")
-                                        last_two_digits = aux_value[-2:]
-                                        if last_two_digits in decimal_values:
-                                            aux_value = aux_value + "0"
+                                        aux_value = variable.treat_complex_string(value[i])
                                         aux_value = 'R$ ' + aux_value
                                         str_value_list.append(aux_value)
 

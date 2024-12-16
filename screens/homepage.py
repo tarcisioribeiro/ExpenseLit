@@ -16,7 +16,7 @@ from dictionary.sql import (
     owner_active_cards_query
 )
 from dictionary.user_stats import user_name, user_sex
-from dictionary.vars import to_remove_list, string_actual_month, decimal_values, actual_year
+from dictionary.vars import to_remove_list, string_actual_month, actual_year
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
@@ -33,16 +33,6 @@ class Home:
         variable = Variable()
 
         query_executor = QueryExecutor()
-
-        def treat_complex_string(value_passed: float):
-            str_value = str(value_passed)            
-            str_value = str_value.replace(".", ",")
-            last_two_values = str_value[-2:]
-
-            if last_two_values in decimal_values:
-                str_value = str_value + "0"
-
-            return str_value
 
         def mount_card_graph(selected_card: str):
             credit_card = Credit_Card()
@@ -74,7 +64,7 @@ class Home:
         def mount_balance():
             values_list = []
 
-            final_str_balance = treat_complex_string(balance)
+            final_str_balance = variable.treat_complex_string(balance)
             values_list.append(final_str_balance)
 
             ticket_revenue_ammount = query_executor.simple_consult_query(ticket_revenue_query)
@@ -84,7 +74,7 @@ class Home:
             ticket_expense_ammount = query_executor.treat_simple_result(ticket_expense_ammount, to_remove_list)
             ticket_expense_ammount = float(ticket_expense_ammount)
             ticket_ammount = ticket_revenue_ammount - ticket_expense_ammount
-            final_str_ticket_ammount = treat_complex_string(ticket_ammount)
+            final_str_ticket_ammount = variable.treat_complex_string(ticket_ammount)
             values_list.append(final_str_ticket_ammount)
 
             fund_revenue_ammount = query_executor.simple_consult_query(fund_revenue_query)
@@ -94,17 +84,17 @@ class Home:
             fund_expense_ammount = query_executor.treat_simple_result(fund_expense_ammount, to_remove_list)
             fund_expense_ammount = float(fund_expense_ammount)
             fund_ammount = fund_revenue_ammount - fund_expense_ammount
-            final_str_fund_ammount = treat_complex_string(fund_ammount)
+            final_str_fund_ammount = variable.treat_complex_string(fund_ammount)
             values_list.append(final_str_fund_ammount)
 
             loan_ammount = query_executor.simple_consult_query(loan_expense_query)
             loan_ammount = query_executor.treat_simple_result(loan_ammount, to_remove_list)
-            final_str_loan_ammount = treat_complex_string(loan_ammount)
+            final_str_loan_ammount = variable.treat_complex_string(loan_ammount)
             values_list.append(final_str_loan_ammount)
 
             debts_ammount = query_executor.simple_consult_query(debts_expense_query)
             debts_ammount = query_executor.treat_simple_result(debts_ammount, to_remove_list)
-            final_str_debts_ammount = treat_complex_string(debts_ammount)
+            final_str_debts_ammount = variable.treat_complex_string(debts_ammount)
             values_list.append(final_str_debts_ammount)
             
             return values_list

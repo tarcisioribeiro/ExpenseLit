@@ -1,8 +1,9 @@
 from data.cache.session_state import logged_user
 from datetime import datetime
 from dictionary.sql import not_received_revenue_query
-from dictionary.vars import to_remove_list, today, decimal_values
+from dictionary.vars import to_remove_list, today
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
@@ -15,6 +16,7 @@ class ConfirmRevenue:
 
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
+        variable = Variable()
 
         def get_not_received_revenue_id(description: str, value: float, date: str, time: str, category: str, account: str):
 
@@ -96,11 +98,7 @@ class ConfirmRevenue:
                             final_category = str(index_description["categoria"])
                             final_account = str(index_description["conta"])
 
-                            str_final_value = str(final_value)
-                            str_final_value = str_final_value.replace(".", ",")
-                            last_two_digits = str_final_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_final_value = str_final_value + "0"
+                            str_final_value = variable.treat_complex_string(final_value)
 
                             with st.subheader(body=":white_check_mark: Validação de dados"):
                                 with st.expander(label="Dados", expanded=True):

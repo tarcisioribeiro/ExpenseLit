@@ -1,10 +1,11 @@
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.user_stats import user_name, user_document
-from dictionary.vars import expense_categories, to_remove_list, decimal_values
+from dictionary.vars import expense_categories, to_remove_list
 from dictionary.sql import last_loan_id_query, creditor_doc_name_query, user_current_accounts_query, creditors_query, doc_name_query, total_account_revenue_query, total_account_expense_query
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -15,6 +16,7 @@ class NewLoan:
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
         call_time = GetActualTime()
+        variable = Variable()
 
         col1, col2, col3 = st.columns(3)
 
@@ -124,11 +126,7 @@ class NewLoan:
                                 loan_values = (description,value,0,date,actual_horary,category,account,benefited_name,benefited_document,creditor_name,creditor_document,"N")
                                 query_executor.insert_query(loan_query, loan_values, "Empréstimo registrado com sucesso!", "Erro ao registrar empréstimo:")
 
-                                str_value = str(value)
-                                str_value = str_value.replace(".", ",")
-                                last_two_digits = str_value[-2:]
-                                if last_two_digits in decimal_values:
-                                    str_value = str_value + "0"
+                                str_value = variable.treat_complex_string(value)
 
                                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                 log_values = (logged_user, "Registro", "Tomou um empréstimo no valor de R$ {} associado a conta {}.".format(str_value, account))
@@ -254,11 +252,7 @@ class NewLoan:
                                 loan_values = (description,value,0,date,actual_horary,category,account,benefited_name,benefited_document,creditor_name,creditor_document,"N")
                                 query_executor.insert_query(loan_query, loan_values, "Empréstimo registrado com sucesso!", "Erro ao registrar empréstimo:")
 
-                                str_value = str(value)
-                                str_value = str_value.replace(".", ",")
-                                last_two_digits = str_value[-2:]
-                                if last_two_digits in decimal_values:
-                                    str_value = str_value + "0"
+                                str_value = variable.treat_complex_string(value)
 
                                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                 log_values = (logged_user, "Registro", "Registrou um empréstimo no valor de R$ {} a partir da conta {}.".format(str_value, account))

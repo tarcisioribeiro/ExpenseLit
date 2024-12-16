@@ -1,9 +1,10 @@
 from data.cache.session_state import logged_user
 from dictionary.user_stats import user_name, user_document
-from dictionary.vars import revenue_categories, to_remove_list, decimal_values
+from dictionary.vars import revenue_categories, to_remove_list
 from dictionary.sql import last_revenue_id_query, user_current_accounts_query
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
+from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 import streamlit as st
@@ -15,6 +16,7 @@ class NewCurrentRevenue:
         query_executor = QueryExecutor()
         receipt_executor = Receipts()
         call_actual_time = GetActualTime()
+        variable = Variable()
 
         user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
         user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -78,11 +80,7 @@ class NewCurrentRevenue:
                             values = (description, value, date, actual_horary, category, account, user_name, user_document, received)
                             query_executor.insert_query(revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
 
-                            str_value = str(value)
-                            str_value = str_value.replace(".", ",")
-                            last_two_digits = str_value[-2:]
-                            if last_two_digits in decimal_values:
-                                str_value = str_value + "0"
+                            str_value = variable.treat_complex_string(value)
                             
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(str_value, account))

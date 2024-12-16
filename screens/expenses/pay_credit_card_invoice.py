@@ -1,6 +1,6 @@
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import owner_cards_query, card_invoices_query
-from dictionary.vars import today, to_remove_list, actual_year, decimal_values
+from dictionary.vars import today, to_remove_list, actual_year
 from dictionary.user_stats import user_name, user_document
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
@@ -31,11 +31,7 @@ class CreditCardInvoice:
 
             month_expenses = credit_card.month_expenses(selected_card, month_year, month_name)
 
-            str_month_expenses = str(month_expenses)
-            str_month_expenses = str_month_expenses.replace(".", ",")
-            last_two_digits = str_month_expenses[-2:]
-            if last_two_digits in decimal_values:
-                str_month_expenses = str_month_expenses + "0"
+            str_month_expenses = variable.treat_complex_string(month_expenses)
 
             if month_expenses == 0:
                 with st.expander(label="Informação",expanded=True):
@@ -70,11 +66,7 @@ class CreditCardInvoice:
                     query_executor.insert_query(expense_query, values, "Fatura paga com sucesso!", "")
                     query_executor.update_table_unique_register(update_invoice_query, "Fatura fechada com sucesso!", "Falha ao fechar fatura:")
 
-                    str_value = str(month_expenses)
-                    str_value = str_value.replace(".", ",")
-                    last_two_digits = str_value[-2:]
-                    if last_two_digits in decimal_values:
-                        str_value = str_value + "0"
+                    str_value = variable.treat_complex_string(month_expenses)
 
                     log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                     log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, selected_card))
