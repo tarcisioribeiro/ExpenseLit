@@ -1,1 +1,1 @@
-system_font = "/library/fonts/sans_serif/Roboto_Regular.ttf"
+system_font = "/library/fonts/monospace/CourierPrimeRegular.ttf"

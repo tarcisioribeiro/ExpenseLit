@@ -1,3 +1,4 @@
+from dictionary.style import system_font
 from datetime import datetime
 from functions.credit_card import Credit_Card
 from functions.get_balance import GetBalance
@@ -16,8 +17,10 @@ from dictionary.sql import (
     owner_active_cards_query
 )
 from dictionary.user_stats import user_name, user_sex
-from dictionary.vars import to_remove_list, string_actual_month, actual_year
+from dictionary.vars import to_remove_list, string_actual_month, actual_year, absolute_app_path
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
+from matplotlib import font_manager as fm
 import pandas as pd
 import streamlit as st
 
@@ -25,6 +28,10 @@ import streamlit as st
 class Home:
 
     def __init__(self):
+
+        font_path = absolute_app_path + system_font
+        custom_font = fm.FontProperties(fname=font_path, size=12)
+        rcParams["font.family"] = custom_font.get_name()
 
         call_balance = GetBalance()
         balance = call_balance.balance()
@@ -242,14 +249,34 @@ class Home:
                     if len(accounts_expense_graph) > 0:
                         account_df = pd.DataFrame(accounts_expense_graph, columns=["Valor", "Categoria"])
                         fig, ax = plt.subplots()
-                        wedges, texts, autotexts = ax.pie(account_df["Valor"], labels=None, autopct="", startangle=90)
+
+                        wedges, texts, autotexts = ax.pie(
+                            account_df["Valor"], labels=None, autopct="", startangle=90
+                        )
                         ax.axis("equal")
-                        legend_labels = ["{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
+
+                        legend_labels = [
+                            "{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(account_df["Categoria"], account_df["Valor"])
                         ]
-                        ax.legend(wedges, legend_labels, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
-                        ax.set_title("Despesas por Categoria - Contas Correntes")
+                        ax.legend(
+                            wedges,
+                            legend_labels,
+                            title="Legenda",
+                            loc="center left",
+                            bbox_to_anchor=(1, 0.5),
+                            title_fontsize=12,
+                            
+                            prop=custom_font
+                        )
+
+                        ax.set_title("Despesas por Categoria - Contas Correntes", fontsize=12, fontproperties=custom_font)
+
+                        for text in texts + autotexts:
+                            text.set_fontproperties(custom_font)
+
                         st.pyplot(fig)
+
                     else:
                         st.warning(body="Você ainda não possui despesas registradas.")
 
@@ -257,8 +284,11 @@ class Home:
                     credit_card_expense_graph = query_executor.complex_consult_query(most_credit_card_expenses_query)
 
                     if len(credit_card_expense_graph) > 0:
+                        
                         credit_card_df = pd.DataFrame(credit_card_expense_graph, columns=["Valor", "Categoria"])
+                        
                         fig, ax = plt.subplots()
+                        
                         wedges, texts, autotexts = ax.pie(
                             credit_card_df["Valor"],
                             labels=None,
@@ -266,6 +296,7 @@ class Home:
                             startangle=90,
                         )
                         ax.axis("equal")
+                        
                         legend_labels = [
                             "{} - {:.2f}%".format(category, (value / credit_card_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(
@@ -278,38 +309,58 @@ class Home:
                             title="Legenda",
                             loc="center left",
                             bbox_to_anchor=(1, 0.5),
+                            title_fontsize=12,
+                            prop=custom_font,
                         )
-                        ax.set_title("Despesas por Categoria - Cartão de Crédito")
+                        
+                        ax.set_title("Despesas por Categoria - Cartão de Crédito", fontsize=14, fontproperties=custom_font)
+
+                        for text in texts + autotexts:
+                            text.set_fontproperties(custom_font)
 
                         st.pyplot(fig)
 
                     else:
                         st.warning(body="Você ainda não possui despesas de cartão registradas.")
 
+
                 with st.expander(label=":bar_chart: Contas Correntes", expanded=True):
                     accounts_revenue_graph = query_executor.complex_consult_query(most_categories_revenues_query)
 
                     if len(accounts_revenue_graph) > 0:
                         account_df = pd.DataFrame(accounts_revenue_graph, columns=["Valor", "Categoria"])
-                        fig, ax = plt.subplots()
-                        wedges, texts, autotexts = ax.pie(account_df["Valor"], labels=None, autopct="", startangle=90)
-                        ax.axis("equal")
                         
+                        fig, ax = plt.subplots()
+                        
+                        wedges, texts, autotexts = ax.pie(
+                            account_df["Valor"],
+                            labels=None,
+                            autopct="",
+                            startangle=90
+                        )
+                        ax.axis("equal")
+
                         legend_labels = [
                             "{} - {:.2f}%".format(category, (value / account_df["Valor"].sum()) * 100).replace(".", ",")
                             for category, value in zip(
                                 account_df["Categoria"], account_df["Valor"]
                             )
                         ]
-
                         ax.legend(
                             wedges,
                             legend_labels,
                             title="Legenda",
                             loc="center left",
                             bbox_to_anchor=(1, 0.5),
+                            title_fontsize=12,
+                            prop=custom_font,
                         )
-                        ax.set_title("Receitas por Categoria")
+
+                        ax.set_title("Receitas por Categoria", fontsize=14, fontproperties=custom_font)
+
+                        for text in texts + autotexts:
+                            text.set_fontproperties(custom_font)
+
                         st.pyplot(fig)
 
                     else:

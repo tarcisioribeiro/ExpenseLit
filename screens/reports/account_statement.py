@@ -7,6 +7,7 @@ from dictionary.style import system_font
 from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from time import sleep
 import pandas as pd
 import streamlit as st
@@ -18,6 +19,8 @@ class AccountStatement:
 
         query_executor = QueryExecutor()
         actual_time = GetActualTime()
+        variable = Variable()
+        statement_types = ["Receitas", "Despesas"]
 
         def mount_statement_query(statement_type: str, accounts: list, initial_data: str, final_data: str):
 
@@ -48,8 +51,8 @@ class AccountStatement:
 
         def consult_statement(statement_query_list: list):
 
+            value_list = []
             data_df_list = []
-            statement_types = ["Receitas", "Despesas"]
 
             for position in range(len(statement_query_list)):
 
@@ -85,9 +88,10 @@ class AccountStatement:
                         data_df["Data"] = pd.to_datetime(data_df["Data"]).dt.strftime("%d/%m/%Y")
                         st.dataframe(data_df, hide_index=True, use_container_width=True)
 
+                    value_list.append(value)
                     data_df_list.append(data_df)
             
-            return value, data_df_list
+            return value_list, data_df_list
 
         def generate_pdf(df: list, statement_type: str, initial_data: str, final_data: str, accounts: list):
 
@@ -178,26 +182,32 @@ class AccountStatement:
                         if statement_option != "Selecione uma opção" and len(selected_accounts) > 0 and (initial_data <= final_data):
                                 query_list = mount_statement_query(statement_option, selected_accounts, initial_data, final_data)
 
-                                value, dataframes = consult_statement(query_list)
+                                value_list, dataframes = consult_statement(query_list)
 
                                 with col6:
                                     with st.spinner(text="Aguarde..."):
                                         sleep(2.5)
 
+                                    st.subheader(body=":information_source: Informações")
+
                                     total_value = 0
-                                    for i in range(0, len(value)):
-                                        total_value += value[i]
-                                        medium_value = round((total_value / len(value)), 2)
+                                    counter = 0
+
+                                    for i in range(0, len(value_list)):
+
+                                        for j in range(0, len(value_list[i])):
+                                            total_value += value_list[i][j]
+                                            counter += 1
+
+                                        medium_value = round((total_value / len(value_list[i])), 2)
                                         
                                     medium_value = str(medium_value)
                                     medium_value = medium_value.replace(".", ",")
                                     total_value = str(total_value)
                                     total_value = total_value.replace(".", ",")
 
-                                    st.subheader(body=":information_source: Informações")
-
                                     with st.expander(label="Dados", expanded=True):
-                                        st.info(body="Quantidade de {}: {}.".format(statement_option.lower(), len(value)))
+                                        st.info(body="Quantidade de {}: {}.".format(statement_option.lower(), counter))
                                         st.info(body="Valor total das {}: R$ {}.".format(statement_option.lower(), total_value))
                                         st.info(body="Valor médio das {}: R$ {}.".format(statement_option.lower(), medium_value))
 

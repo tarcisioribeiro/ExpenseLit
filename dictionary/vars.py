@@ -27,9 +27,9 @@ headless = true
 enableStaticServing = true"""
 
 fonts_dictionary = {
-    "sans serif": "/library/fonts/sans_serif/Roboto_Regular.ttf",
-    "serif": "/library/fonts/serif/CrimsonText-Regular.ttf",
-    "monospace": "/library/fonts/monospace/CourierPrime-Regular.ttf"
+    "sans serif": "/library/fonts/sans_serif/RobotoRegular.ttf",
+    "serif": "/library/fonts/serif/CrimsonTextRegular.ttf",
+    "monospace": "/library/fonts/monospace/CourierPrimeRegular.ttf"
 }
 
 main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))

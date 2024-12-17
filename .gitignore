@@ -162,3 +162,7 @@ library/images/accounts/*.png
 library/images/accounts/*.jpg
 data/cache/session_state.py
 services/temp_backup.sh
+library/fonts/sans_serif/RobotoRegular.cw127.pkl
+library/fonts/sans_serif/RobotoRegular.pkl
+library/fonts/serif/CrimsonTextRegular.cw127.pkl
+library/fonts/serif/CrimsonTextRegular.pkl
