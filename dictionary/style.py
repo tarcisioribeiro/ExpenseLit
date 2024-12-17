@@ -1,1 +1,1 @@
-system_font = "/library/fonts/monospace/CourierPrimeRegular.ttf"
+system_font = "/library/fonts/serif/CrimsonTextRegular.ttf"
