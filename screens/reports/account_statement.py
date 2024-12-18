@@ -112,7 +112,7 @@ class AccountStatement:
             pdf.add_font("SystemFont", "", "{}{}".format(absolute_app_path, system_font), uni=True)
             
             pdf.set_font("SystemFont", size=16)
-            pdf.cell(0, 10, statement_type, ln=True, align="C")
+            pdf.cell(0, 10, "Relatório de {}".format(statement_type), ln=True, align="C")
             pdf.ln(10)
 
             pdf.set_font("SystemFont", size=12)
