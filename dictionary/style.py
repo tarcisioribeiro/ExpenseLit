@@ -1,1 +1,1 @@
-system_font = "/library/fonts/serif/CrimsonTextRegular.ttf"
+system_font = "/library/fonts/sans_serif/RobotoRegular.ttf"
