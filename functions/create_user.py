@@ -4,8 +4,8 @@ from dictionary.vars import to_remove_list
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
 from time import sleep
+import re
 import streamlit as st
-
 
 class CreateUser:
 
@@ -14,8 +14,17 @@ class CreateUser:
         query_executor = QueryExecutor()
         document = Documents()
 
+        def validate_username(username):
+            """
+            Valida o nome de usuário para garantir que:
+            - Contenha apenas letras minúsculas, números e underscores
+            - Não tenha espaços ou caracteres especiais
+            """
+            pattern = r'^[a-z0-9_]+$'
+            return re.match(pattern, username) is not None
+
         def check_if_user_exists(login: str, document: str):
-            
+
             formatted_check_if_user_document_exists_query = check_if_user_document_exists_query.format(document)
             formatted_check_if_user_login_exists_query = check_if_user_login_exists_query.format(login)
 
@@ -34,10 +43,9 @@ class CreateUser:
                     st.error(body="O login {} já está em uso.".format(login))
                 elif check_if_user_document_exists >= 1 and check_if_user_login_exists == 0:
                     st.error(body="O documento {} já está em uso.".format(document))
-                elif check_if_user_login_exists >= 1 and check_if_user_login_exists >= 1:
+                elif check_if_user_login_exists >= 1 and check_if_user_document_exists >= 1:
                     st.error(body="O documento {} e o login {} já estão em uso.".format(document, login))
                 return False
-
 
         def main_menu():
 
@@ -48,7 +56,7 @@ class CreateUser:
             sex_options = {
                 "Masculino": "M",
                 "Feminino": "F"
-                }
+            }
 
             if check_user_quantity == 0:
                 col1, col2, col3 = st.columns(3)
@@ -69,10 +77,10 @@ class CreateUser:
                 st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados do usuário", expanded=True):
-                    user_login = st.text_input(label=":lock: Login de usuário",max_chars=25,help="O nome do usuário deve ter no máximo 25 caracteres.")
-                    user_password = st.text_input(label=":key: Senha de usuário",max_chars=100,help="A senha deve conter no máximo 100 caracteres.",type="password")
-                    confirm_user_password = st.text_input(label=":key: Confirme a senha do usuário",max_chars=100,help="A senha deve conter no máximo 100 caracteres.",type="password")
-                    user_name = st.text_input(label=":lower_left_ballpoint_pen: Nome completo do usuário",max_chars=100,help="Informe aqui seu nome completo.",)
+                    user_login = st.text_input(label=":lock: Login de usuário", max_chars=25, help="O nome do usuário deve ter no máximo 25 caracteres e conter apenas letras minúsculas, números e underscores.")
+                    user_password = st.text_input(label=":key: Senha de usuário", max_chars=100, help="A senha deve conter no máximo 100 caracteres.", type="password")
+                    confirm_user_password = st.text_input(label=":key: Confirme a senha do usuário", max_chars=100, help="A senha deve conter no máximo 100 caracteres.", type="password")
+                    user_name = st.text_input(label=":lower_left_ballpoint_pen: Nome completo do usuário", max_chars=100, help="Informe aqui seu nome completo.",)
 
                 confirm_values = st.checkbox(label="Confirmar dados")
 
@@ -84,7 +92,7 @@ class CreateUser:
                     user_phone = st.text_input(label=":telephone_receiver: Telefone/Celular", max_chars=11, help="Informe o número de telefone da seguinte forma: 12944781122")
                     user_email = st.text_input(label=":email: Email", max_chars=100, help="Informe um email válido. O email não deve ter mais de 100 caracteres.")
                     user_sex = st.selectbox(label="Sexo do usuário", options=sex_options.keys())
-                    
+
                 insert_new_user_button = st.button(label=":floppy_disk: Cadastrar novo usuário")
 
                 if insert_new_user_button and confirm_values:
@@ -98,23 +106,23 @@ class CreateUser:
                         with cl2:
                             is_document_valid = document.validate_owner_document(user_document)
 
-                    if user_login != "" and ((user_password != "" and confirm_user_password != "") and user_password == confirm_user_password) and user_name != "" and is_document_valid == True and user_phone != "" and user_email != "":
+                    if user_login != "" and validate_username(user_login) and ((user_password != "" and confirm_user_password != "") and user_password == confirm_user_password) and user_name != "" and is_document_valid == True and user_phone != "" and user_email != "":
                         with cl2:
                             st.success("O documento {} é válido.".format(user_document))
                             sleep(3)
 
                         if check_user_quantity == 0:
                             insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                            new_user_values = (user_login,user_password,user_name,user_document,user_phone,user_email,user_sex)
-                            query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
+                            new_user_values = (user_login, user_password, user_name, user_document, user_phone, user_email, user_sex)
+                            query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
                             insert_new_creditor_query = """INSERT INTO credores (nome, documento, telefone) VALUES (%s, %s, %s)"""
-                            new_creditor_values = (user_name,user_document,user_phone)
-                            query_executor.insert_query(insert_new_creditor_query,new_creditor_values,"Novo credor cadastrado com sucesso!","Erro ao cadastrar novo credor:")
+                            new_creditor_values = (user_name, user_document, user_phone)
+                            query_executor.insert_query(insert_new_creditor_query, new_creditor_values, "Novo credor cadastrado com sucesso!", "Erro ao cadastrar novo credor:")
 
                             insert_new_benefited_query = """INSERT INTO beneficiados (nome, documento, telefone) VALUES (%s, %s, %s)"""
-                            new_benefited_values = (user_name,user_document,user_phone)
-                            query_executor.insert_query(insert_new_benefited_query,new_benefited_values,"Novo beneficiado cadastrado com sucesso!","Erro ao cadastrar novo beneficiado:")
+                            new_benefited_values = (user_name, user_document, user_phone)
+                            query_executor.insert_query(insert_new_benefited_query, new_benefited_values, "Novo beneficiado cadastrado com sucesso!", "Erro ao cadastrar novo beneficiado:")
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                             log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
@@ -134,16 +142,16 @@ class CreateUser:
 
                                     if is_data_valid == True:
                                         insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                                        new_user_values = (user_login,user_password,user_name,user_document,user_phone,user_email,user_sex)
-                                        query_executor.insert_query(insert_new_user_query,new_user_values,"Novo usuário cadastrado com sucesso!","Erro ao cadastrar novo usuário:")
+                                        new_user_values = (user_login, user_password, user_name, user_document, user_phone, user_email, user_sex)
+                                        query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
                                         insert_new_creditor_query = """INSERT INTO credores (nome, documento, telefone) VALUES (%s, %s, %s)"""
-                                        new_creditor_values = (user_name,user_document, user_phone)
-                                        query_executor.insert_query(insert_new_creditor_query,new_creditor_values,"Novo credor cadastrado com sucesso!","Erro ao cadastrar novo credor:")
+                                        new_creditor_values = (user_name, user_document, user_phone)
+                                        query_executor.insert_query(insert_new_creditor_query, new_creditor_values, "Novo credor cadastrado com sucesso!", "Erro ao cadastrar novo credor:")
 
                                         insert_new_benefited_query = """INSERT INTO beneficiados (nome, documento, telefone) VALUES (%s, %s, %s)"""
-                                        new_benefited_values = (user_name,user_document, user_phone)
-                                        query_executor.insert_query(insert_new_benefited_query,new_benefited_values,"Novo beneficiado cadastrado com sucesso!","Erro ao cadastrar novo beneficiado:")
+                                        new_benefited_values = (user_name, user_document, user_phone)
+                                        query_executor.insert_query(insert_new_benefited_query, new_benefited_values, "Novo beneficiado cadastrado com sucesso!", "Erro ao cadastrar novo beneficiado:")
 
                                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                                         log_values = (logged_user, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(user_name, user_document))
@@ -153,8 +161,10 @@ class CreateUser:
                                     elif is_data_valid >= False:
                                         pass
 
-                    elif user_login == "" or user_password == "" or confirm_user_password == "" or (user_password != confirm_user_password) or user_name == "" or is_document_valid == False or user_email == "" or user_phone == "":
+                    elif user_login == "" or not validate_username(user_login) or user_password == "" or confirm_user_password == "" or (user_password != confirm_user_password) or user_name == "" or is_document_valid == False or user_email == "" or user_phone == "":
                         with cl2:
+                            if not validate_username(user_login):
+                                st.error("O login de usuário deve conter apenas letras minúsculas, números e underscores, sem espaços ou caracteres especiais.")
                             if is_document_valid == False:
                                 st.error("O documento {} é inválido.".format(user_document))
                             if user_login == "":

@@ -113,7 +113,7 @@ class Home:
             balance_values_list = mount_balance()
 
             with col1:
-                st.header(":dollar: Controle Financeiro")
+                st.header(":dollar: ExpenseLit")
 
             with col2:
                 

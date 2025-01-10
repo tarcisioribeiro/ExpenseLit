@@ -81,7 +81,7 @@ while true; do
     fi
 done
 
-db_script="documentation/implantation_financas.sql"
+db_script="documentation/database/implantation_financas.sql"
 if [ -f "$db_script" ]; then
     blue "\nExecutando script de implantação do banco de dados..."
     mysql -u root -p"$password" < "$db_script"
@@ -127,6 +127,8 @@ sudo mv expenselit.service /lib/systemd/system
 sudo systemctl enable expenselit.service
 sudo systemctl daemon-reload
 sudo systemctl start expenselit.service
+
+cp documentation/images/default.png library/images/accounts/
 
 green "\nInstalação concluída."
 

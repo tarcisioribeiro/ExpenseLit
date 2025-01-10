@@ -72,8 +72,6 @@ class UpdateAccounts:
                             query_executor.insert_query(insert_account_query, new_account_values, "Conta cadastrada com sucesso!", "Erro ao cadastrar conta:")
 
                         elif type(get_account_image).__name__ == "NoneType":
-
-                            new_file_name = default_account_image
                             library_file_name =  default_account_image
 
                             insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""

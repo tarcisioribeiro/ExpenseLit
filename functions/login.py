@@ -53,7 +53,7 @@ class User:
             col1, col2, col3 = st.columns(3)
 
             with col2:
-                st.header(body=":dollar: Controle Financeiro")
+                st.header(body=":dollar: ExpenseLit")
 
                 with st.container():
                     with st.expander(label=":computer: Login", expanded=True):

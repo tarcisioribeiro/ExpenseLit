@@ -48,7 +48,7 @@ class UpdateCreditCards:
 
                     with st.expander(label="Dados cadastrais", expanded=True):
                         card_name = st.text_input(label=":lower_left_ballpoint_pen: Nome do cartão")
-                        card_number = st.text_input(label=":lower_left_ballpoint_pen: Número do Cartão")
+                        card_number = st.text_input(label=":lower_left_ballpoint_pen: Número do Cartão", help="O número do cartão não deve conter espaços.")
                         owner_name = st.text_input(label=":lower_left_ballpoint_pen: Nome do Titular")
                         expire_date = st.date_input(label=":calendar: Data de validade")
 
@@ -57,8 +57,8 @@ class UpdateCreditCards:
                 with col2:
                     st.subheader(body="")
                     with st.expander(label="Dados confidenciais", expanded=True):
-                        security_code = st.text_input(label=":lock: Código de segurança", max_chars=3)
-                        confirm_security_code = st.text_input(label=":lock: Confirme o código de segurança", max_chars=3)
+                        security_code = st.text_input(label=":lock: Código de segurança", max_chars=3, type="password")
+                        confirm_security_code = st.text_input(label=":lock: Confirme o código de segurança", max_chars=3, type="password")
                         credit_limit_value = st.number_input(label=":dollar: Limite do cartão", step=0.01, min_value=0.01)
                         associated_account = st.selectbox(label=":bank: Conta associada", options=user_current_accounts)
 

@@ -58,7 +58,7 @@ transfer_image: str = Image.open("{}/library/images/transfer.png".format(absolut
 
 transfer_image_path = "{}/library/images/transfer.png".format(absolute_app_path)
 
-default_account_image = "{}/library/images/default.png".format(absolute_app_path)
+default_account_image = "default.png"
 
 today = datetime.now()
 today = today.date()

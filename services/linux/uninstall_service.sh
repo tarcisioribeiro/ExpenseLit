@@ -75,6 +75,7 @@ mkdir "$backup_directory_name"
 mv "$database_backup_filename" "$backup_directory_name"
 mv "accounts/" "$backup_directory_name"
 mv "$backup_directory_name" $HOME
+green "\nO backup da base de dados foi salvo no diretório '$HOME/$backup_directory_name'."
 
 sleep 1
 
