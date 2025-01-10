@@ -17,7 +17,7 @@ A execução do script **install_service.sh** automaticamente realizará a insta
 
 ## Instalação em ambientes Microsoft Windows
 
-Para utilizar o ExpenseLit em ambiente **Windows**, execute o **Windows PowerShell** como administrador, seguindo o passo a passo abaixo:
+Para utilizar o ExpenseLit em ambiente **Windows**, execute o **Windows PowerShell** como **administrador**, executando em sequência os comandos abaixo:
 
         Set-ExecutionPolicy Unrestricted
         winget install -e --id Git.Git
@@ -25,11 +25,11 @@ Para utilizar o ExpenseLit em ambiente **Windows**, execute o **Windows PowerShe
         git clone https://github.com/tarcisioribeiro/ExpenseLit.git
         .\ExpenseLit\services\windows\InstallWSL.ps1
 
-Após executar os comandos acima, reinicie a máquina, executando o Windows PowerShell com permissões de administrador novamente, e executando o seguinte comando:
+Após executar os comandos acima, reinicie a máquina, executando o Windows PowerShell com permissões de administrador novamente, executando o seguinte comando:
 
         .\ExpenseLit\services\windows\InstallWSL_Ubuntu22.04.ps1
 
-A execução do script **InstallWSL.ps1** automaticamente realizará a instalação dos **WSL**, com o script **InstallWSL_Ubuntu22.04.ps1** realizando a instalação do **Ubuntu 22.04** sobre o WSL.
+A execução do script **InstallWSL.ps1** automaticamente realizará a instalação do **WSL**, que é o Subsistema Linux para Windows. O script **InstallWSL_Ubuntu22.04.ps1** realizará a instalação do **Ubuntu 22.04** sobre o WSL.
 
 ### Configuração da aplicação através do WSL
 
@@ -37,7 +37,9 @@ Para instalar a aplicação no WSL pelo Ubuntu 22.04, execute a aplicação do U
 
 * Ao executar o Ubuntu 22.04, será necessário definir um nome de usuário, o qual deve ser **serveruser**, para que a aplicação possa ser instalada;
 
-* Após definir o nome do usuário e uma senha, execute os seguintes comandos:
+OBS.: Defina uma senha que possa lembrar, e a armazene, pois ela será utilizada algumas vezes durante a instalação.
+
+* Após definir uma senha, execute os seguintes comandos na aplicação do Ubuntu 22.04:
         
         cd ~
         sudo apt update
@@ -49,4 +51,4 @@ Para instalar a aplicação no WSL pelo Ubuntu 22.04, execute a aplicação do U
         cd ExpenseLit
         sudo ./services/linux/install_service.sh
 
-* Após executar os comandos acima, será disponibilizado através do terminal o link de acesso.
+* Após executar os comandos acima, será disponibilizado através do terminal o link de acesso, o qual deve ser copiado e colado em seu navegador de preferência.

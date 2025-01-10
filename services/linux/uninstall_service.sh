@@ -25,7 +25,7 @@ while true; do
     read -s confirm_root_password
     sleep 1
 
-    echo "$root_password" | sudo -S echo "Senha de root aceita."
+    echo "$root_password" | sudo -S echo "\nSenha de root aceita."
 
     if [ $? -eq 0 ]; then
         green "\nVocê tem permissões de root. Continuando com o script..."
@@ -34,6 +34,8 @@ while true; do
         sleep 2
         sudo systemctl stop expenselit.service
         sudo systemctl disable expenselit.service
+        sudo rm /lib/systemd/system/expenselit.service
+        sudo rm /usr/bin/expenselit.sh
         break
     else
         red "\nSenha de root incorreta. Saindo..."
@@ -54,9 +56,12 @@ while true; do
 
     if [ "$password" = "$confirmation" ]; then
         green "\nSenhas coincidem. Realizando o backup do banco de dados..."
-        sleep 1
+        sleep 3
         mysqldump -uroot -p"$password" --databases financas >> $database_backup_filename
         chmod 700 $database_backup_filename
+        red "\nApagando a base de dados...\n"
+        sleep 3
+        mysql -uroot -p"$password" -e "DROP DATABASE financas;"
         break
     else
         red "\nAs senhas não coincidem. Tente novamente."

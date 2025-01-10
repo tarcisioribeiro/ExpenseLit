@@ -54,7 +54,6 @@ if ! command -v mysql &> /dev/null; then
     green "MySQL instalado com sucesso."
 fi
 
-# Solicitar senha do usuário
 while true; do
     blue "\nDefina a senha do banco de dados: "
     read -s password
