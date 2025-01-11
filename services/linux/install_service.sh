@@ -54,45 +54,33 @@ if ! command -v mysql &> /dev/null; then
     green "MySQL instalado com sucesso."
 fi
 
+blue "\nAgora, defina uma senha para o banco de dados, executando estes comando no console do MySQL:\n\n"
+sleep 1
+blue "\nALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha'; FLUSH PRIVILEGES;\n"
+blue "\nCopie o comando acima e troque 'senha' pela senha que deseja definir, mantendo as aspas simples.\n"
+blue "\nApós definir a senha, saia do console do MySQL pelo comando exit.\n"
+sleep 20
+sudo mysql
+
 while true; do
-    blue "\nDefina a senha do banco de dados: "
+    blue "\Digite a senha do banco de dados que foi definida anteriormente: "
     read -s password
     blue "\nRepita a senha: "
     read -s confirmation
     if [ "$password" = "$confirmation" ]; then
-        green "\nSenhas coincidem. Verificando acesso ao MySQL..."
-        sleep 2
-        mysql -u root -p"$password" -e "QUIT" 2>/dev/null
+    db_script="documentation/database/implantation_financas.sql"
+    if [ -f "$db_script" ]; then
+        blue "\nExecutando script de implantação do banco de dados..."
+        mysql -u root -p"$password" < "$db_script"
         if [ $? -eq 0 ]; then
-            green "Senha correta. Conexão com o MySQL estabelecida."
+            green "Script de implantação executado com sucesso."
         else
-            red "Senha incorreta ou não configurada. Configurando agora..."
-            sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$password'; FLUSH PRIVILEGES;"
-            if [ $? -eq 0 ]; then
-                green "Senha de root configurada com sucesso."
-            else
-                red "Erro ao configurar a senha de root. Saindo."
-                exit 1
-            fi
+            red "Erro ao executar o script de implantação."
         fi
-        break
     else
-        red "\nAs senhas não coincidem. Tente novamente."
+        red "Script de implantação não encontrado em '$db_script'."
     fi
 done
-
-db_script="documentation/database/implantation_financas.sql"
-if [ -f "$db_script" ]; then
-    blue "\nExecutando script de implantação do banco de dados..."
-    mysql -u root -p"$password" < "$db_script"
-    if [ $? -eq 0 ]; then
-        green "Script de implantação executado com sucesso."
-    else
-        red "Erro ao executar o script de implantação."
-    fi
-else
-    red "Script de implantação não encontrado em '$db_script'."
-fi
 
 sleep 1
 clear

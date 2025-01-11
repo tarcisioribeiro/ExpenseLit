@@ -1,5 +1,5 @@
 <details>
-   <summary>Instalação em ambiente GNU/Linux </summary>
+   <summary>Instalação em ambiente GNU/Linux</summary>
 
    Pensado a ser executado em distribuições Linux de base Debian em um primeiro momento, esta aplicação possui uma instalação fácil e rápida, que deve ser feita abrindo um terminal e executando os seguintes comandos, em sequência:
 
@@ -23,7 +23,7 @@
 ---
 
 <details>
-   <summary>Instalação em ambientes Microsoft Windows </summary>
+   <summary>Instalação em ambientes Microsoft Windows</summary>
 
    Anres de tudo, certifique-se de ter o **[Git](https://git-scm.com/downloads)** instalado em sua máquina, para que seja possível clonar o código do projeto.
 
@@ -44,7 +44,7 @@
    git clone https://github.com/tarcisioribeiro/ExpenseLit.git
    whoami
    ```
-   Anote o nome de usuário que aparecerá ao executar o comando **whoami**, que deve retornar algo como desktop-q6nbvq\dev. Anote os caracteres que são mostrados após a \.
+   Anote o nome de usuário que aparecerá ao executar o comando **whoami**, que deve retornar algo como desktop-q6nbvq\dev. Anote os caracteres que são mostrados após a "\\".
 
    Execute novamente o PowerShell como administrador, e execute estes comandos:
 
@@ -56,10 +56,10 @@
    Após executar os comandos acima, reinicie a máquina, executando o Windows PowerShell com permissões de administrador novamente, e execute o seguinte comando:
 
    ```powershell
-   .\ExpenseLit\services\windows\InstallWSL_Ubuntu22.04.ps1
+   .\ExpenseLit\services\windows\InstallWSL_Ubuntu22_04.ps1
    ```
 
-   A execução do script **InstallWSL.ps1** automaticamente realizará a instalação do **[WSL](https://learn.microsoft.com/en-us/windows/wsl/)**, que é o Subsistema Linux para Windows. O script **InstallWSL_Ubuntu22.04.ps1** realizará a instalação do **[Ubuntu 22.04](https://ubuntu.com/download/desktop/thank-you?version=22.04&architecture=amd64)** sobre o WSL.
+   A execução do script **InstallWSL.ps1** automaticamente realizará a instalação do **[WSL](https://learn.microsoft.com/en-us/windows/wsl/)**, que é o Subsistema Linux para Windows. O script **InstallWSL_Ubuntu22_04.ps1** realizará a instalação do **[Ubuntu 22.04](https://ubuntu.com/download/desktop/thank-you?version=22.04&architecture=amd64)** sobre o WSL.
 
    ### Configuração da aplicação através do WSL
 

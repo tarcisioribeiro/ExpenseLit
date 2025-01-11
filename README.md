@@ -69,7 +69,7 @@ Este projeto é software livre e está disponível para uso, modificação e dis
 
 ## 🛤️ Roadmap
 
-Funcionalidades planejadas para futuras versões:
+Melhorias planejadas para futuras versões:
 
 - Desenvolvimento de uma versão nativa compátivel com o Windows, que permita a execução do Streamlit através de um serviço;
 - Desenvolvimento de uma API para o backend do aplicativo, através do framework **[Django](https://www.djangoproject.com/)**;
@@ -81,7 +81,7 @@ Funcionalidades planejadas para futuras versões:
 
 Contribuições são sempre bem-vindas! Se quiser ajudar a melhorar o projeto, você pode:
 
-- Propor melhorias ou novas funcionalidades via **Issues**;
+- Propor melhorias ou novas funcionalidades na aba **Issues** deste repositório;
 - Enviar pull requests com correções de bugs ou novos recursos.
 
 Certifique-se de ler o arquivo [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir.
