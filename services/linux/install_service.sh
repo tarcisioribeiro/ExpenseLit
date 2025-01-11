@@ -68,17 +68,21 @@ while true; do
     blue "\nRepita a senha: "
     read -s confirmation
     if [ "$password" = "$confirmation" ]; then
-    db_script="documentation/database/implantation_financas.sql"
-    if [ -f "$db_script" ]; then
-        blue "\nExecutando script de implantação do banco de dados..."
-        mysql -u root -p"$password" < "$db_script"
-        if [ $? -eq 0 ]; then
-            green "Script de implantação executado com sucesso."
+        db_script="documentation/database/implantation_financas.sql"
+        if [ -f "$db_script" ]; then
+            blue "\nExecutando script de implantação do banco de dados..."
+            mysql -u root -p"$password" < "$db_script"
+            if [ $? -eq 0 ]; then
+                green "Script de implantação executado com sucesso."
+            else
+                red "Erro ao executar o script de implantação."
+            fi
         else
-            red "Erro ao executar o script de implantação."
+            red "Script de implantação não encontrado em '$db_script'."
         fi
+        break
     else
-        red "Script de implantação não encontrado em '$db_script'."
+        red "As senhas não coincidem. Tente novamente."
     fi
 done
 
