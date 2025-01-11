@@ -25,7 +25,7 @@ while true; do
     read -s confirm_root_password
     sleep 1
 
-    echo "$root_password" | sudo -S echo "\nSenha de root aceita."
+    echo "$root_password" | sudo -S echo "Senha de root aceita."
 
     if [ $? -eq 0 ]; then
         green "\nVocê tem permissões de root. Continuando com o script..."
