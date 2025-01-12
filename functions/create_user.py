@@ -1,4 +1,4 @@
-from data.cache.session_state import logged_user
+from data.session_state import logged_user
 from dictionary.sql import check_user_query, check_if_user_document_exists_query, check_if_user_login_exists_query
 from dictionary.vars import to_remove_list
 from functions.query_executor import QueryExecutor
