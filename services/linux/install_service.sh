@@ -44,17 +44,17 @@ sleep 1
 clear
 
 if ! command -v mysql &> /dev/null; then
-    red "MySQL não está instalado. Instalando agora..."
+    red "O banco de dados MySQL não está instalado. Instalando agora...\n"
     sleep 2
     sudo apt update && sudo apt install -y mysql-server
     if [ $? -ne 0 ]; then
-        red "Erro ao instalar o MySQL. Saindo."
+        red "\nErro ao instalar o MySQL. Saindo."
         exit 1
     fi
-    green "MySQL instalado com sucesso."
+    green "\nMySQL instalado com sucesso."
 fi
 
-blue "\nAgora, defina uma senha para o banco de dados, executando estes comando no console do MySQL:\n\n"
+blue "\nAgora, defina uma senha para o banco de dados, executando estes comando no console do MySQL:\n"
 sleep 1
 blue "\nALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha'; FLUSH PRIVILEGES;\n"
 blue "\nCopie o comando acima e troque 'senha' pela senha que deseja definir, mantendo as aspas simples.\n"
@@ -63,7 +63,7 @@ sleep 20
 sudo mysql
 
 while true; do
-    blue "\Digite a senha do banco de dados que foi definida anteriormente: "
+    blue "\nDigite a senha do banco de dados que foi definida anteriormente: "
     read -s password
     blue "\nRepita a senha: "
     read -s confirmation

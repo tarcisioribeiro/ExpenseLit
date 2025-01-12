@@ -1,5 +1,7 @@
 # 🚀 ExpenseLit
 
+![ExpenseLit](documentation/images/main.png)
+
 Um aplicativo de controle financeiro feito em **[Python](https://www.python.org/)**, através do framework **[Streamlit](https://streamlit.io/)**. Integrado ao banco de dados **[MySQL](https://www.mysql.com/)**, permite o controle de receitas e despesas, empréstimos e fundos de garantias.
 
 ## 🛠 Sobre o Projeto
@@ -61,7 +63,7 @@ Este projeto é software livre e está disponível para uso, modificação e dis
 <details>
    <summary>Vídeo explicativo</summary>
 
-   ![ExpenseLit](https://youtu.be/csyb7nbgRl4?si=KiE6-QSpo1pxCU2j)
+   ![ExpenseLit](https://youtu.be/j46xTC_dlN8)
 
 </details>
 
