@@ -9,31 +9,11 @@ config_file_path: str = ".streamlit/config.toml"
 session_state_path: str = "data/cache/session_state.py"
 absolute_app_path = os.getcwd()
 
-
 dark_theme = '''[theme]
 primaryColor="#bd93f9"
 backgroundColor="#282a36"
 secondaryBackgroundColor="#44475a"
 textColor="#f8f8f2"'''
-
-""" 
-
-dark_theme = '''[theme]
-primaryColor = "#61afef"
-backgroundColor = "#282c34"
-secondaryBackgroundColor = "#3c4048"
-textColor = "#abb2bf"'''
-
-"""
-
-
-"""
-light_theme = '''[theme]
-primaryColor = "#bd93f9"
-backgroundColor = "#f8f8f2"
-secondaryBackgroundColor = "#e0e0e0"
-textColor = "#282a36"'''
-"""
 
 light_theme = """[theme]
 primaryColor = "#61afef"
