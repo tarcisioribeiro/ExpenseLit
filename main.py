@@ -37,9 +37,9 @@ try:
 
         with col5:
             with st.expander(label="Dados da conexão", expanded=True):
-                db_port = st.number_input(label="Porta do banco de dados", step=1, value=3306)
-                db_hostname = st.text_input(label="Host do banco de dados", placeholder="localhost")
-                db_user = st.text_input(label="Usuário do banco de dados", placeholder="root")
+                db_port = 3306
+                db_hostname = "localhost"
+                db_user = "root"
                 db_password = st.text_input(label="Senha do banco de dados", type="password")
                 confirm_database_informations = st.checkbox(label="Confirmar Dados")
 

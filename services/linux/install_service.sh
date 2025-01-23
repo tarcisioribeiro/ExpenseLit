@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/usr/bin/bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt install nala toilet -y
+clear
+
+title_red() {
+    echo -e "\033[31m$(toilet --font pagga --filter border --width 200 "$1")\033[0m"
+}
+
+title_green() {
+    echo -e "\033[32m$(toilet --font pagga --filter border --width 200  "$1")\033[0m"
+}
+
+title_blue() {
+    echo -e "\033[34m$(toilet --font pagga --filter border --width 200 "$1")\033[0m"
+}
+
+title() {
+  echo -e "$(toilet --font pagga --filter border --width 200 "$1")"
+}
 
 red() {
     echo -e "\033[31m$1\033[0m"
@@ -10,6 +30,11 @@ green() {
 blue() {
     echo -e "\033[34m$1\033[0m"
 }
+
+clear
+echo ""
+title "ExpenseLit - Instalação"
+echo ""
 
 FOLDER=$(pwd)
 
@@ -43,6 +68,8 @@ done
 sleep 1
 clear
 
+title_blue "Instalação e configuração do banco de dados"
+
 if ! command -v mysql &> /dev/null; then
     red "O banco de dados MySQL não está instalado. Instalando agora...\n"
     sleep 2
@@ -55,11 +82,18 @@ if ! command -v mysql &> /dev/null; then
 fi
 
 blue "\nAgora, defina uma senha para o banco de dados, executando estes comando no console do MySQL:\n"
+sleep 3
 sleep 1
-blue "\nALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha'; FLUSH PRIVILEGES;\n"
+echo ""
+echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha'; FLUSH PRIVILEGES;"
+echo ""
+sleep 3
 blue "\nCopie o comando acima e troque 'senha' pela senha que deseja definir, mantendo as aspas simples.\n"
+sleep 3
 blue "\nApós definir a senha, saia do console do MySQL pelo comando exit.\n"
-sleep 20
+sleep 3
+read -p "Pressione ENTER para confirmar e prosseguir."
+sl
 sudo mysql
 
 while true; do
@@ -73,32 +107,35 @@ while true; do
             blue "\nExecutando script de implantação do banco de dados..."
             mysql -u root -p"$password" < "$db_script"
             if [ $? -eq 0 ]; then
-                green "Script de implantação executado com sucesso."
+                green "\nScript de implantação executado com sucesso."
             else
-                red "Erro ao executar o script de implantação."
+                red "\nErro ao executar o script de implantação."
             fi
         else
-            red "Script de implantação não encontrado em '$db_script'."
+            red "\nScript de implantação não encontrado em '$db_script'."
         fi
         break
     else
-        red "As senhas não coincidem. Tente novamente."
+        red "\nAs senhas não coincidem. Tente novamente."
     fi
 done
 
 sleep 1
 clear
 
+echo ""
+title_blue "Ambiente Virtual"
+echo ""
+
 cd $FOLDER
 blue "\nCriando ambiente virtual..."
-sleep 5
+sleep 3
 python3 -m venv venv
 blue "\nAtivando ambiente virtual..."
-sleep 5
+sleep 3
 source venv/bin/activate
 pip install -r requirements.txt
-
-sleep 1
+sleep 3
 clear
 
 echo "#!/bin/bash" >> expenselit.sh
@@ -130,3 +167,6 @@ sleep 5
 
 blue "Você pode realizar o acesso a aplicação através dos seguintes links:\n"
 green "$link"
+
+echo ""
+read -p "Pressione ENTER para confirmar e sair."

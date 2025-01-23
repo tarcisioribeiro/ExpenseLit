@@ -1,4 +1,19 @@
-#!/bin/bash
+#!/usr/bin/bash
+title_red() {
+    echo -e "\033[31m$(toilet --font pagga --filter border --width 200 "$1")\033[0m"
+}
+
+title_green() {
+    echo -e "\033[32m$(toilet --font pagga --filter border --width 200  "$1")\033[0m"
+}
+
+title_blue() {
+    echo -e "\033[34m$(toilet --font pagga --filter border --width 200 "$1")\033[0m"
+}
+
+title() {
+  echo -e "$(toilet --font pagga --filter border --width 200 "$1")"
+}
 
 red() {
     echo -e "\033[31m$1\033[0m"
@@ -10,6 +25,12 @@ green() {
 blue() {
     echo -e "\033[34m$1\033[0m"
 }
+
+clear
+
+echo ""
+title_red "Desinstalação do ExpenseLit"
+echo ""
 
 actual_date=$(date +"%Y-%m-%d")
 actual_horary=$(date +"%H_%M_%S")
@@ -77,14 +98,19 @@ mv "accounts/" "$backup_directory_name"
 mv "$backup_directory_name" $HOME
 green "\nO backup da base de dados foi salvo no diretório '$HOME/$backup_directory_name'."
 
-sleep 1
+sleep 3
 
 blue "\nDesativando ambiente virtual..."
-sleep 1
+sleep 3
 blue "\nRemovendo ambiente virtual..."
-sleep 1
+sleep 3
 rm -r venv
 
-sleep 1
+sleep 3
+
+clear
 
 green "\nDesinstalação concluída."
+
+echo ""
+read -p "Pressione ENTER para sair."
