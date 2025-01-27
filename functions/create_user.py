@@ -15,6 +15,7 @@ class CreateUser:
 
     def hash_password(self, password: str) -> bytes:
         """
+        Realiza a encriptação da senha passada como parâmetro.
 
         Parameters
         ----------
@@ -118,6 +119,8 @@ class CreateUser:
                                               help="A senha deve conter ao mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula e 1 caractere especial, sem espaços.", type="password", key="user_password")
                 confirm_user_password = st.text_input(
                     label="Confirmação de senha", max_chars=100, help="Deve ser a mesma informada no campo acima.", type="password", key="confirm_user_password")
+                user_phone = st.text_input(
+                    label="Telefone/Celular", max_chars=11, help="Número de telefone ou celular.")
 
             confirm_values = st.checkbox(label="Confirmar dados")
 
@@ -129,6 +132,8 @@ class CreateUser:
                     label="Nome de usuário", max_chars=100, help="Informe aqui seu nome completo.",)
                 user_document = st.text_input(
                     label="Documento do usuário", help="Informe seu CPF neste campo.")
+                user_email = st.text_input(label="Email do usuário", max_chars=100,
+                                           help="Informe um endereço de email ao qual tenha acesso.")
                 user_sex = st.selectbox(
                     label="Sexo do usuário", options=sex_options.keys())
 
@@ -153,9 +158,9 @@ class CreateUser:
                         hashed_password = self.hash_password(user_password)
 
                         if check_user_quantity == 0:
-                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, documento_usuario, sexo) VALUES (%s, %s, %s, %s, %s)"""
+                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                             new_user_values = (
-                                user_login, hashed_password, user_name, user_document, user_sex)
+                                user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
                             query_executor.insert_query(
                                 insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
@@ -182,9 +187,9 @@ class CreateUser:
                                     check_if_user_exists)
 
                                 if check_if_user_exists == 0:
-                                    insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, sexo) VALUES (%s, %s, %s, %s, %s)"""
+                                    insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                                     new_user_values = (
-                                        user_login, hashed_password, user_name, user_document, user_sex)
+                                        user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
                                     query_executor.insert_query(
                                         insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 

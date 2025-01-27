@@ -14,9 +14,9 @@ class QueryExecutor:
 
         Parameters
         ----------
-        query (str): A consulta a ser inserida.\n
-        values (tuple): A tupla com os valores a serem inseridos.\n
-        success_message (str): A mensagem a ser exibida caso a consulta seja inserida com sucesso.\n
+        query (str): A consulta a ser inserida.
+        values (tuple): A tupla com os valores a serem inseridos.
+        success_message (str): A mensagem a ser exibida caso a consulta seja inserida com sucesso.
         error_message (str): A mensagem a ser exibida caso a consulta apresente erros ao ser inserida.
         """
         try:
@@ -40,7 +40,7 @@ class QueryExecutor:
 
         Parameters
         ----------
-        query (str): A consulta a ser inserida.\n
+        query (str): A consulta a ser inserida.
         params (tuple): A tupla com os valores a serem consultados.
         """
         try:
@@ -91,8 +91,8 @@ class QueryExecutor:
 
         Parameters
         ----------
-        query (str): A consulta a ser inserida.\n
-        list_quantity (int): A quantidade de listas que deverão ser criadas.\n
+        query (str): A consulta a ser inserida.
+        list_quantity (int): A quantidade de listas que deverão ser criadas.
         params (tuple): A tupla com os valores a serem consultados.
 
         Returns
@@ -126,7 +126,7 @@ class QueryExecutor:
 
         Parameters
         ----------
-        query (str): A consulta a ser inserida.\n
+        query (str): A consulta a ser inserida.
         params (tuple): A tupla com os valores a serem consultados.
 
         Returns
@@ -185,7 +185,7 @@ class QueryExecutor:
 
         Parameters
         ----------
-        value_to_treat (str): O valor a ser tratado.\n
+        value_to_treat (str): O valor a ser tratado.
         values_to_remove (list): Os valores a serem removidos.
 
         Returns
@@ -206,7 +206,7 @@ class QueryExecutor:
 
         Parameters
         ----------
-        value_to_treat (list): Os valores a serem tratados.\n
+        value_to_treat (list): Os valores a serem tratados.
         values_to_remove (list): Os valores a serem removidos.
 
         Returns
@@ -238,7 +238,7 @@ class QueryExecutor:
 
         Parameters
         ----------
-        value_to_treat (str): O valor a ser tratado.\n
+        value_to_treat (str): O valor a ser tratado.
         values_to_remove (list): Os valores a serem removidos.
 
         Returns
@@ -286,8 +286,8 @@ class QueryExecutor:
 
         Parameters
         ----------
-        table (str): A tabela que será atualizada.\n
-        table_field (str): O campo da tabela que será atualizado.\n
+        table (str): A tabela que será atualizada.
+        table_field (str): O campo da tabela que será atualizado.
         id_list (list): Os id's de identificação dos registros que serão atualizados.
         """
         for i in range(0, len(id_list)):
@@ -314,8 +314,8 @@ class QueryExecutor:
 
         Parameters
         ----------
-        query (str): A consulta de atualização.\n
-        success_message (str): A mensagem que será exibida caso a atualização seja concluída.\n
+        query (str): A consulta de atualização.
+        success_message (str): A mensagem que será exibida caso a atualização seja concluída.
         error_message (str): A mensagem que será exibida caso ocorram erros durante a atualização.
         """
         try:

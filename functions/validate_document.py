@@ -2,7 +2,22 @@ import streamlit as st
 
 
 class Documents:
+    """
+    Classe responsável pela validação de documentos.
+    """
+
     def validate_credit_card(self, card_number: str):
+        """
+        Realiza a validação dos cartões de crédito.
+
+        Parameters
+        ----------
+        card_number: str = O número do cartão de crédito.
+
+        Returns
+        -------
+        boolean: True or False = Se o número do cartão é ou não válido.
+        """
 
         total = 0
 
@@ -26,6 +41,17 @@ class Documents:
         return True
 
     def validate_owner_document(self, owner_document: str):
+        """
+        Realiza a validação do documento do usuário.
+
+        Parameters
+        ----------
+        owner_document: str = O documento do usuário.
+
+        Returns
+        -------
+        boolean: True or False = Se o documento do usuário é ou não válido.
+        """
 
         if len(owner_document) != 11:
             st.error(

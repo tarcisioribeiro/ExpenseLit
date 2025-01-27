@@ -15,6 +15,13 @@ class Login:
     """
 
     def validate_login(self, login: str, password: str):
+        """
+        Realiza a validação do login do usuário.
+
+        Parameters
+        ----------
+        login: str
+        """
 
         check_if_user_exists = QueryExecutor().simple_consult_query(
             "SELECT COUNT(id_usuario) FROM usuarios WHERE login = %s AND senha = %s", params=(login, password))
@@ -28,6 +35,14 @@ class Login:
             return False
 
     def get_user_doc_name(self):
+        """
+        Realiza a consulta do nome e documento do usuário.
+
+        Returns
+        -------
+        owner_name: str = O nome do usuário.
+        owner_document: int = O documento do usuário.
+        """
 
         user_doc_name = QueryExecutor().complex_consult_query(
             doc_name_query)
@@ -36,9 +51,8 @@ class Login:
 
         owner_name = treated_user_doc_name[0]
         owner_document = treated_user_doc_name[1]
-        owner_phone = treated_user_doc_name[2]
 
-        return owner_name, owner_document, owner_phone
+        return owner_name, owner_document
 
     def check_login(self, user, password):
         """
@@ -46,12 +60,12 @@ class Login:
 
         Parameters
         ----------
-        user: Nome do usuário que está realizando o login.\n
+        user: Nome do usuário que está realizando o login.
         password: Senha do usuário que está realizando o login.
 
         Returns
         -------
-        bool: A validade do login.\n
+        bool: A validade do login.
         hashed_password (str): A senha do usuário encriptada.
         """
         connection = mysql.connector.connect(**db_config)
@@ -67,6 +81,14 @@ class Login:
         return False, '0'
 
     def check_user(self):
+        """
+        Realiza a consulta do nome e sexo do usuário.
+
+        Returns
+        -------
+        name: str = O nome do usuário.
+        sex: str = O sexo do usuário.
+        """
         name = QueryExecutor().simple_consult_query(name_query)
         name = QueryExecutor().treat_simple_result(name, to_remove_list)
 
@@ -75,7 +97,16 @@ class Login:
 
         return name, sex
 
-    def show_user(self, name, sex):
+    def show_user(self, name: str, sex: str):
+        """
+        Exibe o nome e sexo do usuário.
+
+        Parameters
+        ----------
+        name: str = O nome do usuário.
+        sex: str = O sexo do usuário.
+        """
+
         if sex == "M":
             st.image(
                 image="{}/library/images/man.png".format(absolute_app_path))
@@ -95,7 +126,7 @@ class Login:
 
         with col2:
 
-            st.header(body=":key: StreamFort")
+            st.header(body=":heavy_dollar_sign: ExpenseLit")
 
             with st.container():
                 with st.expander(label=":computer: Login", expanded=True):
@@ -104,10 +135,13 @@ class Login:
                     password = st.text_input(":key: Senha", type="password")
                     login_button = st.button(label=":unlock: Entrar")
 
-                    is_login_valid, hashed_password = self.check_login(
-                        user, password)
-
                     if login_button:
+                        is_login_valid, hashed_password = self.check_login(
+                            user, password)
+
+                        st.info(is_login_valid)
+                        st.info(hashed_password)
+
                         if is_login_valid:
                             with st.spinner("Aguarde..."):
                                 sleep(1)
@@ -119,13 +153,14 @@ class Login:
                                 query_executor.insert_query(
                                     log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                with open("data/session_state.py", "w") as archive:
+                                with open("data/cache/session_state.py", "w") as archive:
                                     archive.write(
                                         "logged_user = '{}'\n".format(user))
                                     archive.write(
                                         "logged_user_password = {}\n".format(hashed_password))
                                     sleep(1)
-                                    os.chmod("data/session_state.py", 0o600)
+                                    os.chmod(
+                                        "data/cache/session_state.py", 0o600)
                                 sleep(1)
 
                             st.session_state.is_logged_in = True

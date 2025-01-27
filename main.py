@@ -1,6 +1,6 @@
 from functions.query_executor import QueryExecutor
 from functions.create_user import CreateUser
-from functions.login import User
+from functions.login import Login
 from dictionary.vars import to_remove_list
 from dictionary.sql import check_user_query
 import os
@@ -145,7 +145,7 @@ if os.path.isfile(software_env_path):
         if connection.is_connected():
             def main():
                 query_executor = QueryExecutor()
-                user_quantity = query_executor.simple_consult_query(
+                user_quantity = query_executor.simple_consult_brute_query(
                     check_user_query)
                 user_quantity = query_executor.treat_simple_result(
                     user_quantity, to_remove_list)
@@ -165,7 +165,7 @@ if os.path.isfile(software_env_path):
                         app.HomePage()
                     else:
                         try:
-                            call_user = User()
+                            call_user = Login()
                             call_user.get_login()
                         except KeyError:
                             st.warning(
@@ -186,4 +186,5 @@ if os.path.isfile(software_env_path):
                 st.error(body="Erro ao conectar ao MySQL: {} .".format(error))
 
     except TypeError as type_error:
+        st.info(type_error)
         pass

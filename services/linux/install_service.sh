@@ -134,7 +134,7 @@ python3 -m venv venv
 blue "\nAtivando ambiente virtual..."
 sleep 1
 source venv/bin/activate
-pip install streamlit mysql-connector-python python-dotenv matplotlib bcrypt fpdf psutil
+pip install streamlit mysql-connector-python python-dotenv matplotlib bcrypt fpdf psutil pdoc
 sleep 1
 clear
 
