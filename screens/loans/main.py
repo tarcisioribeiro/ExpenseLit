@@ -3,33 +3,35 @@ import streamlit as st
 
 
 class Loan:
+    """
+    Classe que representa os empréstimos.
+    """
 
-    def __init__(self) -> None:
+    def main_menu(self):
+        """
+        Menu principal.
+        """
 
-        def loan_main_menu():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        with col1:
+            st.header(":bank: Novo Empréstimo")
 
-            with col1:
-                st.header(":bank: Novo Empréstimo")
+        with col2:
+            loan_menu_choice = st.selectbox(
+                label="Opções",
+                options=[
+                    "Tomar empréstimo",
+                    "Realizar empréstimo",
+                ],
+            )
 
-            with col2:
-                loan_menu_choice = st.selectbox(
-                    label="Opções",
-                    options=[
-                        "Tomar empréstimo",
-                        "Realizar empréstimo",
-                    ],
-                )
+        st.divider()
 
-            st.divider()
+        if loan_menu_choice == "Tomar empréstimo":
+            call_loan = NewLoan()
+            call_loan.take_loan()
 
-            if loan_menu_choice == "Tomar empréstimo":
-                call_loan = NewLoan()
-                call_loan.take_loan()
-
-            elif loan_menu_choice == "Realizar empréstimo":
-                call_loan = NewLoan()
-                call_loan.make_loan()
-
-        self.main_menu = loan_main_menu
+        elif loan_menu_choice == "Realizar empréstimo":
+            call_loan = NewLoan()
+            call_loan.make_loan()

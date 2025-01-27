@@ -15,61 +15,59 @@ from time import sleep
 
 class App:
 
-    def __init__(self):
+    def logout(self):
+        st.session_state.is_logged_in = False
+        st.rerun()
 
-        def logout():
-            st.session_state.is_logged_in = False
-            st.rerun()
+    def HomePage(self):
 
-        def HomePage():
+        sidebar = st.sidebar
 
-            sidebar = st.sidebar
+        with sidebar:
+            call_user = User()
+            name, sex = call_user.check_user()
+            call_user.show_user(name, sex)
 
+        sidebar_menu_dictionary = {
+            "Início": Home(),
+            "Registrar Despesa": NewExpense(),
+            "Registrar Receita": NewRevenue(),
+            "Registrar Transferência": NewTransfer(),
+            "Registrar Empréstimo": Loan(),
+            "Relatórios": Reports(),
+            "Cadastros": Registers(),
+            "Configurações": Configuration()
+        }
+
+        sidebar_choice = sidebar.selectbox(
+            label="Menu", options=list(sidebar_menu_dictionary.keys()))
+
+        sidebar.divider()
+
+        sidebar_reload_button = sidebar.button(label=":cd: Recarregar")
+        sidebar_logoff_button = sidebar.button(label=":lock: Sair")
+
+        if sidebar_reload_button:
             with sidebar:
-                call_user = User()
-                name, sex = call_user.check_user()
-                call_user.show_user(name, sex)
+                with st.spinner(text="Recarregando..."):
+                    sleep(2.5)
+                    st.rerun()
 
-            sidebar_menu_dictionary = {
-                "Início": Home(),
-                "Registrar Despesa": NewExpense(),
-                "Registrar Receita": NewRevenue(),
-                "Registrar Transferência": NewTransfer(),
-                "Registrar Empréstimo": Loan(),
-                "Relatórios": Reports(),
-                "Cadastros": Registers(),
-                "Configurações": Configuration()
-            }
+        if sidebar_logoff_button:
+            with sidebar:
+                with st.spinner("Aguarde um momento..."):
 
-            sidebar_choice = sidebar.selectbox(label="Menu", options=list(sidebar_menu_dictionary.keys()))
+                    query_executor = QueryExecutor()
+                    log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                    log_values = (logged_user, "Logoff",
+                                  "O usuário realizou logoff.")
+                    query_executor.insert_query(
+                        log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                    sleep(1)
+                    st.toast("Saindo do sistema...")
+                    sleep(1)
+                    self.logout()
 
-            sidebar.divider()
-
-            sidebar_reload_button = sidebar.button(label=":cd: Recarregar")
-            sidebar_logoff_button = sidebar.button(label=":lock: Sair")
-
-            if sidebar_reload_button:
-                with sidebar:
-                    with st.spinner(text="Recarregando..."):
-                        sleep(2.5)
-                        st.rerun()
-
-            if sidebar_logoff_button:
-                with sidebar:
-                    with st.spinner("Aguarde um momento..."):
-
-                        query_executor = QueryExecutor()
-                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Logoff", "O usuário realizou logoff.")
-                        query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
-                        sleep(1)
-                        st.toast("Saindo do sistema...")
-                        sleep(1)
-                        logout()
-            
-            if sidebar_choice:
-                call_interface = sidebar_menu_dictionary[sidebar_choice]
-                call_interface.main_menu()
-
-        self.logout = logout
-        self.HomePage = HomePage
+        if sidebar_choice:
+            call_interface = sidebar_menu_dictionary[sidebar_choice]
+            call_interface.main_menu()

@@ -4,27 +4,31 @@ from screens.reports.account_statement import AccountStatement
 
 
 class Reports:
-    def __init__(self):
+    """
+    Classe que representa os relatórios disponíveis na aplicação.
+    """
+
+    def main_menu(self):
+        """
+        Menu principal.
+        """
 
         superior_menu_options = {
             "Consultar Comprovante": Receipts(),
             "Extrato Bancário": AccountStatement(),
         }
 
-        def reports_interface():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        with col1:
+            st.header(body=":ledger: Relatórios")
 
-            with col1:
-                st.header(body=":ledger: Relatórios")
+        with col2:
+            menu_selected_option = st.selectbox(
+                label="Menu", options=superior_menu_options.keys())
 
-            with col2:
-                menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options.keys())
+        st.divider()
 
-            st.divider()
-
-            if menu_selected_option:
-                call_interface = superior_menu_options[menu_selected_option]
-                call_interface.main_menu()
-
-        self.main_menu = reports_interface
+        if menu_selected_option:
+            call_interface = superior_menu_options[menu_selected_option]
+            call_interface.main_menu()

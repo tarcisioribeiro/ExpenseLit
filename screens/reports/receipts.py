@@ -13,15 +13,29 @@ from time import sleep
 
 
 class Receipts:
-    def __init__(self):
+    """
+    Classe responsável pela geração e consulta de comprovantes.
+    """
 
-        query_executor = QueryExecutor()
-        variable = Variable()
+    def validate_query(self, table: str, date: str, account: str, value: float):
+        """
+        Realiza a validação da consulta passada como consulta.
 
-        def validate_query(table: str, date, account: str, value: float):
+        Parameters
+        ----------
+        table: str = A tabela da consulta.
+        date: str = A data da consulta.
+        account: str = A conta da consulta.
+        value: float = O valor da consulta.
 
-            if table == "despesas":
-                id_query = """
+        Returns
+        -------
+        ids_string: Any = A string com os id's que correspondem a consulta, caso a mesma seja válida.
+        boolean: True or False = Se a consulta é válida.
+        """
+
+        if table == "despesas":
+            id_query = """
                             SELECT 
                                 despesas.id_despesa
                             FROM
@@ -33,15 +47,15 @@ class Receipts:
                                     AND despesas.valor = {}
                                     AND usuarios.login = '{}'
                                     AND usuarios.senha = '{}';""".format(
-                    date.strftime("%Y-%m-%d"),
-                    account,
-                    value,
-                    logged_user,
-                    logged_user_password,
-                )
+                date.strftime("%Y-%m-%d"),
+                account,
+                value,
+                logged_user,
+                logged_user_password,
+            )
 
-            if table == "receitas":
-                id_query = """
+        if table == "receitas":
+            id_query = """
                             SELECT 
                                 receitas.id_receita
                             FROM
@@ -53,15 +67,15 @@ class Receipts:
                                     AND receitas.valor = {}
                                     AND usuarios.login = '{}'
                                     AND usuarios.senha = '{}';""".format(
-                    date.strftime("%Y-%m-%d"),
-                    account,
-                    value,
-                    logged_user,
-                    logged_user_password,
-                )
+                date.strftime("%Y-%m-%d"),
+                account,
+                value,
+                logged_user,
+                logged_user_password,
+            )
 
-            if table == "despesas_cartao_credito":
-                id_query = """
+        if table == "despesas_cartao_credito":
+            id_query = """
                                 SELECT 
                                     despesas_cartao_credito.id_despesa_cartao
                                 FROM
@@ -75,15 +89,15 @@ class Receipts:
                                         AND despesas_cartao_credito.valor = {}
                                         AND usuarios.login = '{}'
                                         AND usuarios.senha = '{}';""".format(
-                    date.strftime("%Y-%m-%d"),
-                    account,
-                    value,
-                    logged_user,
-                    logged_user_password,
-                )
+                date.strftime("%Y-%m-%d"),
+                account,
+                value,
+                logged_user,
+                logged_user_password,
+            )
 
-            if table == "emprestimos":
-                id_query = """
+        if table == "emprestimos":
+            id_query = """
                                 SELECT 
                                     emprestimos.id_emprestimo
                                 FROM
@@ -97,399 +111,507 @@ class Receipts:
                                         AND emprestimos.valor = {}
                                         AND usuarios.login = '{}'
                                         AND usuarios.senha = '{}';""".format(
-                    date.strftime("%Y-%m-%d"),
-                    account,
-                    value,
-                    logged_user,
-                    logged_user_password,
-                )
-
-            data_exists = False
-
-
-            id = query_executor.complex_consult_query(id_query)
-            id = query_executor.treat_numerous_simple_result(id, to_remove_list)
-            
-            if len(id) >= 1:
-                ids_string = ""
-
-                for i in range(0, len(id)):
-                    if i == 0:
-                        ids_string = id[i]
-                    else:
-                        ids_string = ids_string + ", " + id[i]
-
-                return ids_string, True
-
-            elif len(id) == 0:
-                return 0, False
-
-        def execute_query(table: str, id_list):
-
-            if table == "despesas_cartao_credito":
-                values_query = """SELECT descricao, valor, data, horario, categoria, cartao FROM {} WHERE id_despesa_cartao IN({});""".format(table, id_list)
-            elif table == "receitas":
-                values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_receita IN({});""".format(table, id_list)
-            elif table == "despesas":
-                values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_despesa IN({});""".format(table, id_list)
-
-            consult_values = query_executor.complex_compund_query(values_query, 6, "query_values")
-
-            return consult_values
-
-        def treat_receipt_values(receipt_list):
-
-            len_lists_receipt = 0
-            for i in range(0, len(receipt_list)):
-                len_lists_receipt += len(receipt_list[i])
-
-            if len(receipt_list) >= 5 and len_lists_receipt >= 5:
-
-                description = receipt_list[0]
-                description_list = []
-
-                for i in range(0, len(description)):
-                    aux_description = query_executor.treat_simple_result(description[i], to_remove_list)
-                    description_list.append(aux_description)
-
-                value = receipt_list[1]
-                value_list = []
-
-                for i in range(0, len(value)):
-                    aux_value = query_executor.treat_simple_result(value[i], to_remove_list)
-                    aux_value = float(aux_value)
-                    value_list.append(aux_value)
-
-                date = receipt_list[2]
-                date_list = []
-                
-                for i in range(0, len(date)):
-                    aux_date = query_executor.treat_simple_result(date[i], to_remove_list)
-                    aux_date = aux_date.replace(" ", "-")
-                    date_list.append(aux_date)
-
-                time = receipt_list[3]
-                time_list = []
-
-                for i in range(0, len(time)):
-                    aux_time = query_executor.treat_simple_result(time[i], to_remove_list)
-                    aux_time = str(aux_time)
-                    time_list.append(aux_time)
-
-                category = receipt_list[4]
-                category_list = []
-
-                for i in range(0, len(category)):
-                    aux_category = query_executor.treat_simple_result(category[i], to_remove_list)
-                    category_list.append(aux_category)
-
-                account = receipt_list[5]
-                account_list = []
-
-                for i in range(0, len(account)):
-                    aux_account = query_executor.treat_simple_result(account[i], to_remove_list)
-                    account_list.append(aux_account)
-
-                return description_list, value_list, date_list, time_list, category_list, account_list
-
-        def generate_transfer_receipt(id, description, value, date, category, origin_account, destiny_account):
-
-            origin_account_image = query_executor.simple_consult_query(account_image_query.format(origin_account, logged_user, logged_user_password))
-            origin_account_image = query_executor.treat_simple_result(origin_account_image, to_remove_list)
-            origin_account_image_path = SAVE_FOLDER + origin_account_image
-            origin_pasted_image = Image.open(origin_account_image_path)
-
-            destiny_account_image = query_executor.simple_consult_query(account_image_query.format(destiny_account, logged_user, logged_user_password))
-            destiny_account_image = query_executor.treat_simple_result(destiny_account_image, to_remove_list)
-            destiny_account_image_path = SAVE_FOLDER + destiny_account_image
-            destiny_pasted_image = Image.open(destiny_account_image_path)
-
-            float_value = round(value, 2)
-
-            str_value = variable.treat_complex_string(float_value)
-
-            reference_number = ""
-            if id <= 9:
-                reference_number = """REF: 000{}""".format(id)
-            if id >= 10 and id <= 99:
-                reference_number = """REF: 00{}""".format(id)
-            if id >= 100 and id <= 999:
-                reference_number = """REF: 0{}""".format(id)
-            
-            width, height = 900, 450
-            dpi = 300
-            image = Image.new("RGB", (width, height), "white")
-            draw = ImageDraw.Draw(image)
-            font_size = 20
-
-            if operational_system == "nt":
-                font = ImageFont.truetype("cour.ttf", font_size)
-            elif operational_system == "posix":
-                font = ImageFont.truetype(
-                    "{}{}".format(absolute_app_path, system_font),
-                    font_size,
-                )
-
-            border_color = "black"
-            border_width = 4
-            border_box = [
-                (border_width, border_width),
-                (width - border_width, height - border_width),
-            ]
-            draw.rectangle(border_box, outline=border_color, width=border_width)
-
-            header_font_size = 20
-
-            if operational_system == "nt":
-                header_font = ImageFont.truetype("cour.ttf", header_font_size)
-            elif operational_system == "posix":
-                header_font = ImageFont.truetype(
-                    "{}{}".format(absolute_app_path, system_font),
-                    font_size,
-                )
-
-            header_text = "Comprovante de Transferência"
-            header_text_width, header_text_height = draw.textsize(
-                header_text, font=header_font
+                date.strftime("%Y-%m-%d"),
+                account,
+                value,
+                logged_user,
+                logged_user_password,
             )
-            header_position = ((width - header_text_width) / 2, 10)
-            draw.text(header_position, header_text, fill="black", font=header_font)
 
-            draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
-            draw.text((20, 60), f"Descrição: {description}", fill="black", font=font)
-            draw.text((20, 90), f"Valor: R$ {str_value}", fill="black", font=font)
-            draw.text((20, 120), f"Data: {date.strftime('%d/%m/%Y')}", fill="black", font=font)
-            draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
-            draw.text((20, 180), f"Conta de Origem: {origin_account}", fill="black", font=font)
-            draw.text((20, 210), f"Conta de Destino: {destiny_account}", fill="black",font=font)
-            draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
-            draw.line([(width - 400, height - 60), (width - 20, height - 60)],fill="black", width=2)
-            draw.text((520, 400), f"{user_name}", fill="black", font=font)
-            draw.text((20, height - 40), reference_number, fill="black", font=font)
+        data_exists = False
 
-            image.paste(origin_pasted_image, (20, 250))
-            image.paste(transfer_image, (170, 250))
-            image.paste(destiny_pasted_image, (320, 250))
+        id = QueryExecutor().complex_consult_query(id_query)
+        id = QueryExecutor().treat_numerous_simple_result(
+            id, to_remove_list)
 
-            caminho_arquivo = "{}/data/receipts/transfers/Comprovante_de_transferencia_{}_{}.png".format(absolute_app_path, today, actual_horary)
+        if len(id) >= 1:
+            ids_string = ""
 
-            image.save(caminho_arquivo, dpi=(dpi, dpi))
-            st.image(caminho_arquivo, use_container_width=True)
+            for i in range(0, len(id)):
+                if i == 0:
+                    ids_string = id[i]
+                else:
+                    ids_string = ids_string + ", " + id[i]
 
-            with open(caminho_arquivo, "rb") as file:
-                download_button = st.download_button(label=":floppy_disk: Baixar imagem", data=file, file_name=caminho_arquivo)
+            return ids_string, True
 
-        def generate_receipt(table: str, id, description: str, value: float, date, category: str, account: str):
+        elif len(id) == 0:
+            return 0, False
 
-            account_image = query_executor.simple_consult_query(account_image_query.format(account, logged_user, logged_user_password))
-            account_image = query_executor.treat_simple_result(account_image, to_remove_list)
-            account_image_path = SAVE_FOLDER + account_image
+    def execute_query(self, table: str, id_list: list):
+        """
+        Realiza a consulta informada.
 
-            table_dictionary = {
-                "receitas": "Receita",
-                "emprestimos": "Empréstimo",
-                "despesas": "Despesa",
-                "despesas_cartao_credito": "Despesa de Cartão"
-            }
+        Parameters
+        ----------
+        table: str = A tabela da consulta.
+        id_list: list = A lista com os ids da consulta.
+        """
 
-            table = table_dictionary[table]
-            value = round(value, 2)
-            value = variable.treat_complex_string(value)
+        if table == "despesas_cartao_credito":
+            values_query = """SELECT descricao, valor, data, horario, categoria, cartao FROM {} WHERE id_despesa_cartao IN({});""".format(
+                table, id_list)
+        elif table == "receitas":
+            values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_receita IN({});""".format(
+                table, id_list)
+        elif table == "despesas":
+            values_query = """SELECT descricao, valor, data, horario, categoria, conta FROM {} WHERE id_despesa IN({});""".format(
+                table, id_list)
 
-            reference_number = ""
-            if id <= 9:
-                reference_number = """REF: 000{}""".format(id)
-            if id >= 10 and id <= 99:
-                reference_number = """REF: 00{}""".format(id)
-            if id >= 100 and id <= 999:
-                reference_number = """REF: 0{}""".format(id)
+        consult_values = QueryExecutor().complex_compund_query(
+            values_query, 6, "query_values")
 
-            table = table.capitalize()
-            description = description.replace("'", "")
-            category = category.capitalize()
-            category = category.replace("'", "")
-            account = account.replace("'", "")
+        return consult_values
 
-            date = datetime.strptime(date, "%Y-%m-%d")
-            date = date.strftime("%d/%m/%Y")
+    def treat_receipt_values(receipt_list: list):
+        """
+        Realiza o tratamento dos valores do comprovante.
 
-            width, height = 800, 400
-            dpi = 300
-            image = Image.new("RGB", (width, height), "white")
-            draw = ImageDraw.Draw(image)
-            font_size = 20
+        Parameters
+        ----------
+        receipt_list: list = A lista com os valores do comprovante.
 
-            if operational_system == "nt":
-                font = ImageFont.truetype("cour.ttf", font_size)
-            elif operational_system == "posix":
-                font = ImageFont.truetype("{}{}".format(absolute_app_path, system_font), font_size)
+        Returns
+        -------
+        description_list: list = A lista com a descrição do comprovante.
+        value_list: list = A lista com o valor do comprovante.
+        date_list: list = A lista com as datas do comprovante.
+        time_list: list = A lista com os horários do comprovante.
+        category_list: list = A lista com as categorias do comprovante.
+        account_list: list = A lista com as contas do comprovante.
+        """
 
-            border_color = "black"
-            border_width = 4
-            border_box = [(border_width, border_width),(width - border_width, height - border_width)]
-            draw.rectangle(border_box, outline=border_color, width=border_width)
+        len_lists_receipt = 0
+        for i in range(0, len(receipt_list)):
+            len_lists_receipt += len(receipt_list[i])
 
-            header_font_size = 20
+        if len(receipt_list) >= 5 and len_lists_receipt >= 5:
 
-            if operational_system == "nt":
-                header_font = ImageFont.truetype("cour.ttf", font_size)
-            elif operational_system == "posix":
-                header_font = ImageFont.truetype(
-                    "{}{}".format(absolute_app_path, system_font),
-                    font_size,
-                )
+            description = receipt_list[0]
+            description_list = []
 
-            header_text = "Comprovante de {}".format(table)
-            header_text_width, header_text_height = draw.textsize(
-                header_text, font=header_font
+            for i in range(0, len(description)):
+                aux_description = QueryExecutor().treat_simple_result(
+                    description[i], to_remove_list)
+                description_list.append(aux_description)
+
+            value = receipt_list[1]
+            value_list = []
+
+            for i in range(0, len(value)):
+                aux_value = QueryExecutor().treat_simple_result(
+                    value[i], to_remove_list)
+                aux_value = float(aux_value)
+                value_list.append(aux_value)
+
+            date = receipt_list[2]
+            date_list = []
+
+            for i in range(0, len(date)):
+                aux_date = QueryExecutor().treat_simple_result(
+                    date[i], to_remove_list)
+                aux_date = aux_date.replace(" ", "-")
+                date_list.append(aux_date)
+
+            time = receipt_list[3]
+            time_list = []
+
+            for i in range(0, len(time)):
+                aux_time = QueryExecutor().treat_simple_result(
+                    time[i], to_remove_list)
+                aux_time = str(aux_time)
+                time_list.append(aux_time)
+
+            category = receipt_list[4]
+            category_list = []
+
+            for i in range(0, len(category)):
+                aux_category = QueryExecutor().treat_simple_result(
+                    category[i], to_remove_list)
+                category_list.append(aux_category)
+
+            account = receipt_list[5]
+            account_list = []
+
+            for i in range(0, len(account)):
+                aux_account = QueryExecutor().treat_simple_result(
+                    account[i], to_remove_list)
+                account_list.append(aux_account)
+
+            return description_list, value_list, date_list, time_list, category_list, account_list
+
+    def generate_transfer_receipt(self, id: int, description: str, value: float, date: str, category: str, origin_account: str, destiny_account: str):
+        """
+        Gera o comprovante de transferência.
+
+        Parameters
+        ----------
+        id: int = O ID do registro do comprovante.
+        description: str = A descrição da transferência.
+        value: float = O valor da transferência.
+        date: str = A data da transferência.
+        category: str = A categoria da transferência.
+        origin_account: str = A conta de origem da transferência.
+        destiny_account: str = A conta de destino da transferência.
+        """
+
+        origin_account_image = QueryExecutor().simple_consult_query(
+            account_image_query.format(origin_account, logged_user, logged_user_password))
+        origin_account_image = QueryExecutor().treat_simple_result(
+            origin_account_image, to_remove_list)
+        origin_account_image_path = SAVE_FOLDER + origin_account_image
+        origin_pasted_image = Image.open(origin_account_image_path)
+
+        destiny_account_image = QueryExecutor().simple_consult_query(
+            account_image_query.format(destiny_account, logged_user, logged_user_password))
+        destiny_account_image = QueryExecutor().treat_simple_result(
+            destiny_account_image, to_remove_list)
+        destiny_account_image_path = SAVE_FOLDER + destiny_account_image
+        destiny_pasted_image = Image.open(destiny_account_image_path)
+
+        float_value = round(value, 2)
+
+        str_value = Variable().treat_complex_string(float_value)
+
+        reference_number = ""
+        if id <= 9:
+            reference_number = """REF: 000{}""".format(id)
+        if id >= 10 and id <= 99:
+            reference_number = """REF: 00{}""".format(id)
+        if id >= 100 and id <= 999:
+            reference_number = """REF: 0{}""".format(id)
+
+        width, height = 900, 450
+        dpi = 300
+        image = Image.new("RGB", (width, height), "white")
+        draw = ImageDraw.Draw(image)
+        font_size = 20
+
+        if operational_system == "nt":
+            font = ImageFont.truetype("cour.ttf", font_size)
+        elif operational_system == "posix":
+            font = ImageFont.truetype(
+                "{}{}".format(absolute_app_path, system_font),
+                font_size,
             )
-            header_position = ((width - header_text_width) / 2, 10)
-            draw.text(header_position, header_text, fill="black", font=header_font)
 
-            draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
-            draw.text((20, 60), f"Descrição: {description}", fill="black", font=font)
-            draw.text((20, 90), f"Valor: R$ {value}", fill="black", font=font)
-            draw.text((20, 120), f"Data: {date}", fill="black", font=font)
-            draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
-            draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
-            draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
-            draw.line([(width - 400, height - 60), (width - 20, height - 60)], fill="black", width=2)
-            draw.text((400, 360), f"{user_name}", fill="black", font=font)
-            draw.text((20, height - 40), reference_number, fill="black", font=font)
+        border_color = "black"
+        border_width = 4
+        border_box = [
+            (border_width, border_width),
+            (width - border_width, height - border_width),
+        ]
+        draw.rectangle(border_box, outline=border_color,
+                       width=border_width)
 
-            pasted_image = Image.open(account_image_path)
+        header_font_size = 20
 
-            image.paste(pasted_image, (20, 220))
+        if operational_system == "nt":
+            header_font = ImageFont.truetype("cour.ttf", header_font_size)
+        elif operational_system == "posix":
+            header_font = ImageFont.truetype(
+                "{}{}".format(absolute_app_path, system_font),
+                font_size,
+            )
 
-            caminho_arquivo = "{}/data/receipts/reports/Relatorio_{}_{}.png".format(
-             absolute_app_path, today, actual_horary
-            ) 
-            image.save(caminho_arquivo, dpi=(dpi, dpi))
-            st.image(caminho_arquivo, use_container_width=True)
+        header_text = "Comprovante de Transferência"
+        header_text_width, header_text_height = draw.textsize(
+            header_text, font=header_font
+        )
+        header_position = ((width - header_text_width) / 2, 10)
+        draw.text(header_position, header_text,
+                  fill="black", font=header_font)
 
-            with open(caminho_arquivo, "rb") as file:
-                download_button = st.download_button(
-                    label=":floppy_disk: Baixar imagem",
-                    data=file,
-                    file_name="Relatorio_{}_{}.png".format(today, actual_horary),
-                )
+        draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
+        draw.text((20, 60), f"Descrição: {
+                  description}", fill="black", font=font)
+        draw.text((20, 90), f"Valor: R$ {
+                  str_value}", fill="black", font=font)
+        draw.text((20, 120), f"Data: {date.strftime(
+            '%d/%m/%Y')}", fill="black", font=font)
+        draw.text((20, 150), f"Categoria: {
+                  category}", fill="black", font=font)
+        draw.text((20, 180), f"Conta de Origem: {
+                  origin_account}", fill="black", font=font)
+        draw.text((20, 210), f"Conta de Destino: {
+                  destiny_account}", fill="black", font=font)
+        draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
+        draw.line([(width - 400, height - 60),
+                  (width - 20, height - 60)], fill="black", width=2)
+        draw.text((520, 400), f"{user_name}", fill="black", font=font)
+        draw.text((20, height - 40), reference_number,
+                  fill="black", font=font)
 
-        def get_receipt_input():
+        image.paste(origin_pasted_image, (20, 250))
+        image.paste(transfer_image, (170, 250))
+        image.paste(destiny_pasted_image, (320, 250))
 
-            col4, col5, col6 = st.columns(3)
+        caminho_arquivo = "{}/data/receipts/transfers/Comprovante_de_transferencia_{}_{}.png".format(
+            absolute_app_path, today, actual_horary)
 
-            user_current_accounts = query_executor.complex_consult_query(user_current_accounts_query)
-            user_current_accounts = query_executor.treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        image.save(caminho_arquivo, dpi=(dpi, dpi))
+        st.image(caminho_arquivo, use_container_width=True)
 
-            if len(user_current_accounts) > 0:
+        with open(caminho_arquivo, "rb") as file:
+            download_button = st.download_button(
+                label=":floppy_disk: Baixar imagem", data=file, file_name=caminho_arquivo)
 
-                with col4:
+    def generate_receipt(self, table: str, id: int, description: str, value: float, date, category: str, account: str):
+        """
+        Gera o comprovante de despesa/receita.
 
-                    receipt_options = {
-                        "Despesa": "despesas",
-                        "Despesa de Cartão": "despesas_cartao_credito",
-                        "Receita": "receitas",
-                        "Empréstimo": "emprestimos"
-                    }
+        Parameters
+        ----------
+        id: int = O ID do registro do comprovante.
+        description: str = A descrição da despesa/receita.
+        value: float = O valor da despesa/receita.
+        date: str = A data da despesa/receita.
+        category: str = A categoria da despesa/receita.
+        account: str = A conta da despesa/receita.
+        """
 
-                    st.subheader(body=":computer: Entrada de Dados")
+        account_image = QueryExecutor().simple_consult_query(
+            account_image_query.format(account, logged_user, logged_user_password))
+        account_image = QueryExecutor().treat_simple_result(
+            account_image, to_remove_list)
+        account_image_path = SAVE_FOLDER + account_image
 
-                    with st.expander(label="Filtros", expanded=True):
-                        report_type = st.selectbox(label="Relatório", options=receipt_options.keys())
-                        date = st.date_input(label="Data")
-                        account = st.selectbox(label="Conta", options=user_current_accounts)
-                        value = st.number_input(label="Valor",placeholder="Informe o valor",min_value=0.01,step=0.01)
-                        confirm_data = st.checkbox(label="Confirmar dados")
+        table_dictionary = {
+            "receitas": "Receita",
+            "emprestimos": "Empréstimo",
+            "despesas": "Despesa",
+            "despesas_cartao_credito": "Despesa de Cartão"
+        }
 
-                    send_value_button = st.button(label=":white_check_mark: Enviar dados")
+        table = table_dictionary[table]
+        value = round(value, 2)
+        value = Variable().treat_complex_string(value)
 
-                    if send_value_button and confirm_data:
+        reference_number = ""
+        if id <= 9:
+            reference_number = """REF: 000{}""".format(id)
+        if id >= 10 and id <= 99:
+            reference_number = """REF: 00{}""".format(id)
+        if id >= 100 and id <= 999:
+            reference_number = """REF: 0{}""".format(id)
 
-                        table = receipt_options[report_type]
+        table = table.capitalize()
+        description = description.replace("'", "")
+        category = category.capitalize()
+        category = category.replace("'", "")
+        account = account.replace("'", "")
 
-                        with col5:
-                            with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
-                            st.subheader(body=":page_facing_up: Resultados")
+        date = datetime.strptime(date, "%Y-%m-%d")
+        date = date.strftime("%d/%m/%Y")
 
-                            query_data, is_query_valid = validate_query(table, date, account, value)
+        width, height = 800, 400
+        dpi = 300
+        image = Image.new("RGB", (width, height), "white")
+        draw = ImageDraw.Draw(image)
+        font_size = 20
 
-                            if is_query_valid == True:
+        if operational_system == "nt":
+            font = ImageFont.truetype("cour.ttf", font_size)
+        elif operational_system == "posix":
+            font = ImageFont.truetype("{}{}".format(
+                absolute_app_path, system_font), font_size)
 
-                                with st.expander(label=":bar_chart: Resultados", expanded=True):
+        border_color = "black"
+        border_width = 4
+        border_box = [(border_width, border_width),
+                      (width - border_width, height - border_width)]
+        draw.rectangle(border_box, outline=border_color,
+                       width=border_width)
 
-                                    st.info("Registro(s) encontrado(s): {}.".format(query_data))
+        header_font_size = 20
 
-                                    query = execute_query(table, query_data)
-                                    description, value, date, time, category, account = treat_receipt_values(query)
+        if operational_system == "nt":
+            header_font = ImageFont.truetype("cour.ttf", font_size)
+        elif operational_system == "posix":
+            header_font = ImageFont.truetype(
+                "{}{}".format(absolute_app_path, system_font),
+                font_size,
+            )
 
-                                    str_value_list = []
+        header_text = "Comprovante de {}".format(table)
+        header_text_width, header_text_height = draw.textsize(
+            header_text, font=header_font
+        )
+        header_position = ((width - header_text_width) / 2, 10)
+        draw.text(header_position, header_text,
+                  fill="black", font=header_font)
 
-                                    for i in range(0, len(value)):
-                                        aux_value = variable.treat_complex_string(value[i])
-                                        aux_value = 'R$ ' + aux_value
-                                        str_value_list.append(aux_value)
+        draw.line([(20, 40), (width - 20, 40)], fill="black", width=2)
+        draw.text((20, 60), f"Descrição: {
+                  description}", fill="black", font=font)
+        draw.text((20, 90), f"Valor: R$ {value}", fill="black", font=font)
+        draw.text((20, 120), f"Data: {date}", fill="black", font=font)
+        draw.text((20, 150), f"Categoria: {
+                  category}", fill="black", font=font)
+        draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
+        draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
+        draw.line([(width - 400, height - 60),
+                  (width - 20, height - 60)], fill="black", width=2)
+        draw.text((400, 360), f"{user_name}", fill="black", font=font)
+        draw.text((20, height - 40), reference_number,
+                  fill="black", font=font)
 
-                                    formatted_date_list = []
+        pasted_image = Image.open(account_image_path)
 
-                                    for i in range(0, len(date)):
-                                        aux_date = date[i]
-                                        aux_date = datetime.strptime(aux_date, '%Y-%m-%d')
-                                        aux_date = aux_date.strftime('%d/%m/%Y')
-                                        formatted_date_list.append(aux_date)
-                                    
-                                    str_ids_list = []
-                                    aux_str = query_data.replace(",", "").split()
-                                    str_ids_list = aux_str
-                                    
-                                    ids_list = []
-                                    for i in range(0, len(str_ids_list)):
-                                        aux_int = int(str_ids_list[i])
-                                        ids_list.append(aux_int)
+        image.paste(pasted_image, (20, 220))
 
-                                    data_df = pd.DataFrame(
-                                        {
-                                            "Descrição": description,
-                                            "Valor": str_value_list,
-                                            "Data": formatted_date_list,
-                                            "Categoria": category,
-                                            "Conta": account
-                                        })
+        caminho_arquivo = "{}/data/receipts/reports/Relatorio_{}_{}.png".format(
+            absolute_app_path, today, actual_horary
+        )
+        image.save(caminho_arquivo, dpi=(dpi, dpi))
+        st.image(caminho_arquivo, use_container_width=True)
 
-                                    st.dataframe(data_df, hide_index=True, use_container_width=True)
+        with open(caminho_arquivo, "rb") as file:
+            download_button = st.download_button(
+                label=":floppy_disk: Baixar imagem",
+                data=file,
+                file_name="Relatorio_{}_{}.png".format(
+                    today, actual_horary),
+            )
 
-                                    confirm_register_selection = st.checkbox(label="Confirmar seleção")
+    def get_receipt_input(self):
+        """
+        Coleta os dados da consulta do comprovante.
+        """
 
-                                generate_receipt_button = st.button(label=":pencil: Gerar Comprovante")
+        col4, col5, col6 = st.columns(3)
 
-                                if confirm_register_selection == True and generate_receipt_button:
-                                    with st.spinner(text="Aguarde..."):
-                                        sleep(2.5)
+        user_current_accounts = QueryExecutor().complex_consult_query(
+            user_current_accounts_query)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+            user_current_accounts, to_remove_list)
 
-                                    with col6:
-                                        st.subheader(body=":pencil: Comprovante")
-                                        generate_receipt(table, 106, description, value, date, category, account)
+        if len(user_current_accounts) > 0:
 
-                                    log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                    log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(report_type, date, account))
-                                    query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+            with col4:
 
-                            elif is_query_valid == False:
-                                with st.expander(label="Resultados", expanded=True):
-                                    st.info("Nenhum resultado Encontrado.")
+                receipt_options = {
+                    "Despesa": "despesas",
+                    "Despesa de Cartão": "despesas_cartao_credito",
+                    "Receita": "receitas",
+                    "Empréstimo": "emprestimos"
+                }
 
-                    elif confirm_data == False and send_value_button:
-                        with col5:
-                            with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
-                            st.subheader(body=":white_check_mark: Validação de dados")
-                            with st.expander(label="Avisos", expanded=True):
-                                st.warning(body="Revise e confirme os dados antes de prosseguir.")
+                st.subheader(body=":computer: Entrada de Dados")
 
-            elif len(user_current_accounts) == 0:
-                with col5:
-                    st.warning(body="Você ainda não possui contas cadastradas.")
-                    
-        self.main_menu = get_receipt_input
-        self.generate_receipt = generate_receipt
-        self.generate_transfer_receipt = generate_transfer_receipt
+                with st.expander(label="Filtros", expanded=True):
+                    report_type = st.selectbox(
+                        label="Relatório", options=receipt_options.keys())
+                    date = st.date_input(label="Data")
+                    account = st.selectbox(
+                        label="Conta", options=user_current_accounts)
+                    value = st.number_input(
+                        label="Valor", placeholder="Informe o valor", min_value=0.01, step=0.01)
+                    confirm_data = st.checkbox(label="Confirmar dados")
+
+                send_value_button = st.button(
+                    label=":white_check_mark: Enviar dados")
+
+                if send_value_button and confirm_data:
+
+                    table = receipt_options[report_type]
+
+                    with col5:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.subheader(body=":page_facing_up: Resultados")
+
+                        query_data, is_query_valid = self.validate_query(
+                            table, date, account, value)
+
+                        if is_query_valid == True:
+
+                            with st.expander(label=":bar_chart: Resultados", expanded=True):
+
+                                st.info(
+                                    "Registro(s) encontrado(s): {}.".format(query_data))
+
+                                query = self.execute_query(table, query_data)
+                                description, value, date, time, category, account = self.treat_receipt_values(
+                                    query)
+
+                                str_value_list = []
+
+                                for i in range(0, len(value)):
+                                    aux_value = Variable().treat_complex_string(
+                                        value[i])
+                                    aux_value = 'R$ ' + aux_value
+                                    str_value_list.append(aux_value)
+
+                                formatted_date_list = []
+
+                                for i in range(0, len(date)):
+                                    aux_date = date[i]
+                                    aux_date = datetime.strptime(
+                                        aux_date, '%Y-%m-%d')
+                                    aux_date = aux_date.strftime(
+                                        '%d/%m/%Y')
+                                    formatted_date_list.append(aux_date)
+
+                                str_ids_list = []
+                                aux_str = query_data.replace(
+                                    ",", "").split()
+                                str_ids_list = aux_str
+
+                                ids_list = []
+                                for i in range(0, len(str_ids_list)):
+                                    aux_int = int(str_ids_list[i])
+                                    ids_list.append(aux_int)
+
+                                data_df = pd.DataFrame(
+                                    {
+                                        "Descrição": description,
+                                        "Valor": str_value_list,
+                                        "Data": formatted_date_list,
+                                        "Categoria": category,
+                                        "Conta": account
+                                    })
+
+                                st.dataframe(
+                                    data_df, hide_index=True, use_container_width=True)
+
+                                confirm_register_selection = st.checkbox(
+                                    label="Confirmar seleção")
+
+                            generate_receipt_button = st.button(
+                                label=":pencil: Gerar Comprovante")
+
+                            if confirm_register_selection == True and generate_receipt_button:
+                                with st.spinner(text="Aguarde..."):
+                                    sleep(2.5)
+
+                                with col6:
+                                    st.subheader(
+                                        body=":pencil: Comprovante")
+                                    self.generate_receipt(
+                                        table, 106, description, value, date, category, account)
+
+                                log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                log_values = (logged_user, "Consulta", "Consultou um comprovante de {} na data {}, associado a conta {}.".format(
+                                    report_type, date, account))
+                                QueryExecutor().insert_query(
+                                    log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+
+                        elif is_query_valid == False:
+                            with st.expander(label="Resultados", expanded=True):
+                                st.info("Nenhum resultado Encontrado.")
+
+                elif confirm_data == False and send_value_button:
+                    with col5:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.subheader(
+                            body=":white_check_mark: Validação de dados")
+                        with st.expander(label="Avisos", expanded=True):
+                            st.warning(
+                                body="Revise e confirme os dados antes de prosseguir.")
+
+        elif len(user_current_accounts) == 0:
+            with col5:
+                st.warning(
+                    body="Você ainda não possui contas cadastradas.")

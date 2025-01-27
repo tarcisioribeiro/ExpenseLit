@@ -82,16 +82,16 @@ if ! command -v mysql &> /dev/null; then
 fi
 
 blue "\nAgora, defina uma senha para o banco de dados, executando estes comando no console do MySQL:\n"
-sleep 3
+sleep 1
 sleep 1
 echo ""
 echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha'; FLUSH PRIVILEGES;"
 echo ""
-sleep 3
+sleep 1
 blue "\nCopie o comando acima e troque 'senha' pela senha que deseja definir, mantendo as aspas simples.\n"
-sleep 3
+sleep 1
 blue "\nApós definir a senha, saia do console do MySQL pelo comando exit.\n"
-sleep 3
+sleep 1
 read -p "Pressione ENTER para confirmar e prosseguir."
 sl
 sudo mysql
@@ -129,13 +129,13 @@ echo ""
 
 cd $FOLDER
 blue "\nCriando ambiente virtual..."
-sleep 3
+sleep 1
 python3 -m venv venv
 blue "\nAtivando ambiente virtual..."
-sleep 3
+sleep 1
 source venv/bin/activate
-pip install -r requirements.txt
-sleep 3
+pip install streamlit mysql-connector-python python-dotenv matplotlib bcrypt fpdf psutil
+sleep 1
 clear
 
 echo "#!/bin/bash" >> expenselit.sh

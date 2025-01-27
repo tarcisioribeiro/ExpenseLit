@@ -6,8 +6,14 @@ from screens.loans.receive_loan import ReceiveLoan
 
 
 class NewRevenue:
+    """
+    Classe que representa as novas receitas.
+    """
 
-    def __init__(self):
+    def main_menu(self):
+        """
+        Menu principal.
+        """
 
         menu_options = {
             "Receita em Contas Correntes": NewCurrentRevenue(),
@@ -16,21 +22,18 @@ class NewRevenue:
             "Confirmar Receita": ConfirmRevenue(),
         }
 
-        def revenue_main_menu():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        st.divider()
 
-            st.divider()
+        with col1:
+            st.header(body=":moneybag: Nova Receita")
 
-            with col1:
-                st.header(body=":moneybag: Nova Receita")
+        with col2:
 
-            with col2:
+            revenue_type = st.selectbox(
+                label="Tipo de Receita", options=menu_options.keys())
 
-                revenue_type = st.selectbox(label="Tipo de Receita", options=menu_options.keys())
-
-            if revenue_type:
-                call_interface = menu_options[revenue_type]
-                call_interface.main_menu()
-
-        self.main_menu = revenue_main_menu
+        if revenue_type:
+            call_interface = menu_options[revenue_type]
+            call_interface.main_menu()

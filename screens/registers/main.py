@@ -7,42 +7,46 @@ import streamlit as st
 
 
 class Registers:
+    """
+    Classe que representa os cadastros realizados na aplicação.
+    """
 
-    def __init__(self):
+    def main_menu(self):
+        """
+        Menu principal.
+        """
 
-        def registers_main_menu():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        registers_menu_options = [
+            "Contas", "Cartões", "Usuários", "Credores", "Beneficiados"]
 
-            registers_menu_options = ["Contas", "Cartões", "Usuários", "Credores", "Beneficiados"]
+        with col1:
+            st.header(body=":memo: Cadastros")
 
-            with col1:
-                st.header(body=":memo: Cadastros")
+        with col2:
 
-            with col2:
+            selected_menu_option = st.selectbox(
+                label="Menu", options=registers_menu_options)
 
-                selected_menu_option = st.selectbox(label="Menu", options=registers_menu_options)
+        st.divider()
 
-            st.divider()
-    
-            if selected_menu_option == registers_menu_options[0]:
-                call_account_update = UpdateAccounts()
-                call_account_update.show_interface()
+        if selected_menu_option == registers_menu_options[0]:
+            call_account_update = UpdateAccounts()
+            call_account_update.show_interface()
 
-            elif selected_menu_option == registers_menu_options[1]:
-                call_credit_card_update = UpdateCreditCards()
-                call_credit_card_update.credit_cards_interface()
-            
-            elif selected_menu_option == registers_menu_options[2]:
-                call_create_user = CreateUser()
-                call_create_user.main_menu()
+        elif selected_menu_option == registers_menu_options[1]:
+            call_credit_card_update = UpdateCreditCards()
+            call_credit_card_update.credit_cards_interface()
 
-            elif selected_menu_option == registers_menu_options[3]:
-                call_creditor_app = Creditors()
-                call_creditor_app.main_menu()
-            
-            elif selected_menu_option == registers_menu_options[4]:
-                call_benefited_app = Benefited()
-                call_benefited_app.main_menu()
+        elif selected_menu_option == registers_menu_options[2]:
+            call_create_user = CreateUser()
+            call_create_user.main_menu()
 
-        self.main_menu = registers_main_menu
+        elif selected_menu_option == registers_menu_options[3]:
+            call_creditor_app = Creditors()
+            call_creditor_app.main_menu()
+
+        elif selected_menu_option == registers_menu_options[4]:
+            call_benefited_app = Benefited()
+            call_benefited_app.main_menu()

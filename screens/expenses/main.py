@@ -7,31 +7,34 @@ import streamlit as st
 
 
 class NewExpense:
+    """
+    Classe que representa as despesas.
+    """
 
-    def __init__(self):
+    def main_menu(self):
+        """
+        Menu principal.
+        """
 
-        def expenses_main_menu():
+        col1, col2, col3 = st.columns(3)
 
-            col1, col2, col3 = st.columns(3)
+        with col1:
+            st.header(":money_with_wings: Nova Despesa")
 
-            with col1:
-                st.header(":money_with_wings: Nova Despesa")
+        with col2:
+            menu_options = {
+                "Despesa em Conta Corrente": NewCurrentExpense(),
+                "Despesa de Cartão": NewCreditCardExpense(),
+                "Pagar Fatura de Cartão": CreditCardInvoice(),
+                "Confirmar Pagamento": ConfirmExpense(),
+                "Pagar Valores em Aberto": PayLoan()
+            }
 
-            with col2:
-                menu_options = {
-                    "Despesa em Conta Corrente": NewCurrentExpense(),
-                    "Despesa de Cartão": NewCreditCardExpense(),
-                    "Pagar Fatura de Cartão": CreditCardInvoice(),
-                    "Confirmar Pagamento": ConfirmExpense(),
-                    "Pagar Valores em Aberto": PayLoan()
-                }
+            menu_choice = st.selectbox(
+                label="Tipo de despesa", options=menu_options)
 
-                menu_choice = st.selectbox(label="Tipo de despesa", options=menu_options)
+        st.divider()
 
-            st.divider()
-
-            if menu_choice:
-                call_interface = menu_options[menu_choice]
-                call_interface.main_menu()
-
-        self.main_menu = expenses_main_menu
+        if menu_choice:
+            call_interface = menu_options[menu_choice]
+            call_interface.main_menu()
