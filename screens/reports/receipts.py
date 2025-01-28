@@ -1,12 +1,12 @@
 import pandas as pd
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
-from dictionary.user_stats import user_name
 from dictionary.style import system_font
 from datetime import datetime
 from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, SAVE_FOLDER
 from dictionary.sql import user_current_accounts_query, account_image_query
 from functions.query_executor import QueryExecutor
+from functions.login import Login
 from functions.variable import Variable
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
@@ -120,9 +120,8 @@ class Receipts:
 
         data_exists = False
 
-        id = QueryExecutor().complex_consult_query(id_query)
-        id = QueryExecutor().treat_numerous_simple_result(
-            id, to_remove_list)
+        id = QueryExecutor().complex_consult_brute_query(id_query)
+        id = QueryExecutor().treat_numerous_simple_result(id, to_remove_list)
 
         if len(id) >= 1:
             ids_string = ""
@@ -254,9 +253,9 @@ class Receipts:
         origin_account: str = A conta de origem da transferência.
         destiny_account: str = A conta de destino da transferência.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
-        origin_account_image = QueryExecutor().simple_consult_query(
-            account_image_query.format(origin_account, logged_user, logged_user_password))
+        origin_account_image = QueryExecutor().simple_consult_query(account_image_query.format(origin_account, logged_user, logged_user_password))
         origin_account_image = QueryExecutor().treat_simple_result(
             origin_account_image, to_remove_list)
         origin_account_image_path = SAVE_FOLDER + origin_account_image
@@ -369,11 +368,10 @@ class Receipts:
         category: str = A categoria da despesa/receita.
         account: str = A conta da despesa/receita.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
-        account_image = QueryExecutor().simple_consult_query(
-            account_image_query.format(account, logged_user, logged_user_password))
-        account_image = QueryExecutor().treat_simple_result(
-            account_image, to_remove_list)
+        account_image = QueryExecutor().simple_consult_query(account_image_query.format(account, logged_user, logged_user_password))
+        account_image = QueryExecutor().treat_simple_result(account_image, to_remove_list)
         account_image_path = SAVE_FOLDER + account_image
 
         table_dictionary = {
@@ -474,17 +472,16 @@ class Receipts:
                     today, actual_horary),
             )
 
-    def get_receipt_input(self):
+    def main_menu(self):
         """
         Coleta os dados da consulta do comprovante.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col4, col5, col6 = st.columns(3)
 
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         if len(user_current_accounts) > 0:
 

@@ -32,21 +32,16 @@ class Registers:
         st.divider()
 
         if selected_menu_option == registers_menu_options[0]:
-            call_account_update = UpdateAccounts()
-            call_account_update.show_interface()
+            UpdateAccounts().main_menu()
 
         elif selected_menu_option == registers_menu_options[1]:
-            call_credit_card_update = UpdateCreditCards()
-            call_credit_card_update.credit_cards_interface()
+            UpdateCreditCards().main_menu()
 
         elif selected_menu_option == registers_menu_options[2]:
-            call_create_user = CreateUser()
-            call_create_user.main_menu()
+            CreateUser().main_menu()
 
         elif selected_menu_option == registers_menu_options[3]:
-            call_creditor_app = Creditors()
-            call_creditor_app.main_menu()
+            Creditors().main_menu()
 
         elif selected_menu_option == registers_menu_options[4]:
-            call_benefited_app = Benefited()
-            call_benefited_app.main_menu()
+            Benefited().main_menu()

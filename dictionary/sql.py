@@ -1,7 +1,3 @@
-from dictionary.vars import today
-from data.cache.session_state import logged_user, logged_user_password
-
-
 last_expense_query: str = """
 SELECT 
     despesas.descricao AS 'Descrição',
@@ -18,8 +14,8 @@ FROM
 WHERE
     despesas.categoria NOT IN ('Pix', 'TED', 'DOC', 'Ajuste')
         AND despesas.descricao NOT IN('Aporte Inicial','Placeholder','Teste')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
         AND despesas.pago = 'S'
 ORDER BY despesas.data DESC, despesas.id_despesa DESC
 LIMIT 5;"""
@@ -43,8 +39,8 @@ FROM
 WHERE
     receitas.categoria NOT IN ('Pix' , 'TED', 'DOC', 'Ajuste')
     AND receitas.data <= %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
         AND receitas.recebido = 'S'
 ORDER BY receitas.data DESC , receitas.id_receita DESC
 LIMIT 5;"""
@@ -64,8 +60,8 @@ FROM
 WHERE
     despesas.pago = 'S'
         AND contas.tipo_conta NOT IN('Fundo de Garantia', 'Vale Alimentação')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 total_revenue_query: str = """
 SELECT 
@@ -82,8 +78,8 @@ FROM
 WHERE
     receitas.recebido = 'S'
         AND contas.tipo_conta NOT IN ('Fundo de Garantia' , 'Vale Alimentação')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 accounts_revenue_query: str = """
 SELECT 
@@ -102,8 +98,8 @@ WHERE
         AND receitas.recebido = 'S'
         AND contas.inativa = 'N'
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY conta
 ORDER BY conta ASC;"""
 
@@ -124,8 +120,8 @@ WHERE
         AND despesas.pago = 'S'
         AND contas.inativa = 'N'
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY conta
 ORDER BY conta ASC;
 """
@@ -147,8 +143,8 @@ WHERE
         AND despesas.pago = 'N'
         AND contas.inativa = 'N'
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY conta
 ORDER BY conta ASC;
 """
@@ -169,8 +165,8 @@ WHERE
     receitas.recebido = 'N'
         AND contas.inativa = 'N'
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY conta
 ORDER BY conta ASC;"""
 
@@ -186,8 +182,8 @@ WHERE
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
         AND contas.proprietario_conta = usuarios.nome
         AND contas.documento_proprietario_conta = usuarios.cpf
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 ORDER BY contas.nome_conta;"""
 
 max_revenue_query: str = """
@@ -210,8 +206,8 @@ FROM
 WHERE
     receitas.categoria <> 'Ajuste'
         AND receitas.data <= %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 ORDER BY receitas.valor DESC
 LIMIT 5"""
 
@@ -233,8 +229,8 @@ FROM
         AND despesas.documento_proprietario_despesa = usuarios.cpf
 WHERE
     despesas.categoria <> 'Ajuste'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 ORDER BY despesas.valor DESC
 LIMIT 5;"""
 
@@ -260,8 +256,8 @@ WHERE
     contas.tipo_conta = 'Vale Alimentação'
 AND contas.inativa = 'N'
         AND receitas.recebido = 'S'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 ticket_expense_query: str = """
 SELECT 
@@ -279,8 +275,8 @@ WHERE
     contas.tipo_conta = 'Vale Alimentação'
 AND contas.inativa = 'N'
         AND despesas.pago = 'S'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 loan_expense_query: str = """
 SELECT 
@@ -291,8 +287,8 @@ INNER JOIN
     usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
 WHERE
     emprestimos.pago = 'N'
-    AND usuarios.login = %s
-    AND usuarios.senha = %s;"""
+    AND usuarios.nome = %s
+    AND usuarios.cpf = %s;"""
 
 debts_expense_query: str = """
 SELECT 
@@ -305,8 +301,8 @@ FROM
         AND emprestimos.documento_devedor = usuarios.cpf
 WHERE
     emprestimos.pago = 'N'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 fund_revenue_query: str = """
 SELECT 
@@ -323,8 +319,8 @@ FROM
 WHERE
     contas.tipo_conta = 'Fundo de Garantia'
         AND receitas.recebido = 'S'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 fund_expense_query: str = """
 SELECT 
@@ -342,8 +338,8 @@ FROM
 WHERE
     contas.tipo_conta = 'Fundo de Garantia'
         AND despesas.pago = 'S'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 most_categories_expenses_query: str = """
 SELECT 
@@ -362,8 +358,8 @@ FROM
 WHERE
     despesas.categoria NOT IN('Ajuste', 'Fatura Cartão')
         AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY despesas.categoria;"""
 
 most_categories_revenues_query: str = """
@@ -383,8 +379,8 @@ FROM
 WHERE
     receitas.categoria <> 'Ajuste'
         AND contas.tipo_conta IN ('Conta Corrente')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY receitas.categoria;"""
 
 most_credit_card_expenses_query: str = """
@@ -402,8 +398,8 @@ FROM
         AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
 WHERE
     despesas_cartao_credito.categoria <> 'Ajuste'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
 GROUP BY despesas_cartao_credito.categoria;"""
 
 name_query: str = "SELECT nome FROM usuarios WHERE login = %s AND senha = %s"
@@ -419,8 +415,8 @@ FROM
     usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
         AND cartao_credito.documento_titular = usuarios.cpf
 WHERE
-    usuarios.login = %s
-        AND usuarios.senha = %s;"""
+    usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 owner_active_cards_query = """
 SELECT 
@@ -431,8 +427,8 @@ FROM
     usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
         AND cartao_credito.documento_titular = usuarios.cpf
 WHERE
-    usuarios.login = %s
-        AND usuarios.senha = %s
+    usuarios.nome = %s
+        AND usuarios.cpf = %s
         AND cartao_credito.inativo = 'N';"""
 
 user_current_accounts_query = """
@@ -446,8 +442,8 @@ FROM
 WHERE
     contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
         AND contas.inativa = 'N'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 user_all_current_accounts_query = """
 SELECT 
@@ -459,8 +455,8 @@ FROM
         AND contas.documento_proprietario_conta = usuarios.cpf
 WHERE
     contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 user_fund_accounts_query = """
 SELECT 
@@ -473,8 +469,8 @@ FROM
 WHERE
     contas.tipo_conta IN ('Fundo de Garantia')
         AND contas.inativa = 'N'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 beneficiaries_query = """
 SELECT 
@@ -485,10 +481,10 @@ FROM
     usuarios ON beneficiados.nome <> usuarios.nome
         AND beneficiados.documento <> usuarios.cpf
 WHERE
-    usuarios.login = %s
-        AND usuarios.senha = %s;"""
+    usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
-creditors_query = """SELECT credores.nome FROM credores INNER JOIN usuarios ON credores.nome <> usuarios.nome AND credores.documento <> usuarios.cpf WHERE usuarios.login = %s AND usuarios.senha = %s;"""
+creditors_query = """SELECT credores.nome FROM credores INNER JOIN usuarios ON credores.nome <> usuarios.nome AND credores.documento <> usuarios.cpf WHERE usuarios.nome = %s AND usuarios.cpf = %s;"""
 
 creditor_doc_name_query = """
 SELECT 
@@ -500,8 +496,8 @@ FROM
     usuarios ON credores.nome = usuarios.nome
         AND credores.documento = usuarios.cpf
 WHERE
-    usuarios.login = %s
-    AND usuarios.senha = %s;"""
+    usuarios.nome = %s
+    AND usuarios.cpf = %s;"""
 
 debtors_query: str = """
 SELECT 
@@ -513,8 +509,8 @@ FROM
     INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
 WHERE
     pago = 'N'
-    AND usuarios.login = %s
-    AND usuarios.senha = %s
+    AND usuarios.nome = %s
+    AND usuarios.cpf = %s
 GROUP BY emprestimos.devedor"""
 
 loan_query: str = """
@@ -541,8 +537,8 @@ FROM
     INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
 WHERE
     emprestimos.devedor = %s
-    AND usuarios.login = %s
-    AND usuarios.senha = %s
+    AND usuarios.nome = %s
+    AND usuarios.cpf = %s
         AND pago = 'N'"""
 
 not_payed_loans_query = """
@@ -560,8 +556,8 @@ FROM
     emprestimos
     INNER JOIN usuarios ON emprestimos.devedor = usuarios.nome AND emprestimos.documento_devedor = usuarios.cpf
 WHERE
-    usuarios.login = %s
-    AND usuarios.senha = %s
+    usuarios.nome = %s
+    AND usuarios.cpf = %s
     AND pago = 'N';"""
 
 not_received_loans_query = """
@@ -579,8 +575,8 @@ FROM
     emprestimos
     INNER JOIN usuarios ON emprestimos.credor = usuarios.nome AND emprestimos.documento_credor = usuarios.cpf
 WHERE
-    usuarios.login = %s
-    AND usuarios.senha = %s
+    usuarios.nome = %s
+    AND usuarios.cpf = %s
     AND pago = 'N';"""
 
 not_received_revenue_query = """SELECT id_receita, descricao, valor, data, horario, categoria, conta
@@ -596,8 +592,8 @@ FROM
 WHERE
     receitas.recebido = 'N'
         AND receitas.data < '2099-12-31'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 not_received_revenue_ids_query = """SELECT 
     receitas.id_receita
@@ -613,8 +609,8 @@ FROM
 WHERE
     receitas.recebido = 'N'
         AND receitas.data < '2099-12-31'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 not_payed_expense_query = """SELECT id_despesa, descricao, valor, data, horario, categoria, conta
 FROM
@@ -629,8 +625,8 @@ FROM
 WHERE
     despesas.pago = 'N'
         AND despesas.data < '2099-12-31'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 not_payed_expenses_ids_query = """
 SELECT 
@@ -647,8 +643,8 @@ FROM
 WHERE
     despesas.pago = 'N'
         AND despesas.data < '2099-12-31'
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 expenses_statement_query = """
 SELECT 
@@ -672,8 +668,8 @@ WHERE
         AND despesas.data >= %s
         AND despesas.data <= %s
         AND despesas.conta IN %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 revenues_statement_query = """
 SELECT 
@@ -697,8 +693,8 @@ WHERE
         AND receitas.data >= %s
         AND receitas.data <= %s
         AND receitas.conta IN %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 total_account_revenue_query: str = """
 SELECT 
@@ -711,8 +707,8 @@ FROM
 WHERE
     receitas.recebido = 'S'
         AND receitas.conta = %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 total_account_expense_query: str = """
 SELECT 
@@ -725,8 +721,8 @@ FROM
 WHERE
     despesas.pago = 'S'
         AND despesas.conta = %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s;"""
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s;"""
 
 card_invoices_query = """
 SELECT
@@ -740,8 +736,8 @@ FROM
     usuarios ON usuarios.cpf = fechamentos_cartao.documento_titular
 WHERE
     fechamentos_cartao.nome_cartao = %s
-        AND usuarios.login = %s
-        AND usuarios.senha = %s
+        AND usuarios.nome = %s
+        AND usuarios.cpf = %s
         AND fechamentos_cartao.fechado = 'N'
 ORDER BY fechamentos_cartao.data_comeco_fatura;"""
 
@@ -763,7 +759,7 @@ account_image_query = """
             AND contas.proprietario_conta = usuarios.nome
     WHERE
         contas.nome_conta = %s
-            AND usuarios.login = %s
-            AND usuarios.senha = %s;"""
+            AND usuarios.nome = %s
+            AND usuarios.cpf = %s;"""
 
 credit_card_expire_date_query = """SELECT cartao_credito.data_validade FROM cartao_credito WHERE cartao_credito.documento_titular = %s AND cartao_credito.nome_cartao = %s AND cartao_credito.proprietario_cartao = %s;"""

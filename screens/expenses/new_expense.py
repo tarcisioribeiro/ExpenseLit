@@ -1,8 +1,8 @@
 import streamlit as st
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import last_expense_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query
-from dictionary.user_stats import user_name, user_document
 from dictionary.vars import to_remove_list, expense_categories
+from functions.login import Login
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
@@ -15,15 +15,13 @@ class NewCurrentExpense:
     Classe que representa uma nova despesa em contas correntes.
     """
 
-    def new_expense(self):
+    def main_menu(self):
         """
         Obtém os dados de uma nova despesa em conta corrente.
         """
-
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_name, user_document = Login().get_user_doc_name()
+        user_current_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         col1, col2, col3 = st.columns(3)
 
@@ -39,7 +37,7 @@ class NewCurrentExpense:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    id = QueryExecutor().simple_consult_query(last_expense_id_query)
+                    id = QueryExecutor().simple_consult_brute_query(last_expense_id_query)
                     id = QueryExecutor().treat_simple_result(id, to_remove_list)
 
                     options = {
@@ -63,11 +61,6 @@ class NewCurrentExpense:
                     confirm_values_check_box = st.checkbox(
                         label="Confirmar dados")
 
-                    total_account_revenue_complete_query = total_account_revenue_query.format(
-                        account, logged_user, logged_user_password)
-                    total_account_expense_complete_query = total_account_expense_query.format(
-                        account, logged_user, logged_user_password)
-
                 generate_receipt_button = st.button(
                     label=":pencil: Gerar Comprovante", key="generate_receipt_button")
 
@@ -89,24 +82,16 @@ class NewCurrentExpense:
 
                         with data_validation_expander:
 
-                            str_selected_account_revenues = QueryExecutor().simple_consult_query(
-                                total_account_revenue_complete_query)
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(
-                                str_selected_account_revenues, to_remove_list)
-                            selected_account_revenues = float(
-                                str_selected_account_revenues)
+                            str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document))
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            selected_account_revenues = float(str_selected_account_revenues)
 
-                            str_selected_account_expenses = QueryExecutor().simple_consult_query(
-                                total_account_expense_complete_query)
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(
-                                str_selected_account_expenses, to_remove_list)
-                            selected_account_expenses = float(
-                                str_selected_account_expenses)
+                            str_selected_account_expenses = QueryExecutor().simple_consult_query(total_account_expense_query, params=(account, user_name, user_document))
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            selected_account_expenses = float(str_selected_account_expenses)
 
-                            account_available_value = round(
-                                selected_account_revenues - selected_account_expenses, 2)
-                            available_value = Variable().treat_complex_string(
-                                account_available_value)
+                            account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
+                            available_value = Variable().treat_complex_string(account_available_value)
 
                     with data_validation_expander:
                         st.info(body="Valor disponível da conta {}: R$ {}".format(
@@ -118,18 +103,15 @@ class NewCurrentExpense:
 
                         actual_horary = GetActualTime().get_actual_time()
                         expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                        values = (description, value, date, actual_horary,
-                                  category, account, user_name, user_document, payed)
-                        QueryExecutor().insert_query(expense_query, values,
-                                                     "Despesa registrada com sucesso!", "Erro ao registrar despesa:")
+                        values = (description, value, date, actual_horary, category, account, user_name, user_document, payed)
+                        QueryExecutor().insert_query(expense_query, values, "Despesa registrada com sucesso!", "Erro ao registrar despesa:")
 
                         str_value = Variable().treat_complex_string(value)
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
                         log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(
                             str_value, account))
-                        QueryExecutor().insert_query(log_query, log_values,
-                                                     "Log gravado.", "Erro ao gravar log:")
+                        QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                         st.subheader(
                             body=":pencil: Comprovante de Despesa")

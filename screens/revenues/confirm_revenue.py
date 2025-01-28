@@ -4,6 +4,7 @@ from dictionary.sql import not_received_revenue_query
 from dictionary.vars import to_remove_list, today
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
+from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
@@ -33,9 +34,8 @@ class ConfirmRevenue:
         id: int = O id da receita não recebida.
         """
 
-        get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(
-            description, value, date, time, category, account)
-        id = QueryExecutor().simple_consult_query(get_id_query)
+        get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
+        id = QueryExecutor().simple_consult_brute_query(get_id_query)
         id = QueryExecutor().treat_simple_result(id, to_remove_list)
         id = int(id)
 
@@ -56,15 +56,15 @@ class ConfirmRevenue:
         QueryExecutor().update_table_unique_register(
             update_not_received_query, "Receita atualizada com sucesso!", "Erro ao atualizar receita:")
 
-    def show_not_received_values(self):
+    def main_menu(self):
         """
         Exibe as receitas não recebidas.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col4, col5, col6 = st.columns(3)
 
-        revenue_values = QueryExecutor().complex_compund_query(
-            not_received_revenue_query, 7, "not_received")
+        revenue_values = QueryExecutor().complex_compund_query(query=not_received_revenue_query, list_quantity=7, params=(user_name, user_document))
 
         if len(revenue_values[0]) >= 1:
 

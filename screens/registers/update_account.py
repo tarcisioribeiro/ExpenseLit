@@ -2,9 +2,8 @@ from data.cache.session_state import logged_user
 from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary, default_account_image
 from dictionary.app_vars import account_models
 from dictionary.sql import user_all_current_accounts_query
-from dictionary.user_stats import user_name, user_document
+from functions.login import Login
 from functions.query_executor import QueryExecutor
-from functions.variable import Variable
 from PIL import Image
 from time import sleep
 import os
@@ -20,6 +19,7 @@ class UpdateAccounts:
         """
         Coleta os dados e cadastra uma nova conta.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
@@ -68,8 +68,7 @@ class UpdateAccounts:
 
                     if type(get_account_image).__name__ != "NoneType":
                         image = Image.open(get_account_image)
-                        name, ext = os.path.splitext(
-                            default_account_image.name)
+                        name, ext = os.path.splitext(default_account_image)
 
                         new_file_name = SAVE_FOLDER + name + ext
                         library_file_name = name + ext
@@ -142,6 +141,8 @@ class UpdateAccounts:
         """
         Realiza a atualização dos dados da conta do usuário.
         """
+        user_name, user_document = Login().get_user_doc_name()
+
         col1, col2, col3 = st.columns(3)
 
         user_accounts = QueryExecutor().complex_consult_query(
@@ -184,7 +185,7 @@ class UpdateAccounts:
                 QueryExecutor().insert_query(
                     log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-    def show_accounts_interface(self):
+    def main_menu(self):
         """
         Exibe o menu.
         """

@@ -4,6 +4,7 @@ from dictionary.vars import transfer_categories, to_remove_list
 from dictionary.sql import (last_transfer_id_query, doc_name_query, user_current_accounts_query,
                             total_account_revenue_query, total_account_expense_query, user_fund_accounts_query)
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
@@ -13,17 +14,19 @@ from time import sleep
 class NewTransfer:
 
     def new_fund_account_transfer(self):
+        """
+        Realiza a coleta dos dados da transferência do fundo de garantia e a insere no banco de dados.
+        """
+
+        user_name, user_document = Login().get_user_doc_name()
+
         col4, col5, col6 = st.columns(3)
 
-        user_fund_accounts = QueryExecutor().complex_consult_query(
-            user_fund_accounts_query)
-        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_fund_accounts, to_remove_list)
+        user_fund_accounts = QueryExecutor().complex_consult_query(query=user_fund_accounts_query, params=(user_name, user_document))
+        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, to_remove_list)
 
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         if len(user_fund_accounts) == 0 and len(user_current_accounts) == 0:
             with col5:
@@ -41,8 +44,7 @@ class NewTransfer:
             with col4:
                 st.subheader(body=":computer: Entrada de Dados")
 
-                to_treat_id = QueryExecutor().simple_consult_query(
-                    last_transfer_id_query)
+                to_treat_id = QueryExecutor().simple_consult_brute_query(last_transfer_id_query)
                 id = (int(QueryExecutor().treat_simple_result(
                     to_treat_id, to_remove_list)) + 1)
 
@@ -66,18 +68,10 @@ class NewTransfer:
                     transfered = st.selectbox(
                         label=":inbox_tray: Transferido", options=options.keys())
 
-                    user_doc_name = QueryExecutor().complex_consult_query(
-                        query=doc_name_query)
-                    treated_user_doc_name = QueryExecutor().treat_complex_result(
-                        user_doc_name, to_remove_list)
+                    user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(user_name, user_document))
+                    treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
 
-                    confirm_values_check_box = st.checkbox(
-                        label="Confirmar dados")
-
-                    total_account_revenue_complete_query = total_account_revenue_query.format(
-                        origin_account, logged_user, logged_user_password)
-                    total_account_expense_complete_query = total_account_expense_query.format(
-                        origin_account, logged_user, logged_user_password)
+                    confirm_values_check_box = st.checkbox(label="Confirmar dados")
 
                 generate_receipt_button = st.button(
                     label=":pencil: Gerar Comprovante", key="generate_receipt_button")
@@ -99,24 +93,16 @@ class NewTransfer:
                             label="Informações", expanded=True)
 
                         with data_validation_expander:
-                            str_selected_account_revenues = QueryExecutor().simple_consult_query(
-                                total_account_revenue_complete_query)
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(
-                                str_selected_account_revenues, to_remove_list)
-                            selected_account_revenues = float(
-                                str_selected_account_revenues)
+                            str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(origin_account, logged_user, logged_user_password))
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            selected_account_revenues = float(str_selected_account_revenues)
 
-                            str_selected_account_expenses = QueryExecutor().simple_consult_query(
-                                total_account_expense_complete_query)
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(
-                                str_selected_account_expenses, to_remove_list)
-                            selected_account_expenses = float(
-                                str_selected_account_expenses)
+                            str_selected_account_expenses = QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(origin_account, logged_user, logged_user_password))
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            selected_account_expenses = float(str_selected_account_expenses)
 
-                            account_available_value = round(
-                                selected_account_revenues - selected_account_expenses, 2)
-                            str_account_available_value = Variable().treat_complex_string(
-                                account_available_value)
+                            account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
+                            str_account_available_value = Variable().treat_complex_string(account_available_value)
 
                     with data_validation_expander:
 
@@ -189,12 +175,15 @@ class NewTransfer:
                                 body="Confirme os dados antes de prosseguir.")
 
     def new_current_account_transfer(self):
+        """
+        Coleta os dados da nova transferência e a insere no banco de dados.
+        """
+        user_name, user_document = Login().get_user_doc_name()
+
         col4, col5, col6 = st.columns(3)
 
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         if len(user_current_accounts) == 0:
             with col5:
@@ -209,10 +198,8 @@ class NewTransfer:
                 st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados", expanded=True):
-                    to_treat_id = QueryExecutor().simple_consult_query(
-                        last_transfer_id_query)
-                    id = (int(QueryExecutor().treat_simple_result(
-                        to_treat_id, to_remove_list)) + 1)
+                    to_treat_id = QueryExecutor().simple_consult_brute_query(last_transfer_id_query)
+                    id = (int(QueryExecutor().treat_simple_result(to_treat_id, to_remove_list)) + 1)
 
                     options = {
                         "Sim": "S",
@@ -233,18 +220,11 @@ class NewTransfer:
                     transfered = st.selectbox(
                         label=":inbox_tray: Transferido", options=options)
 
-                    user_doc_name = QueryExecutor().complex_consult_query(
-                        query=doc_name_query)
-                    treated_user_doc_name = QueryExecutor().treat_complex_result(
-                        user_doc_name, to_remove_list)
+                    user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(user_name, user_document))
+                    treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
 
                     confirm_values_check_box = st.checkbox(
                         label="Confirmar Dados")
-
-                    total_account_revenue_complete_query = total_account_revenue_query.format(
-                        origin_account, logged_user, logged_user_password)
-                    total_account_expense_complete_query = total_account_expense_query.format(
-                        origin_account, logged_user, logged_user_password)
 
                 generate_receipt_button = st.button(
                     label=":pencil: Gerar Comprovante", key="generate_receipt_button")
@@ -266,24 +246,16 @@ class NewTransfer:
                             label="Informações", expanded=True)
 
                         with data_validation_expander:
-                            str_selected_account_revenues = QueryExecutor().simple_consult_query(
-                                total_account_revenue_complete_query)
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(
-                                str_selected_account_revenues, to_remove_list)
-                            selected_account_revenues = float(
-                                str_selected_account_revenues)
+                            str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(origin_account, logged_user, logged_user_password))
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            selected_account_revenues = float(str_selected_account_revenues)
 
-                            str_selected_account_expenses = QueryExecutor().simple_consult_query(
-                                total_account_expense_complete_query)
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(
-                                str_selected_account_expenses, to_remove_list)
-                            selected_account_expenses = float(
-                                str_selected_account_expenses)
+                            str_selected_account_expenses = QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(origin_account, logged_user, logged_user_password))
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            selected_account_expenses = float(str_selected_account_expenses)
 
-                            account_available_value = round(
-                                selected_account_revenues - selected_account_expenses, 2)
-                            str_account_available_value = Variable().treat_complex_string(
-                                account_available_value)
+                            account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
+                            str_account_available_value = Variable().treat_complex_string(account_available_value)
 
                     with data_validation_expander:
 

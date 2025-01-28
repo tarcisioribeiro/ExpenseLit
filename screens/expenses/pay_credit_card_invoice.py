@@ -1,7 +1,7 @@
 from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import owner_cards_query, card_invoices_query
 from dictionary.vars import today, to_remove_list, actual_year
-from dictionary.user_stats import user_name, user_document
+from functions.login import Login
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -26,6 +26,7 @@ class CreditCardInvoice:
         selected_card: str = O cartão de crédito selecionado pelo usuário.\n
         selected_month: str = O mês da fatura selecionado pelo usuário.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         month_data = selected_month.split()
         month_data.pop(1)
@@ -103,14 +104,15 @@ class CreditCardInvoice:
                     Receipts().generate_receipt("despesas", id_list[0], description="Fatura Cartão de {}".format(
                         selected_month), value=month_expenses, date=today, category="Fatura Cartão", account=selected_card)
 
-    def show_update_credit_card_invoices(self):
+    def main_menu(self):
         """
         Exibe as faturas de cartão que ainda não foram pagas.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
-        user_cards = QueryExecutor().complex_consult_query(owner_cards_query)
+        user_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
         user_cards = QueryExecutor().treat_numerous_simple_result(
             user_cards, to_remove_list)
 

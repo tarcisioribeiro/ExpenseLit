@@ -1,13 +1,10 @@
 from datetime import datetime
-from PIL import Image
 import os
-
 
 operational_system = os.name
 
 config_file_path: str = ".streamlit/config.toml"
 session_state_path: str = "data/cache/session_state.py"
-absolute_app_path = os.getcwd()
 
 dark_theme = '''[theme]
 primaryColor="#bd93f9"
@@ -32,11 +29,6 @@ fonts_dictionary = {
     "serif": "/library/fonts/serif/CrimsonTextRegular.ttf",
     "monospace": "/library/fonts/monospace/CourierPrimeRegular.ttf"
 }
-
-main_image = Image.open("{}/library/favicon.png".format(absolute_app_path))
-transfer_image: str = Image.open("{}/library/images/transfer.png".format(absolute_app_path))
-
-transfer_image_path = "{}/library/images/transfer.png".format(absolute_app_path)
 
 default_account_image = "default.png"
 
@@ -81,7 +73,9 @@ transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]
 accounts_type = ["Conta Corrente","Conta Salário","Fundo de Garantia","Vale Alimentação"]
 
 to_remove_list: list = ["'", ")", "(", ",", "Decimal", '"', "[", "]", "datetime.date"]
+absolute_app_path = os.getcwd()
 
 decimal_values = [",0", ",1", ",2", ",3", ",4", ",5", ",6", ",7", ",8", ",9", "0,0"]
 
-SAVE_FOLDER = absolute_app_path + "/library/images/accounts/"
+transfer_image = "{}/library/images/transfer.png".format(absolute_app_path)
+SAVE_FOLDER = "{}/library/images/accounts/".format(absolute_app_path)

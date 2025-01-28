@@ -1,7 +1,7 @@
 import streamlit as st
 from data.cache.session_state import logged_user
 from functions.query_executor import QueryExecutor
-from functions.login import User
+from functions.login import Login
 from screens.expenses.main import NewExpense
 from screens.homepage import Home
 from screens.loans.main import Loan
@@ -24,7 +24,7 @@ class App:
         sidebar = st.sidebar
 
         with sidebar:
-            call_user = User()
+            call_user = Login()
             name, sex = call_user.check_user()
             call_user.show_user(name, sex)
 

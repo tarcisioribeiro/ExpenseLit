@@ -1,4 +1,4 @@
-from screens.loans.new_loan import NewLoan
+from screens.loans.new_loan import TakeNewLoan, MakeNewLoan
 import streamlit as st
 
 
@@ -20,18 +20,12 @@ class Loan:
         with col2:
             loan_menu_choice = st.selectbox(
                 label="Opções",
-                options=[
-                    "Tomar empréstimo",
-                    "Realizar empréstimo",
-                ],
-            )
+                options=["Tomar empréstimo", "Realizar empréstimo",])
 
         st.divider()
 
         if loan_menu_choice == "Tomar empréstimo":
-            call_loan = NewLoan()
-            call_loan.take_loan()
+            TakeNewLoan().main_menu()
 
         elif loan_menu_choice == "Realizar empréstimo":
-            call_loan = NewLoan()
-            call_loan.make_loan()
+            MakeNewLoan().main_menu()

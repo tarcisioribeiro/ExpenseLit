@@ -1,13 +1,12 @@
 from data.cache.session_state import logged_user, logged_user_password
 from datetime import datetime
 from dictionary.sql import user_current_accounts_query, expenses_statement_query, revenues_statement_query
-from dictionary.user_stats import user_name
+from functions.login import Login
 from dictionary.vars import to_remove_list, today, absolute_app_path
 from dictionary.style import system_font
 from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
-from functions.variable import Variable
 from time import sleep
 import pandas as pd
 import streamlit as st
@@ -140,6 +139,7 @@ class AccountStatement:
         -------
         pdf: O PDF gerado pela função.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         unformatted_today = datetime.strptime(today, '%Y-%m-%d')
         formatted_today = unformatted_today.strftime('%d/%m/%Y')
@@ -205,11 +205,10 @@ class AccountStatement:
         """
         Menu principal.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         col4, col5, col6 = st.columns(3)
 

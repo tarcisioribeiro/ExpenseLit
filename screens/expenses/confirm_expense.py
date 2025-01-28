@@ -3,6 +3,7 @@ from datetime import datetime
 from dictionary.sql import not_payed_expense_query
 from dictionary.vars import to_remove_list, today, decimal_values
 from functions.query_executor import QueryExecutor
+from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
@@ -34,7 +35,7 @@ class ConfirmExpense:
 
         get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(
             description, value, date, time, category, account)
-        id = QueryExecutor().simple_consult_query(get_id_query)
+        id = QueryExecutor().simple_consult_brute_query(get_id_query)
         id = QueryExecutor().treat_simple_result(id, to_remove_list)
         id = int(id)
 
@@ -46,24 +47,21 @@ class ConfirmExpense:
 
         Parameters
         ----------
-        id: int = O ID da despesa.\n
         new_date: str = A nova data da despesa.
         """
 
-        update_not_payed_query = """UPDATE despesas SET data = "{}", pago = "S" WHERE id_despesa = {};""".format(
-            new_date, id)
-        QueryExecutor().update_table_unique_register(update_not_payed_query,
-                                                     "Despesa atualizada com sucesso!", "Erro ao atualizar receita:")
+        update_not_payed_query = """UPDATE despesas SET data = "{}", pago = "S" WHERE id_despesa = {};""".format(new_date, id)
+        QueryExecutor().update_table_unique_register(update_not_payed_query,"Despesa atualizada com sucesso!", "Erro ao atualizar receita:")
 
-    def show_not_payed_values(self):
+    def main_menu(self):
         """
         Exibe as despesas ainda não pagas.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col4, col5, col6 = st.columns(3)
 
-        expense_values = QueryExecutor().complex_compund_query(
-            not_payed_expense_query, 7, "not_payed")
+        expense_values = QueryExecutor().complex_compund_query(query=not_payed_expense_query, list_quantity=7, params=(user_name, user_document))
 
         if len(expense_values[0]) >= 1:
 

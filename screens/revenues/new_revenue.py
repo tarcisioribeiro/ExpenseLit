@@ -1,9 +1,9 @@
 from data.cache.session_state import logged_user
-from dictionary.user_stats import user_name, user_document
 from dictionary.vars import revenue_categories, to_remove_list
 from dictionary.sql import last_revenue_id_query, user_current_accounts_query
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
@@ -19,15 +19,19 @@ class NewCurrentRevenue:
         """
         Consulta as contas correntes do usuário.
         """
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_name, user_document = Login().get_user_doc_name()
+
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+
+        return user_current_accounts
 
     def main_menu(self):
         """
         Realiza a coleta dos dados da nova receita e a insere no banco de dados.
         """
+        user_name, user_document = Login().get_user_doc_name()
+
         user_current_accounts = self.get_user_current_accounts()
 
         col4, col5, col6 = st.columns(3)
@@ -49,8 +53,7 @@ class NewCurrentRevenue:
                         "Não": "N"
                     }
 
-                    id = QueryExecutor().simple_consult_query(
-                        last_revenue_id_query)
+                    id = QueryExecutor().simple_consult_brute_query(last_revenue_id_query)
                     id = QueryExecutor().treat_simple_result(id, to_remove_list)
                     id = int(id) + 1
 

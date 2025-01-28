@@ -159,16 +159,12 @@ class CreateUser:
 
                         if check_user_quantity == 0:
                             insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                            new_user_values = (
-                                user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
-                            query_executor.insert_query(
-                                insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
+                            new_user_values = (user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
+                            query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
-                            log_query = '''INSERT INTO seguranca.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (user_login, "Registro",
-                                          "O usuário foi cadastrado no sistema.")
-                            query_executor.insert_query(
-                                log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                            log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
+                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             with st.spinner(text="Recarregando..."):
                                 sleep(2.5)
@@ -177,33 +173,27 @@ class CreateUser:
                         elif check_user_quantity >= 1:
 
                             with col6:
-                                check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};""".format(
-                                    user_document)
-                                check_if_user_exists = query_executor.simple_consult_query(
-                                    check_if_user_document_exists_query)
-                                check_if_user_exists = query_executor.treat_simple_result(
-                                    check_if_user_exists, to_remove_list)
+                                check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE cpf = {};""".format(user_document)
+                                check_if_user_exists = query_executor.simple_consult_brute_query(check_if_user_document_exists_query)
+                                check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, to_remove_list)
                                 check_if_user_exists = int(
                                     check_if_user_exists)
 
                                 if check_if_user_exists == 0:
                                     insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, cpf, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                                    new_user_values = (
-                                        user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
-                                    query_executor.insert_query(
-                                        insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
+                                    new_user_values = (user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
+                                    query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
-                                    log_query = '''INSERT INTO seguranca.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                    log_values = (logged_user, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(
-                                        user_name, user_document))
-                                    query_executor.insert_query(
-                                        log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                                    sleep(5)
+
+                                    log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                    log_values = (logged_user, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(user_name, user_document))
+                                    query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                                     sleep(2)
                                 elif check_if_user_exists >= 1:
                                     with data_validator_expander:
-                                        st.error("Já existe um usuário cadastrado associado ao documento {}.".format(
-                                            user_document))
+                                        st.error("Já existe um usuário cadastrado associado ao documento {}.".format(user_document))
 
                     elif user_login == "" or user_password == "" or user_name == "" or is_document_valid == False or valid_login == False or valid_password == False or confirm_user_password == "" or (user_password != confirm_user_password):
                         with col6:
@@ -218,12 +208,10 @@ class CreateUser:
                                     st.error("O nome não foi preenchido.")
                             if confirm_user_password == "":
                                 with data_validator_expander:
-                                    st.error(
-                                        "A confirmação da senha não foi preenchida.")
+                                    st.error("A confirmação da senha não foi preenchida.")
                             if user_password != confirm_user_password and (user_password != "" and confirm_user_password != ""):
                                 with data_validator_expander:
-                                    st.error(
-                                        "As senhas informadas não coincidem.")
+                                    st.error("As senhas informadas não coincidem.")
 
                 elif confirm_values == False:
                     with col6:

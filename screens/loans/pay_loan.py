@@ -5,6 +5,7 @@ from dictionary.sql import not_payed_loans_query, user_current_accounts_query, d
 from dictionary.vars import to_remove_list, today
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
@@ -15,13 +16,13 @@ class PayLoan:
     Classe que representa o pagamento dos empréstimos tomados pelo usuário.
     """
 
-    def show_loans(self):
+    def main_menu(self):
         """
         Exibe os empréstimos tomados pelo usuário.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
-        not_payed_loans = QueryExecutor().complex_compund_query(
-            not_payed_loans_query, 9, "not_payed_loan")
+        not_payed_loans = QueryExecutor().complex_compund_query(query=not_payed_loans_query, list_quantity=9, params=(user_name, user_document))
 
         if len(not_payed_loans[0]) >= 1:
 
@@ -127,29 +128,21 @@ class PayLoan:
                                 AND emprestimos.descricao = '{}'
                     '''.format(debt)
 
-                    benefited_doc_name = QueryExecutor().complex_consult_query(
-                        doc_name_query)
-                    benefited_doc_name = QueryExecutor().treat_complex_result(
-                        benefited_doc_name, to_remove_list)
+                    benefited_doc_name = QueryExecutor().complex_consult_brute_query(doc_name_query)
+                    benefited_doc_name = QueryExecutor().treat_complex_result(benefited_doc_name, to_remove_list)
                     benefited_name = benefited_doc_name[0]
                     benefited_document = benefited_doc_name[1]
 
-                    paying_max_value = QueryExecutor().simple_consult_query(
-                        paying_max_value_query)
-                    paying_max_value = QueryExecutor().treat_simple_result(
-                        paying_max_value, to_remove_list)
+                    paying_max_value = QueryExecutor().simple_consult_brute_query(paying_max_value_query)
+                    paying_max_value = QueryExecutor().treat_simple_result(paying_max_value, to_remove_list)
                     paying_max_value = float(paying_max_value)
 
-                    payed_actual_value = QueryExecutor().simple_consult_query(
-                        payed_actual_value_query)
-                    payed_actual_value = QueryExecutor().treat_simple_result(
-                        payed_actual_value, to_remove_list)
+                    payed_actual_value = QueryExecutor().simple_consult_brute_query(payed_actual_value_query)
+                    payed_actual_value = QueryExecutor().treat_simple_result(payed_actual_value, to_remove_list)
                     payed_actual_value = float(payed_actual_value)
 
-                    total_actual_value = QueryExecutor().simple_consult_query(
-                        total_actual_value_query)
-                    total_actual_value = QueryExecutor().treat_simple_result(
-                        total_actual_value, to_remove_list)
+                    total_actual_value = QueryExecutor().simple_consult_brute_query(total_actual_value_query)
+                    total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, to_remove_list)
                     total_actual_value = float(total_actual_value)
 
                     paying_value = st.number_input(
@@ -242,10 +235,8 @@ class PayLoan:
                         QueryExecutor().update_table_unique_register(
                             update_loan_query, "Empréstimo atualizado com sucesso!", "Erro ao atualizar valores do empréstimo:")
 
-                        last_expense_id = QueryExecutor().simple_consult_query(
-                            last_expense_id_query)
-                        last_expense_id = QueryExecutor().treat_simple_result(
-                            last_expense_id, to_remove_list)
+                        last_expense_id = QueryExecutor().simple_consult_brute_query(last_expense_id_query)
+                        last_expense_id = QueryExecutor().treat_simple_result(last_expense_id, to_remove_list)
                         last_expense_id = int(last_expense_id)
 
                         with col6:

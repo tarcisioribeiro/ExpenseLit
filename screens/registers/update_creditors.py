@@ -1,5 +1,5 @@
 from data.cache.session_state import logged_user
-from dictionary.user_stats import user_document, user_name, user_phone
+from functions.login import Login
 from dictionary.vars import today
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -27,6 +27,7 @@ class Creditors:
         """
         Realiza o cadastro de um novo credor.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
@@ -61,7 +62,7 @@ class Creditors:
                             creditor_document = int(creditor_document)
                             st.success(body="Documento válido.")
 
-                            if (creditor_name != user_name) and (creditor_document != int(user_document)) and (creditor_phone != user_phone):
+                            if (creditor_name != user_name) and (creditor_document != int(user_document)):
 
                                 insert_creditor_query = '''INSERT INTO credores (`nome`, `documento`, `telefone`) VALUES (%s, %s, %s)'''
                                 query_values = (
@@ -78,16 +79,13 @@ class Creditors:
                                 QueryExecutor().insert_query(
                                     log_query, log_values, "Log gravado com sucesso!", "Erro ao gravar log:")
 
-                            if (creditor_name == user_name) or (creditor_document == int(user_document)) or (creditor_phone == user_phone):
+                            if (creditor_name == user_name) or (creditor_document == int(user_document)):
                                 if creditor_name == user_name:
                                     st.error(
                                         body="Este credor já foi cadastrado anteriormente.")
                                 if creditor_document == int(user_document):
                                     st.error(
                                         body="Este documento já está sendo utilizado por outro credor.")
-                                if creditor_phone == user_phone:
-                                    st.error(
-                                        body="Este número de telefone já está sendo utilizado.")
 
                         elif is_document_valid == False:
                             st.error(body="O documento {} informado não é válido.".format(

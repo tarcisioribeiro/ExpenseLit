@@ -3,6 +3,7 @@ import mysql.connector
 import bcrypt
 import os
 from dictionary.vars import to_remove_list, absolute_app_path
+from data.cache.session_state import logged_user, logged_user_password
 from dictionary.db_config import db_config
 from dictionary.sql import doc_name_query, name_query, sex_query
 from functions.query_executor import QueryExecutor
@@ -23,10 +24,8 @@ class Login:
         login: str
         """
 
-        check_if_user_exists = QueryExecutor().simple_consult_query(
-            "SELECT COUNT(id_usuario) FROM usuarios WHERE login = %s AND senha = %s", params=(login, password))
-        check_if_user_exists = QueryExecutor().treat_simple_result(
-            check_if_user_exists, to_remove_list)
+        check_if_user_exists = QueryExecutor().simple_consult_query(query="SELECT COUNT(id_usuario) FROM usuarios WHERE login = %s AND senha = %s", params=(login, password))
+        check_if_user_exists = QueryExecutor().treat_simple_result(check_if_user_exists, to_remove_list)
         check_if_user_exists = int(check_if_user_exists)
 
         if check_if_user_exists == 1:
@@ -44,10 +43,8 @@ class Login:
         owner_document: int = O documento do usuário.
         """
 
-        user_doc_name = QueryExecutor().complex_consult_query(
-            doc_name_query)
-        treated_user_doc_name = QueryExecutor().treat_complex_result(
-            user_doc_name, to_remove_list)
+        user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(logged_user, logged_user_password))
+        treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
 
         owner_name = treated_user_doc_name[0]
         owner_document = treated_user_doc_name[1]
@@ -76,8 +73,9 @@ class Login:
         result = cursor.fetchone()
 
         if result:
-            hashed_password = result[0]
+            hashed_password = result[0].encode('utf-8') if isinstance(result[0], str) else result[0]
             return bcrypt.checkpw(password.encode('utf-8'), hashed_password), hashed_password
+
         return False, '0'
 
     def check_user(self):
@@ -89,10 +87,10 @@ class Login:
         name: str = O nome do usuário.
         sex: str = O sexo do usuário.
         """
-        name = QueryExecutor().simple_consult_query(name_query)
+        name = QueryExecutor().simple_consult_query(query=name_query, params=(logged_user, logged_user_password))
         name = QueryExecutor().treat_simple_result(name, to_remove_list)
 
-        sex = QueryExecutor().simple_consult_query(sex_query)
+        sex = QueryExecutor().simple_consult_query(query=sex_query, params=(logged_user, logged_user_password))
         sex = QueryExecutor().treat_simple_result(sex, to_remove_list)
 
         return name, sex
@@ -126,7 +124,7 @@ class Login:
 
         with col2:
 
-            st.header(body=":heavy_dollar_sign: ExpenseLit")
+            st.header(body=":moneybag: ExpenseLit")
 
             with st.container():
                 with st.expander(label=":computer: Login", expanded=True):
@@ -135,13 +133,9 @@ class Login:
                     password = st.text_input(":key: Senha", type="password")
                     login_button = st.button(label=":unlock: Entrar")
 
+                    is_login_valid, hashed_password = self.check_login(user, password)
+
                     if login_button:
-                        is_login_valid, hashed_password = self.check_login(
-                            user, password)
-
-                        st.info(is_login_valid)
-                        st.info(hashed_password)
-
                         if is_login_valid:
                             with st.spinner("Aguarde..."):
                                 sleep(1)
@@ -167,5 +161,4 @@ class Login:
                             st.rerun()
 
                         else:
-                            st.error(
-                                "Login falhou. Verifique suas credenciais.")
+                            st.error("Login falhou. Verifique suas credenciais.")

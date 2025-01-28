@@ -1,5 +1,5 @@
 from data.cache.session_state import logged_user
-from dictionary.user_stats import user_document, user_name, user_phone
+from functions.login import Login
 from dictionary.vars import today
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -27,6 +27,7 @@ class Benefited:
         """
         Cadastra um novo beneficiado.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
@@ -60,7 +61,7 @@ class Benefited:
                             benefited_document = int(benefited_document)
                             st.success(body="Documento válido.")
 
-                        if (benefited_name != user_name) and (benefited_document != int(user_document)) and (benefited_phone != user_phone):
+                        if (benefited_name != user_name) and (benefited_document != int(user_document)):
                             insert_benefited_query = '''INSERT INTO beneficiados (`nome`, `documento`, `telefone`) VALUES (%s, %s, %s)'''
                             query_values = (
                                 benefited_name, benefited_document, benefited_phone)
@@ -76,16 +77,13 @@ class Benefited:
                             QueryExecutor().insert_query(
                                 log_query, log_values, "Log gravado com sucesso!", "Erro ao gravar log:")
 
-                        if (benefited_name == user_name) or (benefited_document == int(user_document)) or (benefited_phone == user_phone):
+                        if (benefited_name == user_name) or (benefited_document == int(user_document)):
                             if benefited_name == user_name:
                                 st.error(
                                     body="Este beneficiado já foi cadastrado anteriormente.")
                             if benefited_document == int(user_document):
                                 st.error(
                                     body="Este documento já está sendo utilizado por outro beneficiado.")
-                            if benefited_phone == user_phone:
-                                st.error(
-                                    body="Este número de telefone já está sendo utilizado.")
 
     def main_menu(self):
         """

@@ -9,6 +9,7 @@ from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
+from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
 
@@ -66,12 +67,13 @@ class NewCreditCardExpense:
             if connection.is_connected():
                 connection.close()
 
-    def new_credit_card_expense(self):
+    def main_menu(self):
         """
         Obtém os dados da nova despesa de cartão.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
-        user_cards = QueryExecutor().complex_consult_query(owner_cards_query)
+        user_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
         user_cards = QueryExecutor().treat_numerous_simple_result(
             user_cards, to_remove_list)
 

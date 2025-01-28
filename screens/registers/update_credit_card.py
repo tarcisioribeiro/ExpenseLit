@@ -2,9 +2,9 @@ from data.cache.session_state import logged_user
 from datetime import date
 from dictionary.vars import to_remove_list, today, decimal_values
 from dictionary.app_vars import months, years
-from dictionary.user_stats import user_name, user_document
 from dictionary.sql import owner_cards_query, user_current_accounts_query, credit_card_expire_date_query
 from functions.credit_card import Credit_Card
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
 from functions.variable import Variable
@@ -32,13 +32,12 @@ class UpdateCreditCards:
         """
         Realiza o cadastro de um novo cartão de crédito.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
-        user_current_accounts = QueryExecutor().complex_consult_query(
-            user_current_accounts_query)
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         if len(user_current_accounts) == 0:
             with col2:
@@ -86,10 +85,8 @@ class UpdateCreditCards:
                         with cm_cl2:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
-                            is_card_valid = Documents().validate_credit_card(
-                                card_number=card_number)
-                            is_document_valid = (Documents().validate_owner_document(
-                                owner_document=user_document))
+                            is_card_valid = Documents().validate_credit_card(card_number=card_number)
+                            is_document_valid = (Documents().validate_owner_document(owner_document=user_document))
 
                             if card_name != "" and card_number != "" and owner_name != "" and security_code != "" and confirm_security_code != "" and (security_code == confirm_security_code) and (today_datetime < expire_date):
                                 if is_document_valid == True and is_card_valid == True:
@@ -156,13 +153,12 @@ class UpdateCreditCards:
         """
         Atualiza os dados do cartão de crédito.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
-        credit_cards = QueryExecutor().complex_consult_query(
-            owner_cards_query)
-        credit_cards = QueryExecutor().treat_numerous_simple_result(
-            credit_cards, to_remove_list)
+        credit_cards = QueryExecutor().complex_consult_query(owner_cards_query)
+        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, to_remove_list)
 
         with col3:
 
@@ -175,12 +171,9 @@ class UpdateCreditCards:
         with col1:
             st.subheader(body=":computer: Entrada de Dados")
 
-            cc_max_limit_query = '''SELECT limite_maximo FROM cartao_credito WHERE nome_cartao = '{}' AND proprietario_cartao = '{}' AND documento_titular = {}'''.format(
-                card, user_name, user_document)
-            cc_max_limit = QueryExecutor().simple_consult_query(
-                cc_max_limit_query)
-            cc_max_limit = QueryExecutor().treat_simple_result(
-                cc_max_limit, to_remove_list)
+            cc_max_limit_query = '''SELECT limite_maximo FROM cartao_credito WHERE nome_cartao = '{}' AND proprietario_cartao = '{}' AND documento_titular = {}'''.format(card, user_name, user_document)
+            cc_max_limit = QueryExecutor().simple_consult_brute_query(cc_max_limit_query)
+            cc_max_limit = QueryExecutor().treat_simple_result(cc_max_limit, to_remove_list)
             cc_max_limit = float(cc_max_limit)
 
             inactive_options = {
@@ -230,6 +223,7 @@ class UpdateCreditCards:
         """
         Realiza o cadastro dos fechamentos de fatura do cartão de crédito.
         """
+        user_name, user_document = Login().get_user_doc_name()
 
         col1, col2, col3 = st.columns(3)
 
@@ -268,15 +262,11 @@ class UpdateCreditCards:
 
                 if register_invoice and confirm_invoice_data == True:
 
-                    credit_card_expire_date = QueryExecutor().simple_consult_query(
-                        credit_card_expire_date_query.format(user_document, card_name, user_name))
-                    credit_card_expire_date = QueryExecutor().treat_simple_result(
-                        credit_card_expire_date, to_remove_list)
+                    credit_card_expire_date = QueryExecutor().simple_consult_query(query=credit_card_expire_date_query, params=(user_document, card_name, user_name))
+                    credit_card_expire_date = QueryExecutor().treat_simple_result(credit_card_expire_date, to_remove_list)
                     credit_card_expire_date = credit_card_expire_date.split()
-                    credit_card_expire_date_formatted = date(int(credit_card_expire_date[0]), int(
-                        credit_card_expire_date[1]), int(credit_card_expire_date[2]))
-                    str_credit_card_expire_date_formatted = credit_card_expire_date_formatted.strftime(
-                        '%d/%m/%Y')
+                    credit_card_expire_date_formatted = date(int(credit_card_expire_date[0]), int(credit_card_expire_date[1]), int(credit_card_expire_date[2]))
+                    str_credit_card_expire_date_formatted = credit_card_expire_date_formatted.strftime('%d/%m/%Y')
 
                     with col2:
 
@@ -339,7 +329,7 @@ class UpdateCreditCards:
                             st.warning(
                                 body="Confirme os dados antes de prosseguir.")
 
-    def show_interface(self):
+    def main_menu(self):
         """
         Exibe o menu.
         """
