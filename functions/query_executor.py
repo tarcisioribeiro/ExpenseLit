@@ -78,7 +78,7 @@ class QueryExecutor:
         """
         try:
             connection = mysql.connector.connect(**db_config)
-            cursor = connection.cursor()
+            cursor = connection.cursor() 
             cursor.execute(query)
             simple_value = cursor.fetchone()
             cursor.close()
