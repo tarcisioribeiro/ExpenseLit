@@ -1,4 +1,5 @@
 from dictionary.db_config import db_config
+from dictionary.vars import operational_system
 import mysql.connector
 import streamlit as st
 
@@ -86,8 +87,11 @@ class QueryExecutor:
             else:
                 return 0
         except mysql.connector.Error as error:
-            st.toast(":warning: Erro ao consultar dado: {}".format(error))
-            st.error(error)
+            if operational_system == "posix":
+                st.toast(":warning: Erro ao consultar dado: {}".format(error))
+                st.error(error)
+            elif operational_system == "nt":
+                print("Erro ao consultar dado: {}".format(error))
         finally:
             if connection.is_connected():
                 connection.close()
