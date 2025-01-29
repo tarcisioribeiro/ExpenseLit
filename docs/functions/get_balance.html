@@ -30,9 +30,28 @@
 
             <h2>API Documentation</h2>
                 <ul class="memberlist">
+            <li>
+                    <a class="class" href="#GetBalance">GetBalance</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#GetBalance.get_values">get_values</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#GetBalance.balance">balance</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#GetBalance.accounts_balance">accounts_balance</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#GetBalance.list_values">list_values</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
+            <footer>ExpenseLit 1.0.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -70,93 +89,514 @@
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="k">class</span><span class="w"> </span><span class="nc">GetBalance</span><span class="p">:</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    Classe responsável pela consulta dos valores do balannço de contas.</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>        <span class="k">if</span> <span class="n">str_total_expenses</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="mf">0.00</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">)</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        <span class="k">if</span> <span class="n">str_total_revenues</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">        Faz a consulta dos valores de despesas e receitas.</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">        Returns</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">        -------</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="sd">        total_revenues : float</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="sd">            O valor total das receitas.</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">        total_expenses : float</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">            O valor total das despesas.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">)</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="k">return</span> <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="k">if</span> <span class="n">str_total_expenses</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">)</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="k">if</span> <span class="n">total_revenues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total_expenses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>            <span class="n">balance</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">total_revenues</span> <span class="o">-</span> <span class="n">total_expenses</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>            <span class="k">return</span> <span class="n">balance</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="k">if</span> <span class="n">str_total_revenues</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="mf">0.00</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">accounts_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">        Realiza o cálculo do balanço das contas.</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">        Returns</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">        -------</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">)</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="k">return</span> <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">        Calcula o valor do balanço.</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">        Returns</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        -------</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">        balance : float</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">            O valor do balanço.</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>        <span class="k">if</span> <span class="n">total_revenues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total_expenses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>            <span class="n">balance</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">total_revenues</span> <span class="o">-</span> <span class="n">total_expenses</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>            <span class="k">return</span> <span class="n">balance</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>            <span class="k">return</span> <span class="kc">None</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">balance_list</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">future_balance_list</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">):</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)):</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>                <span class="n">revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>                <span class="n">expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>                <span class="n">balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revenue</span> <span class="o">-</span> <span class="n">expense</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">):</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">)):</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>                <span class="n">future_revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>                <span class="n">future_expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>                <span class="n">future_balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>                    <span class="p">(</span><span class="n">future_revenue</span> <span class="o">-</span> <span class="n">future_expense</span><span class="p">)</span> <span class="o">+</span> <span class="n">balance_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">return</span> <span class="n">accounts</span><span class="p">,</span> <span class="n">balance_list</span><span class="p">,</span> <span class="n">future_balance_list</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">accounts_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">        Realiza o cálculo do balanço das contas.</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">        Returns</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        -------</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        accounts : list</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">            A lista com o nome das contas.</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        balance_list : list</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">            A lista com o balanço das contas.</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        future_balance_list : list</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">            A lista com o balanço futuro das contas.</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">last_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="n">last_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">max_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">max_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="n">last_revenues</span><span class="p">,</span> <span class="n">last_expenses</span><span class="p">,</span> <span class="n">max_revenues</span><span class="p">,</span> <span class="n">max_expenses</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="n">balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="n">future_balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">):</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)):</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                <span class="n">revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                <span class="n">expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                <span class="n">balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revenue</span> <span class="o">-</span> <span class="n">expense</span><span class="p">)</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">):</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">)):</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>                <span class="n">future_revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>                <span class="n">future_expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>                <span class="n">future_balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>                    <span class="p">(</span><span class="n">future_revenue</span> <span class="o">-</span> <span class="n">future_expense</span><span class="p">)</span> <span class="o">+</span> <span class="n">balance_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="n">accounts</span><span class="p">,</span> <span class="n">balance_list</span><span class="p">,</span> <span class="n">future_balance_list</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        Faz a consultas das maiores e últimas despesas e receitas.</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        Returns</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        -------</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">        last_revenues : list</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">            Lista com as últimas receitas.</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">        last_expenses : list</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">            Lista com as últimas despesas.</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">        max_revenues : list</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">            Lista com as maiores receitas.</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">        max_expenses : list</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">            Lista com as maiores despesas.</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>        <span class="n">last_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>        <span class="n">last_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>        <span class="n">max_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>        <span class="n">max_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="n">last_revenues</span><span class="p">,</span> <span class="n">last_expenses</span><span class="p">,</span> <span class="n">max_revenues</span><span class="p">,</span> <span class="n">max_expenses</span>
 </span></pre></div>
 
 
             </section>
+                <section id="GetBalance">
+                            <input id="GetBalance-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">GetBalance</span>:
+
+                <label class="view-source-button" for="GetBalance-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#GetBalance"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GetBalance-20"><a href="#GetBalance-20"><span class="linenos"> 20</span></a><span class="k">class</span><span class="w"> </span><span class="nc">GetBalance</span><span class="p">:</span>
+</span><span id="GetBalance-21"><a href="#GetBalance-21"><span class="linenos"> 21</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance-22"><a href="#GetBalance-22"><span class="linenos"> 22</span></a><span class="sd">    Classe responsável pela consulta dos valores do balannço de contas.</span>
+</span><span id="GetBalance-23"><a href="#GetBalance-23"><span class="linenos"> 23</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="GetBalance-24"><a href="#GetBalance-24"><span class="linenos"> 24</span></a>
+</span><span id="GetBalance-25"><a href="#GetBalance-25"><span class="linenos"> 25</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance-26"><a href="#GetBalance-26"><span class="linenos"> 26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance-27"><a href="#GetBalance-27"><span class="linenos"> 27</span></a><span class="sd">        Faz a consulta dos valores de despesas e receitas.</span>
+</span><span id="GetBalance-28"><a href="#GetBalance-28"><span class="linenos"> 28</span></a>
+</span><span id="GetBalance-29"><a href="#GetBalance-29"><span class="linenos"> 29</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance-30"><a href="#GetBalance-30"><span class="linenos"> 30</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance-31"><a href="#GetBalance-31"><span class="linenos"> 31</span></a><span class="sd">        total_revenues : float</span>
+</span><span id="GetBalance-32"><a href="#GetBalance-32"><span class="linenos"> 32</span></a><span class="sd">            O valor total das receitas.</span>
+</span><span id="GetBalance-33"><a href="#GetBalance-33"><span class="linenos"> 33</span></a><span class="sd">        total_expenses : float</span>
+</span><span id="GetBalance-34"><a href="#GetBalance-34"><span class="linenos"> 34</span></a><span class="sd">            O valor total das despesas.</span>
+</span><span id="GetBalance-35"><a href="#GetBalance-35"><span class="linenos"> 35</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance-36"><a href="#GetBalance-36"><span class="linenos"> 36</span></a>
+</span><span id="GetBalance-37"><a href="#GetBalance-37"><span class="linenos"> 37</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance-38"><a href="#GetBalance-38"><span class="linenos"> 38</span></a>
+</span><span id="GetBalance-39"><a href="#GetBalance-39"><span class="linenos"> 39</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-40"><a href="#GetBalance-40"><span class="linenos"> 40</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-41"><a href="#GetBalance-41"><span class="linenos"> 41</span></a>
+</span><span id="GetBalance-42"><a href="#GetBalance-42"><span class="linenos"> 42</span></a>        <span class="k">if</span> <span class="n">str_total_expenses</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="GetBalance-43"><a href="#GetBalance-43"><span class="linenos"> 43</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="GetBalance-44"><a href="#GetBalance-44"><span class="linenos"> 44</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance-45"><a href="#GetBalance-45"><span class="linenos"> 45</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">)</span>
+</span><span id="GetBalance-46"><a href="#GetBalance-46"><span class="linenos"> 46</span></a>
+</span><span id="GetBalance-47"><a href="#GetBalance-47"><span class="linenos"> 47</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-48"><a href="#GetBalance-48"><span class="linenos"> 48</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-49"><a href="#GetBalance-49"><span class="linenos"> 49</span></a>
+</span><span id="GetBalance-50"><a href="#GetBalance-50"><span class="linenos"> 50</span></a>        <span class="k">if</span> <span class="n">str_total_revenues</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="GetBalance-51"><a href="#GetBalance-51"><span class="linenos"> 51</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="GetBalance-52"><a href="#GetBalance-52"><span class="linenos"> 52</span></a>
+</span><span id="GetBalance-53"><a href="#GetBalance-53"><span class="linenos"> 53</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance-54"><a href="#GetBalance-54"><span class="linenos"> 54</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">)</span>
+</span><span id="GetBalance-55"><a href="#GetBalance-55"><span class="linenos"> 55</span></a>
+</span><span id="GetBalance-56"><a href="#GetBalance-56"><span class="linenos"> 56</span></a>        <span class="k">return</span> <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span>
+</span><span id="GetBalance-57"><a href="#GetBalance-57"><span class="linenos"> 57</span></a>
+</span><span id="GetBalance-58"><a href="#GetBalance-58"><span class="linenos"> 58</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance-59"><a href="#GetBalance-59"><span class="linenos"> 59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance-60"><a href="#GetBalance-60"><span class="linenos"> 60</span></a><span class="sd">        Calcula o valor do balanço.</span>
+</span><span id="GetBalance-61"><a href="#GetBalance-61"><span class="linenos"> 61</span></a>
+</span><span id="GetBalance-62"><a href="#GetBalance-62"><span class="linenos"> 62</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance-63"><a href="#GetBalance-63"><span class="linenos"> 63</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance-64"><a href="#GetBalance-64"><span class="linenos"> 64</span></a><span class="sd">        balance : float</span>
+</span><span id="GetBalance-65"><a href="#GetBalance-65"><span class="linenos"> 65</span></a><span class="sd">            O valor do balanço.</span>
+</span><span id="GetBalance-66"><a href="#GetBalance-66"><span class="linenos"> 66</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance-67"><a href="#GetBalance-67"><span class="linenos"> 67</span></a>        <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+</span><span id="GetBalance-68"><a href="#GetBalance-68"><span class="linenos"> 68</span></a>
+</span><span id="GetBalance-69"><a href="#GetBalance-69"><span class="linenos"> 69</span></a>        <span class="k">if</span> <span class="n">total_revenues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total_expenses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GetBalance-70"><a href="#GetBalance-70"><span class="linenos"> 70</span></a>            <span class="n">balance</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">total_revenues</span> <span class="o">-</span> <span class="n">total_expenses</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+</span><span id="GetBalance-71"><a href="#GetBalance-71"><span class="linenos"> 71</span></a>            <span class="k">return</span> <span class="n">balance</span>
+</span><span id="GetBalance-72"><a href="#GetBalance-72"><span class="linenos"> 72</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance-73"><a href="#GetBalance-73"><span class="linenos"> 73</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="GetBalance-74"><a href="#GetBalance-74"><span class="linenos"> 74</span></a>
+</span><span id="GetBalance-75"><a href="#GetBalance-75"><span class="linenos"> 75</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">accounts_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance-76"><a href="#GetBalance-76"><span class="linenos"> 76</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance-77"><a href="#GetBalance-77"><span class="linenos"> 77</span></a><span class="sd">        Realiza o cálculo do balanço das contas.</span>
+</span><span id="GetBalance-78"><a href="#GetBalance-78"><span class="linenos"> 78</span></a>
+</span><span id="GetBalance-79"><a href="#GetBalance-79"><span class="linenos"> 79</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance-80"><a href="#GetBalance-80"><span class="linenos"> 80</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance-81"><a href="#GetBalance-81"><span class="linenos"> 81</span></a><span class="sd">        accounts : list</span>
+</span><span id="GetBalance-82"><a href="#GetBalance-82"><span class="linenos"> 82</span></a><span class="sd">            A lista com o nome das contas.</span>
+</span><span id="GetBalance-83"><a href="#GetBalance-83"><span class="linenos"> 83</span></a><span class="sd">        balance_list : list</span>
+</span><span id="GetBalance-84"><a href="#GetBalance-84"><span class="linenos"> 84</span></a><span class="sd">            A lista com o balanço das contas.</span>
+</span><span id="GetBalance-85"><a href="#GetBalance-85"><span class="linenos"> 85</span></a><span class="sd">        future_balance_list : list</span>
+</span><span id="GetBalance-86"><a href="#GetBalance-86"><span class="linenos"> 86</span></a><span class="sd">            A lista com o balanço futuro das contas.</span>
+</span><span id="GetBalance-87"><a href="#GetBalance-87"><span class="linenos"> 87</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance-88"><a href="#GetBalance-88"><span class="linenos"> 88</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance-89"><a href="#GetBalance-89"><span class="linenos"> 89</span></a>
+</span><span id="GetBalance-90"><a href="#GetBalance-90"><span class="linenos"> 90</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-91"><a href="#GetBalance-91"><span class="linenos"> 91</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-92"><a href="#GetBalance-92"><span class="linenos"> 92</span></a>
+</span><span id="GetBalance-93"><a href="#GetBalance-93"><span class="linenos"> 93</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-94"><a href="#GetBalance-94"><span class="linenos"> 94</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-95"><a href="#GetBalance-95"><span class="linenos"> 95</span></a>
+</span><span id="GetBalance-96"><a href="#GetBalance-96"><span class="linenos"> 96</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-97"><a href="#GetBalance-97"><span class="linenos"> 97</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-98"><a href="#GetBalance-98"><span class="linenos"> 98</span></a>
+</span><span id="GetBalance-99"><a href="#GetBalance-99"><span class="linenos"> 99</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-100"><a href="#GetBalance-100"><span class="linenos">100</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-101"><a href="#GetBalance-101"><span class="linenos">101</span></a>
+</span><span id="GetBalance-102"><a href="#GetBalance-102"><span class="linenos">102</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-103"><a href="#GetBalance-103"><span class="linenos">103</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance-104"><a href="#GetBalance-104"><span class="linenos">104</span></a>
+</span><span id="GetBalance-105"><a href="#GetBalance-105"><span class="linenos">105</span></a>        <span class="n">balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GetBalance-106"><a href="#GetBalance-106"><span class="linenos">106</span></a>        <span class="n">future_balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GetBalance-107"><a href="#GetBalance-107"><span class="linenos">107</span></a>
+</span><span id="GetBalance-108"><a href="#GetBalance-108"><span class="linenos">108</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">):</span>
+</span><span id="GetBalance-109"><a href="#GetBalance-109"><span class="linenos">109</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)):</span>
+</span><span id="GetBalance-110"><a href="#GetBalance-110"><span class="linenos">110</span></a>                <span class="n">revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance-111"><a href="#GetBalance-111"><span class="linenos">111</span></a>                <span class="n">expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance-112"><a href="#GetBalance-112"><span class="linenos">112</span></a>                <span class="n">balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revenue</span> <span class="o">-</span> <span class="n">expense</span><span class="p">)</span>
+</span><span id="GetBalance-113"><a href="#GetBalance-113"><span class="linenos">113</span></a>
+</span><span id="GetBalance-114"><a href="#GetBalance-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">):</span>
+</span><span id="GetBalance-115"><a href="#GetBalance-115"><span class="linenos">115</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">)):</span>
+</span><span id="GetBalance-116"><a href="#GetBalance-116"><span class="linenos">116</span></a>                <span class="n">future_revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance-117"><a href="#GetBalance-117"><span class="linenos">117</span></a>                <span class="n">future_expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance-118"><a href="#GetBalance-118"><span class="linenos">118</span></a>                <span class="n">future_balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="GetBalance-119"><a href="#GetBalance-119"><span class="linenos">119</span></a>                    <span class="p">(</span><span class="n">future_revenue</span> <span class="o">-</span> <span class="n">future_expense</span><span class="p">)</span> <span class="o">+</span> <span class="n">balance_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance-120"><a href="#GetBalance-120"><span class="linenos">120</span></a>
+</span><span id="GetBalance-121"><a href="#GetBalance-121"><span class="linenos">121</span></a>        <span class="k">return</span> <span class="n">accounts</span><span class="p">,</span> <span class="n">balance_list</span><span class="p">,</span> <span class="n">future_balance_list</span>
+</span><span id="GetBalance-122"><a href="#GetBalance-122"><span class="linenos">122</span></a>
+</span><span id="GetBalance-123"><a href="#GetBalance-123"><span class="linenos">123</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance-124"><a href="#GetBalance-124"><span class="linenos">124</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance-125"><a href="#GetBalance-125"><span class="linenos">125</span></a><span class="sd">        Faz a consultas das maiores e últimas despesas e receitas.</span>
+</span><span id="GetBalance-126"><a href="#GetBalance-126"><span class="linenos">126</span></a>
+</span><span id="GetBalance-127"><a href="#GetBalance-127"><span class="linenos">127</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance-128"><a href="#GetBalance-128"><span class="linenos">128</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance-129"><a href="#GetBalance-129"><span class="linenos">129</span></a><span class="sd">        last_revenues : list</span>
+</span><span id="GetBalance-130"><a href="#GetBalance-130"><span class="linenos">130</span></a><span class="sd">            Lista com as últimas receitas.</span>
+</span><span id="GetBalance-131"><a href="#GetBalance-131"><span class="linenos">131</span></a><span class="sd">        last_expenses : list</span>
+</span><span id="GetBalance-132"><a href="#GetBalance-132"><span class="linenos">132</span></a><span class="sd">            Lista com as últimas despesas.</span>
+</span><span id="GetBalance-133"><a href="#GetBalance-133"><span class="linenos">133</span></a><span class="sd">        max_revenues : list</span>
+</span><span id="GetBalance-134"><a href="#GetBalance-134"><span class="linenos">134</span></a><span class="sd">            Lista com as maiores receitas.</span>
+</span><span id="GetBalance-135"><a href="#GetBalance-135"><span class="linenos">135</span></a><span class="sd">        max_expenses : list</span>
+</span><span id="GetBalance-136"><a href="#GetBalance-136"><span class="linenos">136</span></a><span class="sd">            Lista com as maiores despesas.</span>
+</span><span id="GetBalance-137"><a href="#GetBalance-137"><span class="linenos">137</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance-138"><a href="#GetBalance-138"><span class="linenos">138</span></a>
+</span><span id="GetBalance-139"><a href="#GetBalance-139"><span class="linenos">139</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance-140"><a href="#GetBalance-140"><span class="linenos">140</span></a>        <span class="n">last_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-141"><a href="#GetBalance-141"><span class="linenos">141</span></a>        <span class="n">last_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-142"><a href="#GetBalance-142"><span class="linenos">142</span></a>        <span class="n">max_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-143"><a href="#GetBalance-143"><span class="linenos">143</span></a>        <span class="n">max_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance-144"><a href="#GetBalance-144"><span class="linenos">144</span></a>
+</span><span id="GetBalance-145"><a href="#GetBalance-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">last_revenues</span><span class="p">,</span> <span class="n">last_expenses</span><span class="p">,</span> <span class="n">max_revenues</span><span class="p">,</span> <span class="n">max_expenses</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Classe responsável pela consulta dos valores do balannço de contas.</p>
+</div>
+
+
+                            <div id="GetBalance.get_values" class="classattr">
+                                        <input id="GetBalance.get_values-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_values</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="GetBalance.get_values-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#GetBalance.get_values"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GetBalance.get_values-25"><a href="#GetBalance.get_values-25"><span class="linenos">25</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance.get_values-26"><a href="#GetBalance.get_values-26"><span class="linenos">26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance.get_values-27"><a href="#GetBalance.get_values-27"><span class="linenos">27</span></a><span class="sd">        Faz a consulta dos valores de despesas e receitas.</span>
+</span><span id="GetBalance.get_values-28"><a href="#GetBalance.get_values-28"><span class="linenos">28</span></a>
+</span><span id="GetBalance.get_values-29"><a href="#GetBalance.get_values-29"><span class="linenos">29</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance.get_values-30"><a href="#GetBalance.get_values-30"><span class="linenos">30</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance.get_values-31"><a href="#GetBalance.get_values-31"><span class="linenos">31</span></a><span class="sd">        total_revenues : float</span>
+</span><span id="GetBalance.get_values-32"><a href="#GetBalance.get_values-32"><span class="linenos">32</span></a><span class="sd">            O valor total das receitas.</span>
+</span><span id="GetBalance.get_values-33"><a href="#GetBalance.get_values-33"><span class="linenos">33</span></a><span class="sd">        total_expenses : float</span>
+</span><span id="GetBalance.get_values-34"><a href="#GetBalance.get_values-34"><span class="linenos">34</span></a><span class="sd">            O valor total das despesas.</span>
+</span><span id="GetBalance.get_values-35"><a href="#GetBalance.get_values-35"><span class="linenos">35</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance.get_values-36"><a href="#GetBalance.get_values-36"><span class="linenos">36</span></a>
+</span><span id="GetBalance.get_values-37"><a href="#GetBalance.get_values-37"><span class="linenos">37</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance.get_values-38"><a href="#GetBalance.get_values-38"><span class="linenos">38</span></a>
+</span><span id="GetBalance.get_values-39"><a href="#GetBalance.get_values-39"><span class="linenos">39</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.get_values-40"><a href="#GetBalance.get_values-40"><span class="linenos">40</span></a>        <span class="n">str_total_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.get_values-41"><a href="#GetBalance.get_values-41"><span class="linenos">41</span></a>
+</span><span id="GetBalance.get_values-42"><a href="#GetBalance.get_values-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">str_total_expenses</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="GetBalance.get_values-43"><a href="#GetBalance.get_values-43"><span class="linenos">43</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="GetBalance.get_values-44"><a href="#GetBalance.get_values-44"><span class="linenos">44</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance.get_values-45"><a href="#GetBalance.get_values-45"><span class="linenos">45</span></a>            <span class="n">total_expenses</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_expenses</span><span class="p">)</span>
+</span><span id="GetBalance.get_values-46"><a href="#GetBalance.get_values-46"><span class="linenos">46</span></a>
+</span><span id="GetBalance.get_values-47"><a href="#GetBalance.get_values-47"><span class="linenos">47</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">simple_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">total_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.get_values-48"><a href="#GetBalance.get_values-48"><span class="linenos">48</span></a>        <span class="n">str_total_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_simple_result</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.get_values-49"><a href="#GetBalance.get_values-49"><span class="linenos">49</span></a>
+</span><span id="GetBalance.get_values-50"><a href="#GetBalance.get_values-50"><span class="linenos">50</span></a>        <span class="k">if</span> <span class="n">str_total_revenues</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+</span><span id="GetBalance.get_values-51"><a href="#GetBalance.get_values-51"><span class="linenos">51</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="mf">0.00</span>
+</span><span id="GetBalance.get_values-52"><a href="#GetBalance.get_values-52"><span class="linenos">52</span></a>
+</span><span id="GetBalance.get_values-53"><a href="#GetBalance.get_values-53"><span class="linenos">53</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance.get_values-54"><a href="#GetBalance.get_values-54"><span class="linenos">54</span></a>            <span class="n">total_revenues</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_total_revenues</span><span class="p">)</span>
+</span><span id="GetBalance.get_values-55"><a href="#GetBalance.get_values-55"><span class="linenos">55</span></a>
+</span><span id="GetBalance.get_values-56"><a href="#GetBalance.get_values-56"><span class="linenos">56</span></a>        <span class="k">return</span> <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Faz a consulta dos valores de despesas e receitas.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>total_revenues</strong> (float):
+O valor total das receitas.</li>
+<li><strong>total_expenses</strong> (float):
+O valor total das despesas.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="GetBalance.balance" class="classattr">
+                                        <input id="GetBalance.balance-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">balance</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="GetBalance.balance-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#GetBalance.balance"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GetBalance.balance-58"><a href="#GetBalance.balance-58"><span class="linenos">58</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance.balance-59"><a href="#GetBalance.balance-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance.balance-60"><a href="#GetBalance.balance-60"><span class="linenos">60</span></a><span class="sd">        Calcula o valor do balanço.</span>
+</span><span id="GetBalance.balance-61"><a href="#GetBalance.balance-61"><span class="linenos">61</span></a>
+</span><span id="GetBalance.balance-62"><a href="#GetBalance.balance-62"><span class="linenos">62</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance.balance-63"><a href="#GetBalance.balance-63"><span class="linenos">63</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance.balance-64"><a href="#GetBalance.balance-64"><span class="linenos">64</span></a><span class="sd">        balance : float</span>
+</span><span id="GetBalance.balance-65"><a href="#GetBalance.balance-65"><span class="linenos">65</span></a><span class="sd">            O valor do balanço.</span>
+</span><span id="GetBalance.balance-66"><a href="#GetBalance.balance-66"><span class="linenos">66</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance.balance-67"><a href="#GetBalance.balance-67"><span class="linenos">67</span></a>        <span class="n">total_revenues</span><span class="p">,</span> <span class="n">total_expenses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+</span><span id="GetBalance.balance-68"><a href="#GetBalance.balance-68"><span class="linenos">68</span></a>
+</span><span id="GetBalance.balance-69"><a href="#GetBalance.balance-69"><span class="linenos">69</span></a>        <span class="k">if</span> <span class="n">total_revenues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total_expenses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GetBalance.balance-70"><a href="#GetBalance.balance-70"><span class="linenos">70</span></a>            <span class="n">balance</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">total_revenues</span> <span class="o">-</span> <span class="n">total_expenses</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+</span><span id="GetBalance.balance-71"><a href="#GetBalance.balance-71"><span class="linenos">71</span></a>            <span class="k">return</span> <span class="n">balance</span>
+</span><span id="GetBalance.balance-72"><a href="#GetBalance.balance-72"><span class="linenos">72</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GetBalance.balance-73"><a href="#GetBalance.balance-73"><span class="linenos">73</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Calcula o valor do balanço.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>balance</strong> (float):
+O valor do balanço.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="GetBalance.accounts_balance" class="classattr">
+                                        <input id="GetBalance.accounts_balance-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">accounts_balance</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="GetBalance.accounts_balance-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#GetBalance.accounts_balance"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GetBalance.accounts_balance-75"><a href="#GetBalance.accounts_balance-75"><span class="linenos"> 75</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">accounts_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance.accounts_balance-76"><a href="#GetBalance.accounts_balance-76"><span class="linenos"> 76</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance.accounts_balance-77"><a href="#GetBalance.accounts_balance-77"><span class="linenos"> 77</span></a><span class="sd">        Realiza o cálculo do balanço das contas.</span>
+</span><span id="GetBalance.accounts_balance-78"><a href="#GetBalance.accounts_balance-78"><span class="linenos"> 78</span></a>
+</span><span id="GetBalance.accounts_balance-79"><a href="#GetBalance.accounts_balance-79"><span class="linenos"> 79</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance.accounts_balance-80"><a href="#GetBalance.accounts_balance-80"><span class="linenos"> 80</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance.accounts_balance-81"><a href="#GetBalance.accounts_balance-81"><span class="linenos"> 81</span></a><span class="sd">        accounts : list</span>
+</span><span id="GetBalance.accounts_balance-82"><a href="#GetBalance.accounts_balance-82"><span class="linenos"> 82</span></a><span class="sd">            A lista com o nome das contas.</span>
+</span><span id="GetBalance.accounts_balance-83"><a href="#GetBalance.accounts_balance-83"><span class="linenos"> 83</span></a><span class="sd">        balance_list : list</span>
+</span><span id="GetBalance.accounts_balance-84"><a href="#GetBalance.accounts_balance-84"><span class="linenos"> 84</span></a><span class="sd">            A lista com o balanço das contas.</span>
+</span><span id="GetBalance.accounts_balance-85"><a href="#GetBalance.accounts_balance-85"><span class="linenos"> 85</span></a><span class="sd">        future_balance_list : list</span>
+</span><span id="GetBalance.accounts_balance-86"><a href="#GetBalance.accounts_balance-86"><span class="linenos"> 86</span></a><span class="sd">            A lista com o balanço futuro das contas.</span>
+</span><span id="GetBalance.accounts_balance-87"><a href="#GetBalance.accounts_balance-87"><span class="linenos"> 87</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance.accounts_balance-88"><a href="#GetBalance.accounts_balance-88"><span class="linenos"> 88</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance.accounts_balance-89"><a href="#GetBalance.accounts_balance-89"><span class="linenos"> 89</span></a>
+</span><span id="GetBalance.accounts_balance-90"><a href="#GetBalance.accounts_balance-90"><span class="linenos"> 90</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.accounts_balance-91"><a href="#GetBalance.accounts_balance-91"><span class="linenos"> 91</span></a>        <span class="n">accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-92"><a href="#GetBalance.accounts_balance-92"><span class="linenos"> 92</span></a>
+</span><span id="GetBalance.accounts_balance-93"><a href="#GetBalance.accounts_balance-93"><span class="linenos"> 93</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.accounts_balance-94"><a href="#GetBalance.accounts_balance-94"><span class="linenos"> 94</span></a>        <span class="n">accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-95"><a href="#GetBalance.accounts_balance-95"><span class="linenos"> 95</span></a>
+</span><span id="GetBalance.accounts_balance-96"><a href="#GetBalance.accounts_balance-96"><span class="linenos"> 96</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_expenses_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.accounts_balance-97"><a href="#GetBalance.accounts_balance-97"><span class="linenos"> 97</span></a>        <span class="n">future_accounts_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-98"><a href="#GetBalance.accounts_balance-98"><span class="linenos"> 98</span></a>
+</span><span id="GetBalance.accounts_balance-99"><a href="#GetBalance.accounts_balance-99"><span class="linenos"> 99</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">future_accounts_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.accounts_balance-100"><a href="#GetBalance.accounts_balance-100"><span class="linenos">100</span></a>        <span class="n">future_accounts_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-101"><a href="#GetBalance.accounts_balance-101"><span class="linenos">101</span></a>
+</span><span id="GetBalance.accounts_balance-102"><a href="#GetBalance.accounts_balance-102"><span class="linenos">102</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">accounts_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.accounts_balance-103"><a href="#GetBalance.accounts_balance-103"><span class="linenos">103</span></a>        <span class="n">accounts</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="n">accounts</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-104"><a href="#GetBalance.accounts_balance-104"><span class="linenos">104</span></a>
+</span><span id="GetBalance.accounts_balance-105"><a href="#GetBalance.accounts_balance-105"><span class="linenos">105</span></a>        <span class="n">balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GetBalance.accounts_balance-106"><a href="#GetBalance.accounts_balance-106"><span class="linenos">106</span></a>        <span class="n">future_balance_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GetBalance.accounts_balance-107"><a href="#GetBalance.accounts_balance-107"><span class="linenos">107</span></a>
+</span><span id="GetBalance.accounts_balance-108"><a href="#GetBalance.accounts_balance-108"><span class="linenos">108</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">):</span>
+</span><span id="GetBalance.accounts_balance-109"><a href="#GetBalance.accounts_balance-109"><span class="linenos">109</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">)):</span>
+</span><span id="GetBalance.accounts_balance-110"><a href="#GetBalance.accounts_balance-110"><span class="linenos">110</span></a>                <span class="n">revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance.accounts_balance-111"><a href="#GetBalance.accounts_balance-111"><span class="linenos">111</span></a>                <span class="n">expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance.accounts_balance-112"><a href="#GetBalance.accounts_balance-112"><span class="linenos">112</span></a>                <span class="n">balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revenue</span> <span class="o">-</span> <span class="n">expense</span><span class="p">)</span>
+</span><span id="GetBalance.accounts_balance-113"><a href="#GetBalance.accounts_balance-113"><span class="linenos">113</span></a>
+</span><span id="GetBalance.accounts_balance-114"><a href="#GetBalance.accounts_balance-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">):</span>
+</span><span id="GetBalance.accounts_balance-115"><a href="#GetBalance.accounts_balance-115"><span class="linenos">115</span></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">)):</span>
+</span><span id="GetBalance.accounts_balance-116"><a href="#GetBalance.accounts_balance-116"><span class="linenos">116</span></a>                <span class="n">future_revenue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_revenues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance.accounts_balance-117"><a href="#GetBalance.accounts_balance-117"><span class="linenos">117</span></a>                <span class="n">future_expense</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">future_accounts_expenses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance.accounts_balance-118"><a href="#GetBalance.accounts_balance-118"><span class="linenos">118</span></a>                <span class="n">future_balance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="GetBalance.accounts_balance-119"><a href="#GetBalance.accounts_balance-119"><span class="linenos">119</span></a>                    <span class="p">(</span><span class="n">future_revenue</span> <span class="o">-</span> <span class="n">future_expense</span><span class="p">)</span> <span class="o">+</span> <span class="n">balance_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span id="GetBalance.accounts_balance-120"><a href="#GetBalance.accounts_balance-120"><span class="linenos">120</span></a>
+</span><span id="GetBalance.accounts_balance-121"><a href="#GetBalance.accounts_balance-121"><span class="linenos">121</span></a>        <span class="k">return</span> <span class="n">accounts</span><span class="p">,</span> <span class="n">balance_list</span><span class="p">,</span> <span class="n">future_balance_list</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Realiza o cálculo do balanço das contas.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>accounts</strong> (list):
+A lista com o nome das contas.</li>
+<li><strong>balance_list</strong> (list):
+A lista com o balanço das contas.</li>
+<li><strong>future_balance_list</strong> (list):
+A lista com o balanço futuro das contas.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="GetBalance.list_values" class="classattr">
+                                        <input id="GetBalance.list_values-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">list_values</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="GetBalance.list_values-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#GetBalance.list_values"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GetBalance.list_values-123"><a href="#GetBalance.list_values-123"><span class="linenos">123</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="GetBalance.list_values-124"><a href="#GetBalance.list_values-124"><span class="linenos">124</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GetBalance.list_values-125"><a href="#GetBalance.list_values-125"><span class="linenos">125</span></a><span class="sd">        Faz a consultas das maiores e últimas despesas e receitas.</span>
+</span><span id="GetBalance.list_values-126"><a href="#GetBalance.list_values-126"><span class="linenos">126</span></a>
+</span><span id="GetBalance.list_values-127"><a href="#GetBalance.list_values-127"><span class="linenos">127</span></a><span class="sd">        Returns</span>
+</span><span id="GetBalance.list_values-128"><a href="#GetBalance.list_values-128"><span class="linenos">128</span></a><span class="sd">        -------</span>
+</span><span id="GetBalance.list_values-129"><a href="#GetBalance.list_values-129"><span class="linenos">129</span></a><span class="sd">        last_revenues : list</span>
+</span><span id="GetBalance.list_values-130"><a href="#GetBalance.list_values-130"><span class="linenos">130</span></a><span class="sd">            Lista com as últimas receitas.</span>
+</span><span id="GetBalance.list_values-131"><a href="#GetBalance.list_values-131"><span class="linenos">131</span></a><span class="sd">        last_expenses : list</span>
+</span><span id="GetBalance.list_values-132"><a href="#GetBalance.list_values-132"><span class="linenos">132</span></a><span class="sd">            Lista com as últimas despesas.</span>
+</span><span id="GetBalance.list_values-133"><a href="#GetBalance.list_values-133"><span class="linenos">133</span></a><span class="sd">        max_revenues : list</span>
+</span><span id="GetBalance.list_values-134"><a href="#GetBalance.list_values-134"><span class="linenos">134</span></a><span class="sd">            Lista com as maiores receitas.</span>
+</span><span id="GetBalance.list_values-135"><a href="#GetBalance.list_values-135"><span class="linenos">135</span></a><span class="sd">        max_expenses : list</span>
+</span><span id="GetBalance.list_values-136"><a href="#GetBalance.list_values-136"><span class="linenos">136</span></a><span class="sd">            Lista com as maiores despesas.</span>
+</span><span id="GetBalance.list_values-137"><a href="#GetBalance.list_values-137"><span class="linenos">137</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GetBalance.list_values-138"><a href="#GetBalance.list_values-138"><span class="linenos">138</span></a>
+</span><span id="GetBalance.list_values-139"><a href="#GetBalance.list_values-139"><span class="linenos">139</span></a>        <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span> <span class="o">=</span> <span class="n">Login</span><span class="p">()</span><span class="o">.</span><span class="n">get_user_doc_name</span><span class="p">()</span>
+</span><span id="GetBalance.list_values-140"><a href="#GetBalance.list_values-140"><span class="linenos">140</span></a>        <span class="n">last_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.list_values-141"><a href="#GetBalance.list_values-141"><span class="linenos">141</span></a>        <span class="n">last_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">last_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.list_values-142"><a href="#GetBalance.list_values-142"><span class="linenos">142</span></a>        <span class="n">max_revenues</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_revenue_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.list_values-143"><a href="#GetBalance.list_values-143"><span class="linenos">143</span></a>        <span class="n">max_expenses</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">max_expense_query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">))</span>
+</span><span id="GetBalance.list_values-144"><a href="#GetBalance.list_values-144"><span class="linenos">144</span></a>
+</span><span id="GetBalance.list_values-145"><a href="#GetBalance.list_values-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">last_revenues</span><span class="p">,</span> <span class="n">last_expenses</span><span class="p">,</span> <span class="n">max_revenues</span><span class="p">,</span> <span class="n">max_expenses</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Faz a consultas das maiores e últimas despesas e receitas.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>last_revenues</strong> (list):
+Lista com as últimas receitas.</li>
+<li><strong>last_expenses</strong> (list):
+Lista com as últimas despesas.</li>
+<li><strong>max_revenues</strong> (list):
+Lista com as maiores receitas.</li>
+<li><strong>max_expenses</strong> (list):
+Lista com as maiores despesas.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
     </main>
 <script>
     function escapeHTML(html) {

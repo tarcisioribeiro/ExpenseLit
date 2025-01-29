@@ -21,16 +21,23 @@ class ConfirmExpense:
 
         Parameters
         ----------
-        description: str = A descrição da despesa.\n
-        value: float = O valor da despesa.\n
-        date: str = A data da despesa.\n
-        time: str = O horário da despesa.\n
-        category: str = A categoria da despesa.\n
-        account: str = A conta na qual a despesa foi registrada.
+        description : str
+            A descrição da despesa.
+        value : float
+            O valor da despesa.
+        date : str
+            A data da despesa.
+        time : str
+            O horário da despesa.
+        category : str
+            A categoria da despesa.
+        account : str
+            A conta na qual a despesa foi registrada.
 
         Returns
         -------
-        id: int = O ID da despesa não paga.
+        id : int
+            O ID da despesa não paga.
         """
 
         get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(
@@ -47,7 +54,8 @@ class ConfirmExpense:
 
         Parameters
         ----------
-        new_date: str = A nova data da despesa.
+        new_date : str
+            A nova data da despesa.
         """
 
         update_not_payed_query = """UPDATE despesas SET data = "{}", pago = "S" WHERE id_despesa = {};""".format(new_date, id)

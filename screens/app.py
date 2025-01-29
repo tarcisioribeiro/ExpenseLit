@@ -14,12 +14,21 @@ from time import sleep
 
 
 class App:
+    """
+    Classe que representa o layout principal da aplicação.
+    """
 
     def logout(self):
+        """
+        Realiza o logout da aplicação.
+        """
         st.session_state.is_logged_in = False
         st.rerun()
 
-    def HomePage(self):
+    def main_menu(self):
+        """
+        Exibe a página inicial do projeto.
+        """
 
         sidebar = st.sidebar
 

@@ -1,4 +1,4 @@
-from data.cache.session_state import logged_user, logged_user_password
+from data.cache.session_state import logged_user
 from datetime import datetime
 from dictionary.sql import user_current_accounts_query, expenses_statement_query, revenues_statement_query
 from functions.login import Login
@@ -7,6 +7,8 @@ from dictionary.style import system_font
 from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
+from functions.login import Login
+from functions.variable import Variable
 from time import sleep
 import pandas as pd
 import streamlit as st
@@ -14,91 +16,58 @@ import streamlit as st
 
 class AccountStatement:
     """
-    Classe que representa os extratos bancários.
+    Classe que representa os extratos bancários das contas do usuário.
     """
 
-    def mount_statement_query(self, statement_type: str, accounts: list, initial_data: str, final_data: str):
-        """
-        Estrutura a consulta do extrato bancário.
-
-        Parameters
-        ----------
-        statement_type: str = O tipo do extrato bancário.
-        accounts: list = As contas selecionadas para consulta.
-        initial_data: str = A data inicial da consulta.
-        final_data: astr = A data final da consulta.
-
-        Returns
-        -------
-        statement_query_list: A lista com as consultas.
-        """
-
-        statement_query_list = []
-
-        str_accounts = '''('''
-
-        for i in range(0, len(accounts)):
-            if i < (len(accounts) - 1):
-                str_accounts += "'" + str(accounts[i]) + "'" + ''', '''
-            elif i == len(accounts) - 1:
-                str_accounts += "'" + str(accounts[i]) + "'"
-
-        str_accounts = str_accounts + ''')'''
-
-        complete_expenses_statement_query = expenses_statement_query.format(
-            initial_data, final_data, str_accounts, logged_user, logged_user_password)
-        complete_revenues_statement_query = revenues_statement_query.format(
-            initial_data, final_data, str_accounts, logged_user, logged_user_password)
-
-        if statement_type == 'Receitas':
-            statement_query_list.append(complete_revenues_statement_query)
-        elif statement_type == 'Despesas':
-            statement_query_list.append(complete_expenses_statement_query)
-        elif statement_type == 'Receitas e Despesas':
-            statement_query_list.append(complete_revenues_statement_query)
-            statement_query_list.append(complete_expenses_statement_query)
-
-        return statement_query_list
-
-    def consult_statement(self, statement_query_list: list):
+    def consult_statement(self, statement_query_option: str, accounts: list, initial_data: str, final_data: str):
         """
         Realiza a consulta do extrato bancário de acordo com as consultas passadas como parâmetro.
 
         Parameters
         ----------
-        statement_query_list: list = A lista com as consultas a serem realizadas.
+        statement_query_option : str
+            A opção de extrato selecionada pelo usuário.
+        accounts : list
+            Lista com as contas a serem consultadas.
+        initial_data: str
+            A data inicial da consulta.
+        final_data: str
+            A data final da consulta.
 
         Returns
         -------
-        value_list: list = A lista com os valores do extrato.
-        data_df_list: list = A lista com os gráficos estruturados.
+        value_list : list
+            A lista com os valores do extrato.
+        data_df_list : list
+            A lista com os gráficos estruturados.
         """
-
-        statement_types = ["Receitas", "Despesas"]
+        user_name, user_document = Login().get_user_doc_name()
 
         value_list = []
         data_df_list = []
 
-        for position in range(len(statement_query_list)):
+        placeholders = ", ".join(["%s"] * len(accounts))
 
-            empty_list = QueryExecutor().complex_compund_query(
-                statement_query_list[position], 6, 'statement_')
-            description, value, date, time, category, account = (
-                empty_list)
+        # Modificando a consulta para usar os placeholders corretamente
+        revenues_query = revenues_statement_query.replace("IN %s", f"IN ({placeholders})")
+        expenses_query = expenses_statement_query.replace("IN %s", f"IN ({placeholders})")
+
+        if statement_query_option == "Receitas e Despesas":
+            empty_list = QueryExecutor().complex_compund_query(revenues_query, 6, params=(initial_data, final_data, *accounts, user_name, user_document))
+            description, value, date, time, category, account = (empty_list)
 
             if len(description) == 0 and len(value) == 0 and len(date) == 0 and len(time) == 0 and len(category) == 0 and len(account) == 0:
-                with st.expander(label="Relatório", expanded=True):
+                with st.expander(label="Relatório de Receitas", expanded=True):
                     st.info(body="Nao há registros neste período.")
 
             elif len(description) > 0 and len(value) > 0 and len(date) > 0 and len(time) > 0 and len(category) > 0 and len(account) > 0:
-
                 aux_str = ""
 
                 for i in range(0, len(time)):
                     aux_str = str(time[i])
                     time[i] = aux_str
 
-                with st.expander(label="Relatório de {}".format(statement_types[position]), expanded=True):
+                with st.expander(label="Relatório de Receitas", expanded=True):
 
                     data_df = pd.DataFrame(
                         {
@@ -111,16 +80,118 @@ class AccountStatement:
                         }
                     )
 
-                    data_df["Valor"] = data_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}".replace(".", ","))
-                    data_df["Data"] = pd.to_datetime(
-                        data_df["Data"]).dt.strftime("%d/%m/%Y")
-                    st.dataframe(data_df, hide_index=True,
-                                 use_container_width=True)
+                    data_df["Valor"] = data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                    data_df["Data"] = pd.to_datetime(data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    st.dataframe(data_df, hide_index=True, use_container_width=True)
+
+                value_list.append(value)
+                data_df_list.append(data_df)
+            
+            empty_list = QueryExecutor().complex_compund_query(expenses_query, 6, params=(initial_data, final_data, *accounts, user_name, user_document))
+            description, value, date, time, category, account = (empty_list)
+
+            if len(description) == 0 and len(value) == 0 and len(date) == 0 and len(time) == 0 and len(category) == 0 and len(account) == 0:
+                with st.expander(label="Relatório de Despesas", expanded=True):
+                    st.info(body="Nao há registros neste período.")
+
+            elif len(description) > 0 and len(value) > 0 and len(date) > 0 and len(time) > 0 and len(category) > 0 and len(account) > 0:
+
+                aux_str = ""
+
+                for i in range(0, len(time)):
+                    aux_str = str(time[i])
+                    time[i] = aux_str
+
+                with st.expander(label="Relatório de Despesas", expanded=True):
+
+                    data_df = pd.DataFrame(
+                        {
+                            "Descrição": description,
+                            "Valor": value,
+                            "Data": date,
+                            "Horário": time,
+                            "Categoria": category,
+                            "Conta": account,
+                        }
+                    )
+
+                    data_df["Valor"] = data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                    data_df["Data"] = pd.to_datetime(data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    st.dataframe(data_df, hide_index=True, use_container_width=True)
 
                 value_list.append(value)
                 data_df_list.append(data_df)
 
+        if statement_query_option == "Receitas":
+            empty_list = QueryExecutor().complex_compund_query(revenues_query, 6, params=(initial_data, final_data, *accounts, user_name, user_document))
+            description, value, date, time, category, account = (empty_list)
+
+            if len(description) == 0 and len(value) == 0 and len(date) == 0 and len(time) == 0 and len(category) == 0 and len(account) == 0:
+                with st.expander(label="Relatório de Receitas", expanded=True):
+                    st.info(body="Nao há registros neste período.")
+
+            elif len(description) > 0 and len(value) > 0 and len(date) > 0 and len(time) > 0 and len(category) > 0 and len(account) > 0:
+                aux_str = ""
+
+                for i in range(0, len(time)):
+                    aux_str = str(time[i])
+                    time[i] = aux_str
+
+                with st.expander(label="Relatório de Receitas", expanded=True):
+
+                    data_df = pd.DataFrame(
+                        {
+                            "Descrição": description,
+                            "Valor": value,
+                            "Data": date,
+                            "Horário": time,
+                            "Categoria": category,
+                            "Conta": account,
+                        }
+                    )
+
+                    data_df["Valor"] = data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                    data_df["Data"] = pd.to_datetime(data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    st.dataframe(data_df, hide_index=True, use_container_width=True)
+
+                value_list.append(value)
+                data_df_list.append(data_df)
+        
+        if statement_query_option == "Despesas":
+            empty_list = QueryExecutor().complex_compund_query(expenses_query, 6, params=(initial_data, final_data, *accounts, user_name, user_document))
+            description, value, date, time, category, account = (empty_list)
+
+            if len(description) == 0 and len(value) == 0 and len(date) == 0 and len(time) == 0 and len(category) == 0 and len(account) == 0:
+                with st.expander(label="Relatório de Despesas", expanded=True):
+                    st.info(body="Nao há registros neste período.")
+
+            elif len(description) > 0 and len(value) > 0 and len(date) > 0 and len(time) > 0 and len(category) > 0 and len(account) > 0:
+                aux_str = ""
+
+                for i in range(0, len(time)):
+                    aux_str = str(time[i])
+                    time[i] = aux_str
+
+                with st.expander(label="Relatório de Despesas", expanded=True):
+
+                    data_df = pd.DataFrame(
+                        {
+                            "Descrição": description,
+                            "Valor": value,
+                            "Data": date,
+                            "Horário": time,
+                            "Categoria": category,
+                            "Conta": account,
+                        }
+                    )
+
+                    data_df["Valor"] = data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                    data_df["Data"] = pd.to_datetime(data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    st.dataframe(data_df, hide_index=True, use_container_width=True)
+
+                value_list.append(value)
+                data_df_list.append(data_df)
+        
         return value_list, data_df_list
 
     def generate_pdf(self, df: list, statement_type: str, initial_data: str, final_data: str, accounts: list):
@@ -129,11 +200,16 @@ class AccountStatement:
 
         Parameters
         ----------
-        df: list = A lista com os gráficos.
-        statement_type: str = O tipo de extrato bancário.
-        initial_data: str = A data inicial do extrato.
-        final_data: str = A data final do extrato.
-        accounts: list = Lista com as contas consultadas.
+        df : list
+            A lista com os gráficos.
+        statement_type : str
+            O tipo de extrato bancário.
+        initial_data : str
+            A data inicial do extrato.
+        final_data : str
+            A data final do extrato.
+        accounts : list
+            Lista com as contas consultadas.
 
         Returns
         -------
@@ -153,22 +229,18 @@ class AccountStatement:
             if item == len(accounts) - 1:
                 accounts_str = accounts_str + accounts[item] + "."
 
-        pdf = FPDF(unit="mm", format="A4")
+        pdf = FPDF(orientation='L', unit="mm", format="A4")
         pdf.add_page()
-        pdf.add_font("SystemFont", "", "{}{}".format(
-            absolute_app_path, system_font), uni=True)
+        pdf.add_font("SystemFont", "", "{}{}".format(absolute_app_path, system_font), uni=True)
 
         pdf.set_font("SystemFont", size=16)
-        pdf.cell(0, 10, "Relatório de {}".format(
-            statement_type), ln=True, align="C")
+        pdf.cell(0, 10, "Relatório de {}".format(statement_type), ln=True, align="C")
         pdf.ln(10)
 
         pdf.set_font("SystemFont", size=12)
-        pdf.cell(0, 5, "Período de consulta: {} à {}".format(
-            initial_data, final_data), ln=True)
+        pdf.cell(0, 5, "Período de consulta: {} à {}".format(initial_data, final_data), ln=True)
         pdf.set_font("SystemFont", size=12)
-        pdf.cell(0, 10, "Contas consultadas: {}".format(
-            accounts_str), ln=True)
+        pdf.cell(0, 10, "Contas consultadas: {}".format(accounts_str), ln=True)
         pdf.ln(5)
 
         statement_types = ["Receitas", "Despesas"]
@@ -193,10 +265,8 @@ class AccountStatement:
                 pdf.ln()
             pdf.ln(10)
 
-        pdf.cell(0, 10, "Horário da consulta: {}, às {}.".format(
-            formatted_today, time), align="R", ln=True)
-        pdf.cell(0, 10, "Nome do usuário: {}.".format(
-            user_name), align="R", ln=True)
+        pdf.cell(0, 10, "Horário da consulta: {}, às {}.".format(formatted_today, time), align="R", ln=True)
+        pdf.cell(0, 10, "Nome do usuário: {}.".format(user_name), align="R", ln=True)
         pdf.ln(5)
 
         return pdf
@@ -217,52 +287,37 @@ class AccountStatement:
             with col4:
                 st.subheader(body=":computer: Entrada de Dados")
                 with st.expander(label="Dados", expanded=True):
-
-                    statement_option = st.selectbox(label="Tipos de extrato", options=[
-                                                    "Selecione uma opção", "Receitas", "Despesas", "Receitas e Despesas"])
-                    selected_accounts = st.multiselect(
-                        label="Contas", options=user_current_accounts, placeholder="Escolha a(s) conta(s)")
+                    statement_option = st.selectbox(label="Tipos de extrato", options=["Selecione uma opção", "Receitas", "Despesas", "Receitas e Despesas"])
+                    selected_accounts = st.multiselect(label="Contas", options=user_current_accounts, placeholder="Escolha a(s) conta(s)")
                     initial_data = st.date_input(label="Data de início")
                     final_data = st.date_input(label="Data de fim")
                     confirm_choice = st.checkbox(label="Confirmar dados")
 
-                consult_tables = st.button(
-                    label=":chart: Gerar Relatórios")
+                consult_tables = st.button(label=":chart: Gerar Relatórios")
 
             if confirm_choice and consult_tables:
-
                 with col5:
-
                     with st.spinner(text="Aguarde..."):
                         sleep(2.5)
 
                     st.subheader(body=":bar_chart: Resultados")
 
                     if statement_option != "Selecione uma opção" and len(selected_accounts) > 0 and (initial_data <= final_data):
-                        query_list = self.mount_statement_query(
-                            statement_option, selected_accounts, initial_data, final_data)
-
-                        value_list, dataframes = self.consult_statement(
-                            query_list)
+                        value_list, dataframes = self.consult_statement(statement_option, selected_accounts, initial_data, final_data)
 
                         with col6:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
-
-                            st.subheader(
-                                body=":information_source: Informações")
+                            st.subheader(body=":information_source: Informações")
 
                             total_value = 0
                             counter = 0
 
                             for i in range(0, len(value_list)):
-
                                 for j in range(0, len(value_list[i])):
                                     total_value += value_list[i][j]
                                     counter += 1
-
-                                medium_value = round(
-                                    (total_value / len(value_list[i])), 2)
+                                medium_value = round((total_value / len(value_list[i])), 2)
 
                             medium_value = str(medium_value)
                             medium_value = medium_value.replace(".", ",")
@@ -270,51 +325,38 @@ class AccountStatement:
                             total_value = total_value.replace(".", ",")
 
                             with st.expander(label="Dados", expanded=True):
-                                st.info(body="Quantidade de {}: {}.".format(
-                                    statement_option.lower(), counter))
-                                st.info(body="Valor total das {}: R$ {}.".format(
-                                    statement_option.lower(), total_value))
-                                st.info(body="Valor médio das {}: R$ {}.".format(
-                                    statement_option.lower(), medium_value))
+                                st.info(body="Quantidade de {}: {}.".format(statement_option.lower(), counter))
+                                st.info(body="Valor total das {}: R$ {}.".format(statement_option.lower(), total_value))
+                                st.info(body="Valor médio das {}: R$ {}.".format(statement_option.lower(), medium_value))
 
-                            formatted_initial_data = initial_data.strftime(
-                                "%d/%m/%Y")
-                            formatted_final_data = final_data.strftime(
-                                "%d/%m/%Y")
+                            formatted_initial_data = initial_data.strftime("%d/%m/%Y")
+                            formatted_final_data = final_data.strftime("%d/%m/%Y")
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Consulta", "Consultou o relatório de {} entre o período de {} a {}.".format(
-                                statement_option, formatted_initial_data, formatted_final_data))
-                            QueryExecutor().insert_query(
-                                log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            log_values = (logged_user, "Consulta", "Consultou o relatório de {} entre o período de {} a {}.".format(statement_option, formatted_initial_data, formatted_final_data))
+                            QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                             time = GetActualTime().get_actual_time()
 
-                            pdf = self.generate_pdf(
-                                dataframes, statement_option, formatted_initial_data, formatted_final_data, selected_accounts)
-                            pdf_bytes = pdf.output(
-                                dest='S').encode('latin1')
+                            pdf = self.generate_pdf(dataframes, statement_option, formatted_initial_data, formatted_final_data, selected_accounts)
+                            pdf_bytes = pdf.output(dest='S').encode('latin1')
 
                             st.download_button(
                                 label=":floppy_disk: Baixar PDF",
                                 data=pdf_bytes,
-                                file_name="extrato_bancario_{}_{}_a_{}_{}.pdf".format(
-                                    statement_option.replace(" ", "_").lower(), initial_data, final_data, time),
+                                file_name="extrato_bancario_{}_{}_a_{}_{}.pdf".format(statement_option.replace(" ", "_").lower(), initial_data, final_data, time),
                                 mime="application/pdf",
                             )
 
                     elif (len(selected_accounts) == 0) or (initial_data > final_data) or (statement_option == "Selecione uma opção"):
                         with st.expander(label="Avisos", expanded=True):
                             if statement_option == "Selecione uma opção":
-                                st.error(
-                                    body="Selecione um tipo de extrato.")
+                                st.error(body="Selecione um tipo de extrato.")
                             if len(selected_accounts) == 0:
                                 st.error(body="Nenhuma conta selecionada.")
                             if initial_data > final_data:
-                                st.error(
-                                    body="A data inicial não pode ser maior que a final.")
+                                st.error(body="A data inicial não pode ser maior que a final.")
 
         elif len(user_current_accounts) == 0:
             with col5:
-                st.warning(
-                    body="Você ainda não possui contas cadastradas.")
+                st.warning(body="Você ainda não possui contas cadastradas.")

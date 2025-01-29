@@ -14,8 +14,10 @@ class ChangeTheme:
 
         Parameters
         ----------
-        theme_option: str = O tema selecionado pelo usuário.\n
-        font_option: str = A fonte selecionada pelo usuário.
+        theme_option : str
+            O tema selecionado pelo usuário.
+        font_option : str
+            A fonte selecionada pelo usuário.
         """
 
         config_archive: str = absolute_app_path + "/.streamlit/config.toml"

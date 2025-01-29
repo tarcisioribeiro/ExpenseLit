@@ -50,8 +50,10 @@ class NewCreditCardExpense:
 
         Parameters
         ----------
-        query: str = A consulta de inserção.\n
-        values: tuple = A tupla com os valores da nova despesa.
+        query : str
+            A consulta de inserção.
+        values : tuple
+            A tupla com os valores da nova despesa.
         """
 
         try:

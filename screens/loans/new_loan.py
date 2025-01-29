@@ -357,7 +357,8 @@ class MakeNewLoan:
 
         Returns
         -------
-        user_current_accounts: list = A lista com as contas correntes do usuário.
+        user_current_accounts : list
+            A lista com as contas correntes do usuário.
         """
         user_name, user_document = Login().get_user_doc_name()
 

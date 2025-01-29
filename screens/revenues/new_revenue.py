@@ -18,6 +18,11 @@ class NewCurrentRevenue:
     def get_user_current_accounts(self):
         """
         Consulta as contas correntes do usuário.
+
+        Returns
+        -------
+        user_current_accounts : list
+            A lista com as contas correntes do usuário.
         """
         user_name, user_document = Login().get_user_doc_name()
 

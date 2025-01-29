@@ -21,7 +21,10 @@ class Login:
 
         Parameters
         ----------
-        login: str
+        login : str
+            O nome de usuário.
+        password: str
+            A senha do usuário.
         """
 
         check_if_user_exists = QueryExecutor().simple_consult_query(query="SELECT COUNT(id_usuario) FROM usuarios WHERE login = %s AND senha = %s", params=(login, password))
@@ -39,8 +42,10 @@ class Login:
 
         Returns
         -------
-        owner_name: str = O nome do usuário.
-        owner_document: int = O documento do usuário.
+        owner_name : str
+            O nome do usuário.
+        owner_document : int
+            O documento do usuário.
         """
 
         user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(logged_user, logged_user_password))
@@ -57,13 +62,17 @@ class Login:
 
         Parameters
         ----------
-        user: Nome do usuário que está realizando o login.
-        password: Senha do usuário que está realizando o login.
+        user : str
+            Nome do usuário que está realizando o login.
+        password : str
+            Senha do usuário que está realizando o login.
 
         Returns
         -------
-        bool: A validade do login.
-        hashed_password (str): A senha do usuário encriptada.
+        bool
+            A validade do login.
+        hashed_password : str
+            A senha do usuário encriptada.
         """
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
@@ -84,8 +93,10 @@ class Login:
 
         Returns
         -------
-        name: str = O nome do usuário.
-        sex: str = O sexo do usuário.
+        name : str
+            O nome do usuário.
+        sex : str
+            O sexo do usuário.
         """
         name = QueryExecutor().simple_consult_query(query=name_query, params=(logged_user, logged_user_password))
         name = QueryExecutor().treat_simple_result(name, to_remove_list)
@@ -101,8 +112,10 @@ class Login:
 
         Parameters
         ----------
-        name: str = O nome do usuário.
-        sex: str = O sexo do usuário.
+        name : str
+            O nome do usuário.
+        sex : str
+            O sexo do usuário.
         """
 
         if sex == "M":

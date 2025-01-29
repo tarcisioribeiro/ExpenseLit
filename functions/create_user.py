@@ -19,11 +19,13 @@ class CreateUser:
 
         Parameters
         ----------
-        password (str): A senha a ser encriptada.
+        password : str
+            A senha a ser encriptada.
 
         Returns
         -------
-        bytes: A senha encriptada.
+        bytes
+            A senha encriptada.
         """
 
         salt = bcrypt.gensalt()
@@ -35,11 +37,13 @@ class CreateUser:
 
         Parameters
         ----------
-        login (str): O nome do login escolhido pelo usuário.
+        login : str
+            O nome do login escolhido pelo usuário.
 
         Returns
         -------
-        bool: Se o nome de login é ou não válido.
+        bool
+            Se o nome de login é ou não válido.
         """
         if login != "":
             has_upper = any(c.isupper() for c in login)
@@ -61,11 +65,13 @@ class CreateUser:
 
         Parameters
         ----------
-        password (str): A senha escolhida pelo usuário.
+        password : str
+            A senha escolhida pelo usuário.
 
         Returns
         -------
-        bool: Se a senha escolhida é ou não válida.
+        bool
+            Se a senha escolhida é ou não válida.
         """
 
         has_upper = any(c.isupper() for c in password)

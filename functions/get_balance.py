@@ -17,8 +17,22 @@ from functions.login import Login
 
 
 class GetBalance:
+    """
+    Classe responsável pela consulta dos valores do balannço de contas.
+    """
 
     def get_values(self):
+        """
+        Faz a consulta dos valores de despesas e receitas.
+
+        Returns
+        -------
+        total_revenues : float
+            O valor total das receitas.
+        total_expenses : float
+            O valor total das despesas.
+        """
+
         user_name, user_document = Login().get_user_doc_name()
 
         str_total_expenses = QueryExecutor().simple_consult_query(query=total_expense_query, params=(user_name, user_document))
@@ -41,6 +55,14 @@ class GetBalance:
         return total_revenues, total_expenses
 
     def balance(self):
+        """
+        Calcula o valor do balanço.
+
+        Returns
+        -------
+        balance : float
+            O valor do balanço.
+        """
         total_revenues, total_expenses = self.get_values()
 
         if total_revenues is not None and total_expenses is not None:
@@ -55,7 +77,12 @@ class GetBalance:
 
         Returns
         -------
-
+        accounts : list
+            A lista com o nome das contas.
+        balance_list : list
+            A lista com o balanço das contas.
+        future_balance_list : list
+            A lista com o balanço futuro das contas.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -93,6 +120,21 @@ class GetBalance:
         return accounts, balance_list, future_balance_list
 
     def list_values(self):
+        """
+        Faz a consultas das maiores e últimas despesas e receitas.
+
+        Returns
+        -------
+        last_revenues : list
+            Lista com as últimas receitas.
+        last_expenses : list
+            Lista com as últimas despesas.
+        max_revenues : list
+            Lista com as maiores receitas.
+        max_expenses : list
+            Lista com as maiores despesas.
+        """
+
         user_name, user_document = Login().get_user_doc_name()
         last_expenses = QueryExecutor().complex_consult_query(query=last_expense_query, params=(user_name, user_document))
         last_revenues = QueryExecutor().complex_consult_query(query=last_revenue_query, params=(today, user_name, user_document))

@@ -12,11 +12,13 @@ class Documents:
 
         Parameters
         ----------
-        card_number: str = O número do cartão de crédito.
+        card_number : str
+            O número do cartão de crédito.
 
         Returns
         -------
-        boolean: True or False = Se o número do cartão é ou não válido.
+        boolean 
+            Se o número do cartão é ou não válido.
         """
 
         total = 0
@@ -46,11 +48,13 @@ class Documents:
 
         Parameters
         ----------
-        owner_document: str = O documento do usuário.
+        owner_document : str
+            O documento do usuário.
 
         Returns
         -------
-        boolean: True or False = Se o documento do usuário é ou não válido.
+        boolean
+            Se o documento do usuário é ou não válido.
         """
 
         if len(owner_document) != 11:

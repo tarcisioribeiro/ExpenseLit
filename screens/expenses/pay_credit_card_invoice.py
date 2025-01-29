@@ -23,8 +23,10 @@ class CreditCardInvoice:
 
         Parameters
         ----------
-        selected_card: str = O cartão de crédito selecionado pelo usuário.\n
-        selected_month: str = O mês da fatura selecionado pelo usuário.
+        selected_card : str
+            O cartão de crédito selecionado pelo usuário.
+        selected_month : str
+            O mês da fatura selecionado pelo usuário.
         """
         user_name, user_document = Login().get_user_doc_name()
 

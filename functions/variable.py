@@ -3,6 +3,9 @@ import streamlit as st
 
 
 class Variable:
+    """
+    Classe com métodos para análises de variáveis.
+    """
 
     def treat_complex_string(self, value_passed: float):
         str_value = str(value_passed)
@@ -15,9 +18,15 @@ class Variable:
         return str_value
 
     def create_variable(self, name, value):
+        """
+        Cria uma nova variável.
+        """
         globals()[name] = value
 
     def debug_variable(self, variable):
+        """
+        Exibe os dados da variável.
+        """
 
         variable_type = type(variable).__name__
 

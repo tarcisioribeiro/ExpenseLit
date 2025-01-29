@@ -21,7 +21,8 @@ class NewFundRevenue:
 
         Returns
         -------
-        user_fund_accounts: list = A lista com as contas de fundo de garantia do usuário.
+        user_fund_accounts : list
+            A lista com as contas de fundo de garantia do usuário.
         """
         user_name, user_document = Login().get_user_doc_name()
 

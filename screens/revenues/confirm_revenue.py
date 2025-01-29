@@ -22,16 +22,23 @@ class ConfirmRevenue:
 
         Parameters
         ----------
-        description: str = A descrição da receita.
-        value: float = O valor da receita.
-        date: str = A data da receita.
-        time: str = O horário da receita.
-        category: str = A categoria da receita.
-        account: str = A conta da receita.
+        description : str
+            A descrição da receita.
+        value : float
+            O valor da receita.
+        date : str
+            A data da receita.
+        time : str
+            O horário da receita.
+        category : str
+            A categoria da receita.
+        account : str
+            A conta da receita.
 
         Returns
         -------
-        id: int = O id da receita não recebida.
+        id : int
+            O id da receita não recebida.
         """
 
         get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
@@ -47,8 +54,10 @@ class ConfirmRevenue:
 
         Parameters
         ----------
-        id: int = O id da receita.
-        new_date: str = A nova data da receita.
+        id : int
+            O id da receita.
+        new_date : str
+            A nova data da receita.
         """
 
         update_not_received_query = """UPDATE receitas SET data = "{}", recebido = "S" WHERE id_receita = {};""".format(

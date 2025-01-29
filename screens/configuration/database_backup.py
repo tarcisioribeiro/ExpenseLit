@@ -20,8 +20,10 @@ class Backup:
         Parameters
         ----------
 
-        backup_path: str = O diretório no qual o backup será salvo.
-        operational_system: str = O sistema operacional sobre o qual a aplicação está sendo executado.
+        backup_path : str
+            O diretório no qual o backup será salvo.
+        operational_system : str
+            O sistema operacional sobre o qual a aplicação está sendo executado.
         """
 
         time = GetActualTime()

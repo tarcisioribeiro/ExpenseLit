@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.db_config import db_config
 from dictionary.vars import (
     actual_year,
@@ -23,11 +22,13 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: str = O cartão selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
 
         Returns
         -------
-        actual_month: str = O nome do mês de fatura do cartão no qual a data atual se encontra.
+        actual_month : str
+            O nome do mês de fatura do cartão no qual a data atual se encontra.
         """
 
         user_name, user_document = Login().get_user_doc_name()
@@ -52,7 +53,8 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: str = O cartão selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -103,14 +105,17 @@ class Credit_Card:
 
         Parameters
         ----------
-
-        selected_card: str = O cartão selecionado pelo usuário.\n
-        year: int = O ano passado como parâmetro.\n
-        selected_month: str = O mês selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
+        year : int
+            O ano passado como parâmetro.
+        selected_month : str
+            O mês selecionado pelo usuário.
 
         Returns
         -------
-        float: O valor total das despesas do cartão no mês.
+        float
+            O valor total das despesas do cartão no mês.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -159,17 +164,25 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: str = O cartão selecionado pelo usuário.\n
-        year: int = O ano passado como parâmetro.\n
-        selected_month: str = O mês selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
+        year : int
+            O ano passado como parâmetro.
+        selected_month : str
+            O mês selecionado pelo usuário.
 
         Returns
         -------
-        descricao_list: list = A lista com a descrição das despesas.\n
-        valor_list: list = A lista com o valor das despesas.\n
-        data_list: list = A lista com a data das despesas.\n
-        categoria_list: list = A lista com a categoria das despesas.\n
-        parcela_list: list = A lista com a parcela das despesas.
+        descricao_list : list
+            A lista com a descrição das despesas.
+        valor_list : list
+            A lista com o valor das despesas.
+        data_list : list
+            A lista com a data das despesas.
+        categoria_list : list
+            A lista com a categoria das despesas.
+        parcela_list : list
+            A lista com a parcela das despesas.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -241,13 +254,17 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: str = O cartão selecionado pelo usuário.\n
-        year: int = O ano passado como parâmetro.\n
-        selected_month: str = O mês da fatura selecionada.
+        selected_card : str
+            O cartão selecionado pelo usuário.
+        year : int
+            O ano passado como parâmetro.
+        selected_month : str
+            O mês da fatura selecionada.
 
         Returns
         -------
-        converted_id_list: list = A lista com os ID's de despesas de cartão no mês.
+        converted_id_list : list
+            A lista com os ID's de despesas de cartão no mês.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -302,11 +319,13 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: str = O cartão selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
 
         Returns
         -------
-        float: O valor total das despesas futuras.
+        float
+            O valor total das despesas futuras.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -356,11 +375,13 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: O cartão selecionado pelo usuário.
+        selected_card : str
+            O cartão selecionado pelo usuário.
 
         Returns
         -------
-        float: O limite de crédito do cartão.
+        float
+            O limite de crédito do cartão.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -398,14 +419,19 @@ class Credit_Card:
 
         Parameters
         ----------
-        card: O cartão selecionado pelo usuário.
+        card : str
+            O cartão selecionado pelo usuário.
 
         Returns
         -------
-        card_number: str = O número do cartão.\n
-        card_owner: str = O nome do proprietário do cartão.\n
-        card_owner_document: int = O documento do proprietário do cartão.\n
-        card_security_code: str = O código de segurança do cartão.
+        card_number : str
+            O número do cartão.
+        card_owner : str
+            O nome do proprietário do cartão.
+        card_owner_document : int
+            O documento do proprietário do cartão.
+        card_security_code : str
+            O código de segurança do cartão.
         """
         user_name, user_document = Login().get_user_doc_name()
 
@@ -468,11 +494,13 @@ class Credit_Card:
 
         Parameters
         ----------
-        selected_card: O cartão de crédito selecionado.
+        selected_card : str
+            O cartão de crédito selecionado.
 
         Returns
         -------
-        remaining_limit: float = 0 valor do limite restante do cartão.
+        remaining_limit : float
+            0 valor do limite restante do cartão.
         """
         card_total_limit = self.card_limit(selected_card)
         not_payed_expenses = self.not_payed_expenses(selected_card)
