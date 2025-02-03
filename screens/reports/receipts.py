@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-from data.cache.session_state import logged_user
 from dictionary.style import system_font
 from datetime import datetime
 from dictionary.vars import operational_system, today, actual_horary, to_remove_list, absolute_app_path, transfer_image, SAVE_FOLDER
@@ -39,7 +38,7 @@ class Receipts:
         boolean
             Se a consulta é válida.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         if table == "despesas":
             id_query = """
@@ -236,7 +235,7 @@ class Receipts:
         destiny_account : str
             A conta de destino da transferência.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         origin_account_image = QueryExecutor().simple_consult_query(query=account_image_query, params=(origin_account, user_name, user_document))
         origin_account_image = QueryExecutor().treat_simple_result(origin_account_image, to_remove_list)
@@ -307,7 +306,7 @@ class Receipts:
         image.paste(transfer_image, (170, 250))
         image.paste(destiny_pasted_image, (320, 250))
 
-        caminho_arquivo = "{}/data/receipts/transfers/Comprovante_de_transferencia_{}_{}.png".format(
+        caminho_arquivo = "{}/data/transfers/Comprovante_de_transferencia_{}_{}.png".format(
             absolute_app_path, today, actual_horary)
 
         image.save(caminho_arquivo, dpi=(dpi, dpi))
@@ -335,7 +334,7 @@ class Receipts:
         account : str
             A conta da despesa/receita.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         account_image = QueryExecutor().simple_consult_query(query=account_image_query, params=(account, user_name, user_document))
         account_image = QueryExecutor().treat_simple_result(account_image, to_remove_list)
@@ -415,7 +414,7 @@ class Receipts:
 
         image.paste(pasted_image, (20, 220))
 
-        caminho_arquivo = "{}/data/receipts/reports/Relatorio_{}_{}.png".format(absolute_app_path, today, actual_horary)
+        caminho_arquivo = "{}/data/reports/Relatorio_{}_{}.png".format(absolute_app_path, today, actual_horary)
         image.save(caminho_arquivo, dpi=(dpi, dpi))
         st.image(caminho_arquivo, use_container_width=True)
 
@@ -426,7 +425,8 @@ class Receipts:
         """
         Coleta os dados da consulta do comprovante.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col4, col5, col6 = st.columns(3)
 

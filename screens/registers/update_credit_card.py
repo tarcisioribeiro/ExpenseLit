@@ -1,6 +1,5 @@
-from data.cache.session_state import logged_user
 from datetime import date
-from dictionary.vars import to_remove_list, today, decimal_values
+from dictionary.vars import to_remove_list, today
 from dictionary.app_vars import months, years
 from dictionary.sql import owner_cards_query, user_current_accounts_query, credit_card_expire_date_query
 from functions.credit_card import Credit_Card
@@ -32,7 +31,8 @@ class UpdateCreditCards:
         """
         Realiza o cadastro de um novo cartão de crédito.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
@@ -153,11 +153,12 @@ class UpdateCreditCards:
         """
         Atualiza os dados do cartão de crédito.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
-        credit_cards = QueryExecutor().complex_consult_query(owner_cards_query)
+        credit_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
         credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, to_remove_list)
 
         with col3:
@@ -223,19 +224,17 @@ class UpdateCreditCards:
         """
         Realiza o cadastro dos fechamentos de fatura do cartão de crédito.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
-        credit_cards = QueryExecutor().complex_consult_query(
-            owner_cards_query)
-        credit_cards = QueryExecutor().treat_numerous_simple_result(
-            credit_cards, to_remove_list)
+        credit_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
+        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, to_remove_list)
 
         if len(credit_cards) == 0:
             with col2:
-                st.warning(
-                    body="Você ainda não possui cartões cadastrados.")
+                st.warning(body="Você ainda não possui cartões cadastrados.")
 
         elif len(credit_cards) >= 1:
             with col1:
@@ -244,8 +243,7 @@ class UpdateCreditCards:
                 with st.expander(label="Dados da fatura", expanded=True):
                     card_name = st.selectbox(
                         label=":credit_card: Cartão", options=credit_cards)
-                    card_number, owner_name, owner_document, card_code = Credit_Card().credit_card_key(
-                        card=card_name)
+                    card_number, owner_name, owner_document, card_code = Credit_Card().get_credit_card_key(card=card_name)
                     year = st.selectbox(
                         label=":calendar: Ano", options=years)
                     month = st.selectbox(

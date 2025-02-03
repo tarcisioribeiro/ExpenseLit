@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from datetime import datetime
 from dictionary.sql import user_current_accounts_query, expenses_statement_query, revenues_statement_query
 from functions.login import Login
@@ -41,7 +40,7 @@ class AccountStatement:
         data_df_list : list
             A lista com os gráficos estruturados.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         value_list = []
         data_df_list = []
@@ -215,7 +214,7 @@ class AccountStatement:
         -------
         pdf: O PDF gerado pela função.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         unformatted_today = datetime.strptime(today, '%Y-%m-%d')
         formatted_today = unformatted_today.strftime('%d/%m/%Y')
@@ -275,7 +274,8 @@ class AccountStatement:
         """
         Menu principal.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)

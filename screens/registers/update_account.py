@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary, default_account_image
 from dictionary.app_vars import account_models
 from dictionary.sql import user_all_current_accounts_query
@@ -19,7 +18,8 @@ class UpdateAccounts:
         """
         Coleta os dados e cadastra uma nova conta.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
@@ -141,7 +141,8 @@ class UpdateAccounts:
         """
         Realiza a atualização dos dados da conta do usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 

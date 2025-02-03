@@ -33,7 +33,7 @@ class GetBalance:
             O valor total das despesas.
         """
 
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         str_total_expenses = QueryExecutor().simple_consult_query(query=total_expense_query, params=(user_name, user_document))
         str_total_expenses = QueryExecutor().treat_simple_result(str_total_expenses, to_remove_list)
@@ -84,7 +84,7 @@ class GetBalance:
         future_balance_list : list
             A lista com o balanço futuro das contas.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         accounts_expenses = QueryExecutor().complex_consult_query(query=accounts_expenses_query, params=(today, user_name, user_document))
         accounts_expenses = QueryExecutor().treat_numerous_simple_result(accounts_expenses, to_remove_list)
@@ -135,7 +135,7 @@ class GetBalance:
             Lista com as maiores despesas.
         """
 
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
         last_expenses = QueryExecutor().complex_consult_query(query=last_expense_query, params=(user_name, user_document))
         last_revenues = QueryExecutor().complex_consult_query(query=last_revenue_query, params=(today, user_name, user_document))
         max_revenues = QueryExecutor().complex_consult_query(query=max_revenue_query, params=(today, user_name, user_document))

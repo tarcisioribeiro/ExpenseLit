@@ -1,5 +1,4 @@
 import streamlit as st
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import last_expense_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query
 from dictionary.vars import to_remove_list, expense_categories
 from functions.login import Login
@@ -19,7 +18,8 @@ class NewCurrentExpense:
         """
         Obtém os dados de uma nova despesa em conta corrente.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
         user_current_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
@@ -109,8 +109,7 @@ class NewCurrentExpense:
                         str_value = Variable().treat_complex_string(value)
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(
-                            str_value, account))
+                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))
                         QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                         st.subheader(
@@ -119,8 +118,7 @@ class NewCurrentExpense:
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 
-                        Receipts().generate_receipt('despesas', id, description,
-                                                    value, str(date), category, account)
+                        Receipts().generate_receipt('despesas', id, description, value, str(date), category, account)
 
                     else:
                         with data_validation_expander:

@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from dictionary.sql import last_revenue_id_query, user_fund_accounts_query
 from functions.login import Login
 from dictionary.vars import to_remove_list
@@ -24,7 +23,7 @@ class NewFundRevenue:
         user_fund_accounts : list
             A lista com as contas de fundo de garantia do usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_fund_accounts = QueryExecutor().complex_consult_query(query=user_fund_accounts_query, params=(user_name, user_document))
         user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, to_remove_list)
@@ -35,7 +34,8 @@ class NewFundRevenue:
         """
         Coleta os dados da nova receita de fundo de garantia.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_fund_accounts = self.get_user_fund_accounts()
 

@@ -1,7 +1,6 @@
 import streamlit as st
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.vars import expense_categories, to_remove_list
-from dictionary.sql import last_loan_id_query, creditor_doc_name_query, user_current_accounts_query, creditors_query, doc_name_query, total_account_revenue_query, total_account_expense_query
+from dictionary.sql import last_loan_id_query, creditor_doc_name_query, user_current_accounts_query, creditors_query, total_account_revenue_query, total_account_expense_query
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
@@ -19,7 +18,7 @@ class TakeNewLoan:
         -------
         user_current_accounts: list = A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -30,7 +29,8 @@ class TakeNewLoan:
         """
         Coleta os dados do novo empréstimo tomado pelo cliente.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
@@ -95,12 +95,7 @@ class TakeNewLoan:
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
 
-                        benefited_doc_name = QueryExecutor().complex_consult_query(
-                            doc_name_query)
-                        benefited_doc_name = QueryExecutor().treat_complex_result(
-                            benefited_doc_name, to_remove_list)
-                        benefited_name = benefited_doc_name[0]
-                        benefited_document = benefited_doc_name[1]
+                        benefited_name, benefited_document = Login().get_user_data(return_option="user_doc_name")
 
                         confirm_values_check_box = st.checkbox(
                             label="Confirmar Dados")
@@ -188,7 +183,8 @@ class TakeNewLoan:
         """
         Coleta os dados do empréstimo que está sendo concedido pelo usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 
@@ -360,7 +356,7 @@ class MakeNewLoan:
         user_current_accounts : list
             A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -371,7 +367,8 @@ class MakeNewLoan:
         """
         Coleta os dados do empréstimo que está sendo concedido pelo usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 

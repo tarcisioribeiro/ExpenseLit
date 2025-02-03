@@ -388,6 +388,19 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `usuarios_logados`;
+
+CREATE TABLE `usuarios_logados` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `usuario_id` int NOT NULL,
+  `nome_completo` varchar(255) NOT NULL,
+  `documento` varchar(50) NOT NULL,
+  `data_login` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `sessao_id` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessao_id` (`sessao_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

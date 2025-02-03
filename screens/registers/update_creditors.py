@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from functions.login import Login
 from dictionary.vars import today
 from functions.query_executor import QueryExecutor
@@ -27,7 +26,8 @@ class Creditors:
         """
         Realiza o cadastro de um novo credor.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 

@@ -402,10 +402,6 @@ WHERE
         AND usuarios.cpf = %s
 GROUP BY despesas_cartao_credito.categoria;"""
 
-name_query: str = "SELECT nome FROM usuarios WHERE login = %s AND senha = %s"
-sex_query: str = "SELECT sexo FROM usuarios WHERE login = %s AND senha = %s"
-doc_name_query = """SELECT usuarios.nome, usuarios.cpf FROM usuarios WHERE login = %s AND senha = %s"""
-
 owner_cards_query = """
 SELECT 
     cartao_credito.nome_cartao

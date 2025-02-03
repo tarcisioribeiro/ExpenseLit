@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data.cache.session_state import logged_user
-from dictionary.sql import not_received_loans_query, user_current_accounts_query, doc_name_query, last_revenue_id_query
+from dictionary.sql import not_received_loans_query, user_current_accounts_query, last_revenue_id_query
 from dictionary.vars import to_remove_list, today
 from functions.query_executor import QueryExecutor
 from functions.login import Login
@@ -20,7 +19,8 @@ class ReceiveLoan:
         """
         Exibe os empréstimos concedidos que ainda não foram recebidos.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         not_received_loans = QueryExecutor().complex_compund_query(query=not_received_loans_query, list_quantity=9, params=(user_name, user_document))
 
@@ -117,10 +117,7 @@ class ReceiveLoan:
                                 AND emprestimos.descricao = '{}'
                     '''.format(debt)
 
-                    creditor_doc_name = QueryExecutor().complex_consult_brute_query(doc_name_query)
-                    creditor_doc_name = QueryExecutor().treat_complex_result(creditor_doc_name, to_remove_list)
-                    benefited_name = creditor_doc_name[0]
-                    benefited_document = creditor_doc_name[1]
+                    benefited_name, benefited_document = Login().get_user_data(return_option="user_doc_name")
 
                     receiving_max_value = QueryExecutor().simple_consult_brute_query(receiving_max_value_query)
                     receiving_max_value = QueryExecutor().treat_simple_result(receiving_max_value, to_remove_list)

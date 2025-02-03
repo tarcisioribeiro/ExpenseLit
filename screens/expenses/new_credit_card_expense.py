@@ -1,6 +1,5 @@
 import mysql.connector
 import streamlit as st
-from data.cache.session_state import logged_user
 from datetime import timedelta
 from dictionary.db_config import db_config
 from dictionary.vars import expense_categories, to_remove_list
@@ -73,7 +72,8 @@ class NewCreditCardExpense:
         """
         Obtém os dados da nova despesa de cartão.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
         user_cards = QueryExecutor().treat_numerous_simple_result(
@@ -111,14 +111,11 @@ class NewCreditCardExpense:
 
                     parcel = st.number_input(
                         label=":pencil: Parcelas", min_value=1, step=1)
-                    inputed_credit_card_code = st.text_input(
-                        label=":credit_card: Informe o código do cartão", max_chars=3)
+                    inputed_credit_card_code = st.text_input(label=":credit_card: Informe o código do cartão", max_chars=3, type="password")
 
-                    credit_card_number, credit_card_owner, credit_card_owner_document, credit_card_code = Credit_Card().credit_card_key(
-                        card=card)
+                    credit_card_number, credit_card_owner, credit_card_owner_document, credit_card_code = Credit_Card().get_credit_card_key(card=card)
 
-                    confirm_values_checkbox = st.checkbox(
-                        label="Confirmar Dados")
+                    confirm_values_checkbox = st.checkbox(label="Confirmar Dados")
 
                 generate_receipt_button = st.button(
                     label=":pencil: Gerar Comprovante", key="generate_receipt_button"

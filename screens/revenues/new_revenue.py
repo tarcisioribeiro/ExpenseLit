@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from dictionary.vars import revenue_categories, to_remove_list
 from dictionary.sql import last_revenue_id_query, user_current_accounts_query
 from functions.query_executor import QueryExecutor
@@ -24,7 +23,7 @@ class NewCurrentRevenue:
         user_current_accounts : list
             A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
@@ -35,7 +34,8 @@ class NewCurrentRevenue:
         """
         Realiza a coleta dos dados da nova receita e a insere no banco de dados.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_current_accounts = self.get_user_current_accounts()
 

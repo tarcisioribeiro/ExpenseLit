@@ -2,10 +2,9 @@ import streamlit as st
 import mysql.connector
 import bcrypt
 import os
+import uuid
 from dictionary.vars import to_remove_list, absolute_app_path
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.db_config import db_config
-from dictionary.sql import doc_name_query, name_query, sex_query
 from functions.query_executor import QueryExecutor
 from time import sleep
 
@@ -14,6 +13,63 @@ class Login:
     """
     Classe que representa o login, com métodos de validação e obtenção dos dados de login.
     """
+    def get_user_data(self, return_option: str):
+        """
+        Faz a consulta dos dados do usuário, de acordo com a opção de dados retornados selecionada.
+
+        Parameters
+        ----------
+        return_option : str
+            Define os dados que serão retornados pela função.
+
+        Returns
+        -------
+        user_name : str
+            Nome completo do usuário logado.
+        user_document : str
+            Documento do usuário logado.
+        """
+        user_login_query = ""
+        user_data_query = ""
+
+        if return_option == "user_doc_name":
+            user_data_query = """
+            SELECT usuarios.nome, usuarios.cpf
+            FROM usuarios
+            INNER JOIN usuarios_logados ON usuarios.id_usuario = usuarios_logados.usuario_id
+            WHERE usuarios_logados.sessao_id = %s;
+            """
+
+            user_data = QueryExecutor().complex_compund_query(query=user_data_query, list_quantity=2, params=(st.session_state.sessao_id,))
+            user_data = QueryExecutor().treat_complex_result(values_to_treat=user_data, values_to_remove=to_remove_list)
+
+            user_name = user_data[0]
+            user_document = user_data[1]
+
+            return user_name, user_document
+
+        elif return_option == "user_login_password":
+
+            user_login_query = """
+            SELECT usuarios.login, usuarios.senha
+            FROM usuarios
+            INNER JOIN usuarios_logados ON usuarios.id_usuario = usuarios_logados.usuario_id
+            WHERE usuarios_logados.sessao_id = %s
+            """
+
+            user_login_data = QueryExecutor().complex_compund_query(query=user_login_query, list_quantity=2, params=(st.session_state.sessao_id,))
+            user_login_data = QueryExecutor().treat_complex_result(values_to_treat=user_login_data, values_to_remove=to_remove_list)
+
+            user_login = user_login_data[0]
+            user_password = str(user_login_data[1])
+            
+            if user_password.startswith('b'):
+                user_password = user_password[1:]
+
+            return user_login, user_password
+
+        else:
+            st.error(body="Parâmetro não reconhecido.")
 
     def validate_login(self, login: str, password: str):
         """
@@ -36,25 +92,6 @@ class Login:
         else:
             return False
 
-    def get_user_doc_name(self):
-        """
-        Realiza a consulta do nome e documento do usuário.
-
-        Returns
-        -------
-        owner_name : str
-            O nome do usuário.
-        owner_document : int
-            O documento do usuário.
-        """
-
-        user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(logged_user, logged_user_password))
-        treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
-
-        owner_name = treated_user_doc_name[0]
-        owner_document = treated_user_doc_name[1]
-
-        return owner_name, owner_document
 
     def check_login(self, user, password):
         """
@@ -86,6 +123,32 @@ class Login:
             return bcrypt.checkpw(password.encode('utf-8'), hashed_password), hashed_password
 
         return False, '0'
+    
+    def register_login(self, logged_user_id: int, logged_user_name: str, logged_user_document: str):
+        """
+        Registra a sessão do usuário no banco de dados.
+
+        Paramaters
+        ----------
+        logged_user_id : int
+            ID do usuário que está presente na tabela 'usuarios'.
+        logged_user_name : str
+            Nome completo do usuário, presente na tabela 'usuarios'.
+        logged_user_document : str
+            Documento do usuário, presente na tabela 'usuarios'.
+        """
+        session_id = str(uuid.uuid4())
+
+        register_session_query = """INSERT INTO usuarios_logados (usuario_id, nome_completo, documento, sessao_id) VALUES (%s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE data_login = CURRENT_TIMESTAMP, sessao_id = VALUES(sessao_id);"""
+        session_values = (logged_user_id, logged_user_name, logged_user_document, session_id)
+
+        QueryExecutor.insert_query(self, query=register_session_query, values=session_values, success_message="Sessão registrada.", error_message="Erro ao registrar sessão:")
+
+        sleep(1.25)
+
+        st.session_state.usuario_id = logged_user_id
+        st.session_state.sessao_id = session_id
 
     def check_user(self):
         """
@@ -98,6 +161,11 @@ class Login:
         sex : str
             O sexo do usuário.
         """
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+
+        name_query: str = "SELECT nome FROM usuarios WHERE login = %s AND senha = %s"
+        sex_query: str = "SELECT sexo FROM usuarios WHERE login = %s AND senha = %s"
+
         name = QueryExecutor().simple_consult_query(query=name_query, params=(logged_user, logged_user_password))
         name = QueryExecutor().treat_simple_result(name, to_remove_list)
 
@@ -155,20 +223,19 @@ class Login:
                                 st.toast("Login bem-sucedido!")
 
                                 log_query = '''INSERT INTO logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES (%s, %s, %s)'''
-                                log_values = (user, 'Acesso',
-                                              'O usuário acessou o sistema.')
-                                query_executor.insert_query(
-                                    log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                                log_values = (user, 'Acesso','O usuário acessou o sistema.')
+                                query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                with open("data/cache/session_state.py", "w") as archive:
-                                    archive.write(
-                                        "logged_user = '{}'\n".format(user))
-                                    archive.write(
-                                        "logged_user_password = {}\n".format(hashed_password))
-                                    sleep(1)
-                                    os.chmod(
-                                        "data/cache/session_state.py", 0o600)
-                                sleep(1)
+                                name_doc_query = """SELECT id_usuario, nome, cpf FROM usuarios WHERE login = %s AND senha = %s;"""
+
+                                user_name_doc = QueryExecutor().complex_compund_query(query=name_doc_query, list_quantity=3, params=(user, hashed_password))
+                                user_name_doc = QueryExecutor().treat_numerous_simple_result(user_name_doc, to_remove_list)
+
+                                user_id = int(user_name_doc[0])
+                                user_name = str(user_name_doc[1])
+                                user_document = str(user_name_doc[2])
+
+                                self.register_login(logged_user_id=user_id, logged_user_name=user_name, logged_user_document=user_document)
 
                             st.session_state.is_logged_in = True
                             st.rerun()

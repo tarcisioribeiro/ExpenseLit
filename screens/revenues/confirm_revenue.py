@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user
 from datetime import datetime
 from dictionary.sql import not_received_revenue_query
 from dictionary.vars import to_remove_list, today
@@ -69,7 +68,8 @@ class ConfirmRevenue:
         """
         Exibe as receitas não recebidas.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col4, col5, col6 = st.columns(3)
 

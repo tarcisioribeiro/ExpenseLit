@@ -1,4 +1,3 @@
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.sql import owner_cards_query, card_invoices_query
 from dictionary.vars import today, to_remove_list, actual_year
 from functions.login import Login
@@ -28,7 +27,8 @@ class CreditCardInvoice:
         selected_month : str
             O mês da fatura selecionado pelo usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         month_data = selected_month.split()
         month_data.pop(1)
@@ -110,7 +110,8 @@ class CreditCardInvoice:
         """
         Exibe as faturas de cartão que ainda não foram pagas.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
 

@@ -1,8 +1,6 @@
 import streamlit as st
-from data.cache.session_state import logged_user, logged_user_password
 from dictionary.vars import transfer_categories, to_remove_list
-from dictionary.sql import (last_transfer_id_query, doc_name_query, user_current_accounts_query,
-                            total_account_revenue_query, total_account_expense_query, user_fund_accounts_query)
+from dictionary.sql import last_transfer_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query, user_fund_accounts_query
 from functions.get_actual_time import GetActualTime
 from functions.login import Login
 from functions.query_executor import QueryExecutor
@@ -20,8 +18,8 @@ class NewTransfer:
         """
         Realiza a coleta dos dados da transferência do fundo de garantia e a insere no banco de dados.
         """
-
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col4, col5, col6 = st.columns(3)
 
@@ -64,9 +62,6 @@ class NewTransfer:
                     destiny_account = st.selectbox(label=":bank: Conta de Destino", options=user_current_accounts)
                     transfered = st.selectbox(label=":inbox_tray: Transferido", options=options.keys())
 
-                    user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(user_name, user_document))
-                    treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
-
                     confirm_values_check_box = st.checkbox(label="Confirmar dados")
 
                 generate_receipt_button = st.button(label=":pencil: Gerar Comprovante", key="generate_receipt_button")
@@ -100,8 +95,7 @@ class NewTransfer:
                             st.success(body="Dados Válidos.")
 
                         actual_horary = GetActualTime().get_actual_time()
-                        revenue_owner_name = treated_user_doc_name[0]
-                        revenue_owner_document = treated_user_doc_name[1]
+                        revenue_owner_name, revenue_owner_document = Login().get_user_data(return_option="user_doc_name")
 
                         transfer_query = "INSERT INTO transferencias (descricao, valor, data, horario, categoria, conta_origem, conta_destino, proprietario_transferencia, documento_proprietario_transferencia, transferido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                         expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -150,7 +144,8 @@ class NewTransfer:
         """
         Coleta os dados da nova transferência e a insere no banco de dados.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col4, col5, col6 = st.columns(3)
 
@@ -185,9 +180,6 @@ class NewTransfer:
                     destiny_account = st.selectbox(label=":bank: Conta de Destino", options=user_current_accounts)
                     transfered = st.selectbox(label=":inbox_tray: Transferido", options=options)
 
-                    user_doc_name = QueryExecutor().complex_consult_query(query=doc_name_query, params=(user_name, user_document))
-                    treated_user_doc_name = QueryExecutor().treat_complex_result(user_doc_name, to_remove_list)
-
                     confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
                 generate_receipt_button = st.button(label=":pencil: Gerar Comprovante", key="generate_receipt_button")
@@ -221,8 +213,7 @@ class NewTransfer:
                             st.success(body="Dados Válidos.")
 
                         actual_horary = GetActualTime().get_actual_time()
-                        revenue_owner_name = treated_user_doc_name[0]
-                        revenue_owner_document = treated_user_doc_name[1]
+                        revenue_owner_name, revenue_owner_document = Login().get_user_data(return_option="user_doc_name")
 
                         transfer_query = "INSERT INTO transferencias (descricao, valor, data, horario, categoria, conta_origem, conta_destino, proprietario_transferencia, documento_proprietario_transferencia, transferido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                         expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"

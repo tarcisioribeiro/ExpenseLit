@@ -31,7 +31,7 @@ class Credit_Card:
             O nome do mês de fatura do cartão no qual a data atual se encontra.
         """
 
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         month_query = '''
         SELECT 
@@ -56,7 +56,7 @@ class Credit_Card:
         selected_card : str
             O cartão selecionado pelo usuário.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         actual_month = self.get_card_month(selected_card)
 
@@ -91,10 +91,7 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(
-                f"Erro ao consultar valor de despesas do cartão não pagas: {
-                    err}"
-            )
+            st.error(f"Erro ao consultar valor de despesas do cartão não pagas: {err}")
         finally:
             if connection.is_connected():
                 connection.close()
@@ -117,7 +114,7 @@ class Credit_Card:
         float
             O valor total das despesas do cartão no mês.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         credit_card_month_expenses_query: str = """
             SELECT 
@@ -150,10 +147,7 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(
-                f"Erro ao consultar valor total de despesas do cartão no mês: {
-                    err}"
-            )
+            st.error(f"Erro ao consultar valor total de despesas do cartão no mês: {err}")
         finally:
             if connection.is_connected():
                 connection.close()
@@ -184,7 +178,7 @@ class Credit_Card:
         parcela_list : list
             A lista com a parcela das despesas.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         credit_card_month_expenses_complete_query: str = """
         SELECT 
@@ -240,10 +234,7 @@ class Credit_Card:
             )
 
         except mysql.connector.Error as err:
-            st.error(
-                f"Erro ao consultar detalhamento das despesas do cartão no mês: {
-                    err}"
-            )
+            st.error(f"Erro ao consultar detalhamento das despesas do cartão no mês: {err}")
         finally:
             if connection.is_connected():
                 connection.close()
@@ -266,7 +257,7 @@ class Credit_Card:
         converted_id_list : list
             A lista com os ID's de despesas de cartão no mês.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         credit_card_id_expenses_query = """
         SELECT 
@@ -327,7 +318,7 @@ class Credit_Card:
         float
             O valor total das despesas futuras.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         actual_month = self.get_card_month(selected_card)
 
@@ -361,10 +352,7 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(
-                f"Erro ao consultar valor total das despesas futuras do cartão: {
-                    err}"
-            )
+            st.error(f"Erro ao consultar valor total das despesas futuras do cartão: {err}")
         finally:
             if connection.is_connected():
                 connection.close()
@@ -383,7 +371,7 @@ class Credit_Card:
         float
             O limite de crédito do cartão.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         credit_card_limit_query: str = """
         SELECT 
@@ -433,7 +421,7 @@ class Credit_Card:
         card_security_code : str
             O código de segurança do cartão.
         """
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         card_key_query = """
         SELECT 

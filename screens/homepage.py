@@ -7,7 +7,6 @@ from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from dictionary.sql import fund_expense_query, fund_revenue_query, ticket_expense_query, ticket_revenue_query, loan_expense_query, debts_expense_query, most_categories_expenses_query, most_credit_card_expenses_query, most_categories_revenues_query, owner_active_cards_query
 from dictionary.vars import to_remove_list, string_actual_month, actual_year, absolute_app_path
-from dictionary.user_stats import user_real_name, user_sex
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib import font_manager as fm
@@ -66,7 +65,7 @@ class Home:
         """
         balance = GetBalance().balance()
 
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         values_list = []
 
@@ -118,7 +117,8 @@ class Home:
         accounts_list, accounts_balance, future_accounts_balance = GetBalance().accounts_balance()
         last_revenues, last_expenses, max_revenue, max_expense = GetBalance().list_values()
 
-        user_name, user_document = Login().get_user_doc_name()
+        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_sex = Login().check_user()
 
         col1, col2, col3 = st.columns(3)
 
@@ -131,7 +131,7 @@ class Home:
 
             col21, col22, col23 = st.columns(3)
 
-            str_user_name = str(user_real_name)
+            str_user_name = str(user_name)
             str_user_name = str_user_name.split(" ")
 
             with col22:
