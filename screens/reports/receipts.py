@@ -46,13 +46,13 @@ class Receipts:
                 despesas.id_despesa
             FROM
                 despesas
-                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.cpf
+                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.documento
             WHERE
                 despesas.data = '{}'
             AND despesas.conta = '{}'
             AND despesas.valor = {}
             AND usuarios.nome = '{}'
-            AND usuarios.cpf = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
+            AND usuarios.documento = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
 
         if table == "receitas":
             id_query = """
@@ -60,13 +60,13 @@ class Receipts:
                 receitas.id_receita
             FROM
                 receitas
-                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.cpf
+                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.documento
             WHERE
                 receitas.data = '{}'
             AND receitas.conta = '{}'
             AND receitas.valor = {}
             AND usuarios.nome = '{}'
-            AND usuarios.cpf = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
+            AND usuarios.documento = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
 
         if table == "despesas_cartao_credito":
             id_query = """
@@ -76,13 +76,13 @@ class Receipts:
                 despesas_cartao_credito
                     INNER JOIN
                 usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
             WHERE
                 despesas_cartao_credito.data = '{}'
             AND despesas_cartao_credito.cartao = '{}'
             AND despesas_cartao_credito.valor = {}
             AND usuarios.nome = '{}'
-            AND usuarios.cpf = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
+            AND usuarios.documento = {};""".format(date.strftime("%Y-%m-%d"), account, value, user_name, user_document)
 
         if table == "emprestimos":
             id_query = """
@@ -92,13 +92,13 @@ class Receipts:
                 emprestimos
                     INNER JOIN
                 usuarios ON emprestimos.credor = usuarios.nome
-                    AND emprestimos.documento_credor = usuarios.cpf
+                    AND emprestimos.documento_credor = usuarios.documento
             WHERE
                 emprestimos.data = '{}'
             AND emprestimos.conta = '{}'
             AND emprestimos.valor = {}
             AND usuarios.nome = '{}'
-            AND usuarios.cpf = {};""".format(date.strftime("%Y-%m-%d"),account, value, user_name, user_document)
+            AND usuarios.documento = {};""".format(date.strftime("%Y-%m-%d"),account, value, user_name, user_document)
 
         id = QueryExecutor().complex_consult_brute_query(id_query)
         id = QueryExecutor().treat_numerous_simple_result(id, to_remove_list)

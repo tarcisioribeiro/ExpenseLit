@@ -34,7 +34,7 @@ class Login:
 
         if return_option == "user_doc_name":
             user_data_query = """
-            SELECT usuarios.nome, usuarios.cpf
+            SELECT usuarios.nome, usuarios.documento
             FROM usuarios
             INNER JOIN usuarios_logados ON usuarios.id_usuario = usuarios_logados.usuario_id
             WHERE usuarios_logados.sessao_id = %s;
@@ -226,7 +226,7 @@ class Login:
                                 log_values = (user, 'Acesso','O usuário acessou o sistema.')
                                 query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                name_doc_query = """SELECT id_usuario, nome, cpf FROM usuarios WHERE login = %s AND senha = %s;"""
+                                name_doc_query = """SELECT id_usuario, nome, documento FROM usuarios WHERE login = %s AND senha = %s;"""
 
                                 user_name_doc = QueryExecutor().complex_compund_query(query=name_doc_query, list_quantity=3, params=(user, hashed_password))
                                 user_name_doc = QueryExecutor().treat_numerous_simple_result(user_name_doc, to_remove_list)

@@ -28,7 +28,7 @@ if not os.path.isfile(software_env_path):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.header(body=":dollar: ExpenseLit - Controle Financeiro")
+        st.header(body=":moneybag: ExpenseLit")
 
     with col2:
         st.error(body="Não foi configurado o ambiente de conexão. Informe os dados de conexão do banco de dados.")

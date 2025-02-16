@@ -79,7 +79,7 @@ class ReceiveLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_credor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.credor
-                                AND usuarios.cpf = emprestimos.documento_credor
+                                AND usuarios.documento = emprestimos.documento_credor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'
@@ -95,7 +95,7 @@ class ReceiveLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_credor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.credor
-                                AND usuarios.cpf = emprestimos.documento_credor
+                                AND usuarios.documento = emprestimos.documento_credor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'
@@ -111,7 +111,7 @@ class ReceiveLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_credor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.credor
-                                AND usuarios.cpf = emprestimos.documento_credor
+                                AND usuarios.documento = emprestimos.documento_credor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'

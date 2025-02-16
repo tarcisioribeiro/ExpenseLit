@@ -90,7 +90,7 @@ class PayLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_devedor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.devedor
-                                AND usuarios.cpf = emprestimos.documento_devedor
+                                AND usuarios.documento = emprestimos.documento_devedor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'
@@ -106,7 +106,7 @@ class PayLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_devedor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.devedor
-                                AND usuarios.cpf = emprestimos.documento_devedor
+                                AND usuarios.documento = emprestimos.documento_devedor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'
@@ -122,7 +122,7 @@ class PayLoan:
                                 AND contas.documento_proprietario_conta = emprestimos.documento_devedor
                                 INNER JOIN
                             usuarios ON usuarios.nome = emprestimos.devedor
-                                AND usuarios.cpf = emprestimos.documento_devedor
+                                AND usuarios.documento = emprestimos.documento_devedor
                         WHERE
                             emprestimos.pago = 'N'
                                 AND emprestimos.descricao = '{}'

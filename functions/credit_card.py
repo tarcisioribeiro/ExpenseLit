@@ -70,7 +70,7 @@ class Credit_Card:
                     AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
                     INNER JOIN
                 usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
             WHERE
                 despesas_cartao_credito.cartao = '{}'
                     AND despesas_cartao_credito.data <= fechamentos_cartao.data_comeco_fatura
@@ -79,7 +79,7 @@ class Credit_Card:
                     AND fechamentos_cartao.ano <= '{}'
                     AND fechamentos_cartao.mes = '{}'
                     AND usuarios.nome = '{}'
-                    AND usuarios.cpf = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
+                    AND usuarios.documento = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -126,7 +126,7 @@ class Credit_Card:
                     AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
                     INNER JOIN
                 usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
             WHERE
                 despesas_cartao_credito.cartao = '{}'
                     AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
@@ -135,7 +135,7 @@ class Credit_Card:
                     AND fechamentos_cartao.ano = '{}'
                     AND fechamentos_cartao.mes = '{}'
                     AND usuarios.nome = '{}'
-                    AND usuarios.cpf = '{}';""".format(selected_card, year, selected_month,  user_name, user_document)
+                    AND usuarios.documento = '{}';""".format(selected_card, year, selected_month,  user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -194,7 +194,7 @@ class Credit_Card:
                 AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
                 INNER JOIN
             usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
         WHERE
             despesas_cartao_credito.cartao = '{}'
                 AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
@@ -203,7 +203,7 @@ class Credit_Card:
                 AND fechamentos_cartao.ano = '{}'
                 AND fechamentos_cartao.mes = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.cpf = '{}';""".format(selected_card, year, selected_month, user_name, user_document)
+                AND usuarios.documento = '{}';""".format(selected_card, year, selected_month, user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -269,7 +269,7 @@ class Credit_Card:
                 AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
                 INNER JOIN
             usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
         WHERE
             despesas_cartao_credito.cartao = '{}'
                 AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
@@ -277,7 +277,7 @@ class Credit_Card:
                 AND fechamentos_cartao.ano = '{}'
                 AND fechamentos_cartao.mes = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.cpf = '{}'
+                AND usuarios.documento = '{}'
                 AND pago = 'N';""".format(selected_card, year, selected_month, user_name, user_document)
 
         try:
@@ -332,7 +332,7 @@ class Credit_Card:
                 AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
                 INNER JOIN
             usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf
+                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
         WHERE
             despesas_cartao_credito.cartao = '{}'
                 AND despesas_cartao_credito.pago = 'N'
@@ -340,7 +340,7 @@ class Credit_Card:
                 AND fechamentos_cartao.ano = '{}'
                 AND fechamentos_cartao.mes = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.cpf = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
+                AND usuarios.documento = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -379,12 +379,12 @@ class Credit_Card:
         FROM
             cartao_credito
                 INNER JOIN
-            usuarios ON cartao_credito.documento_titular = usuarios.cpf
+            usuarios ON cartao_credito.documento_titular = usuarios.documento
                 AND cartao_credito.proprietario_cartao = usuarios.nome
         WHERE
             cartao_credito.nome_cartao = '{}'
         AND usuarios.nome = '{}'
-        AND usuarios.cpf = '{}';""".format(selected_card, user_name, user_document)
+        AND usuarios.documento = '{}';""".format(selected_card, user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -433,11 +433,11 @@ class Credit_Card:
             cartao_credito
                 INNER JOIN
             usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
-                AND cartao_credito.documento_titular = usuarios.cpf
+                AND cartao_credito.documento_titular = usuarios.documento
         WHERE
             cartao_credito.nome_cartao = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.cpf = '{}';""".format(card, user_name, user_document)
+                AND usuarios.documento = '{}';""".format(card, user_name, user_document)
 
         try:
             connection = mysql.connector.connect(**db_config)
