@@ -28,7 +28,7 @@ class App:
         delete_session_query = """DELETE usuarios_logados FROM usuarios_logados WHERE nome_completo = %s AND documento = %s;"""
         delete_session = QueryExecutor().insert_query(query=delete_session_query, values=(logged_user_name, logged_user_document), success_message="Logout efetuado.", error_message="Erro ao efetuar logout:")
 
-        log_query = '''INSERT INTO seguranca.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
         log_values = (logged_user, "Logoff", "O usuário realizou logoff.")
         QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
