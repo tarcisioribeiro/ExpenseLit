@@ -26,7 +26,7 @@ class App:
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         delete_session_query = """DELETE usuarios_logados FROM usuarios_logados WHERE nome_completo = %s AND documento = %s;"""
-        delete_session = QueryExecutor().insert_query(query=delete_session_query, values=(logged_user_name, logged_user_document), success_message="Logout efetuado.", error_message="Erro ao efetuar logout:")
+        QueryExecutor().insert_query(query=delete_session_query, values=(logged_user_name, logged_user_document), success_message="Logout efetuado.", error_message="Erro ao efetuar logout:")
 
         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
         log_values = (logged_user, "Logoff", "O usuário realizou logoff.")
