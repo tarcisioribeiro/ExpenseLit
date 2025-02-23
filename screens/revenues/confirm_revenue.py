@@ -82,14 +82,12 @@ class ConfirmRevenue:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    revenue_id, description, value, date, time, category, account = (
-                        revenue_values)
+                    revenue_id, description, value, date, time, category, account = (revenue_values)
 
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(
-                            time[i], to_remove_list)
+                        aux_time = QueryExecutor().treat_simple_result(time[i], to_remove_list)
                         time_list.append(aux_time)
 
                     loan_data_df = pd.DataFrame({"ID": revenue_id, "Descrição": description, "Valor": value,

@@ -62,23 +62,16 @@ class NewFundRevenue:
                         "Não": "N"
                     }
 
-                    description = st.text_input(
-                        label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", key="new_fund_description")
-                    value = st.number_input(
-                        label=":dollar: Valor", min_value=0.01)
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", key="new_fund_description", help="Descrição breve da receita.", max_chars=25)
+                    value = st.number_input(label=":dollar: Valor", min_value=0.01)
                     date = st.date_input(label=":date: Data")
-                    category = st.selectbox(label=":card_index_dividers: Categoria", options=[
-                                            "Depósito", "Rendimentos"])
-                    account = st.selectbox(
-                        label=":bank: Conta", options=user_fund_accounts)
-                    received = st.selectbox(
-                        label=":inbox_tray: Recebido", options=options.keys())
+                    category = st.selectbox(label=":card_index_dividers: Categoria", options=["Depósito", "Rendimentos"])
+                    account = st.selectbox(label=":bank: Conta", options=user_fund_accounts)
+                    received = st.selectbox(label=":inbox_tray: Recebido", options=options.keys())
 
-                    confirm_values_check_box = st.checkbox(
-                        label="Confirmar Dados")
+                    confirm_values_check_box = st.checkbox(label="Confirmar Dados")
 
-            send_revenue_button = st.button(
-                label=":pencil: Gerar Comprovante", key="send_revenue_button")
+            send_revenue_button = st.button(label=":pencil: Gerar Comprovante", key="send_revenue_button")
 
             with col6:
                 if send_revenue_button and confirm_values_check_box:
@@ -92,8 +85,7 @@ class NewFundRevenue:
 
                         st.subheader(body="Validação de Dados")
 
-                        data_validation_expander = st.expander(
-                            label="Informações", expanded=True)
+                        data_validation_expander = st.expander(label="Informações", expanded=True)
 
                     if (
                         description != ""
@@ -120,25 +112,20 @@ class NewFundRevenue:
                             user_document,
                             received,
                         )
-                        QueryExecutor().insert_query(
-                            revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
+                        QueryExecutor().insert_query(revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
 
                         str_value = Variable().treat_complex_string(value)
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(
-                            str_value, account))
-                        QueryExecutor().insert_query(
-                            log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                        log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(str_value, account))
+                        QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                        st.subheader(
-                            body=":pencil: Comprovante de Receita")
+                        st.subheader(body=":pencil: Comprovante de Receita")
 
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 
-                        Receipts().generate_receipt(
-                            'receitas', id, description, value, str(date), category, account)
+                        Receipts().generate_receipt('receitas', id, description, value, str(date), category, account)
 
                     else:
                         with data_validation_expander:

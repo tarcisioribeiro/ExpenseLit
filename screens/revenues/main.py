@@ -31,9 +31,7 @@ class NewRevenue:
 
         with col2:
 
-            revenue_type = st.selectbox(
-                label="Tipo de Receita", options=menu_options.keys())
-
-        if revenue_type:
+            revenue_type = st.selectbox(label="Tipo de Receita", options=menu_options.keys())
             call_interface = menu_options[revenue_type]
-            call_interface.main_menu()
+        
+        call_interface.main_menu()

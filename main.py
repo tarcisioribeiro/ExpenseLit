@@ -1,5 +1,4 @@
 from functions.query_executor import QueryExecutor
-from functions.create_user import CreateUser
 from functions.login import Login
 from dictionary.vars import to_remove_list
 from dictionary.sql import check_user_query
@@ -116,6 +115,7 @@ if os.path.isfile(software_env_path):
                 user_quantity = int(user_quantity)
 
                 if user_quantity == 0:
+                    from functions.login import CreateUser
                     CreateUser().main_menu()
 
                 elif user_quantity > 0:
@@ -127,8 +127,8 @@ if os.path.isfile(software_env_path):
                         App().main_menu()
                     else:
                         try:
-                            call_user = Login()
-                            call_user.get_login()
+                            from functions.login import Menu
+                            Menu().main_menu()
                         except KeyError:
                             st.warning(body=":warning: Alguns erros no Login.")
 

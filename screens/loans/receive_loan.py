@@ -61,8 +61,7 @@ class ReceiveLoan:
                     st.info(body="Valor total: :heavy_dollar_sign: {}".format(
                         total_loan_value))
 
-                    user_accounts = QueryExecutor().complex_consult_query(
-                        user_current_accounts_query)
+                    user_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
                     user_accounts = QueryExecutor().treat_numerous_simple_result(
                         user_accounts, to_remove_list)
 

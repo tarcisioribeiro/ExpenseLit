@@ -1,4 +1,4 @@
-from functions.create_user import CreateUser
+from functions.login import CreateUser
 from screens.registers.update_account import UpdateAccounts
 from screens.registers.update_credit_card import UpdateCreditCards
 from screens.registers.update_creditors import Creditors
@@ -18,30 +18,22 @@ class Registers:
 
         col1, col2, col3 = st.columns(3)
 
-        registers_menu_options = [
-            "Contas", "Cartões", "Usuários", "Credores", "Beneficiados"]
+        with col3:
+            cl1, cl2 = st.columns(2)
+
+        registers_menu_options = {
+            "Contas": UpdateAccounts(),
+            "Cartões de Crédito": UpdateCreditCards(),
+            "Credores": Creditors(),
+            "Beneficiados": Benefited()
+            }
 
         with col1:
             st.header(body=":memo: Cadastros")
 
         with col2:
 
-            selected_menu_option = st.selectbox(
-                label="Menu", options=registers_menu_options)
+            selected_menu_option = st.selectbox(label="Menu", options=registers_menu_options.keys())
+            selected_class = registers_menu_options[selected_menu_option]
 
-        st.divider()
-
-        if selected_menu_option == registers_menu_options[0]:
-            UpdateAccounts().main_menu()
-
-        elif selected_menu_option == registers_menu_options[1]:
-            UpdateCreditCards().main_menu()
-
-        elif selected_menu_option == registers_menu_options[2]:
-            CreateUser().main_menu()
-
-        elif selected_menu_option == registers_menu_options[3]:
-            Creditors().main_menu()
-
-        elif selected_menu_option == registers_menu_options[4]:
-            Benefited().main_menu()
+        selected_class.main_menu(cl2)

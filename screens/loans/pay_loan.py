@@ -45,21 +45,16 @@ class PayLoan:
                     }
                 )
 
-                loan_data_df["Valor Total"] = loan_data_df["Valor Total"].apply(
-                    lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Valor Pago"] = loan_data_df["Valor Pago"].apply(
-                    lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Valor a Pagar"] = loan_data_df["Valor a Pagar"].apply(
-                    lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Data"] = pd.to_datetime(
-                    loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
+                loan_data_df["Valor Total"] = loan_data_df["Valor Total"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                loan_data_df["Valor Pago"] = loan_data_df["Valor Pago"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                loan_data_df["Valor a Pagar"] = loan_data_df["Valor a Pagar"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
 
                 st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Valores", expanded=True):
 
-                    st.dataframe(loan_data_df, hide_index=True,
-                                 use_container_width=True)
+                    st.dataframe(loan_data_df, hide_index=True,use_container_width=True)
 
                     total_loan_value = 0
                     for i in range(0, len(remaining_value)):
@@ -68,16 +63,12 @@ class PayLoan:
                     total_loan_value = str(total_loan_value)
                     total_loan_value = total_loan_value.replace(".", ",")
 
-                    st.info(body="Valor total: :heavy_dollar_sign: {}".format(
-                        total_loan_value))
+                    st.info(body="Valor total: :heavy_dollar_sign: {}".format(total_loan_value))
 
-                    user_accounts = QueryExecutor().complex_consult_query(
-                        user_current_accounts_query)
-                    user_accounts = QueryExecutor().treat_numerous_simple_result(
-                        user_accounts, to_remove_list)
+                    user_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
+                    user_accounts = QueryExecutor().treat_numerous_simple_result(user_accounts, to_remove_list)
 
-                    debt = st.selectbox(
-                        label="Selecionar dívida", options=description)
+                    debt = st.selectbox(label="Selecionar dívida", options=description)
 
                     paying_max_value_query = '''
                         SELECT
@@ -142,15 +133,12 @@ class PayLoan:
                     total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, to_remove_list)
                     total_actual_value = float(total_actual_value)
 
-                    paying_value = st.number_input(
-                        label="Valor", min_value=0.00, max_value=paying_max_value, step=0.01)
-                    selected_account = st.selectbox(
-                        label="Conta", options=user_accounts)
+                    paying_value = st.number_input(label="Valor", min_value=0.00, max_value=paying_max_value, step=0.01)
+                    selected_account = st.selectbox(label="Conta", options=user_accounts)
 
                     confirm_values = st.checkbox(label="Confirmar valores")
 
-                pay_button = st.button(
-                    label=":floppy_disk: Pagar valor de empréstimo")
+                pay_button = st.button(label=":floppy_disk: Pagar valor de empréstimo")
 
             with col5:
 
@@ -159,8 +147,7 @@ class PayLoan:
                     with st.spinner(text="Aguarde..."):
                         sleep(2.5)
 
-                    st.subheader(
-                        body=":white_check_mark: Validação de Dados")
+                    st.subheader(body=":white_check_mark: Validação de Dados")
 
                     if paying_value > 0:
 
@@ -168,27 +155,20 @@ class PayLoan:
 
                             with st.expander(label="Dados", expanded=True):
 
-                                to_pay_value = (
-                                    paying_value + payed_actual_value)
-                                str_paying_value = Variable().treat_complex_string(
-                                    paying_value)
+                                to_pay_value = (paying_value + payed_actual_value)
+                                str_paying_value = Variable().treat_complex_string(paying_value)
 
-                                st.info(body="Valor sendo pago: :heavy_dollar_sign: {}".format(
-                                    str_paying_value))
+                                st.info(body="Valor sendo pago: :heavy_dollar_sign: {}".format(str_paying_value))
 
-                                str_to_pay_value = Variable().treat_complex_string(
-                                    to_pay_value)
+                                str_to_pay_value = Variable().treat_complex_string(to_pay_value)
 
-                                st.info(body="Valor pago atualizado: :heavy_dollar_sign: {}".format(
-                                    str_to_pay_value))
+                                st.info(body="Valor pago atualizado: :heavy_dollar_sign: {}".format(str_to_pay_value))
 
                                 remaining_to_pay_value = total_actual_value - \
                                     (paying_value + payed_actual_value)
-                                str_remaining_to_pay_value = Variable().treat_complex_string(
-                                    remaining_to_pay_value)
+                                str_remaining_to_pay_value = Variable().treat_complex_string(remaining_to_pay_value)
 
-                                st.info('Valor restante a pagar: :heavy_dollar_sign: {}'.format(
-                                    str_remaining_to_pay_value))
+                                st.info('Valor restante a pagar: :heavy_dollar_sign: {}'.format(str_remaining_to_pay_value))
 
                         loan_payed = 'N'
 
@@ -202,8 +182,7 @@ class PayLoan:
 
                         with col5:
                             with st.expander(label="Aviso", expanded=True):
-                                st.warning(
-                                    body="O valor pago precisa ser maior do que 0.")
+                                st.warning(body="O valor pago precisa ser maior do que 0.")
 
                 if confirm_values and pay_button:
 
@@ -224,13 +203,10 @@ class PayLoan:
                             'S'
                         )
 
-                        QueryExecutor().insert_query(
-                            expense_query, values, "Valor de empréstimo pago com sucesso!", "Erro ao pagar valor do empréstimo:")
+                        QueryExecutor().insert_query(expense_query, values, "Valor de empréstimo pago com sucesso!", "Erro ao pagar valor do empréstimo:")
 
-                        update_loan_query = '''UPDATE emprestimos SET valor_pago = {}, pago = "{}" WHERE descricao = "{}" AND pago = "{}" AND devedor = "{}" AND documento_devedor = {}'''.format(
-                            to_pay_value, loan_payed, debt, 'N', benefited_name, benefited_document)
-                        QueryExecutor().update_table_unique_register(
-                            update_loan_query, "Empréstimo atualizado com sucesso!", "Erro ao atualizar valores do empréstimo:")
+                        update_loan_query = '''UPDATE emprestimos SET valor_pago = {}, pago = "{}" WHERE descricao = "{}" AND pago = "{}" AND devedor = "{}" AND documento_devedor = {}'''.format(to_pay_value, loan_payed, debt, 'N', benefited_name, benefited_document)
+                        QueryExecutor().update_table_unique_register(update_loan_query, "Empréstimo atualizado com sucesso!", "Erro ao atualizar valores do empréstimo:")
 
                         last_expense_id = QueryExecutor().simple_consult_brute_query(last_expense_id_query)
                         last_expense_id = QueryExecutor().treat_simple_result(last_expense_id, to_remove_list)
@@ -240,17 +216,13 @@ class PayLoan:
                             with st.spinner(text="Aguarde..."):
                                 sleep(2.5)
 
-                            st.subheader(
-                                body=":pencil: Comprovante de Pagamento de Empréstimo")
+                            st.subheader(body=":pencil: Comprovante de Pagamento de Empréstimo")
 
-                            Receipts().generate_receipt(table="despesas", id=last_expense_id, description=debt,
-                                                        value=paying_value, date=today, category='Pagamento de Empréstimo', account=selected_account)
+                            Receipts().generate_receipt(table="despesas", id=last_expense_id, description=debt, value=paying_value, date=today, category='Pagamento de Empréstimo', account=selected_account)
 
                             log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (logged_user, "Registro", "Pagou R$ {} de um empréstimo tomado na conta {}.".format(
-                                str_paying_value, account))
-                            QueryExecutor().insert_query(
-                                log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            log_values = (logged_user, "Registro", "Pagou R$ {} de um empréstimo tomado na conta {}.".format(str_paying_value, account))
+                            QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
         elif len(not_payed_loans[0]) == 0:
 

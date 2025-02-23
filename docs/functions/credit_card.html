@@ -66,7 +66,6 @@
     </ul>
 
 
-            <footer>ExpenseLit 1.0.1</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -157,7 +156,7 @@
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="s2">            WHERE</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="s2">                    AND despesas_cartao_credito.data &lt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -166,7 +165,7 @@
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="s2">                    AND fechamentos_cartao.ano &lt;= &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -213,7 +212,7 @@
 </span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="s2">            WHERE</span>
 </span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="s2">                    AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -222,7 +221,7 @@
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="s2">                    AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
 </span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -281,7 +280,7 @@
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="s2">        WHERE</span>
 </span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -290,7 +289,7 @@
 </span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -356,7 +355,7 @@
 </span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a><span class="s2">        WHERE</span>
 </span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -364,7 +363,7 @@
 </span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
+</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a><span class="s2">                AND pago = &#39;N&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a>
 </span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a>        <span class="k">try</span><span class="p">:</span>
@@ -419,7 +418,7 @@
 </span><span id="L-332"><a href="#L-332"><span class="linenos">332</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="L-334"><a href="#L-334"><span class="linenos">334</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="s2">        WHERE</span>
 </span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="s2">                AND despesas_cartao_credito.pago = &#39;N&#39;</span>
@@ -427,7 +426,7 @@
 </span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a>
 </span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -466,12 +465,12 @@
 </span><span id="L-379"><a href="#L-379"><span class="linenos">379</span></a><span class="s2">        FROM</span>
 </span><span id="L-380"><a href="#L-380"><span class="linenos">380</span></a><span class="s2">            cartao_credito</span>
 </span><span id="L-381"><a href="#L-381"><span class="linenos">381</span></a><span class="s2">                INNER JOIN</span>
-</span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="L-383"><a href="#L-383"><span class="linenos">383</span></a><span class="s2">                AND cartao_credito.proprietario_cartao = usuarios.nome</span>
 </span><span id="L-384"><a href="#L-384"><span class="linenos">384</span></a><span class="s2">        WHERE</span>
 </span><span id="L-385"><a href="#L-385"><span class="linenos">385</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-386"><a href="#L-386"><span class="linenos">386</span></a><span class="s2">        AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-387"><a href="#L-387"><span class="linenos">387</span></a><span class="s2">        AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-387"><a href="#L-387"><span class="linenos">387</span></a><span class="s2">        AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-388"><a href="#L-388"><span class="linenos">388</span></a>
 </span><span id="L-389"><a href="#L-389"><span class="linenos">389</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-390"><a href="#L-390"><span class="linenos">390</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -520,11 +519,11 @@
 </span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a><span class="s2">            cartao_credito</span>
 </span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="s2">            usuarios ON cartao_credito.proprietario_cartao = usuarios.nome</span>
-</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="s2">        WHERE</span>
 </span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>
 </span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -659,7 +658,7 @@
 </span><span id="Credit_Card-71"><a href="#Credit_Card-71"><span class="linenos"> 71</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card-72"><a href="#Credit_Card-72"><span class="linenos"> 72</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Credit_Card-73"><a href="#Credit_Card-73"><span class="linenos"> 73</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-74"><a href="#Credit_Card-74"><span class="linenos"> 74</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card-74"><a href="#Credit_Card-74"><span class="linenos"> 74</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card-75"><a href="#Credit_Card-75"><span class="linenos"> 75</span></a><span class="s2">            WHERE</span>
 </span><span id="Credit_Card-76"><a href="#Credit_Card-76"><span class="linenos"> 76</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-77"><a href="#Credit_Card-77"><span class="linenos"> 77</span></a><span class="s2">                    AND despesas_cartao_credito.data &lt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -668,7 +667,7 @@
 </span><span id="Credit_Card-80"><a href="#Credit_Card-80"><span class="linenos"> 80</span></a><span class="s2">                    AND fechamentos_cartao.ano &lt;= &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-81"><a href="#Credit_Card-81"><span class="linenos"> 81</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-82"><a href="#Credit_Card-82"><span class="linenos"> 82</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-83"><a href="#Credit_Card-83"><span class="linenos"> 83</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-83"><a href="#Credit_Card-83"><span class="linenos"> 83</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-84"><a href="#Credit_Card-84"><span class="linenos"> 84</span></a>
 </span><span id="Credit_Card-85"><a href="#Credit_Card-85"><span class="linenos"> 85</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-86"><a href="#Credit_Card-86"><span class="linenos"> 86</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -715,7 +714,7 @@
 </span><span id="Credit_Card-127"><a href="#Credit_Card-127"><span class="linenos">127</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card-128"><a href="#Credit_Card-128"><span class="linenos">128</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Credit_Card-129"><a href="#Credit_Card-129"><span class="linenos">129</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-130"><a href="#Credit_Card-130"><span class="linenos">130</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card-130"><a href="#Credit_Card-130"><span class="linenos">130</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card-131"><a href="#Credit_Card-131"><span class="linenos">131</span></a><span class="s2">            WHERE</span>
 </span><span id="Credit_Card-132"><a href="#Credit_Card-132"><span class="linenos">132</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-133"><a href="#Credit_Card-133"><span class="linenos">133</span></a><span class="s2">                    AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -724,7 +723,7 @@
 </span><span id="Credit_Card-136"><a href="#Credit_Card-136"><span class="linenos">136</span></a><span class="s2">                    AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-137"><a href="#Credit_Card-137"><span class="linenos">137</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-138"><a href="#Credit_Card-138"><span class="linenos">138</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-139"><a href="#Credit_Card-139"><span class="linenos">139</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-139"><a href="#Credit_Card-139"><span class="linenos">139</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-140"><a href="#Credit_Card-140"><span class="linenos">140</span></a>
 </span><span id="Credit_Card-141"><a href="#Credit_Card-141"><span class="linenos">141</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-142"><a href="#Credit_Card-142"><span class="linenos">142</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -783,7 +782,7 @@
 </span><span id="Credit_Card-195"><a href="#Credit_Card-195"><span class="linenos">195</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card-196"><a href="#Credit_Card-196"><span class="linenos">196</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card-197"><a href="#Credit_Card-197"><span class="linenos">197</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-198"><a href="#Credit_Card-198"><span class="linenos">198</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card-198"><a href="#Credit_Card-198"><span class="linenos">198</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card-199"><a href="#Credit_Card-199"><span class="linenos">199</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card-200"><a href="#Credit_Card-200"><span class="linenos">200</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-201"><a href="#Credit_Card-201"><span class="linenos">201</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -792,7 +791,7 @@
 </span><span id="Credit_Card-204"><a href="#Credit_Card-204"><span class="linenos">204</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-205"><a href="#Credit_Card-205"><span class="linenos">205</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-206"><a href="#Credit_Card-206"><span class="linenos">206</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-207"><a href="#Credit_Card-207"><span class="linenos">207</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-207"><a href="#Credit_Card-207"><span class="linenos">207</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-208"><a href="#Credit_Card-208"><span class="linenos">208</span></a>
 </span><span id="Credit_Card-209"><a href="#Credit_Card-209"><span class="linenos">209</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-210"><a href="#Credit_Card-210"><span class="linenos">210</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -858,7 +857,7 @@
 </span><span id="Credit_Card-270"><a href="#Credit_Card-270"><span class="linenos">270</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card-271"><a href="#Credit_Card-271"><span class="linenos">271</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card-272"><a href="#Credit_Card-272"><span class="linenos">272</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-273"><a href="#Credit_Card-273"><span class="linenos">273</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card-273"><a href="#Credit_Card-273"><span class="linenos">273</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card-274"><a href="#Credit_Card-274"><span class="linenos">274</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card-275"><a href="#Credit_Card-275"><span class="linenos">275</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-276"><a href="#Credit_Card-276"><span class="linenos">276</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -866,7 +865,7 @@
 </span><span id="Credit_Card-278"><a href="#Credit_Card-278"><span class="linenos">278</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-279"><a href="#Credit_Card-279"><span class="linenos">279</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-280"><a href="#Credit_Card-280"><span class="linenos">280</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-281"><a href="#Credit_Card-281"><span class="linenos">281</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
+</span><span id="Credit_Card-281"><a href="#Credit_Card-281"><span class="linenos">281</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-282"><a href="#Credit_Card-282"><span class="linenos">282</span></a><span class="s2">                AND pago = &#39;N&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-283"><a href="#Credit_Card-283"><span class="linenos">283</span></a>
 </span><span id="Credit_Card-284"><a href="#Credit_Card-284"><span class="linenos">284</span></a>        <span class="k">try</span><span class="p">:</span>
@@ -921,7 +920,7 @@
 </span><span id="Credit_Card-333"><a href="#Credit_Card-333"><span class="linenos">333</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card-334"><a href="#Credit_Card-334"><span class="linenos">334</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card-335"><a href="#Credit_Card-335"><span class="linenos">335</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-336"><a href="#Credit_Card-336"><span class="linenos">336</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card-336"><a href="#Credit_Card-336"><span class="linenos">336</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card-337"><a href="#Credit_Card-337"><span class="linenos">337</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card-338"><a href="#Credit_Card-338"><span class="linenos">338</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-339"><a href="#Credit_Card-339"><span class="linenos">339</span></a><span class="s2">                AND despesas_cartao_credito.pago = &#39;N&#39;</span>
@@ -929,7 +928,7 @@
 </span><span id="Credit_Card-341"><a href="#Credit_Card-341"><span class="linenos">341</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-342"><a href="#Credit_Card-342"><span class="linenos">342</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-343"><a href="#Credit_Card-343"><span class="linenos">343</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-344"><a href="#Credit_Card-344"><span class="linenos">344</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-344"><a href="#Credit_Card-344"><span class="linenos">344</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-345"><a href="#Credit_Card-345"><span class="linenos">345</span></a>
 </span><span id="Credit_Card-346"><a href="#Credit_Card-346"><span class="linenos">346</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-347"><a href="#Credit_Card-347"><span class="linenos">347</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -968,12 +967,12 @@
 </span><span id="Credit_Card-380"><a href="#Credit_Card-380"><span class="linenos">380</span></a><span class="s2">        FROM</span>
 </span><span id="Credit_Card-381"><a href="#Credit_Card-381"><span class="linenos">381</span></a><span class="s2">            cartao_credito</span>
 </span><span id="Credit_Card-382"><a href="#Credit_Card-382"><span class="linenos">382</span></a><span class="s2">                INNER JOIN</span>
-</span><span id="Credit_Card-383"><a href="#Credit_Card-383"><span class="linenos">383</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="Credit_Card-383"><a href="#Credit_Card-383"><span class="linenos">383</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="Credit_Card-384"><a href="#Credit_Card-384"><span class="linenos">384</span></a><span class="s2">                AND cartao_credito.proprietario_cartao = usuarios.nome</span>
 </span><span id="Credit_Card-385"><a href="#Credit_Card-385"><span class="linenos">385</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card-386"><a href="#Credit_Card-386"><span class="linenos">386</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-387"><a href="#Credit_Card-387"><span class="linenos">387</span></a><span class="s2">        AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-388"><a href="#Credit_Card-388"><span class="linenos">388</span></a><span class="s2">        AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-388"><a href="#Credit_Card-388"><span class="linenos">388</span></a><span class="s2">        AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-389"><a href="#Credit_Card-389"><span class="linenos">389</span></a>
 </span><span id="Credit_Card-390"><a href="#Credit_Card-390"><span class="linenos">390</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-391"><a href="#Credit_Card-391"><span class="linenos">391</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1022,11 +1021,11 @@
 </span><span id="Credit_Card-434"><a href="#Credit_Card-434"><span class="linenos">434</span></a><span class="s2">            cartao_credito</span>
 </span><span id="Credit_Card-435"><a href="#Credit_Card-435"><span class="linenos">435</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card-436"><a href="#Credit_Card-436"><span class="linenos">436</span></a><span class="s2">            usuarios ON cartao_credito.proprietario_cartao = usuarios.nome</span>
-</span><span id="Credit_Card-437"><a href="#Credit_Card-437"><span class="linenos">437</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="Credit_Card-437"><a href="#Credit_Card-437"><span class="linenos">437</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="Credit_Card-438"><a href="#Credit_Card-438"><span class="linenos">438</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card-439"><a href="#Credit_Card-439"><span class="linenos">439</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card-440"><a href="#Credit_Card-440"><span class="linenos">440</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card-441"><a href="#Credit_Card-441"><span class="linenos">441</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card-441"><a href="#Credit_Card-441"><span class="linenos">441</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card-442"><a href="#Credit_Card-442"><span class="linenos">442</span></a>
 </span><span id="Credit_Card-443"><a href="#Credit_Card-443"><span class="linenos">443</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card-444"><a href="#Credit_Card-444"><span class="linenos">444</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1140,19 +1139,15 @@
 
             <div class="docstring"><p>Obtém o mês de fatura do cartão no qual a data atual se encontra.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>actual_month</strong> (str):
-O nome do mês de fatura do cartão no qual a data atual se encontra.</li>
-</ul>
+<p>actual_month : str
+    O nome do mês de fatura do cartão no qual a data atual se encontra.</p>
 </div>
 
 
@@ -1191,7 +1186,7 @@ O nome do mês de fatura do cartão no qual a data atual se encontra.</li>
 </span><span id="Credit_Card.not_payed_expenses-71"><a href="#Credit_Card.not_payed_expenses-71"><span class="linenos">71</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card.not_payed_expenses-72"><a href="#Credit_Card.not_payed_expenses-72"><span class="linenos">72</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Credit_Card.not_payed_expenses-73"><a href="#Credit_Card.not_payed_expenses-73"><span class="linenos">73</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.not_payed_expenses-74"><a href="#Credit_Card.not_payed_expenses-74"><span class="linenos">74</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card.not_payed_expenses-74"><a href="#Credit_Card.not_payed_expenses-74"><span class="linenos">74</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card.not_payed_expenses-75"><a href="#Credit_Card.not_payed_expenses-75"><span class="linenos">75</span></a><span class="s2">            WHERE</span>
 </span><span id="Credit_Card.not_payed_expenses-76"><a href="#Credit_Card.not_payed_expenses-76"><span class="linenos">76</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.not_payed_expenses-77"><a href="#Credit_Card.not_payed_expenses-77"><span class="linenos">77</span></a><span class="s2">                    AND despesas_cartao_credito.data &lt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -1200,7 +1195,7 @@ O nome do mês de fatura do cartão no qual a data atual se encontra.</li>
 </span><span id="Credit_Card.not_payed_expenses-80"><a href="#Credit_Card.not_payed_expenses-80"><span class="linenos">80</span></a><span class="s2">                    AND fechamentos_cartao.ano &lt;= &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.not_payed_expenses-81"><a href="#Credit_Card.not_payed_expenses-81"><span class="linenos">81</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.not_payed_expenses-82"><a href="#Credit_Card.not_payed_expenses-82"><span class="linenos">82</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.not_payed_expenses-83"><a href="#Credit_Card.not_payed_expenses-83"><span class="linenos">83</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.not_payed_expenses-83"><a href="#Credit_Card.not_payed_expenses-83"><span class="linenos">83</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.not_payed_expenses-84"><a href="#Credit_Card.not_payed_expenses-84"><span class="linenos">84</span></a>
 </span><span id="Credit_Card.not_payed_expenses-85"><a href="#Credit_Card.not_payed_expenses-85"><span class="linenos">85</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.not_payed_expenses-86"><a href="#Credit_Card.not_payed_expenses-86"><span class="linenos">86</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1221,12 +1216,10 @@ O nome do mês de fatura do cartão no qual a data atual se encontra.</li>
 
             <div class="docstring"><p>Consulta as despesas de cartão que ainda não foram pagas.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.</p>
 </div>
 
 
@@ -1272,7 +1265,7 @@ O cartão selecionado pelo usuário.</li>
 </span><span id="Credit_Card.month_expenses-127"><a href="#Credit_Card.month_expenses-127"><span class="linenos">127</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card.month_expenses-128"><a href="#Credit_Card.month_expenses-128"><span class="linenos">128</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Credit_Card.month_expenses-129"><a href="#Credit_Card.month_expenses-129"><span class="linenos">129</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.month_expenses-130"><a href="#Credit_Card.month_expenses-130"><span class="linenos">130</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card.month_expenses-130"><a href="#Credit_Card.month_expenses-130"><span class="linenos">130</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card.month_expenses-131"><a href="#Credit_Card.month_expenses-131"><span class="linenos">131</span></a><span class="s2">            WHERE</span>
 </span><span id="Credit_Card.month_expenses-132"><a href="#Credit_Card.month_expenses-132"><span class="linenos">132</span></a><span class="s2">                despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.month_expenses-133"><a href="#Credit_Card.month_expenses-133"><span class="linenos">133</span></a><span class="s2">                    AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -1281,7 +1274,7 @@ O cartão selecionado pelo usuário.</li>
 </span><span id="Credit_Card.month_expenses-136"><a href="#Credit_Card.month_expenses-136"><span class="linenos">136</span></a><span class="s2">                    AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.month_expenses-137"><a href="#Credit_Card.month_expenses-137"><span class="linenos">137</span></a><span class="s2">                    AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.month_expenses-138"><a href="#Credit_Card.month_expenses-138"><span class="linenos">138</span></a><span class="s2">                    AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.month_expenses-139"><a href="#Credit_Card.month_expenses-139"><span class="linenos">139</span></a><span class="s2">                    AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.month_expenses-139"><a href="#Credit_Card.month_expenses-139"><span class="linenos">139</span></a><span class="s2">                    AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span>  <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.month_expenses-140"><a href="#Credit_Card.month_expenses-140"><span class="linenos">140</span></a>
 </span><span id="Credit_Card.month_expenses-141"><a href="#Credit_Card.month_expenses-141"><span class="linenos">141</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.month_expenses-142"><a href="#Credit_Card.month_expenses-142"><span class="linenos">142</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1302,22 +1295,19 @@ O cartão selecionado pelo usuário.</li>
 
             <div class="docstring"><p>Consulta as despesas de cartão no mês e cartão selecionados.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-<li><strong>year</strong> (int):
-O ano passado como parâmetro.</li>
-<li><strong>selected_month</strong> (str):
-O mês selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.
+year : int
+    O ano passado como parâmetro.
+selected_month : str
+    O mês selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>float</strong>: O valor total das despesas do cartão no mês.</li>
-</ul>
+<p>float
+    O valor total das despesas do cartão no mês.</p>
 </div>
 
 
@@ -1375,7 +1365,7 @@ O mês selecionado pelo usuário.</li>
 </span><span id="Credit_Card.get_complete_card_month_expenses-195"><a href="#Credit_Card.get_complete_card_month_expenses-195"><span class="linenos">195</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-196"><a href="#Credit_Card.get_complete_card_month_expenses-196"><span class="linenos">196</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-197"><a href="#Credit_Card.get_complete_card_month_expenses-197"><span class="linenos">197</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.get_complete_card_month_expenses-198"><a href="#Credit_Card.get_complete_card_month_expenses-198"><span class="linenos">198</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card.get_complete_card_month_expenses-198"><a href="#Credit_Card.get_complete_card_month_expenses-198"><span class="linenos">198</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-199"><a href="#Credit_Card.get_complete_card_month_expenses-199"><span class="linenos">199</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-200"><a href="#Credit_Card.get_complete_card_month_expenses-200"><span class="linenos">200</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-201"><a href="#Credit_Card.get_complete_card_month_expenses-201"><span class="linenos">201</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -1384,7 +1374,7 @@ O mês selecionado pelo usuário.</li>
 </span><span id="Credit_Card.get_complete_card_month_expenses-204"><a href="#Credit_Card.get_complete_card_month_expenses-204"><span class="linenos">204</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-205"><a href="#Credit_Card.get_complete_card_month_expenses-205"><span class="linenos">205</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-206"><a href="#Credit_Card.get_complete_card_month_expenses-206"><span class="linenos">206</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.get_complete_card_month_expenses-207"><a href="#Credit_Card.get_complete_card_month_expenses-207"><span class="linenos">207</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.get_complete_card_month_expenses-207"><a href="#Credit_Card.get_complete_card_month_expenses-207"><span class="linenos">207</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-208"><a href="#Credit_Card.get_complete_card_month_expenses-208"><span class="linenos">208</span></a>
 </span><span id="Credit_Card.get_complete_card_month_expenses-209"><a href="#Credit_Card.get_complete_card_month_expenses-209"><span class="linenos">209</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.get_complete_card_month_expenses-210"><a href="#Credit_Card.get_complete_card_month_expenses-210"><span class="linenos">210</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1424,31 +1414,27 @@ O mês selecionado pelo usuário.</li>
 
             <div class="docstring"><p>Consulta os detalhes das despesas de cartão no mês selecionado pelo usuário.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-<li><strong>year</strong> (int):
-O ano passado como parâmetro.</li>
-<li><strong>selected_month</strong> (str):
-O mês selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.
+year : int
+    O ano passado como parâmetro.
+selected_month : str
+    O mês selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>descricao_list</strong> (list):
-A lista com a descrição das despesas.</li>
-<li><strong>valor_list</strong> (list):
-A lista com o valor das despesas.</li>
-<li><strong>data_list</strong> (list):
-A lista com a data das despesas.</li>
-<li><strong>categoria_list</strong> (list):
-A lista com a categoria das despesas.</li>
-<li><strong>parcela_list</strong> (list):
-A lista com a parcela das despesas.</li>
-</ul>
+<p>descricao_list : list
+    A lista com a descrição das despesas.
+valor_list : list
+    A lista com o valor das despesas.
+data_list : list
+    A lista com a data das despesas.
+categoria_list : list
+    A lista com a categoria das despesas.
+parcela_list : list
+    A lista com a parcela das despesas.</p>
 </div>
 
 
@@ -1494,7 +1480,7 @@ A lista com a parcela das despesas.</li>
 </span><span id="Credit_Card.get_card_id_month_expenses-270"><a href="#Credit_Card.get_card_id_month_expenses-270"><span class="linenos">270</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-271"><a href="#Credit_Card.get_card_id_month_expenses-271"><span class="linenos">271</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-272"><a href="#Credit_Card.get_card_id_month_expenses-272"><span class="linenos">272</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.get_card_id_month_expenses-273"><a href="#Credit_Card.get_card_id_month_expenses-273"><span class="linenos">273</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card.get_card_id_month_expenses-273"><a href="#Credit_Card.get_card_id_month_expenses-273"><span class="linenos">273</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-274"><a href="#Credit_Card.get_card_id_month_expenses-274"><span class="linenos">274</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-275"><a href="#Credit_Card.get_card_id_month_expenses-275"><span class="linenos">275</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-276"><a href="#Credit_Card.get_card_id_month_expenses-276"><span class="linenos">276</span></a><span class="s2">                AND despesas_cartao_credito.data &gt;= fechamentos_cartao.data_comeco_fatura</span>
@@ -1502,7 +1488,7 @@ A lista com a parcela das despesas.</li>
 </span><span id="Credit_Card.get_card_id_month_expenses-278"><a href="#Credit_Card.get_card_id_month_expenses-278"><span class="linenos">278</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-279"><a href="#Credit_Card.get_card_id_month_expenses-279"><span class="linenos">279</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-280"><a href="#Credit_Card.get_card_id_month_expenses-280"><span class="linenos">280</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.get_card_id_month_expenses-281"><a href="#Credit_Card.get_card_id_month_expenses-281"><span class="linenos">281</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
+</span><span id="Credit_Card.get_card_id_month_expenses-281"><a href="#Credit_Card.get_card_id_month_expenses-281"><span class="linenos">281</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-282"><a href="#Credit_Card.get_card_id_month_expenses-282"><span class="linenos">282</span></a><span class="s2">                AND pago = &#39;N&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">selected_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.get_card_id_month_expenses-283"><a href="#Credit_Card.get_card_id_month_expenses-283"><span class="linenos">283</span></a>
 </span><span id="Credit_Card.get_card_id_month_expenses-284"><a href="#Credit_Card.get_card_id_month_expenses-284"><span class="linenos">284</span></a>        <span class="k">try</span><span class="p">:</span>
@@ -1533,23 +1519,19 @@ A lista com a parcela das despesas.</li>
 
             <div class="docstring"><p>Consulta o id das despesas de cartão no mês selecionado.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-<li><strong>year</strong> (int):
-O ano passado como parâmetro.</li>
-<li><strong>selected_month</strong> (str):
-O mês da fatura selecionada.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.
+year : int
+    O ano passado como parâmetro.
+selected_month : str
+    O mês da fatura selecionada.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>converted_id_list</strong> (list):
-A lista com os ID's de despesas de cartão no mês.</li>
-</ul>
+<p>converted_id_list : list
+    A lista com os ID's de despesas de cartão no mês.</p>
 </div>
 
 
@@ -1593,7 +1575,7 @@ A lista com os ID's de despesas de cartão no mês.</li>
 </span><span id="Credit_Card.future_expenses-333"><a href="#Credit_Card.future_expenses-333"><span class="linenos">333</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular</span>
 </span><span id="Credit_Card.future_expenses-334"><a href="#Credit_Card.future_expenses-334"><span class="linenos">334</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card.future_expenses-335"><a href="#Credit_Card.future_expenses-335"><span class="linenos">335</span></a><span class="s2">            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.future_expenses-336"><a href="#Credit_Card.future_expenses-336"><span class="linenos">336</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Credit_Card.future_expenses-336"><a href="#Credit_Card.future_expenses-336"><span class="linenos">336</span></a><span class="s2">                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Credit_Card.future_expenses-337"><a href="#Credit_Card.future_expenses-337"><span class="linenos">337</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card.future_expenses-338"><a href="#Credit_Card.future_expenses-338"><span class="linenos">338</span></a><span class="s2">            despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.future_expenses-339"><a href="#Credit_Card.future_expenses-339"><span class="linenos">339</span></a><span class="s2">                AND despesas_cartao_credito.pago = &#39;N&#39;</span>
@@ -1601,7 +1583,7 @@ A lista com os ID's de despesas de cartão no mês.</li>
 </span><span id="Credit_Card.future_expenses-341"><a href="#Credit_Card.future_expenses-341"><span class="linenos">341</span></a><span class="s2">                AND fechamentos_cartao.ano = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.future_expenses-342"><a href="#Credit_Card.future_expenses-342"><span class="linenos">342</span></a><span class="s2">                AND fechamentos_cartao.mes = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.future_expenses-343"><a href="#Credit_Card.future_expenses-343"><span class="linenos">343</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.future_expenses-344"><a href="#Credit_Card.future_expenses-344"><span class="linenos">344</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.future_expenses-344"><a href="#Credit_Card.future_expenses-344"><span class="linenos">344</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">actual_year</span><span class="p">,</span> <span class="n">actual_month</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.future_expenses-345"><a href="#Credit_Card.future_expenses-345"><span class="linenos">345</span></a>
 </span><span id="Credit_Card.future_expenses-346"><a href="#Credit_Card.future_expenses-346"><span class="linenos">346</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.future_expenses-347"><a href="#Credit_Card.future_expenses-347"><span class="linenos">347</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1622,18 +1604,15 @@ A lista com os ID's de despesas de cartão no mês.</li>
 
             <div class="docstring"><p>Consulta o valor das próximas despesas do cartão.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>float</strong>: O valor total das despesas futuras.</li>
-</ul>
+<p>float
+    O valor total das despesas futuras.</p>
 </div>
 
 
@@ -1671,12 +1650,12 @@ O cartão selecionado pelo usuário.</li>
 </span><span id="Credit_Card.card_limit-380"><a href="#Credit_Card.card_limit-380"><span class="linenos">380</span></a><span class="s2">        FROM</span>
 </span><span id="Credit_Card.card_limit-381"><a href="#Credit_Card.card_limit-381"><span class="linenos">381</span></a><span class="s2">            cartao_credito</span>
 </span><span id="Credit_Card.card_limit-382"><a href="#Credit_Card.card_limit-382"><span class="linenos">382</span></a><span class="s2">                INNER JOIN</span>
-</span><span id="Credit_Card.card_limit-383"><a href="#Credit_Card.card_limit-383"><span class="linenos">383</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="Credit_Card.card_limit-383"><a href="#Credit_Card.card_limit-383"><span class="linenos">383</span></a><span class="s2">            usuarios ON cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="Credit_Card.card_limit-384"><a href="#Credit_Card.card_limit-384"><span class="linenos">384</span></a><span class="s2">                AND cartao_credito.proprietario_cartao = usuarios.nome</span>
 </span><span id="Credit_Card.card_limit-385"><a href="#Credit_Card.card_limit-385"><span class="linenos">385</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card.card_limit-386"><a href="#Credit_Card.card_limit-386"><span class="linenos">386</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.card_limit-387"><a href="#Credit_Card.card_limit-387"><span class="linenos">387</span></a><span class="s2">        AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.card_limit-388"><a href="#Credit_Card.card_limit-388"><span class="linenos">388</span></a><span class="s2">        AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.card_limit-388"><a href="#Credit_Card.card_limit-388"><span class="linenos">388</span></a><span class="s2">        AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.card_limit-389"><a href="#Credit_Card.card_limit-389"><span class="linenos">389</span></a>
 </span><span id="Credit_Card.card_limit-390"><a href="#Credit_Card.card_limit-390"><span class="linenos">390</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.card_limit-391"><a href="#Credit_Card.card_limit-391"><span class="linenos">391</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1697,18 +1676,15 @@ O cartão selecionado pelo usuário.</li>
 
             <div class="docstring"><p>Consulta o limite do cartão.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-</ul>
+<p>selected_card : str
+    O cartão selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>float</strong>: O limite de crédito do cartão.</li>
-</ul>
+<p>float
+    O limite de crédito do cartão.</p>
 </div>
 
 
@@ -1756,11 +1732,11 @@ O cartão selecionado pelo usuário.</li>
 </span><span id="Credit_Card.get_credit_card_key-434"><a href="#Credit_Card.get_credit_card_key-434"><span class="linenos">434</span></a><span class="s2">            cartao_credito</span>
 </span><span id="Credit_Card.get_credit_card_key-435"><a href="#Credit_Card.get_credit_card_key-435"><span class="linenos">435</span></a><span class="s2">                INNER JOIN</span>
 </span><span id="Credit_Card.get_credit_card_key-436"><a href="#Credit_Card.get_credit_card_key-436"><span class="linenos">436</span></a><span class="s2">            usuarios ON cartao_credito.proprietario_cartao = usuarios.nome</span>
-</span><span id="Credit_Card.get_credit_card_key-437"><a href="#Credit_Card.get_credit_card_key-437"><span class="linenos">437</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.cpf</span>
+</span><span id="Credit_Card.get_credit_card_key-437"><a href="#Credit_Card.get_credit_card_key-437"><span class="linenos">437</span></a><span class="s2">                AND cartao_credito.documento_titular = usuarios.documento</span>
 </span><span id="Credit_Card.get_credit_card_key-438"><a href="#Credit_Card.get_credit_card_key-438"><span class="linenos">438</span></a><span class="s2">        WHERE</span>
 </span><span id="Credit_Card.get_credit_card_key-439"><a href="#Credit_Card.get_credit_card_key-439"><span class="linenos">439</span></a><span class="s2">            cartao_credito.nome_cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Credit_Card.get_credit_card_key-440"><a href="#Credit_Card.get_credit_card_key-440"><span class="linenos">440</span></a><span class="s2">                AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Credit_Card.get_credit_card_key-441"><a href="#Credit_Card.get_credit_card_key-441"><span class="linenos">441</span></a><span class="s2">                AND usuarios.cpf = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Credit_Card.get_credit_card_key-441"><a href="#Credit_Card.get_credit_card_key-441"><span class="linenos">441</span></a><span class="s2">                AND usuarios.documento = &#39;</span><span class="si">{}</span><span class="s2">&#39;;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Credit_Card.get_credit_card_key-442"><a href="#Credit_Card.get_credit_card_key-442"><span class="linenos">442</span></a>
 </span><span id="Credit_Card.get_credit_card_key-443"><a href="#Credit_Card.get_credit_card_key-443"><span class="linenos">443</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="Credit_Card.get_credit_card_key-444"><a href="#Credit_Card.get_credit_card_key-444"><span class="linenos">444</span></a>            <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">db_config</span><span class="p">)</span>
@@ -1803,25 +1779,21 @@ O cartão selecionado pelo usuário.</li>
 
             <div class="docstring"><p>Consulta os dados do cartão selecionado.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>card</strong> (str):
-O cartão selecionado pelo usuário.</li>
-</ul>
+<p>card : str
+    O cartão selecionado pelo usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>card_number</strong> (str):
-O número do cartão.</li>
-<li><strong>card_owner</strong> (str):
-O nome do proprietário do cartão.</li>
-<li><strong>card_owner_document</strong> (int):
-O documento do proprietário do cartão.</li>
-<li><strong>card_security_code</strong> (str):
-O código de segurança do cartão.</li>
-</ul>
+<p>card_number : str
+    O número do cartão.
+card_owner : str
+    O nome do proprietário do cartão.
+card_owner_document : int
+    O documento do proprietário do cartão.
+card_security_code : str
+    O código de segurança do cartão.</p>
 </div>
 
 
@@ -1864,19 +1836,15 @@ O código de segurança do cartão.</li>
 
             <div class="docstring"><p>Calcula o limite restante do cartão de crédito.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>selected_card</strong> (str):
-O cartão de crédito selecionado.</li>
-</ul>
+<p>selected_card : str
+    O cartão de crédito selecionado.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>remaining_limit</strong> (float):
-0 valor do limite restante do cartão.</li>
-</ul>
+<p>remaining_limit : float
+    0 valor do limite restante do cartão.</p>
 </div>
 
 

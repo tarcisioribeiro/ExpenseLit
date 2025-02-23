@@ -7,7 +7,7 @@ from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.login import Login
-from functions.variable import Variable
+from gemini_api.client import generate_expenses_description
 from time import sleep
 import pandas as pd
 import streamlit as st
@@ -214,6 +214,8 @@ class AccountStatement:
         -------
         pdf: O PDF gerado pela função.
         """
+        generated_description = generate_expenses_description(statement_type, initial_data, final_data, accounts)
+
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         unformatted_today = datetime.strptime(today, '%Y-%m-%d')
@@ -263,6 +265,8 @@ class AccountStatement:
                     pdf.cell(col_width, 10, str(cell), border=1, align="C")
                 pdf.ln()
             pdf.ln(10)
+
+        # pdf.cell(0, 10, "{}".format(generated_description), align="L", ln=True)
 
         pdf.cell(0, 10, "Horário da consulta: {}, às {}.".format(formatted_today, time), align="R", ln=True)
         pdf.cell(0, 10, "Nome do usuário: {}.".format(user_name), align="R", ln=True)

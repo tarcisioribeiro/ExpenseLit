@@ -62,8 +62,7 @@ class NewCurrentRevenue:
                     id = QueryExecutor().treat_simple_result(id, to_remove_list)
                     id = int(id) + 1
 
-                    description = st.text_input(
-                        label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a receita.")
                     value = st.number_input(
                         label=":dollar: Valor", min_value=0.01)
                     date = st.date_input(label=":date: Data")

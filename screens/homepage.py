@@ -125,7 +125,7 @@ class Home:
         balance_values_list = self.mount_balance()
 
         with col1:
-            st.header(":dollar: ExpenseLit")
+            st.header(":moneybag: ExpenseLit")
 
         with col2:
 

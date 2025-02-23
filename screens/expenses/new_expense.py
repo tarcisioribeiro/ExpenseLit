@@ -20,7 +20,7 @@ class NewCurrentExpense:
         """
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
-        user_current_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
+        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
 
         col1, col2, col3 = st.columns(3)
@@ -46,8 +46,7 @@ class NewCurrentExpense:
                     }
 
                     id = int(id) + 1
-                    description = st.text_input(
-                        label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a despesa.")
                     value = st.number_input(
                         label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")

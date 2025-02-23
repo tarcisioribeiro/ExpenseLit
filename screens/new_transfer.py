@@ -31,15 +31,13 @@ class NewTransfer:
 
         if len(user_fund_accounts) == 0 and len(user_current_accounts) == 0:
             with col5:
-                st.info(
-                    body="Você ainda não possui contas correntes e contas de fundo de garantia cadastradas.")
+                st.info(body="Você ainda não possui contas correntes e contas de fundo de garantia cadastradas.")
         if len(user_current_accounts) == 0:
             with col5:
                 st.info(body="Você ainda não possui contas correntes cadastradas.")
         if len(user_fund_accounts) == 0:
             with col5:
-                st.info(
-                    body="Você ainda não possui contas de fundo de garantia cadastradas.")
+                st.info(body="Você ainda não possui contas de fundo de garantia cadastradas.")
         elif len(user_fund_accounts) >= 1 and len(user_current_accounts) >= 1:
 
             with col4:
@@ -54,7 +52,7 @@ class NewTransfer:
                 }
 
                 with st.expander(label="Dados", expanded=True):
-                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve da transferência.", max_chars=50)
                     value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(label=":card_index_dividers: Categoria", options=transfer_categories)
@@ -172,7 +170,7 @@ class NewTransfer:
                         "Não": "N"
                     }
 
-                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve da transferência.", max_chars=50)
                     value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(label=":card_index_dividers: Categoria", options=transfer_categories)

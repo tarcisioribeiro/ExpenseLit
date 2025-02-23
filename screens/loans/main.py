@@ -17,15 +17,14 @@ class Loan:
         with col1:
             st.header(":bank: Novo Empréstimo")
 
+        menu_options = {
+            "Tomar empréstimo": TakeNewLoan,
+            "Realizar empréstimo": MakeNewLoan
+        }
+
         with col2:
-            loan_menu_choice = st.selectbox(
-                label="Opções",
-                options=["Tomar empréstimo", "Realizar empréstimo",])
-
+            loan_menu_options = st.selectbox(label="Menu", options=menu_options.keys())
+            selected_class = menu_options[loan_menu_options]
+        
         st.divider()
-
-        if loan_menu_choice == "Tomar empréstimo":
-            TakeNewLoan().main_menu()
-
-        elif loan_menu_choice == "Realizar empréstimo":
-            MakeNewLoan().main_menu()
+        selected_class().main_menu()

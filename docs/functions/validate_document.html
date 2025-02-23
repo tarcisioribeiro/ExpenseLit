@@ -45,7 +45,6 @@
     </ul>
 
 
-            <footer>ExpenseLit 1.0.1</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -124,8 +123,8 @@
 </span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
 </span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">owner_document</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">11</span><span class="p">:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>                <span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Validando documento...&quot;</span><span class="p">)</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>            <span class="n">owner_document_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -155,9 +154,11 @@
 </span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>            <span class="n">second_division_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">second_sum_value</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">%</span> <span class="mi">11</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>
 </span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>            <span class="k">if</span> <span class="n">first_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="ow">and</span> <span class="n">second_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">10</span><span class="p">]):</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>                <span class="k">return</span> <span class="kc">False</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento válido.&quot;</span><span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>                <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento inválido.&quot;</span><span class="p">)</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>                <span class="k">return</span> <span class="kc">False</span>
 </span></pre></div>
 
 
@@ -230,8 +231,8 @@
 </span><span id="Documents-59"><a href="#Documents-59"><span class="linenos">59</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Documents-60"><a href="#Documents-60"><span class="linenos">60</span></a>
 </span><span id="Documents-61"><a href="#Documents-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">owner_document</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">11</span><span class="p">:</span>
-</span><span id="Documents-62"><a href="#Documents-62"><span class="linenos">62</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="Documents-63"><a href="#Documents-63"><span class="linenos">63</span></a>                <span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="Documents-62"><a href="#Documents-62"><span class="linenos">62</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="Documents-63"><a href="#Documents-63"><span class="linenos">63</span></a>            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="Documents-64"><a href="#Documents-64"><span class="linenos">64</span></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="Documents-65"><a href="#Documents-65"><span class="linenos">65</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Validando documento...&quot;</span><span class="p">)</span>
 </span><span id="Documents-66"><a href="#Documents-66"><span class="linenos">66</span></a>            <span class="n">owner_document_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -261,9 +262,11 @@
 </span><span id="Documents-90"><a href="#Documents-90"><span class="linenos">90</span></a>            <span class="n">second_division_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">second_sum_value</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">%</span> <span class="mi">11</span>
 </span><span id="Documents-91"><a href="#Documents-91"><span class="linenos">91</span></a>
 </span><span id="Documents-92"><a href="#Documents-92"><span class="linenos">92</span></a>            <span class="k">if</span> <span class="n">first_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="ow">and</span> <span class="n">second_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">10</span><span class="p">]):</span>
-</span><span id="Documents-93"><a href="#Documents-93"><span class="linenos">93</span></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="Documents-94"><a href="#Documents-94"><span class="linenos">94</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="Documents-95"><a href="#Documents-95"><span class="linenos">95</span></a>                <span class="k">return</span> <span class="kc">False</span>
+</span><span id="Documents-93"><a href="#Documents-93"><span class="linenos">93</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento válido.&quot;</span><span class="p">)</span>
+</span><span id="Documents-94"><a href="#Documents-94"><span class="linenos">94</span></a>                <span class="k">return</span> <span class="kc">True</span>
+</span><span id="Documents-95"><a href="#Documents-95"><span class="linenos">95</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="Documents-96"><a href="#Documents-96"><span class="linenos">96</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento inválido.&quot;</span><span class="p">)</span>
+</span><span id="Documents-97"><a href="#Documents-97"><span class="linenos">97</span></a>                <span class="k">return</span> <span class="kc">False</span>
 </span></pre></div>
 
 
@@ -322,18 +325,15 @@
 
             <div class="docstring"><p>Realiza a validação dos cartões de crédito.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>card_number</strong> (str):
-O número do cartão de crédito.</li>
-</ul>
+<p>card_number : str
+    O número do cartão de crédito.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>boolean</strong>: Se o número do cartão é ou não válido.</li>
-</ul>
+<p>boolean 
+    Se o número do cartão é ou não válido.</p>
 </div>
 
 
@@ -365,8 +365,8 @@ O número do cartão de crédito.</li>
 </span><span id="Documents.validate_owner_document-59"><a href="#Documents.validate_owner_document-59"><span class="linenos">59</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Documents.validate_owner_document-60"><a href="#Documents.validate_owner_document-60"><span class="linenos">60</span></a>
 </span><span id="Documents.validate_owner_document-61"><a href="#Documents.validate_owner_document-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">owner_document</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">11</span><span class="p">:</span>
-</span><span id="Documents.validate_owner_document-62"><a href="#Documents.validate_owner_document-62"><span class="linenos">62</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="Documents.validate_owner_document-63"><a href="#Documents.validate_owner_document-63"><span class="linenos">63</span></a>                <span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="Documents.validate_owner_document-62"><a href="#Documents.validate_owner_document-62"><span class="linenos">62</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;O documento pessoal não tem menos e nem mais que 11 caracteres.&quot;</span><span class="p">)</span>
+</span><span id="Documents.validate_owner_document-63"><a href="#Documents.validate_owner_document-63"><span class="linenos">63</span></a>            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="Documents.validate_owner_document-64"><a href="#Documents.validate_owner_document-64"><span class="linenos">64</span></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="Documents.validate_owner_document-65"><a href="#Documents.validate_owner_document-65"><span class="linenos">65</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Validando documento...&quot;</span><span class="p">)</span>
 </span><span id="Documents.validate_owner_document-66"><a href="#Documents.validate_owner_document-66"><span class="linenos">66</span></a>            <span class="n">owner_document_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -396,26 +396,25 @@ O número do cartão de crédito.</li>
 </span><span id="Documents.validate_owner_document-90"><a href="#Documents.validate_owner_document-90"><span class="linenos">90</span></a>            <span class="n">second_division_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">second_sum_value</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">%</span> <span class="mi">11</span>
 </span><span id="Documents.validate_owner_document-91"><a href="#Documents.validate_owner_document-91"><span class="linenos">91</span></a>
 </span><span id="Documents.validate_owner_document-92"><a href="#Documents.validate_owner_document-92"><span class="linenos">92</span></a>            <span class="k">if</span> <span class="n">first_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="ow">and</span> <span class="n">second_division_rest</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_document_list</span><span class="p">[</span><span class="mi">10</span><span class="p">]):</span>
-</span><span id="Documents.validate_owner_document-93"><a href="#Documents.validate_owner_document-93"><span class="linenos">93</span></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="Documents.validate_owner_document-94"><a href="#Documents.validate_owner_document-94"><span class="linenos">94</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="Documents.validate_owner_document-95"><a href="#Documents.validate_owner_document-95"><span class="linenos">95</span></a>                <span class="k">return</span> <span class="kc">False</span>
+</span><span id="Documents.validate_owner_document-93"><a href="#Documents.validate_owner_document-93"><span class="linenos">93</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento válido.&quot;</span><span class="p">)</span>
+</span><span id="Documents.validate_owner_document-94"><a href="#Documents.validate_owner_document-94"><span class="linenos">94</span></a>                <span class="k">return</span> <span class="kc">True</span>
+</span><span id="Documents.validate_owner_document-95"><a href="#Documents.validate_owner_document-95"><span class="linenos">95</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="Documents.validate_owner_document-96"><a href="#Documents.validate_owner_document-96"><span class="linenos">96</span></a>                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;Documento inválido.&quot;</span><span class="p">)</span>
+</span><span id="Documents.validate_owner_document-97"><a href="#Documents.validate_owner_document-97"><span class="linenos">97</span></a>                <span class="k">return</span> <span class="kc">False</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Realiza a validação do documento do usuário.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>owner_document</strong> (str):
-O documento do usuário.</li>
-</ul>
+<p>owner_document : str
+    O documento do usuário.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>boolean</strong>: Se o documento do usuário é ou não válido.</li>
-</ul>
+<p>boolean
+    Se o documento do usuário é ou não válido.</p>
 </div>
 
 

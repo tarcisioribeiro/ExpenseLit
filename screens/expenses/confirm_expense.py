@@ -39,8 +39,7 @@ class ConfirmExpense:
             O ID da despesa não paga.
         """
 
-        get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(
-            description, value, date, time, category, account)
+        get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
         id = QueryExecutor().simple_consult_brute_query(get_id_query)
         id = QueryExecutor().treat_simple_result(id, to_remove_list)
         id = int(id)
@@ -78,25 +77,19 @@ class ConfirmExpense:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    expense_id, description, value, date, time, category, account = (
-                        expense_values)
+                    expense_id, description, value, date, time, category, account = (expense_values)
 
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(
-                            time[i], to_remove_list)
+                        aux_time = QueryExecutor().treat_simple_result(time[i], to_remove_list)
                         time_list.append(aux_time)
 
-                    loan_data_df = pd.DataFrame({"ID": expense_id, "Descrição": description, "Valor": value,
-                                                "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
-                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(
-                        lambda x: f"R$ {x:.2f}".replace(".", ","))
-                    loan_data_df["Data"] = pd.to_datetime(
-                        loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    loan_data_df = pd.DataFrame({"ID": expense_id, "Descrição": description, "Valor": value, "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
+                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+                    loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
 
-                    st.dataframe(loan_data_df, hide_index=True,
-                                 use_container_width=True)
+                    st.dataframe(loan_data_df, hide_index=True,use_container_width=True)
 
                     description_list = []
 
@@ -109,33 +102,27 @@ class ConfirmExpense:
                         query_str_date = str_date.strftime("%Y-%m-%d")
                         final_str_account = str(account[i])
 
-                        index_description.update(
-                            {"descrição": description[i], "valor": str_value, "data": query_str_date, "horario": time[i], "categoria": category[i], "conta": final_str_account})
+                        index_description.update({"descrição": description[i], "valor": str_value, "data": query_str_date, "horario": time[i], "categoria": category[i], "conta": final_str_account})
 
                         formatted_data = str(index_description["data"])
-                        formatted_data = datetime.strptime(
-                            formatted_data, "%Y-%m-%d")
+                        formatted_data = datetime.strptime(formatted_data, "%Y-%m-%d")
                         formatted_data = formatted_data.strftime("%d/%m/%Y")
 
-                        formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(
-                            ".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
+                        formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
                         description_list.append(formatted_description)
 
-                    selected_revenue = st.selectbox(
-                        label="Selecione a despesa", options=description_list)
+                    selected_revenue = st.selectbox(label="Selecione a despesa", options=description_list)
 
                     confirm_selection = st.checkbox(label="Confirmar seleção")
 
-                update_button = st.button(
-                    label=":floppy_disk: Confirmar pagamento")
+                update_button = st.button(label=":floppy_disk: Confirmar pagamento")
 
                 if confirm_selection and update_button:
                     with col5:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        st.subheader(
-                            body=":white_check_mark: Validação de Dados")
+                        st.subheader(body=":white_check_mark: Validação de Dados")
 
                         final_description = str(index_description["descrição"])
                         final_value = float(index_description["valor"])
@@ -151,12 +138,9 @@ class ConfirmExpense:
 
                         with st.subheader(body=":white_check_mark: Validação de Dados"):
                             with st.expander(label="Dados", expanded=True):
-                                st.info(body="Descrição: {}".format(
-                                    final_description))
-                                st.info(body="Valor: :heavy_dollar_sign: {}".format(
-                                    str_final_value))
-                                st.info(body="Categoria: {}".format(
-                                    final_category))
+                                st.info(body="Descrição: {}".format(final_description))
+                                st.info(body="Valor: :heavy_dollar_sign: {}".format(str_final_value))
+                                st.info(body="Categoria: {}".format(final_category))
                                 st.info(body="Conta: {}".format(final_account))
 
                     with col6:
@@ -164,14 +148,11 @@ class ConfirmExpense:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        final_id = self.get_not_payed_expense_id(description=index_description["descrição"], value=index_description["valor"], date=index_description[
-                            "data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
+                        final_id = self.get_not_payed_expense_id(description=index_description["descrição"], value=index_description["valor"], date=index_description["data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
 
-                        self.update_not_payed_expenses(
-                            id=final_id, new_date=today)
+                        self.update_not_payed_expenses(id=final_id, new_date=today)
 
-                        Receipts().generate_receipt(table="despesas", id=final_id, description=final_description,
-                                                    value=final_value, date=final_date, category=final_category, account=final_account)
+                        Receipts().generate_receipt(table="despesas", id=final_id, description=final_description, value=final_value, date=final_date, category=final_category, account=final_account)
 
                         str_value = str(value)
                         str_value = str_value.replace(".", ",")
@@ -180,10 +161,8 @@ class ConfirmExpense:
                             str_value = str_value + "0"
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(
-                            str_value, account))
-                        QueryExecutor().insert_query(log_query, log_values,
-                                                     "Log gravado.", "Erro ao gravar log:")
+                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))
+                        QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                 elif update_button and confirm_selection == False:
                     with col5:
@@ -191,11 +170,9 @@ class ConfirmExpense:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
                         with st.expander(label="Aviso", expanded=True):
-                            st.warning(
-                                body="Confirme os dados antes de prosseguir.")
+                            st.warning(body="Confirme os dados antes de prosseguir.")
 
         elif len(expense_values[0]) == 0:
 
             with col5:
-                st.info(
-                    "Você não possui valores futuros a pagar aguardando confirmação.")
+                st.info("Você não possui valores futuros a pagar aguardando confirmação.")

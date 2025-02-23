@@ -76,8 +76,7 @@ class NewCreditCardExpense:
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
-        user_cards = QueryExecutor().treat_numerous_simple_result(
-            user_cards, to_remove_list)
+        user_cards = QueryExecutor().treat_numerous_simple_result(user_cards, to_remove_list)
 
         col1, col2, col3 = st.columns(3)
 
@@ -94,32 +93,24 @@ class NewCreditCardExpense:
                 with st.expander(label="Dados da despesa", expanded=True):
 
                     input_id = int(self.get_last_credit_card_expense_id()) + 1
-                    description = st.text_input(
-                        label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição")
-                    value = st.number_input(
-                        label=":dollar: Valor", step=0.01, min_value=0.01)
+                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a despesa.")
+                    value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
-                    category = st.selectbox(
-                        label=":card_index_dividers: Categoria", options=expense_categories)
-                    card = st.selectbox(
-                        label=":credit_card: Cartão", options=user_cards)
-                    remaining_limit = Credit_Card().card_remaining_limit(
-                        selected_card=card)
+                    category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories)
+                    card = st.selectbox(label=":credit_card: Cartão", options=user_cards)
+                    remaining_limit = Credit_Card().card_remaining_limit(selected_card=card)
+                    remaining_limit = round(remaining_limit, 2)
 
-                    str_remaining_limit = Variable().treat_complex_string(
-                        remaining_limit)
+                    str_remaining_limit = Variable().treat_complex_string(remaining_limit)
 
-                    parcel = st.number_input(
-                        label=":pencil: Parcelas", min_value=1, step=1)
-                    inputed_credit_card_code = st.text_input(label=":credit_card: Informe o código do cartão", max_chars=3, type="password")
+                    parcel = st.number_input(label=":pencil: Parcelas", min_value=1, step=1)
+                    inputed_credit_card_code = st.text_input(label=":credit_card: Informe o código do cartão", max_chars=3, type="password", help="Código CVV do cartão.")
 
                     credit_card_number, credit_card_owner, credit_card_owner_document, credit_card_code = Credit_Card().get_credit_card_key(card=card)
 
                     confirm_values_checkbox = st.checkbox(label="Confirmar Dados")
 
-                generate_receipt_button = st.button(
-                    label=":pencil: Gerar Comprovante", key="generate_receipt_button"
-                )
+                generate_receipt_button = st.button(label=":pencil: Gerar Comprovante", key="generate_receipt_button")
 
             with col3:
                 if confirm_values_checkbox and generate_receipt_button:
@@ -136,8 +127,7 @@ class NewCreditCardExpense:
                             label="Avisos", expanded=True)
 
                         with data_expander:
-                            st.info(body="Limite restante do cartão: R$ {}".format(
-                                str_remaining_limit))
+                            st.info(body="Limite restante do cartão: R$ {}".format(str_remaining_limit))
 
                     if (
                         description != ""

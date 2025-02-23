@@ -744,6 +744,7 @@ check_if_user_login_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHE
 months_query = """SELECT nome_mes FROM meses;"""
 
 creditors_quantity_query = """SELECT COUNT(id_credor) FROM credores INNER JOIN usuarios ON credores.nome = usuarios.nome AND credores.documento = usuarios.documento WHERE usuarios.login <> %s AND usuarios.senha <> %s;"""
+benefited_quantity_query = """SELECT COUNT(id_beneficiado) FROM beneficiados INNER JOIN usuarios ON beneficiados.nome <> usuarios.nome AND beneficiados.documento <> usuarios.documento WHERE usuarios.nome = %s AND usuarios.documento = %s;"""
 
 account_image_query = """
     SELECT 
