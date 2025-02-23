@@ -42,7 +42,6 @@
     </ul>
 
 
-            <footer>ExpenseLit 1.0.1</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -87,14 +86,12 @@
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:ledger: Relatórios&quot;</span><span class="p">)</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>            <span class="n">selected_class</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="k">if</span> <span class="n">menu_selected_option</span><span class="p">:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>            <span class="n">call_interface</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>            <span class="n">call_interface</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="n">selected_class</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -131,14 +128,12 @@
 </span><span id="Reports-25"><a href="#Reports-25"><span class="linenos">25</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:ledger: Relatórios&quot;</span><span class="p">)</span>
 </span><span id="Reports-26"><a href="#Reports-26"><span class="linenos">26</span></a>
 </span><span id="Reports-27"><a href="#Reports-27"><span class="linenos">27</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="Reports-28"><a href="#Reports-28"><span class="linenos">28</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="Reports-29"><a href="#Reports-29"><span class="linenos">29</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Reports-28"><a href="#Reports-28"><span class="linenos">28</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Reports-29"><a href="#Reports-29"><span class="linenos">29</span></a>            <span class="n">selected_class</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
 </span><span id="Reports-30"><a href="#Reports-30"><span class="linenos">30</span></a>
 </span><span id="Reports-31"><a href="#Reports-31"><span class="linenos">31</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
 </span><span id="Reports-32"><a href="#Reports-32"><span class="linenos">32</span></a>
-</span><span id="Reports-33"><a href="#Reports-33"><span class="linenos">33</span></a>        <span class="k">if</span> <span class="n">menu_selected_option</span><span class="p">:</span>
-</span><span id="Reports-34"><a href="#Reports-34"><span class="linenos">34</span></a>            <span class="n">call_interface</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
-</span><span id="Reports-35"><a href="#Reports-35"><span class="linenos">35</span></a>            <span class="n">call_interface</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="Reports-33"><a href="#Reports-33"><span class="linenos">33</span></a>        <span class="n">selected_class</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -173,14 +168,12 @@
 </span><span id="Reports.main_menu-25"><a href="#Reports.main_menu-25"><span class="linenos">25</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:ledger: Relatórios&quot;</span><span class="p">)</span>
 </span><span id="Reports.main_menu-26"><a href="#Reports.main_menu-26"><span class="linenos">26</span></a>
 </span><span id="Reports.main_menu-27"><a href="#Reports.main_menu-27"><span class="linenos">27</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="Reports.main_menu-28"><a href="#Reports.main_menu-28"><span class="linenos">28</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="Reports.main_menu-29"><a href="#Reports.main_menu-29"><span class="linenos">29</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Reports.main_menu-28"><a href="#Reports.main_menu-28"><span class="linenos">28</span></a>            <span class="n">menu_selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">superior_menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Reports.main_menu-29"><a href="#Reports.main_menu-29"><span class="linenos">29</span></a>            <span class="n">selected_class</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
 </span><span id="Reports.main_menu-30"><a href="#Reports.main_menu-30"><span class="linenos">30</span></a>
 </span><span id="Reports.main_menu-31"><a href="#Reports.main_menu-31"><span class="linenos">31</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
 </span><span id="Reports.main_menu-32"><a href="#Reports.main_menu-32"><span class="linenos">32</span></a>
-</span><span id="Reports.main_menu-33"><a href="#Reports.main_menu-33"><span class="linenos">33</span></a>        <span class="k">if</span> <span class="n">menu_selected_option</span><span class="p">:</span>
-</span><span id="Reports.main_menu-34"><a href="#Reports.main_menu-34"><span class="linenos">34</span></a>            <span class="n">call_interface</span> <span class="o">=</span> <span class="n">superior_menu_options</span><span class="p">[</span><span class="n">menu_selected_option</span><span class="p">]</span>
-</span><span id="Reports.main_menu-35"><a href="#Reports.main_menu-35"><span class="linenos">35</span></a>            <span class="n">call_interface</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="Reports.main_menu-33"><a href="#Reports.main_menu-33"><span class="linenos">33</span></a>        <span class="n">selected_class</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 

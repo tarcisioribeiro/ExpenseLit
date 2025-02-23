@@ -97,7 +97,7 @@ WHERE
     receitas.data <= %s
         AND receitas.recebido = 'S'
         AND contas.inativa = 'N'
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY conta
@@ -119,7 +119,7 @@ WHERE
     despesas.data <= %s
         AND despesas.pago = 'S'
         AND contas.inativa = 'N'
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY conta
@@ -142,7 +142,7 @@ WHERE
     despesas.data >= %s
         AND despesas.pago = 'N'
         AND contas.inativa = 'N'
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY conta
@@ -164,7 +164,7 @@ FROM
 WHERE
     receitas.recebido = 'N'
         AND contas.inativa = 'N'
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY conta
@@ -179,7 +179,7 @@ FROM
     usuarios
 WHERE
     contas.inativa = 'N'
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND contas.proprietario_conta = usuarios.nome
         AND contas.documento_proprietario_conta = usuarios.documento
         AND usuarios.nome = %s
@@ -357,7 +357,7 @@ FROM
         AND despesas.documento_proprietario_despesa = usuarios.documento
 WHERE
     despesas.categoria NOT IN('Ajuste', 'Fatura Cartão')
-        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY despesas.categoria;"""
@@ -378,7 +378,7 @@ FROM
         AND receitas.documento_proprietario_receita = usuarios.documento
 WHERE
     receitas.categoria <> 'Ajuste'
-        AND contas.tipo_conta IN ('Conta Corrente')
+        AND contas.tipo_conta IN ('Conta Corrente', 'Conta Salário', 'Vale Alimentação')
         AND usuarios.nome = %s
         AND usuarios.documento = %s
 GROUP BY receitas.categoria;"""
@@ -436,7 +436,7 @@ FROM
     usuarios ON contas.proprietario_conta = usuarios.nome
         AND contas.documento_proprietario_conta = usuarios.documento
 WHERE
-    contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+    contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND contas.inativa = 'N'
         AND usuarios.nome = %s
         AND usuarios.documento = %s;"""
@@ -450,7 +450,7 @@ FROM
     usuarios ON contas.proprietario_conta = usuarios.nome
         AND contas.documento_proprietario_conta = usuarios.documento
 WHERE
-    contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Móvel')
+    contas.tipo_conta IN ('Conta Corrente', 'Vale Alimentação', 'Conta Salário')
         AND usuarios.nome = %s
         AND usuarios.documento = %s;"""
 
@@ -660,10 +660,11 @@ FROM
         AND despesas.documento_proprietario_despesa = usuarios.documento
 WHERE
     despesas.pago = 'S'
-        AND despesas.categoria NOT IN('Pix', 'DOC', 'TED')
+        AND despesas.categoria NOT IN('Pix', 'DOC', 'TED', 'Ajuste')
         AND despesas.data >= %s
         AND despesas.data <= %s
         AND despesas.conta IN %s
+        AND despesas.valor > 0
         AND usuarios.nome = %s
         AND usuarios.documento = %s;"""
 

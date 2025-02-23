@@ -14,7 +14,7 @@ class Configuration:
         """
         menu_options = {
             "Aparência": ChangeTheme(),
-            "Backup de Dados": Backup(),
+            "Backup de Dados": Backup()
         }
 
         col1, col2, col3 = st.columns(3)

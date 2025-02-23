@@ -1,4 +1,5 @@
 from dictionary.vars import absolute_app_path, dark_theme, server_config, light_theme, fonts_dictionary
+from screens.homepage import Home
 from time import sleep
 import streamlit as st
 
@@ -7,6 +8,31 @@ class ChangeTheme:
     """
     Classe com métodos para a mudança da aparência da aplicação (fontes e tema).
     """
+    def search_theme_image(self, color_theme: str, font_option: str):
+        """
+        Realiza a busca da imagem demonstrativa do tema de cor e fonte selecionado pelo usuário.
+
+        Parameters
+        ----------
+        color_theme : str
+            O esquema de cores selecionado.
+        font_option : str
+            A fonte selecionada.
+        
+        Returns
+        -------
+        theme_image : str
+            O caminho da imagem do tema.
+        """
+        color_dict = {
+            "Escuro": "dark",
+            "Claro": "light"
+        }
+
+        font_option = font_option.replace(" ", "_")
+
+        theme_image = "{}/reference/images/themes/{}/{}_{}.png".format(absolute_app_path, color_dict[color_theme], color_dict[color_theme], font_option)
+        return theme_image
 
     def change_theme(self, theme_option: str, font_option: str):
         """
@@ -19,7 +45,6 @@ class ChangeTheme:
         font_option : str
             A fonte selecionada pelo usuário.
         """
-
         config_archive: str = absolute_app_path + "/.streamlit/config.toml"
         style_archive: str = absolute_app_path + "/dictionary/style.py"
 
@@ -49,33 +74,54 @@ class ChangeTheme:
             font_archive = fonts_dictionary[font_option]
 
             with open(style_archive, "w") as new_style_archive:
-                new_style_archive.write(
-                    'system_font = "{}"'.format(font_archive))
+                new_style_archive.write('system_font = "{}"'.format(font_archive))
 
     def main_menu(self):
         """
         Menu principal.
         """
+        themes_options = {
+            "Claro": ["sans serif", "serif", "monospace"],
+            "Escuro": ["sans serif", "serif", "monospace"]
+        }
 
         col4, col5, col6 = st.columns(3)
 
         with col4:
 
-            st.subheader(body=":computer: Opções")
+            st.subheader(body=":page_with_curl: Opções")
 
             with st.expander(label="Aparência", expanded=True):
-                selected_theme = st.radio(
-                    label="Tema", options=["Escuro", "Claro"])
-                font_option = st.selectbox(label="Fonte", options=[
-                                           "Selecione uma opção", "sans serif", "serif", "monospace"])
+                selected_theme = st.radio(label="Tema", options=themes_options.keys())
+                font_option = st.selectbox(label="Fonte", options=themes_options[selected_theme])
 
-            theme_confirm_option = st.button(
-                label=":white_check_mark: Confirmar opção")
-
-        if selected_theme != "" and theme_confirm_option:
+            theme_confirm_option = st.checkbox(label="Confirmar opção")
+        
+        if theme_confirm_option:
             with col5:
                 with st.spinner(text="Aguarde..."):
-                    sleep(2.5)
-                self.change_theme(selected_theme, font_option)
-                sleep(2.5)
-                st.rerun()
+                    sleep(1.5)
+                theme_image = self.search_theme_image(selected_theme, font_option)
+                st.subheader(body=":camera: Prévia do Tema")
+                with st.expander(label="Visualização", expanded=True):
+                    st.image(theme_image)
+
+            with col6:
+                with st.spinner(text="Aguarde..."):
+                    sleep(1.5)
+                st.subheader(body=":white_check_mark: Confirmação")
+                with st.expander(label="Votação", expanded=True):
+                    st.write("Confirmar a mudança de tema?")
+                    selected_option = st.radio(label="Opções", options=["Sim", "Não"])
+                    
+                confirm_vote = st.button(label=":floppy_disk: Confirmar mudança de tema")
+
+                if confirm_vote:
+                    if selected_option == "Sim":
+                        self.change_theme(selected_theme, font_option)
+                        sleep(2.5)
+                        st.rerun()
+                        sleep(2.5)
+                        Home().main_menu()
+                    elif selected_option == "Não":
+                        pass

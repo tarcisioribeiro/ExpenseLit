@@ -57,7 +57,6 @@
     </ul>
 
 
-            <footer>ExpenseLit 1.0.1</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -124,13 +123,13 @@
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="s2">                despesas.id_despesa</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="s2">            FROM</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="s2">                despesas</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.cpf</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.documento</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="s2">            WHERE</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="s2">                despesas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="s2">            AND despesas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="s2">            AND despesas.valor = </span><span class="si">{}</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;receitas&quot;</span><span class="p">:</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -138,13 +137,13 @@
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="s2">                receitas.id_receita</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="s2">            FROM</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="s2">                receitas</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.cpf</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.documento</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="s2">            WHERE</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="s2">                receitas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="s2">            AND receitas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="s2">            AND receitas.valor = </span><span class="si">{}</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;despesas_cartao_credito&quot;</span><span class="p">:</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -154,13 +153,13 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="s2">                despesas_cartao_credito</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="s2">            WHERE</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="s2">                despesas_cartao_credito.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="s2">            AND despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="s2">            AND despesas_cartao_credito.valor = </span><span class="si">{}</span>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;emprestimos&quot;</span><span class="p">:</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -170,13 +169,13 @@
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="s2">                emprestimos</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="s2">                usuarios ON emprestimos.credor = usuarios.nome</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.cpf</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.documento</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="s2">            WHERE</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="s2">                emprestimos.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="s2">            AND emprestimos.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="s2">            AND emprestimos.valor = </span><span class="si">{}</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_brute_query</span><span class="p">(</span><span class="n">id_query</span><span class="p">)</span>
 </span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
@@ -674,13 +673,13 @@
 </span><span id="Receipts-47"><a href="#Receipts-47"><span class="linenos"> 47</span></a><span class="s2">                despesas.id_despesa</span>
 </span><span id="Receipts-48"><a href="#Receipts-48"><span class="linenos"> 48</span></a><span class="s2">            FROM</span>
 </span><span id="Receipts-49"><a href="#Receipts-49"><span class="linenos"> 49</span></a><span class="s2">                despesas</span>
-</span><span id="Receipts-50"><a href="#Receipts-50"><span class="linenos"> 50</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.cpf</span>
+</span><span id="Receipts-50"><a href="#Receipts-50"><span class="linenos"> 50</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.documento</span>
 </span><span id="Receipts-51"><a href="#Receipts-51"><span class="linenos"> 51</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts-52"><a href="#Receipts-52"><span class="linenos"> 52</span></a><span class="s2">                despesas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-53"><a href="#Receipts-53"><span class="linenos"> 53</span></a><span class="s2">            AND despesas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-54"><a href="#Receipts-54"><span class="linenos"> 54</span></a><span class="s2">            AND despesas.valor = </span><span class="si">{}</span>
 </span><span id="Receipts-55"><a href="#Receipts-55"><span class="linenos"> 55</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts-56"><a href="#Receipts-56"><span class="linenos"> 56</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts-56"><a href="#Receipts-56"><span class="linenos"> 56</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts-57"><a href="#Receipts-57"><span class="linenos"> 57</span></a>
 </span><span id="Receipts-58"><a href="#Receipts-58"><span class="linenos"> 58</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;receitas&quot;</span><span class="p">:</span>
 </span><span id="Receipts-59"><a href="#Receipts-59"><span class="linenos"> 59</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -688,13 +687,13 @@
 </span><span id="Receipts-61"><a href="#Receipts-61"><span class="linenos"> 61</span></a><span class="s2">                receitas.id_receita</span>
 </span><span id="Receipts-62"><a href="#Receipts-62"><span class="linenos"> 62</span></a><span class="s2">            FROM</span>
 </span><span id="Receipts-63"><a href="#Receipts-63"><span class="linenos"> 63</span></a><span class="s2">                receitas</span>
-</span><span id="Receipts-64"><a href="#Receipts-64"><span class="linenos"> 64</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.cpf</span>
+</span><span id="Receipts-64"><a href="#Receipts-64"><span class="linenos"> 64</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.documento</span>
 </span><span id="Receipts-65"><a href="#Receipts-65"><span class="linenos"> 65</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts-66"><a href="#Receipts-66"><span class="linenos"> 66</span></a><span class="s2">                receitas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-67"><a href="#Receipts-67"><span class="linenos"> 67</span></a><span class="s2">            AND receitas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-68"><a href="#Receipts-68"><span class="linenos"> 68</span></a><span class="s2">            AND receitas.valor = </span><span class="si">{}</span>
 </span><span id="Receipts-69"><a href="#Receipts-69"><span class="linenos"> 69</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts-70"><a href="#Receipts-70"><span class="linenos"> 70</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts-70"><a href="#Receipts-70"><span class="linenos"> 70</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts-71"><a href="#Receipts-71"><span class="linenos"> 71</span></a>
 </span><span id="Receipts-72"><a href="#Receipts-72"><span class="linenos"> 72</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;despesas_cartao_credito&quot;</span><span class="p">:</span>
 </span><span id="Receipts-73"><a href="#Receipts-73"><span class="linenos"> 73</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -704,13 +703,13 @@
 </span><span id="Receipts-77"><a href="#Receipts-77"><span class="linenos"> 77</span></a><span class="s2">                despesas_cartao_credito</span>
 </span><span id="Receipts-78"><a href="#Receipts-78"><span class="linenos"> 78</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Receipts-79"><a href="#Receipts-79"><span class="linenos"> 79</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Receipts-80"><a href="#Receipts-80"><span class="linenos"> 80</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Receipts-80"><a href="#Receipts-80"><span class="linenos"> 80</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Receipts-81"><a href="#Receipts-81"><span class="linenos"> 81</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts-82"><a href="#Receipts-82"><span class="linenos"> 82</span></a><span class="s2">                despesas_cartao_credito.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-83"><a href="#Receipts-83"><span class="linenos"> 83</span></a><span class="s2">            AND despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-84"><a href="#Receipts-84"><span class="linenos"> 84</span></a><span class="s2">            AND despesas_cartao_credito.valor = </span><span class="si">{}</span>
 </span><span id="Receipts-85"><a href="#Receipts-85"><span class="linenos"> 85</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts-86"><a href="#Receipts-86"><span class="linenos"> 86</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts-86"><a href="#Receipts-86"><span class="linenos"> 86</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts-87"><a href="#Receipts-87"><span class="linenos"> 87</span></a>
 </span><span id="Receipts-88"><a href="#Receipts-88"><span class="linenos"> 88</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;emprestimos&quot;</span><span class="p">:</span>
 </span><span id="Receipts-89"><a href="#Receipts-89"><span class="linenos"> 89</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -720,13 +719,13 @@
 </span><span id="Receipts-93"><a href="#Receipts-93"><span class="linenos"> 93</span></a><span class="s2">                emprestimos</span>
 </span><span id="Receipts-94"><a href="#Receipts-94"><span class="linenos"> 94</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Receipts-95"><a href="#Receipts-95"><span class="linenos"> 95</span></a><span class="s2">                usuarios ON emprestimos.credor = usuarios.nome</span>
-</span><span id="Receipts-96"><a href="#Receipts-96"><span class="linenos"> 96</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.cpf</span>
+</span><span id="Receipts-96"><a href="#Receipts-96"><span class="linenos"> 96</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.documento</span>
 </span><span id="Receipts-97"><a href="#Receipts-97"><span class="linenos"> 97</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts-98"><a href="#Receipts-98"><span class="linenos"> 98</span></a><span class="s2">                emprestimos.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-99"><a href="#Receipts-99"><span class="linenos"> 99</span></a><span class="s2">            AND emprestimos.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts-100"><a href="#Receipts-100"><span class="linenos">100</span></a><span class="s2">            AND emprestimos.valor = </span><span class="si">{}</span>
 </span><span id="Receipts-101"><a href="#Receipts-101"><span class="linenos">101</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts-102"><a href="#Receipts-102"><span class="linenos">102</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts-102"><a href="#Receipts-102"><span class="linenos">102</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts-103"><a href="#Receipts-103"><span class="linenos">103</span></a>
 </span><span id="Receipts-104"><a href="#Receipts-104"><span class="linenos">104</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_brute_query</span><span class="p">(</span><span class="n">id_query</span><span class="p">)</span>
 </span><span id="Receipts-105"><a href="#Receipts-105"><span class="linenos">105</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
@@ -1222,13 +1221,13 @@
 </span><span id="Receipts.validate_query-47"><a href="#Receipts.validate_query-47"><span class="linenos"> 47</span></a><span class="s2">                despesas.id_despesa</span>
 </span><span id="Receipts.validate_query-48"><a href="#Receipts.validate_query-48"><span class="linenos"> 48</span></a><span class="s2">            FROM</span>
 </span><span id="Receipts.validate_query-49"><a href="#Receipts.validate_query-49"><span class="linenos"> 49</span></a><span class="s2">                despesas</span>
-</span><span id="Receipts.validate_query-50"><a href="#Receipts.validate_query-50"><span class="linenos"> 50</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.cpf</span>
+</span><span id="Receipts.validate_query-50"><a href="#Receipts.validate_query-50"><span class="linenos"> 50</span></a><span class="s2">                INNER JOIN usuarios ON despesas.proprietario_despesa = usuarios.nome AND despesas.documento_proprietario_despesa = usuarios.documento</span>
 </span><span id="Receipts.validate_query-51"><a href="#Receipts.validate_query-51"><span class="linenos"> 51</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts.validate_query-52"><a href="#Receipts.validate_query-52"><span class="linenos"> 52</span></a><span class="s2">                despesas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-53"><a href="#Receipts.validate_query-53"><span class="linenos"> 53</span></a><span class="s2">            AND despesas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-54"><a href="#Receipts.validate_query-54"><span class="linenos"> 54</span></a><span class="s2">            AND despesas.valor = </span><span class="si">{}</span>
 </span><span id="Receipts.validate_query-55"><a href="#Receipts.validate_query-55"><span class="linenos"> 55</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts.validate_query-56"><a href="#Receipts.validate_query-56"><span class="linenos"> 56</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts.validate_query-56"><a href="#Receipts.validate_query-56"><span class="linenos"> 56</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts.validate_query-57"><a href="#Receipts.validate_query-57"><span class="linenos"> 57</span></a>
 </span><span id="Receipts.validate_query-58"><a href="#Receipts.validate_query-58"><span class="linenos"> 58</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;receitas&quot;</span><span class="p">:</span>
 </span><span id="Receipts.validate_query-59"><a href="#Receipts.validate_query-59"><span class="linenos"> 59</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -1236,13 +1235,13 @@
 </span><span id="Receipts.validate_query-61"><a href="#Receipts.validate_query-61"><span class="linenos"> 61</span></a><span class="s2">                receitas.id_receita</span>
 </span><span id="Receipts.validate_query-62"><a href="#Receipts.validate_query-62"><span class="linenos"> 62</span></a><span class="s2">            FROM</span>
 </span><span id="Receipts.validate_query-63"><a href="#Receipts.validate_query-63"><span class="linenos"> 63</span></a><span class="s2">                receitas</span>
-</span><span id="Receipts.validate_query-64"><a href="#Receipts.validate_query-64"><span class="linenos"> 64</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.cpf</span>
+</span><span id="Receipts.validate_query-64"><a href="#Receipts.validate_query-64"><span class="linenos"> 64</span></a><span class="s2">                INNER JOIN usuarios ON receitas.proprietario_receita = usuarios.nome AND receitas.documento_proprietario_receita = usuarios.documento</span>
 </span><span id="Receipts.validate_query-65"><a href="#Receipts.validate_query-65"><span class="linenos"> 65</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts.validate_query-66"><a href="#Receipts.validate_query-66"><span class="linenos"> 66</span></a><span class="s2">                receitas.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-67"><a href="#Receipts.validate_query-67"><span class="linenos"> 67</span></a><span class="s2">            AND receitas.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-68"><a href="#Receipts.validate_query-68"><span class="linenos"> 68</span></a><span class="s2">            AND receitas.valor = </span><span class="si">{}</span>
 </span><span id="Receipts.validate_query-69"><a href="#Receipts.validate_query-69"><span class="linenos"> 69</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts.validate_query-70"><a href="#Receipts.validate_query-70"><span class="linenos"> 70</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts.validate_query-70"><a href="#Receipts.validate_query-70"><span class="linenos"> 70</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts.validate_query-71"><a href="#Receipts.validate_query-71"><span class="linenos"> 71</span></a>
 </span><span id="Receipts.validate_query-72"><a href="#Receipts.validate_query-72"><span class="linenos"> 72</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;despesas_cartao_credito&quot;</span><span class="p">:</span>
 </span><span id="Receipts.validate_query-73"><a href="#Receipts.validate_query-73"><span class="linenos"> 73</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -1252,13 +1251,13 @@
 </span><span id="Receipts.validate_query-77"><a href="#Receipts.validate_query-77"><span class="linenos"> 77</span></a><span class="s2">                despesas_cartao_credito</span>
 </span><span id="Receipts.validate_query-78"><a href="#Receipts.validate_query-78"><span class="linenos"> 78</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Receipts.validate_query-79"><a href="#Receipts.validate_query-79"><span class="linenos"> 79</span></a><span class="s2">                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome</span>
-</span><span id="Receipts.validate_query-80"><a href="#Receipts.validate_query-80"><span class="linenos"> 80</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.cpf</span>
+</span><span id="Receipts.validate_query-80"><a href="#Receipts.validate_query-80"><span class="linenos"> 80</span></a><span class="s2">                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento</span>
 </span><span id="Receipts.validate_query-81"><a href="#Receipts.validate_query-81"><span class="linenos"> 81</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts.validate_query-82"><a href="#Receipts.validate_query-82"><span class="linenos"> 82</span></a><span class="s2">                despesas_cartao_credito.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-83"><a href="#Receipts.validate_query-83"><span class="linenos"> 83</span></a><span class="s2">            AND despesas_cartao_credito.cartao = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-84"><a href="#Receipts.validate_query-84"><span class="linenos"> 84</span></a><span class="s2">            AND despesas_cartao_credito.valor = </span><span class="si">{}</span>
 </span><span id="Receipts.validate_query-85"><a href="#Receipts.validate_query-85"><span class="linenos"> 85</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts.validate_query-86"><a href="#Receipts.validate_query-86"><span class="linenos"> 86</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts.validate_query-86"><a href="#Receipts.validate_query-86"><span class="linenos"> 86</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts.validate_query-87"><a href="#Receipts.validate_query-87"><span class="linenos"> 87</span></a>
 </span><span id="Receipts.validate_query-88"><a href="#Receipts.validate_query-88"><span class="linenos"> 88</span></a>        <span class="k">if</span> <span class="n">table</span> <span class="o">==</span> <span class="s2">&quot;emprestimos&quot;</span><span class="p">:</span>
 </span><span id="Receipts.validate_query-89"><a href="#Receipts.validate_query-89"><span class="linenos"> 89</span></a>            <span class="n">id_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -1268,13 +1267,13 @@
 </span><span id="Receipts.validate_query-93"><a href="#Receipts.validate_query-93"><span class="linenos"> 93</span></a><span class="s2">                emprestimos</span>
 </span><span id="Receipts.validate_query-94"><a href="#Receipts.validate_query-94"><span class="linenos"> 94</span></a><span class="s2">                    INNER JOIN</span>
 </span><span id="Receipts.validate_query-95"><a href="#Receipts.validate_query-95"><span class="linenos"> 95</span></a><span class="s2">                usuarios ON emprestimos.credor = usuarios.nome</span>
-</span><span id="Receipts.validate_query-96"><a href="#Receipts.validate_query-96"><span class="linenos"> 96</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.cpf</span>
+</span><span id="Receipts.validate_query-96"><a href="#Receipts.validate_query-96"><span class="linenos"> 96</span></a><span class="s2">                    AND emprestimos.documento_credor = usuarios.documento</span>
 </span><span id="Receipts.validate_query-97"><a href="#Receipts.validate_query-97"><span class="linenos"> 97</span></a><span class="s2">            WHERE</span>
 </span><span id="Receipts.validate_query-98"><a href="#Receipts.validate_query-98"><span class="linenos"> 98</span></a><span class="s2">                emprestimos.data = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-99"><a href="#Receipts.validate_query-99"><span class="linenos"> 99</span></a><span class="s2">            AND emprestimos.conta = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
 </span><span id="Receipts.validate_query-100"><a href="#Receipts.validate_query-100"><span class="linenos">100</span></a><span class="s2">            AND emprestimos.valor = </span><span class="si">{}</span>
 </span><span id="Receipts.validate_query-101"><a href="#Receipts.validate_query-101"><span class="linenos">101</span></a><span class="s2">            AND usuarios.nome = &#39;</span><span class="si">{}</span><span class="s2">&#39;</span>
-</span><span id="Receipts.validate_query-102"><a href="#Receipts.validate_query-102"><span class="linenos">102</span></a><span class="s2">            AND usuarios.cpf = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
+</span><span id="Receipts.validate_query-102"><a href="#Receipts.validate_query-102"><span class="linenos">102</span></a><span class="s2">            AND usuarios.documento = </span><span class="si">{}</span><span class="s2">;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span><span class="n">account</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">user_document</span><span class="p">)</span>
 </span><span id="Receipts.validate_query-103"><a href="#Receipts.validate_query-103"><span class="linenos">103</span></a>
 </span><span id="Receipts.validate_query-104"><a href="#Receipts.validate_query-104"><span class="linenos">104</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">complex_consult_brute_query</span><span class="p">(</span><span class="n">id_query</span><span class="p">)</span>
 </span><span id="Receipts.validate_query-105"><a href="#Receipts.validate_query-105"><span class="linenos">105</span></a>        <span class="nb">id</span> <span class="o">=</span> <span class="n">QueryExecutor</span><span class="p">()</span><span class="o">.</span><span class="n">treat_numerous_simple_result</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">to_remove_list</span><span class="p">)</span>
@@ -1289,26 +1288,23 @@
 
             <div class="docstring"><p>Realiza a validação da consulta passada como consulta.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>table</strong> (str):
-A tabela da consulta.</li>
-<li><strong>date</strong> (str):
-A data da consulta.</li>
-<li><strong>account</strong> (str):
-A conta da consulta.</li>
-<li><strong>value</strong> (float):
-O valor da consulta.</li>
-</ul>
+<p>table : str
+    A tabela da consulta.
+date : str
+    A data da consulta.
+account : str
+    A conta da consulta.
+value : float
+    O valor da consulta.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>ids_string</strong> (Any):
-A string com os id's que correspondem a consulta, caso a mesma seja válida.</li>
-<li><strong>boolean</strong>: Se a consulta é válida.</li>
-</ul>
+<p>ids_string : Any
+    A string com os id's que correspondem a consulta, caso a mesma seja válida.
+boolean
+    Se a consulta é válida.</p>
 </div>
 
 
@@ -1355,14 +1351,12 @@ A string com os id's que correspondem a consulta, caso a mesma seja válida.</li
 
             <div class="docstring"><p>Realiza a consulta informada.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>table</strong> (str):
-A tabela da consulta.</li>
-<li><strong>id_list</strong> (list):
-A lista com os ids da consulta.</li>
-</ul>
+<p>table : str
+    A tabela da consulta.
+id_list : list
+    A lista com os ids da consulta.</p>
 </div>
 
 
@@ -1460,29 +1454,25 @@ A lista com os ids da consulta.</li>
 
             <div class="docstring"><p>Realiza o tratamento dos valores do comprovante.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>receipt_list</strong> (list):
-A lista com os valores do comprovante.</li>
-</ul>
+<p>receipt_list : list
+    A lista com os valores do comprovante.</p>
 
-<h6 id="returns">Returns</h6>
+<h2 id="returns">Returns</h2>
 
-<ul>
-<li><strong>description_list</strong> (list):
-A lista com a descrição do comprovante.</li>
-<li><strong>value_list</strong> (list):
-A lista com o valor do comprovante.</li>
-<li><strong>date_list</strong> (list):
-A lista com as datas do comprovante.</li>
-<li><strong>time_list</strong> (list):
-A lista com os horários do comprovante.</li>
-<li><strong>category_list</strong> (list):
-A lista com as categorias do comprovante.</li>
-<li><strong>account_list</strong> (list):
-A lista com as contas do comprovante.</li>
-</ul>
+<p>description_list : list
+    A lista com a descrição do comprovante.
+value_list : list
+    A lista com o valor do comprovante.
+date_list : list
+    A lista com as datas do comprovante.
+time_list : list
+    A lista com os horários do comprovante.
+category_list : list
+    A lista com as categorias do comprovante.
+account_list : list
+    A lista com as contas do comprovante.</p>
 </div>
 
 
@@ -1603,24 +1593,22 @@ A lista com as contas do comprovante.</li>
 
             <div class="docstring"><p>Gera o comprovante de transferência.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>id</strong> (int):
-O ID do registro do comprovante.</li>
-<li><strong>description</strong> (str):
-A descrição da transferência.</li>
-<li><strong>value</strong> (float):
-O valor da transferência.</li>
-<li><strong>date</strong> (str):
-A data da transferência.</li>
-<li><strong>category</strong> (str):
-A categoria da transferência.</li>
-<li><strong>origin_account</strong> (str):
-A conta de origem da transferência.</li>
-<li><strong>destiny_account</strong> (str):
-A conta de destino da transferência.</li>
-</ul>
+<p>id : int
+    O ID do registro do comprovante.
+description : str
+    A descrição da transferência.
+value : float
+    O valor da transferência.
+date : str
+    A data da transferência.
+category : str
+    A categoria da transferência.
+origin_account : str
+    A conta de origem da transferência.
+destiny_account : str
+    A conta de destino da transferência.</p>
 </div>
 
 
@@ -1746,22 +1734,20 @@ A conta de destino da transferência.</li>
 
             <div class="docstring"><p>Gera o comprovante de despesa/receita.</p>
 
-<h6 id="parameters">Parameters</h6>
+<h2 id="parameters">Parameters</h2>
 
-<ul>
-<li><strong>id</strong> (int):
-O ID do registro do comprovante.</li>
-<li><strong>description</strong> (str):
-A descrição da despesa/receita.</li>
-<li><strong>value</strong> (float):
-O valor da despesa/receita.</li>
-<li><strong>date</strong> (str):
-A data da despesa/receita.</li>
-<li><strong>category</strong> (str):
-A categoria da despesa/receita.</li>
-<li><strong>account</strong> (str):
-A conta da despesa/receita.</li>
-</ul>
+<p>id : int
+    O ID do registro do comprovante.
+description : str
+    A descrição da despesa/receita.
+value : float
+    O valor da despesa/receita.
+date : str
+    A data da despesa/receita.
+category : str
+    A categoria da despesa/receita.
+account : str
+    A conta da despesa/receita.</p>
 </div>
 
 

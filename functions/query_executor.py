@@ -32,8 +32,11 @@ class QueryExecutor:
             cursor.close()
             st.toast(":white_check_mark: {}".format(success_message))
         except mysql.connector.Error as error:
-            st.toast(":warning: {} {}".format(error_message, error))
-            st.error(error)
+            if error.errno == 1062 or error.errno == 23000:
+                st.error("Já há um registro com estes dados.")
+            else:
+                st.toast(":warning: {} {}".format(error_message, error))
+                st.error(error)
         finally:
             if connection.is_connected():
                 connection.close()

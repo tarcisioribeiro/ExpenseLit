@@ -1,6 +1,6 @@
 # 🚀 ExpenseLit
 
-![ExpenseLit](documentation/images/main.png)
+![ExpenseLit](reference/images/main.png)
 
 Um aplicativo de controle financeiro feito em **[Python](https://www.python.org/)**, através do framework **[Streamlit](https://streamlit.io/)**. Integrado ao banco de dados **[MySQL](https://www.mysql.com/)**, permite o controle de receitas e despesas, empréstimos e fundos de garantias.
 
@@ -33,37 +33,30 @@ Este projeto é software livre e está disponível para uso, modificação e dis
 
    ---
 
-   ![Login](documentation/images/login.png)
+   ![Login](reference/images/login.png)
    *Tela de login.*
 
    ---
 
-   ![Tela Inicial](documentation/images/home.png)
+   ![Tela Inicial](reference/images/home.png)
    *Tela inicial mostrando o resumo financeiro.*
 
    ---
 
-   ![Cadastro de Contas](documentation/images/accounts.png)
+   ![Cadastro de Contas](reference/images/accounts.png)
    *Tela de cadastro de contas.*
 
    ---
 
-   ![Cadastro de Cartões](documentation/images/credit_card.png)
+   ![Cadastro de Cartões](reference/images/credit_card.png)
    *Tela de cadastro de cartões de crédito.*
 
    ---
 
-   ![Cadastro de faturas](documentation/images/invoices.png)
+   ![Cadastro de faturas](reference/images/invoices.png)
    *Tela de cadastro de faturas de cartão.*
 
    ---
-
-</details>
-
-<details>
-   <summary>Vídeo explicativo</summary>
-
-   ![ExpenseLit](https://youtu.be/j46xTC_dlN8)
 
 </details>
 
@@ -100,7 +93,10 @@ Se encontrar algum bug ou problema, você pode informa-lo na aba **Issues** dest
 
 ## Instalação
 
-Para realizar a instalação, siga este passo a passo: [Instalação](Installation.md)
+Para realizar a instalação, siga este passo a passo:
+   
+   - [Instalação em ambientes GNU/Linux](Linux_Installation.md)
+   - [Instalação em ambientes Microsoft Windows](Windows_Installation.md)
 
 ---
 

@@ -16,17 +16,6 @@ class UpdateCreditCards:
     Classe que representa o cadastro e atualização dos dados dos cartões de crédito do usuário.
     """
 
-    def get_today_datetime(self):
-
-        today_list = today.split("-")
-        for i in range(0, len(today_list)):
-            int_aux = int(today_list[i])
-            today_list[i] = int_aux
-
-        today_datetime = date(today_list[0], today_list[1], today_list[2])
-
-        return today_datetime
-
     def get_new_credit_card(self):
         """
         Realiza o cadastro de um novo cartão de crédito.
@@ -70,10 +59,10 @@ class UpdateCreditCards:
                     today_datetime = self.get_today_datetime()
 
                     with col3:
-                        cm_cl1, cm_cl2 = st.columns(2)
-                        with cm_cl2:
-                            with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.subheader(body=":white_check_mark: Validação de Dados")
+                        with st.expander(label="Validação", expanded=True):
                             is_card_valid = Documents().validate_credit_card(card_number=card_number)
                             is_document_valid = (Documents().validate_owner_document(owner_document=user_document))
 
@@ -104,7 +93,6 @@ class UpdateCreditCards:
                                     st.error(body="Documento inválido.")
 
                             elif card_name == "" or card_number == "" or owner_name == "" or security_code == "" or confirm_security_code == "" and (security_code != confirm_security_code) or (today_datetime >= expire_date):
-                                with cm_cl2:
                                     if card_name == "":
                                         st.error(body="O nome do cartão deve ser preenchido.")
                                     if card_number == "":
@@ -118,8 +106,6 @@ class UpdateCreditCards:
 
                 elif send_form_button and confirm_credit_card_values == False:
                     with col3:
-                        cm_cl1, cm_cl2 = st.columns(2)
-                    with cm_cl2:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
                         st.warning(body="Revise e confirme os dados antes de prosseguir.")
@@ -152,13 +138,14 @@ class UpdateCreditCards:
             cc_max_limit = float(cc_max_limit)
 
             inactive_options = {
-                "Sim": "S",
                 "Não": "N",
+                "Sim": "S",
             }
 
             with st.expander(label="Dados", expanded=True):
-                new_limit = st.number_input(label=":heavy_dollar_sign: Limite", min_value=0.00, max_value=cc_max_limit, step=0.01)
-                inactive = st.selectbox(label="Inativo", options=inactive_options.keys())
+                new_card_name = st.text_input(label="Nome do cartão", max_chars=100, help="Novo nome descritivo para o cartão.")
+                new_limit = st.number_input(label=":heavy_dollar_sign: Limite", min_value=0.00, max_value=cc_max_limit, step=0.01, help="Novo valor do limite do cartão.")
+                inactive = st.selectbox(label="Inativo", options=inactive_options.keys(), help="Define se o cartão será inativado.")
                 confirm_values = st.checkbox(label="Confirmar Dados")
 
         send_data_button = st.button(label=":floppy_disk: Atualizar valores")

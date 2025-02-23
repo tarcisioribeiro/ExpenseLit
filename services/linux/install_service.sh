@@ -103,7 +103,7 @@ while true; do
   blue "Repita a senha: "
   read -s confirmation
   if [ "$password" = "$confirmation" ]; then
-    db_script="documentation/database/implantation_financas.sql"
+    db_script="reference/database/implantation_financas.sql"
     if [ -f "$db_script" ]; then
       blue "Executando script de implantação do banco de dados..."
       mysql -u root -p"$password" <"$db_script"
@@ -149,7 +149,7 @@ sudo systemctl enable expenselit.service
 sudo systemctl daemon-reload
 sudo systemctl start expenselit.service
 
-cp documentation/images/default.png library/images/accounts/
+cp reference/images/default.png library/images/accounts/
 
 title_green "Instalação concluída."
 

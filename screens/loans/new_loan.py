@@ -50,7 +50,7 @@ class TakeNewLoan:
             if creditors_quantity == 0:
                 with col2:
                     st.warning(
-                        body="Você ainda não cadastrou credores.", icon="⚠️")
+                        body="Você ainda não cadastrou credores.")
 
             elif creditors_quantity >= 1:
 

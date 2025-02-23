@@ -9,6 +9,7 @@ from screens.reports.main import Reports
 from screens.revenues.main import NewRevenue
 from screens.new_transfer import NewTransfer
 from screens.configuration.main import Configuration
+from screens.configuration.help import Help
 from time import sleep
 
 
@@ -68,8 +69,12 @@ class App:
 
         sidebar.divider()
 
+        sidebar_help_button = sidebar.button(label=":question: Ajuda")
         sidebar_reload_button = sidebar.button(label=":cd: Recarregar")
         sidebar_logoff_button = sidebar.button(label=":lock: Sair")
+
+        if sidebar_help_button:
+            Help().main_menu()
 
         if sidebar_reload_button:
             with sidebar:
