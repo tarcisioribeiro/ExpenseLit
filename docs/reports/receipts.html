@@ -57,6 +57,7 @@
     </ul>
 
 
+            <footer>Expenselit 1.1.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -1288,23 +1289,26 @@
 
             <div class="docstring"><p>Realiza a validação da consulta passada como consulta.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>table : str
-    A tabela da consulta.
-date : str
-    A data da consulta.
-account : str
-    A conta da consulta.
-value : float
-    O valor da consulta.</p>
+<ul>
+<li><strong>table</strong> (str):
+A tabela da consulta.</li>
+<li><strong>date</strong> (str):
+A data da consulta.</li>
+<li><strong>account</strong> (str):
+A conta da consulta.</li>
+<li><strong>value</strong> (float):
+O valor da consulta.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>ids_string : Any
-    A string com os id's que correspondem a consulta, caso a mesma seja válida.
-boolean
-    Se a consulta é válida.</p>
+<ul>
+<li><strong>ids_string</strong> (Any):
+A string com os id's que correspondem a consulta, caso a mesma seja válida.</li>
+<li><strong>boolean</strong>: Se a consulta é válida.</li>
+</ul>
 </div>
 
 
@@ -1351,12 +1355,14 @@ boolean
 
             <div class="docstring"><p>Realiza a consulta informada.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>table : str
-    A tabela da consulta.
-id_list : list
-    A lista com os ids da consulta.</p>
+<ul>
+<li><strong>table</strong> (str):
+A tabela da consulta.</li>
+<li><strong>id_list</strong> (list):
+A lista com os ids da consulta.</li>
+</ul>
 </div>
 
 
@@ -1454,25 +1460,29 @@ id_list : list
 
             <div class="docstring"><p>Realiza o tratamento dos valores do comprovante.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>receipt_list : list
-    A lista com os valores do comprovante.</p>
+<ul>
+<li><strong>receipt_list</strong> (list):
+A lista com os valores do comprovante.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>description_list : list
-    A lista com a descrição do comprovante.
-value_list : list
-    A lista com o valor do comprovante.
-date_list : list
-    A lista com as datas do comprovante.
-time_list : list
-    A lista com os horários do comprovante.
-category_list : list
-    A lista com as categorias do comprovante.
-account_list : list
-    A lista com as contas do comprovante.</p>
+<ul>
+<li><strong>description_list</strong> (list):
+A lista com a descrição do comprovante.</li>
+<li><strong>value_list</strong> (list):
+A lista com o valor do comprovante.</li>
+<li><strong>date_list</strong> (list):
+A lista com as datas do comprovante.</li>
+<li><strong>time_list</strong> (list):
+A lista com os horários do comprovante.</li>
+<li><strong>category_list</strong> (list):
+A lista com as categorias do comprovante.</li>
+<li><strong>account_list</strong> (list):
+A lista com as contas do comprovante.</li>
+</ul>
 </div>
 
 
@@ -1593,22 +1603,24 @@ account_list : list
 
             <div class="docstring"><p>Gera o comprovante de transferência.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>id : int
-    O ID do registro do comprovante.
-description : str
-    A descrição da transferência.
-value : float
-    O valor da transferência.
-date : str
-    A data da transferência.
-category : str
-    A categoria da transferência.
-origin_account : str
-    A conta de origem da transferência.
-destiny_account : str
-    A conta de destino da transferência.</p>
+<ul>
+<li><strong>id</strong> (int):
+O ID do registro do comprovante.</li>
+<li><strong>description</strong> (str):
+A descrição da transferência.</li>
+<li><strong>value</strong> (float):
+O valor da transferência.</li>
+<li><strong>date</strong> (str):
+A data da transferência.</li>
+<li><strong>category</strong> (str):
+A categoria da transferência.</li>
+<li><strong>origin_account</strong> (str):
+A conta de origem da transferência.</li>
+<li><strong>destiny_account</strong> (str):
+A conta de destino da transferência.</li>
+</ul>
 </div>
 
 
@@ -1734,20 +1746,22 @@ destiny_account : str
 
             <div class="docstring"><p>Gera o comprovante de despesa/receita.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>id : int
-    O ID do registro do comprovante.
-description : str
-    A descrição da despesa/receita.
-value : float
-    O valor da despesa/receita.
-date : str
-    A data da despesa/receita.
-category : str
-    A categoria da despesa/receita.
-account : str
-    A conta da despesa/receita.</p>
+<ul>
+<li><strong>id</strong> (int):
+O ID do registro do comprovante.</li>
+<li><strong>description</strong> (str):
+A descrição da despesa/receita.</li>
+<li><strong>value</strong> (float):
+O valor da despesa/receita.</li>
+<li><strong>date</strong> (str):
+A data da despesa/receita.</li>
+<li><strong>category</strong> (str):
+A categoria da despesa/receita.</li>
+<li><strong>account</strong> (str):
+A conta da despesa/receita.</li>
+</ul>
 </div>
 
 

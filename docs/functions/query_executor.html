@@ -75,6 +75,7 @@
     </ul>
 
 
+            <footer>Expenselit 1.1.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -903,16 +904,18 @@
 
             <div class="docstring"><p>Realiza a inserção da consulta no banco de dados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser inserida.
-values : tuple
-    A tupla com os valores a serem inseridos.
-success_message : str
-    A mensagem a ser exibida caso a consulta seja inserida com sucesso.
-error_message : str
-    A mensagem a ser exibida caso a consulta apresente erros ao ser inserida.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser inserida.</li>
+<li><strong>values</strong> (tuple):
+A tupla com os valores a serem inseridos.</li>
+<li><strong>success_message</strong> (str):
+A mensagem a ser exibida caso a consulta seja inserida com sucesso.</li>
+<li><strong>error_message</strong> (str):
+A mensagem a ser exibida caso a consulta apresente erros ao ser inserida.</li>
+</ul>
 </div>
 
 
@@ -960,12 +963,14 @@ error_message : str
 
             <div class="docstring"><p>Realiza uma consulta simples no banco de dados, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser inserida.
-params : tuple
-    A tupla com os valores a serem consultados.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser inserida.</li>
+<li><strong>params</strong> (tuple):
+A tupla com os valores a serem consultados.</li>
+</ul>
 </div>
 
 
@@ -1014,10 +1019,12 @@ params : tuple
 
             <div class="docstring"><p>Realiza uma consulta simples no banco de dados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser inserida.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser inserida.</li>
+</ul>
 </div>
 
 
@@ -1076,19 +1083,22 @@ params : tuple
 
             <div class="docstring"><p>Executa uma consulta composta no banco de dados com base nos parâmetros fornecidos.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta SQL a ser executada.
-list_quantity : int
-    O número de listas que deverão ser criadas para armazenar os resultados.
-params : tuple
-    Uma tupla contendo os valores que serão utilizados como parâmetros na consulta.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta SQL a ser executada.</li>
+<li><strong>list_quantity</strong> (int):
+O número de listas que deverão ser criadas para armazenar os resultados.</li>
+<li><strong>params</strong> (tuple):
+Uma tupla contendo os valores que serão utilizados como parâmetros na consulta.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>list
-    Uma lista contendo múltiplas listas, cada uma correspondendo aos valores retornados pela consulta.</p>
+<ul>
+<li><strong>list</strong>: Uma lista contendo múltiplas listas, cada uma correspondendo aos valores retornados pela consulta.</li>
+</ul>
 </div>
 
 
@@ -1141,17 +1151,21 @@ params : tuple
 
             <div class="docstring"><p>Realiza uma consulta complexa no banco de dados, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser inserida.
-params : tuple
-    A tupla com os valores a serem consultados.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser inserida.</li>
+<li><strong>params</strong> (tuple):
+A tupla com os valores a serem consultados.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>complex_value : list
-    A lista com os valores da consulta.</p>
+<ul>
+<li><strong>complex_value</strong> (list):
+A lista com os valores da consulta.</li>
+</ul>
 </div>
 
 
@@ -1202,15 +1216,19 @@ params : tuple
 
             <div class="docstring"><p>Realiza uma consulta complexa no banco de dados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser inserida.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser inserida.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>complex_value : list
-    A lista com os valores da consulta.</p>
+<ul>
+<li><strong>complex_value</strong> (list):
+A lista com os valores da consulta.</li>
+</ul>
 </div>
 
 
@@ -1254,17 +1272,21 @@ params : tuple
 
             <div class="docstring"><p>Realiza o tratamento de uma cadeia de caracteres, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>value_to_treat : str
-    O valor a ser tratado.
-values_to_remove : list
-    Os valores a serem removidos.</p>
+<ul>
+<li><strong>value_to_treat</strong> (str):
+O valor a ser tratado.</li>
+<li><strong>values_to_remove</strong> (list):
+Os valores a serem removidos.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>final_result : str
-    O valor tratado.</p>
+<ul>
+<li><strong>final_result</strong> (str):
+O valor tratado.</li>
+</ul>
 </div>
 
 
@@ -1319,17 +1341,21 @@ values_to_remove : list
 
             <div class="docstring"><p>Realiza o tratamento de varias cadeias de caracteres, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>value_to_treat : list
-    Os valores a serem tratados.
-values_to_remove : list
-    Os valores a serem removidos.</p>
+<ul>
+<li><strong>value_to_treat</strong> (list):
+Os valores a serem tratados.</li>
+<li><strong>values_to_remove</strong> (list):
+Os valores a serem removidos.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>final_list : list
-    Os valores tratados.</p>
+<ul>
+<li><strong>final_list</strong> (list):
+Os valores tratados.</li>
+</ul>
 </div>
 
 
@@ -1383,17 +1409,21 @@ values_to_remove : list
 
             <div class="docstring"><p>Realiza o tratamento de uma cadeia de caracteres, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>value_to_treat : str
-    O valor a ser tratado.
-values_to_remove : list
-    Os valores a serem removidos.</p>
+<ul>
+<li><strong>value_to_treat</strong> (str):
+O valor a ser tratado.</li>
+<li><strong>values_to_remove</strong> (list):
+Os valores a serem removidos.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>final_result : str
-    O valor tratado.</p>
+<ul>
+<li><strong>final_result</strong> (str):
+O valor tratado.</li>
+</ul>
 </div>
 
 
@@ -1432,15 +1462,18 @@ values_to_remove : list
 
             <div class="docstring"><p>Verifica se o valor da consulta existe no banco de dados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta a ser verificada.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta a ser verificada.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>bool
-    Retorna se o dado consultado existe ou não no banco de dados.</p>
+<ul>
+<li><strong>bool</strong>: Retorna se o dado consultado existe ou não no banco de dados.</li>
+</ul>
 </div>
 
 
@@ -1491,14 +1524,16 @@ values_to_remove : list
 
             <div class="docstring"><p>Realiza a atualização de registros no banco de dados, de acordo com os parametros informados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>table : str
-    A tabela que será atualizada.
-table_field: str
-    O campo da tabela que será atualizado.
-id_list : list
-    Os id's de identificação dos registros que serão atualizados.</p>
+<ul>
+<li><strong>table</strong> (str):
+A tabela que será atualizada.</li>
+<li><strong>table_field</strong> (str):
+O campo da tabela que será atualizado.</li>
+<li><strong>id_list</strong> (list):
+Os id's de identificação dos registros que serão atualizados.</li>
+</ul>
 </div>
 
 
@@ -1545,14 +1580,16 @@ id_list : list
 
             <div class="docstring"><p>Realiza a atualização de um registro no banco de dados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>query : str
-    A consulta de atualização.
-success_message : str
-    A mensagem que será exibida caso a atualização seja concluída.
-error_message : str
-    A mensagem que será exibida caso ocorram erros durante a atualização.</p>
+<ul>
+<li><strong>query</strong> (str):
+A consulta de atualização.</li>
+<li><strong>success_message</strong> (str):
+A mensagem que será exibida caso a atualização seja concluída.</li>
+<li><strong>error_message</strong> (str):
+A mensagem que será exibida caso ocorram erros durante a atualização.</li>
+</ul>
 </div>
 
 

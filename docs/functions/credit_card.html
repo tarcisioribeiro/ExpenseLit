@@ -66,6 +66,7 @@
     </ul>
 
 
+            <footer>Expenselit 1.1.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -1139,15 +1140,19 @@
 
             <div class="docstring"><p>Obtém o mês de fatura do cartão no qual a data atual se encontra.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>actual_month : str
-    O nome do mês de fatura do cartão no qual a data atual se encontra.</p>
+<ul>
+<li><strong>actual_month</strong> (str):
+O nome do mês de fatura do cartão no qual a data atual se encontra.</li>
+</ul>
 </div>
 
 
@@ -1216,10 +1221,12 @@
 
             <div class="docstring"><p>Consulta as despesas de cartão que ainda não foram pagas.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+</ul>
 </div>
 
 
@@ -1295,19 +1302,22 @@
 
             <div class="docstring"><p>Consulta as despesas de cartão no mês e cartão selecionados.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.
-year : int
-    O ano passado como parâmetro.
-selected_month : str
-    O mês selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+<li><strong>year</strong> (int):
+O ano passado como parâmetro.</li>
+<li><strong>selected_month</strong> (str):
+O mês selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>float
-    O valor total das despesas do cartão no mês.</p>
+<ul>
+<li><strong>float</strong>: O valor total das despesas do cartão no mês.</li>
+</ul>
 </div>
 
 
@@ -1414,27 +1424,31 @@ selected_month : str
 
             <div class="docstring"><p>Consulta os detalhes das despesas de cartão no mês selecionado pelo usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.
-year : int
-    O ano passado como parâmetro.
-selected_month : str
-    O mês selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+<li><strong>year</strong> (int):
+O ano passado como parâmetro.</li>
+<li><strong>selected_month</strong> (str):
+O mês selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>descricao_list : list
-    A lista com a descrição das despesas.
-valor_list : list
-    A lista com o valor das despesas.
-data_list : list
-    A lista com a data das despesas.
-categoria_list : list
-    A lista com a categoria das despesas.
-parcela_list : list
-    A lista com a parcela das despesas.</p>
+<ul>
+<li><strong>descricao_list</strong> (list):
+A lista com a descrição das despesas.</li>
+<li><strong>valor_list</strong> (list):
+A lista com o valor das despesas.</li>
+<li><strong>data_list</strong> (list):
+A lista com a data das despesas.</li>
+<li><strong>categoria_list</strong> (list):
+A lista com a categoria das despesas.</li>
+<li><strong>parcela_list</strong> (list):
+A lista com a parcela das despesas.</li>
+</ul>
 </div>
 
 
@@ -1519,19 +1533,23 @@ parcela_list : list
 
             <div class="docstring"><p>Consulta o id das despesas de cartão no mês selecionado.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.
-year : int
-    O ano passado como parâmetro.
-selected_month : str
-    O mês da fatura selecionada.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+<li><strong>year</strong> (int):
+O ano passado como parâmetro.</li>
+<li><strong>selected_month</strong> (str):
+O mês da fatura selecionada.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>converted_id_list : list
-    A lista com os ID's de despesas de cartão no mês.</p>
+<ul>
+<li><strong>converted_id_list</strong> (list):
+A lista com os ID's de despesas de cartão no mês.</li>
+</ul>
 </div>
 
 
@@ -1604,15 +1622,18 @@ selected_month : str
 
             <div class="docstring"><p>Consulta o valor das próximas despesas do cartão.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>float
-    O valor total das despesas futuras.</p>
+<ul>
+<li><strong>float</strong>: O valor total das despesas futuras.</li>
+</ul>
 </div>
 
 
@@ -1676,15 +1697,18 @@ selected_month : str
 
             <div class="docstring"><p>Consulta o limite do cartão.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão selecionado pelo usuário.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>float
-    O limite de crédito do cartão.</p>
+<ul>
+<li><strong>float</strong>: O limite de crédito do cartão.</li>
+</ul>
 </div>
 
 
@@ -1779,21 +1803,25 @@ selected_month : str
 
             <div class="docstring"><p>Consulta os dados do cartão selecionado.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>card : str
-    O cartão selecionado pelo usuário.</p>
+<ul>
+<li><strong>card</strong> (str):
+O cartão selecionado pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>card_number : str
-    O número do cartão.
-card_owner : str
-    O nome do proprietário do cartão.
-card_owner_document : int
-    O documento do proprietário do cartão.
-card_security_code : str
-    O código de segurança do cartão.</p>
+<ul>
+<li><strong>card_number</strong> (str):
+O número do cartão.</li>
+<li><strong>card_owner</strong> (str):
+O nome do proprietário do cartão.</li>
+<li><strong>card_owner_document</strong> (int):
+O documento do proprietário do cartão.</li>
+<li><strong>card_security_code</strong> (str):
+O código de segurança do cartão.</li>
+</ul>
 </div>
 
 
@@ -1836,15 +1864,19 @@ card_security_code : str
 
             <div class="docstring"><p>Calcula o limite restante do cartão de crédito.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>selected_card : str
-    O cartão de crédito selecionado.</p>
+<ul>
+<li><strong>selected_card</strong> (str):
+O cartão de crédito selecionado.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>remaining_limit : float
-    0 valor do limite restante do cartão.</p>
+<ul>
+<li><strong>remaining_limit</strong> (float):
+0 valor do limite restante do cartão.</li>
+</ul>
 </div>
 
 

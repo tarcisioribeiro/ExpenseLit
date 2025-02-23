@@ -48,6 +48,7 @@
     </ul>
 
 
+            <footer>Expenselit 1.1.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -992,23 +993,27 @@
 
             <div class="docstring"><p>Realiza a consulta do extrato bancário de acordo com as consultas passadas como parâmetro.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>statement_query_option : str
-    A opção de extrato selecionada pelo usuário.
-accounts : list
-    Lista com as contas a serem consultadas.
-initial_data: str
-    A data inicial da consulta.
-final_data: str
-    A data final da consulta.</p>
+<ul>
+<li><strong>statement_query_option</strong> (str):
+A opção de extrato selecionada pelo usuário.</li>
+<li><strong>accounts</strong> (list):
+Lista com as contas a serem consultadas.</li>
+<li><strong>initial_data</strong> (str):
+A data inicial da consulta.</li>
+<li><strong>final_data</strong> (str):
+A data final da consulta.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>value_list : list
-    A lista com os valores do extrato.
-data_df_list : list
-    A lista com os gráficos estruturados.</p>
+<ul>
+<li><strong>value_list</strong> (list):
+A lista com os valores do extrato.</li>
+<li><strong>data_df_list</strong> (list):
+A lista com os gráficos estruturados.</li>
+</ul>
 </div>
 
 
@@ -1108,22 +1113,26 @@ data_df_list : list
 
             <div class="docstring"><p>Gera o PDF do extrato bancário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>df : list
-    A lista com os gráficos.
-statement_type : str
-    O tipo de extrato bancário.
-initial_data : str
-    A data inicial do extrato.
-final_data : str
-    A data final do extrato.
-accounts : list
-    Lista com as contas consultadas.</p>
+<ul>
+<li><strong>df</strong> (list):
+A lista com os gráficos.</li>
+<li><strong>statement_type</strong> (str):
+O tipo de extrato bancário.</li>
+<li><strong>initial_data</strong> (str):
+A data inicial do extrato.</li>
+<li><strong>final_data</strong> (str):
+A data final do extrato.</li>
+<li><strong>accounts</strong> (list):
+Lista com as contas consultadas.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>pdf: O PDF gerado pela função.</p>
+<ul>
+<li><strong>pdf</strong> (O PDF gerado pela função.):</li>
+</ul>
 </div>
 
 

@@ -78,6 +78,7 @@
     </ul>
 
 
+            <footer>Expenselit 1.1.0</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -823,15 +824,18 @@
 
             <div class="docstring"><p>Realiza a encriptação da senha passada como parâmetro.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>password : str
-    A senha a ser encriptada.</p>
+<ul>
+<li><strong>password</strong> (str):
+A senha a ser encriptada.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>bytes
-    A senha encriptada.</p>
+<ul>
+<li><strong>bytes</strong>: A senha encriptada.</li>
+</ul>
 </div>
 
 
@@ -879,15 +883,18 @@
 
             <div class="docstring"><p>Realiza a validação do nome do login escolhido pelo usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>login : str
-    O nome do login escolhido pelo usuário.</p>
+<ul>
+<li><strong>login</strong> (str):
+O nome do login escolhido pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>bool
-    Se o nome de login é ou não válido.</p>
+<ul>
+<li><strong>bool</strong>: Se o nome de login é ou não válido.</li>
+</ul>
 </div>
 
 
@@ -932,15 +939,18 @@
 
             <div class="docstring"><p>Realiza a validação da senha escolhida pelo usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>password : str
-    A senha escolhida pelo usuário.</p>
+<ul>
+<li><strong>password</strong> (str):
+A senha escolhida pelo usuário.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>bool
-    Se a senha escolhida é ou não válida.</p>
+<ul>
+<li><strong>bool</strong>: Se a senha escolhida é ou não válida.</li>
+</ul>
 </div>
 
 
@@ -1415,17 +1425,21 @@
 
             <div class="docstring"><p>Faz a consulta dos dados do usuário, de acordo com a opção de dados retornados selecionada.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>return_option : str
-    Define os dados que serão retornados pela função.</p>
+<ul>
+<li><strong>return_option</strong> (str):
+Define os dados que serão retornados pela função.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>user_name : str
-    Nome completo do usuário logado.
-user_document : str
-    Documento do usuário logado.</p>
+<ul>
+<li><strong>user_name</strong> (str):
+Nome completo do usuário logado.</li>
+<li><strong>user_document</strong> (str):
+Documento do usuário logado.</li>
+</ul>
 </div>
 
 
@@ -1466,12 +1480,14 @@ user_document : str
 
             <div class="docstring"><p>Realiza a validação do login do usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>login : str
-    O nome de usuário.
-password: str
-    A senha do usuário.</p>
+<ul>
+<li><strong>login</strong> (str):
+O nome de usuário.</li>
+<li><strong>password</strong> (str):
+A senha do usuário.</li>
+</ul>
 </div>
 
 
@@ -1522,19 +1538,22 @@ password: str
 
             <div class="docstring"><p>Valida o login do usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>user : str
-    Nome do usuário que está realizando o login.
-password : str
-    Senha do usuário que está realizando o login.</p>
+<ul>
+<li><strong>user</strong> (str):
+Nome do usuário que está realizando o login.</li>
+<li><strong>password</strong> (str):
+Senha do usuário que está realizando o login.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>bool
-    A validade do login.
-hashed_password : str
-    A senha do usuário encriptada.</p>
+<ul>
+<li><strong>bool</strong>: A validade do login.</li>
+<li><strong>hashed_password</strong> (str):
+A senha do usuário encriptada.</li>
+</ul>
 </div>
 
 
@@ -1580,7 +1599,7 @@ hashed_password : str
 
             <div class="docstring"><p>Registra a sessão do usuário no banco de dados.</p>
 
-<h2 id="paramaters">Paramaters</h2>
+<h6 id="paramaters">Paramaters</h6>
 
 <p>logged_user_id : int
     ID do usuário que está presente na tabela 'usuarios'.
@@ -1631,12 +1650,14 @@ logged_user_document : str
 
             <div class="docstring"><p>Realiza a consulta do nome e sexo do usuário.</p>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>name : str
-    O nome do usuário.
-sex : str
-    O sexo do usuário.</p>
+<ul>
+<li><strong>name</strong> (str):
+O nome do usuário.</li>
+<li><strong>sex</strong> (str):
+O sexo do usuário.</li>
+</ul>
 </div>
 
 
@@ -1677,12 +1698,14 @@ sex : str
 
             <div class="docstring"><p>Exibe o nome e sexo do usuário.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>name : str
-    O nome do usuário.
-sex : str
-    O sexo do usuário.</p>
+<ul>
+<li><strong>name</strong> (str):
+O nome do usuário.</li>
+<li><strong>sex</strong> (str):
+O sexo do usuário.</li>
+</ul>
 </div>
 
 
