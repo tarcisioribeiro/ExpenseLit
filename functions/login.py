@@ -108,14 +108,10 @@ class CreateUser:
 
         col4, col5, col6 = st.columns(3)
 
-        with col6:
-            st.subheader(body=":white_check_mark: Validação de Dados")
-            data_validator_expander = st.expander(label="Validação dos dados", expanded=True)
-
         if check_user_quantity == 0:
 
             with col6:
-                with data_validator_expander:
+                with st.expander(label="Validação dos dados", expanded=True):
                     st.warning(body="Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
 
         with col4:
@@ -143,78 +139,73 @@ class CreateUser:
             if insert_new_user_button:
                 user_sex = sex_options[user_sex]
                 if confirm_values == True:
-                    with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
                     with col6:
-                        with data_validator_expander:
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.subheader(body=":white_check_mark: Validação de Dados")
+                        with st.expander(label="Validação dos dados", expanded=True):
                             is_document_valid = document.validate_owner_document(user_document)
                             valid_login = self.is_login_valid(user_login)
                             valid_password = self.is_password_valid(user_password)
 
-                    if user_login != "" and user_password != "" and confirm_user_password != "" and (user_password == confirm_user_password) and user_name != "" and is_document_valid == True and valid_login == True and valid_password == True:
+                            if user_login != "" and user_password != "" and confirm_user_password != "" and (user_password == confirm_user_password) and user_name != "" and is_document_valid == True and valid_login == True and valid_password == True:
 
-                        hashed_password = self.hash_password(user_password)
+                                hashed_password = self.hash_password(user_password)
 
-                        if check_user_quantity == 0:
-                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, documento, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                            new_user_values = (user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
-                            query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
-
-                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                            log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
-                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
-
-                            with st.spinner(text="Recarregando..."):
-                                sleep(2.5)
-                                st.rerun()
-
-                        elif check_user_quantity >= 1:
-
-                            with col6:
-                                check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE documento = {};""".format(user_document)
-                                check_if_user_exists = query_executor.simple_consult_brute_query(check_if_user_document_exists_query)
-                                check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, to_remove_list)
-                                check_if_user_exists = int(check_if_user_exists)
-
-                                if check_if_user_exists == 0:
+                                if check_user_quantity == 0:
                                     insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, documento, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                                     new_user_values = (user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
                                     query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
 
-                                    sleep(5)
-
                                     log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                                    log_values = (user_login, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(user_name, user_document))
+                                    log_values = (user_login, "Registro", "O usuário foi cadastrado no sistema.")
                                     query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                                    sleep(2)
-                                elif check_if_user_exists >= 1:
-                                    with data_validator_expander:
-                                        st.error("Já existe um usuário cadastrado associado ao documento {}.".format(user_document))
+                                    with st.spinner(text="Recarregando..."):
+                                        sleep(2.5)
+                                        st.rerun()
 
-                    elif user_login == "" or user_password == "" or user_name == "" or is_document_valid == False or valid_login == False or valid_password == False or confirm_user_password == "" or (user_password != confirm_user_password):
-                        with col6:
-                            if user_login == "":
-                                with data_validator_expander:
+                                elif check_user_quantity >= 1:
+
+                                    with col6:
+                                        check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE documento = {};""".format(user_document)
+                                        check_if_user_exists = query_executor.simple_consult_brute_query(check_if_user_document_exists_query)
+                                        check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, to_remove_list)
+                                        check_if_user_exists = int(check_if_user_exists)
+
+                                        if check_if_user_exists == 0:
+                                            insert_new_user_query = """INSERT INTO usuarios (login, senha, nome, documento, telefone, email, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+                                            new_user_values = (user_login, hashed_password, user_name, user_document, user_phone, user_email, user_sex)
+                                            query_executor.insert_query(insert_new_user_query, new_user_values, "Novo usuário cadastrado com sucesso!", "Erro ao cadastrar novo usuário:")
+                                            sleep(5)
+
+                                            log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+                                            log_values = (user_login, "Registro", "Cadastrou o usuário {} associado ao documento {} no sistema.".format(user_name, user_document))
+                                            query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                                            sleep(2)
+
+                                        elif check_if_user_exists >= 1:
+                                            st.error("Já existe um usuário cadastrado associado ao documento {}.".format(user_document))
+
+                            elif user_login == "" or user_password == "" or user_name == "" or is_document_valid == False or valid_login == False or valid_password == False or confirm_user_password == "" or (user_password != confirm_user_password):
+                                if user_login == "":
                                     st.error("O login não foi preenchido.")
-                            if user_password == "":
-                                with data_validator_expander:
+                                if user_password == "":
                                     st.error("A senha não foi preenchida.")
-                            if user_name == "":
-                                with data_validator_expander:
+                                if user_name == "":
                                     st.error("O nome não foi preenchido.")
-                            if confirm_user_password == "":
-                                with data_validator_expander:
+                                if confirm_user_password == "":
                                     st.error("A confirmação da senha não foi preenchida.")
-                            if user_password != confirm_user_password and (user_password != "" and confirm_user_password != ""):
-                                with data_validator_expander:
-                                    st.error("As senhas informadas não coincidem.")
+                                if user_password != confirm_user_password and (user_password != "" and confirm_user_password != ""):
+                                        st.error("As senhas informadas não coincidem.")
 
                 elif confirm_values == False:
                     with col6:
-                        with data_validator_expander:
-                            st.warning(
-                                body="Revise os dados e confirme-os antes de prosseguir.")
+                        with st.spinner(text="Aguarde..."):
+                            sleep(2.5)
+                        st.subheader(body=":white_check_mark: Validação de Dados")
+                        with st.expander(label="Validação dos dados", expanded=True):
+                            st.warning(body="Revise os dados e confirme-os antes de prosseguir.")
 
 
 class Login:
