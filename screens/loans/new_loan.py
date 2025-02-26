@@ -101,11 +101,11 @@ class TakeNewLoan:
                             st.subheader(body=":white_check_mark: Validação de dados")
 
                             with st.expander(label="Informações", expanded=True):
-                                str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, logged_user, logged_user_password)))
+                                str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document)))
                                 str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
-                                str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, logged_user, logged_user_password)))
+                                str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, user_name, user_document)))
                                 str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list))
                                 selected_account_expenses = float(str_selected_account_expenses)
 
@@ -237,11 +237,11 @@ class TakeNewLoan:
 
                             with st.expander(label="Informações", expanded=True):
 
-                                str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, logged_user, logged_user_password)))
+                                str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document)))
                                 str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
-                                str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, logged_user, logged_user_password)))
+                                str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, user_name, user_document)))
                                 str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list))
                                 selected_account_expenses = float(str_selected_account_expenses)
 

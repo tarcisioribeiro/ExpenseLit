@@ -23,7 +23,6 @@ class Configuration:
             st.header(body=":wrench: Configurações")
 
         with col2:
-
             selected_option = st.selectbox(
                 label="Menu", options=menu_options.keys())
 
