@@ -30,6 +30,22 @@ class CreditCardInvoice:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
+        selected_card_linked_account_query = """
+        SELECT 
+            DISTINCT(cartao_credito.conta_associada)
+        FROM
+            contas
+        INNER JOIN
+            cartao_credito ON contas.proprietario_conta = cartao_credito.proprietario_cartao
+            AND contas.documento_proprietario_conta = cartao_credito.documento_titular
+        WHERE
+            cartao_credito.nome_cartao = %s
+            AND contas.proprietario_conta = %s
+            AND contas.documento_proprietario_conta = %s;
+        """
+        selected_card_linked_account = QueryExecutor().simple_consult_query(selected_card_linked_account_query, params=(selected_card, user_name, user_document))
+        selected_card_linked_account = QueryExecutor().treat_simple_result(selected_card_linked_account, to_remove_list)
+
         month_data = selected_month.split()
         month_data.pop(1)
         month_data[1] = int(month_data[1])
@@ -38,7 +54,6 @@ class CreditCardInvoice:
         month_year = month_data[1]
 
         month_expenses = Credit_Card().month_expenses(selected_card, month_year, month_name)
-
         str_month_expenses = Variable().treat_complex_string(month_expenses)
 
         if month_expenses == 0:
@@ -49,8 +64,7 @@ class CreditCardInvoice:
             id_list = Credit_Card().get_card_id_month_expenses(selected_card, month_year, month_name)
             descricao_list, valor_list, data_list, categoria_list, parcela_list = (Credit_Card().get_complete_card_month_expenses(selected_card, month_year, month_name))
 
-            credit_card_month_expenses_list_df = pd.DataFrame(
-                {"Descrição": descricao_list, "Valor": valor_list, "Data": data_list, "Categoria": categoria_list, "Parcela": parcela_list, })
+            credit_card_month_expenses_list_df = pd.DataFrame({"Descrição": descricao_list, "Valor": valor_list, "Data": data_list, "Categoria": categoria_list, "Parcela": parcela_list, })
             credit_card_month_expenses_list_df["Valor"] = (credit_card_month_expenses_list_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ",")))
             credit_card_month_expenses_list_df["Data"] = pd.to_datetime(credit_card_month_expenses_list_df["Data"]).dt.strftime("%d/%m/%Y")
 
@@ -67,7 +81,7 @@ class CreditCardInvoice:
 
             pay_button = st.button(label=":pencil: Pagar Fatura")
             expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (description, month_expenses, today, actual_horary, "Fatura Cartão", selected_card, user_name, user_document, "S")
+            values = (description, month_expenses, today, actual_horary, "Fatura Cartão", selected_card_linked_account, user_name, user_document, "S")
 
             update_invoice_query = '''UPDATE fechamentos_cartao SET fechado = 'S' WHERE nome_cartao = '{}' AND mes = '{}' AND ano = '{}' AND documento_titular = {};'''.format(selected_card, selected_month, actual_year, user_document)
 
@@ -79,18 +93,15 @@ class CreditCardInvoice:
                 str_value = Variable().treat_complex_string(month_expenses)
 
                 log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(
-                    str_value, selected_card))
-                QueryExecutor().insert_query(
-                    log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, selected_card))
+                QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
                 with st.spinner(text="Aguarde..."):
                     sleep(2.5)
 
                 st.subheader(body="Comprovante")
                 with st.expander(label="Arquivo", expanded=True):
-                    Receipts().generate_receipt("despesas", id_list[0], description="Fatura Cartão de {}".format(
-                        selected_month), value=month_expenses, date=today, category="Fatura Cartão", account=selected_card)
+                    Receipts().generate_receipt("despesas", id_list[0], description="Fatura Cartão de {}".format(selected_month), value=month_expenses, date=today, category="Fatura Cartão", account=selected_card)
 
     def main_menu(self):
         """
@@ -102,8 +113,7 @@ class CreditCardInvoice:
         col1, col2, col3 = st.columns(3)
 
         user_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
-        user_cards = QueryExecutor().treat_numerous_simple_result(
-            user_cards, to_remove_list)
+        user_cards = QueryExecutor().treat_numerous_simple_result(user_cards, to_remove_list)
 
         if len(user_cards) == 0:
             with col2:

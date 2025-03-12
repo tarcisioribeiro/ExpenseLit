@@ -111,7 +111,8 @@ class CreateUser:
         if check_user_quantity == 0:
 
             with col6:
-                with st.expander(label="Validação dos dados", expanded=True):
+                st.subheader(body=":white_check_mark: Validação dos Dados")
+                with st.expander(label="Aviso", expanded=True):
                     st.warning(body="Nenhum usuário cadastrado. Cadastre o primeiro usuário.")
 
         with col4:

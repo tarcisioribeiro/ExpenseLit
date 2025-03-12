@@ -115,6 +115,7 @@ if os.path.isfile(software_env_path):
                 user_quantity = int(user_quantity)
 
                 if user_quantity == 0:
+                    st.session_state.is_logged_in = False
                     from functions.login import CreateUser
                     CreateUser().main_menu()
 
