@@ -67,15 +67,65 @@ special_caracters_dictionary = {
     "ô": "o",
 }
 
-expense_categories: list = ["Selecione uma opção","Casa","Lazer","Eletroeletrônicos","Serviços","Entretenimento","Presente","Restaurante","Saúde","Supermercado","Transporte","Vestuário"]
-revenue_categories: list = ["Selecione uma opção","Ajuste","Depósito","Prêmio","Salário","Vale","Rendimentos"]
-transfer_categories: list = ["Selecione uma opção", "DOC", "TED", "Pix"]
-accounts_type = ["Conta Corrente","Conta Salário","Fundo de Garantia","Vale Alimentação"]
+expense_categories: list = [
+    "Casa",
+    "Lazer",
+    "Eletroeletrônicos",
+    "Serviços",
+    "Entretenimento",
+    "Presente",
+    "Restaurante",
+    "Saúde",
+    "Supermercado",
+    "Transporte",
+    "Vestuário"
+]
 
-to_remove_list: list = ["'", ")", "(", ",", "Decimal", '"', "[", "]", "datetime.date"]
+revenue_categories: list = [
+    "Ajuste",
+    "Depósito",
+    "Prêmio",
+    "Salário",
+    "Vale",
+    "Rendimentos"
+]
+
+transfer_categories: list = ["DOC", "TED", "Pix"]
+
+accounts_type = [
+    "Conta Corrente",
+    "Conta Salário",
+    "Fundo de Garantia",
+    "Vale Alimentação"
+]
+
+to_remove_list: list = [
+    "'",
+    ")",
+    "(",
+    ",",
+    "Decimal",
+    '"',
+    "[",
+    "]",
+    "datetime.date"
+]
+
 absolute_app_path = os.getcwd()
 
-decimal_values = [",0", ",1", ",2", ",3", ",4", ",5", ",6", ",7", ",8", ",9", "0,0"]
+decimal_values = [
+    ",0",
+    ",1",
+    ",2",
+    ",3",
+    ",4",
+    ",5",
+    ",6",
+    ",7",
+    ",8",
+    ",9",
+    "0,0"
+]
 
 transfer_image = "{}/library/images/transfer.png".format(absolute_app_path)
 SAVE_FOLDER = "{}/library/images/accounts/".format(absolute_app_path)

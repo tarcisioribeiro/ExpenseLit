@@ -16,7 +16,7 @@ class CreditCardInvoice:
     Classe que representa as faturas de cartão.
     """
 
-    def show_expenses(self, selected_card: str, selected_month: str):
+    def show_expenses(self, selected_card: str, selected_month: str, column_disposition: any):
         """
         Exibe as faturas de cartão que ainda não foram pagas.
 
@@ -80,10 +80,37 @@ class CreditCardInvoice:
             actual_horary = GetActualTime().get_actual_time()
 
             pay_button = st.button(label=":pencil: Pagar Fatura")
-            expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (description, month_expenses, today, actual_horary, "Fatura Cartão", selected_card_linked_account, user_name, user_document, "S")
+            expense_query = """
+            INSERT INTO
+                despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            values = (
+                description,
+                month_expenses,
+                today,
+                actual_horary,
+                "Fatura Cartão",
+                selected_card_linked_account,
+                user_name,
+                user_document,
+                "S"
+            )
 
-            update_invoice_query = '''UPDATE fechamentos_cartao SET fechado = 'S' WHERE nome_cartao = '{}' AND mes = '{}' AND ano = '{}' AND documento_titular = {};'''.format(selected_card, selected_month, actual_year, user_document)
+            update_invoice_query = '''
+            UPDATE
+                fechamentos_cartao
+            SET fechado = 'S'
+            WHERE nome_cartao = '{}'
+                AND mes = '{}'
+                AND ano = '{}'
+                AND documento_titular = {};
+            '''.format(
+                selected_card,
+                selected_month,
+                actual_year,
+                user_document
+            )
 
             if confirm_values_checkbox and pay_button:
                 QueryExecutor().update_table_registers("despesas_cartao_credito", "despesa_cartao", id_list)
@@ -96,12 +123,22 @@ class CreditCardInvoice:
                 log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, selected_card))
                 QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                with st.spinner(text="Aguarde..."):
-                    sleep(2.5)
-
-                st.subheader(body="Comprovante")
-                with st.expander(label="Arquivo", expanded=True):
-                    Receipts().generate_receipt("despesas", id_list[0], description="Fatura Cartão de {}".format(selected_month), value=month_expenses, date=today, category="Fatura Cartão", account=selected_card)
+                
+                
+                with column_disposition:
+                    with st.spinner(text="Aguarde..."):
+                        sleep(2.5)
+                    st.subheader(body=":pencil: Comprovante de Pagamento de Fatura")
+                    with st.expander(label="Arquivo", expanded=True):
+                        Receipts().generate_receipt(
+                            "despesas",
+                            id_list[0],
+                            description="Fatura Cartão de {}".format(selected_month),
+                            value=month_expenses,
+                            date=today,
+                            category="Fatura Cartão",
+                            account=selected_card_linked_account
+                        )
 
     def main_menu(self):
         """
@@ -132,4 +169,4 @@ class CreditCardInvoice:
                 selected_month = st.selectbox(label="Selecione o mês", options=card_invoices_data)
 
             with col1:
-                self.show_expenses(selected_card, selected_month)
+                self.show_expenses(selected_card, selected_month, column_disposition=col2)
