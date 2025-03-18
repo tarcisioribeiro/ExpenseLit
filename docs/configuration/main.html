@@ -42,7 +42,7 @@
     </ul>
 
 
-            <footer>Expenselit 1.1.0</footer>
+            <footer>ExpenseLit 1.0.1</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -86,15 +86,14 @@
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:wrench: Configurações&quot;</span><span class="p">)</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -130,15 +129,14 @@
 </span><span id="Configuration-24"><a href="#Configuration-24"><span class="linenos">24</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:wrench: Configurações&quot;</span><span class="p">)</span>
 </span><span id="Configuration-25"><a href="#Configuration-25"><span class="linenos">25</span></a>
 </span><span id="Configuration-26"><a href="#Configuration-26"><span class="linenos">26</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="Configuration-27"><a href="#Configuration-27"><span class="linenos">27</span></a>
-</span><span id="Configuration-28"><a href="#Configuration-28"><span class="linenos">28</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="Configuration-29"><a href="#Configuration-29"><span class="linenos">29</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</span><span id="Configuration-30"><a href="#Configuration-30"><span class="linenos">30</span></a>
-</span><span id="Configuration-31"><a href="#Configuration-31"><span class="linenos">31</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
-</span><span id="Configuration-32"><a href="#Configuration-32"><span class="linenos">32</span></a>
-</span><span id="Configuration-33"><a href="#Configuration-33"><span class="linenos">33</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
-</span><span id="Configuration-34"><a href="#Configuration-34"><span class="linenos">34</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
-</span><span id="Configuration-35"><a href="#Configuration-35"><span class="linenos">35</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="Configuration-27"><a href="#Configuration-27"><span class="linenos">27</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+</span><span id="Configuration-28"><a href="#Configuration-28"><span class="linenos">28</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Configuration-29"><a href="#Configuration-29"><span class="linenos">29</span></a>
+</span><span id="Configuration-30"><a href="#Configuration-30"><span class="linenos">30</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+</span><span id="Configuration-31"><a href="#Configuration-31"><span class="linenos">31</span></a>
+</span><span id="Configuration-32"><a href="#Configuration-32"><span class="linenos">32</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
+</span><span id="Configuration-33"><a href="#Configuration-33"><span class="linenos">33</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
+</span><span id="Configuration-34"><a href="#Configuration-34"><span class="linenos">34</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -172,15 +170,14 @@
 </span><span id="Configuration.main_menu-24"><a href="#Configuration.main_menu-24"><span class="linenos">24</span></a>            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;:wrench: Configurações&quot;</span><span class="p">)</span>
 </span><span id="Configuration.main_menu-25"><a href="#Configuration.main_menu-25"><span class="linenos">25</span></a>
 </span><span id="Configuration.main_menu-26"><a href="#Configuration.main_menu-26"><span class="linenos">26</span></a>        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
-</span><span id="Configuration.main_menu-27"><a href="#Configuration.main_menu-27"><span class="linenos">27</span></a>
-</span><span id="Configuration.main_menu-28"><a href="#Configuration.main_menu-28"><span class="linenos">28</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
-</span><span id="Configuration.main_menu-29"><a href="#Configuration.main_menu-29"><span class="linenos">29</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</span><span id="Configuration.main_menu-30"><a href="#Configuration.main_menu-30"><span class="linenos">30</span></a>
-</span><span id="Configuration.main_menu-31"><a href="#Configuration.main_menu-31"><span class="linenos">31</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
-</span><span id="Configuration.main_menu-32"><a href="#Configuration.main_menu-32"><span class="linenos">32</span></a>
-</span><span id="Configuration.main_menu-33"><a href="#Configuration.main_menu-33"><span class="linenos">33</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
-</span><span id="Configuration.main_menu-34"><a href="#Configuration.main_menu-34"><span class="linenos">34</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
-</span><span id="Configuration.main_menu-35"><a href="#Configuration.main_menu-35"><span class="linenos">35</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
+</span><span id="Configuration.main_menu-27"><a href="#Configuration.main_menu-27"><span class="linenos">27</span></a>            <span class="n">selected_option</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+</span><span id="Configuration.main_menu-28"><a href="#Configuration.main_menu-28"><span class="linenos">28</span></a>                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Menu&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">menu_options</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="Configuration.main_menu-29"><a href="#Configuration.main_menu-29"><span class="linenos">29</span></a>
+</span><span id="Configuration.main_menu-30"><a href="#Configuration.main_menu-30"><span class="linenos">30</span></a>        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+</span><span id="Configuration.main_menu-31"><a href="#Configuration.main_menu-31"><span class="linenos">31</span></a>
+</span><span id="Configuration.main_menu-32"><a href="#Configuration.main_menu-32"><span class="linenos">32</span></a>        <span class="k">if</span> <span class="n">selected_option</span><span class="p">:</span>
+</span><span id="Configuration.main_menu-33"><a href="#Configuration.main_menu-33"><span class="linenos">33</span></a>            <span class="n">option</span> <span class="o">=</span> <span class="n">menu_options</span><span class="p">[</span><span class="n">selected_option</span><span class="p">]</span>
+</span><span id="Configuration.main_menu-34"><a href="#Configuration.main_menu-34"><span class="linenos">34</span></a>            <span class="n">option</span><span class="o">.</span><span class="n">main_menu</span><span class="p">()</span>
 </span></pre></div>
 
 

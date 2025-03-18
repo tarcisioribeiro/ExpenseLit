@@ -185,7 +185,7 @@ class NewCreditCardExpense:
                             st.success(body="Dados válidos.")
 
                         st.subheader(
-                            body=":pencil: Comprovante de Despesa de Cartão")
+                            body=":pencil: Comprovante de Despesa")
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 

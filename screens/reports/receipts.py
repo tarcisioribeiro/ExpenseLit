@@ -297,13 +297,13 @@ class Receipts:
         user_name, user_document = Login().get_user_data(
             return_option="user_doc_name"
         )
-
         origin_account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
             params=(origin_account, user_name, user_document)
         )
         origin_account_image = QueryExecutor().treat_simple_result(
-            origin_account_image, to_remove_list)
+            origin_account_image, to_remove_list
+        )
         origin_account_image_path = SAVE_FOLDER + origin_account_image
         origin_pasted_image = Image.open(origin_account_image_path)
 
@@ -315,6 +315,8 @@ class Receipts:
             destiny_account_image, to_remove_list)
         destiny_account_image_path = SAVE_FOLDER + destiny_account_image
         destiny_pasted_image = Image.open(destiny_account_image_path)
+
+        loaded_transfer_image = Image.open(transfer_image)
 
         float_value = round(value, 2)
 
@@ -385,7 +387,7 @@ class Receipts:
         draw.text((20, height - 40), reference_number, fill="black", font=font)
 
         image.paste(origin_pasted_image, (20, 250))
-        image.paste(transfer_image, (170, 250))
+        image.paste(loaded_transfer_image, (170, 250))
         image.paste(destiny_pasted_image, (320, 250))
 
         archive_path = "{}/data/transfers/Comprovante_transferencia_{}_{}.png"
@@ -413,7 +415,7 @@ class Receipts:
             date,
             category: str,
             account: str
-            ):
+    ):
         """
         Gera o comprovante de despesa/receita.
 
