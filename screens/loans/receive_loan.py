@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from dictionary.sql import not_received_loans_query, user_current_accounts_query, last_revenue_id_query
-from dictionary.vars import to_remove_list, today
+from dictionary.vars import TO_REMOVE_LIST, today
 from functions.query_executor import QueryExecutor
 from functions.login import Login
 from functions.get_actual_time import GetActualTime
@@ -63,7 +63,7 @@ class ReceiveLoan:
 
                     user_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
                     user_accounts = QueryExecutor().treat_numerous_simple_result(
-                        user_accounts, to_remove_list)
+                        user_accounts, TO_REMOVE_LIST)
 
                     debt = st.selectbox(
                         label="Selecionar dívida", options=description)
@@ -119,15 +119,15 @@ class ReceiveLoan:
                     benefited_name, benefited_document = Login().get_user_data(return_option="user_doc_name")
 
                     receiving_max_value = QueryExecutor().simple_consult_brute_query(receiving_max_value_query)
-                    receiving_max_value = QueryExecutor().treat_simple_result(receiving_max_value, to_remove_list)
+                    receiving_max_value = QueryExecutor().treat_simple_result(receiving_max_value, TO_REMOVE_LIST)
                     receiving_max_value = float(receiving_max_value)
 
                     received_actual_value = QueryExecutor().simple_consult_brute_query(received_actual_value_query)
-                    received_actual_value = QueryExecutor().treat_simple_result(received_actual_value, to_remove_list)
+                    received_actual_value = QueryExecutor().treat_simple_result(received_actual_value, TO_REMOVE_LIST)
                     received_actual_value = float(received_actual_value)
 
                     total_actual_value = QueryExecutor().simple_consult_brute_query(total_actual_value_query)
-                    total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, to_remove_list)
+                    total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, TO_REMOVE_LIST)
                     total_actual_value = float(total_actual_value)
 
                     receiving_value = st.number_input(
@@ -221,7 +221,7 @@ class ReceiveLoan:
                             update_loan_query, "Empréstimo atualizado com sucesso!", "Erro ao atualizar valores do empréstimo:")
 
                         last_revenue_id = QueryExecutor().simple_consult_brute_query(last_revenue_id_query)
-                        last_revenue_id = QueryExecutor().treat_simple_result(last_revenue_id, to_remove_list)
+                        last_revenue_id = QueryExecutor().treat_simple_result(last_revenue_id, TO_REMOVE_LIST)
                         last_revenue_id = int(last_revenue_id)
 
                         with col6:

@@ -2,7 +2,7 @@ import streamlit as st
 import mysql.connector
 import bcrypt
 import uuid
-from dictionary.vars import to_remove_list, absolute_app_path
+from dictionary.vars import TO_REMOVE_LIST, ABSOLUTE_APP_PATH
 from dictionary.db_config import db_config
 from functions.query_executor import QueryExecutor
 from time import sleep
@@ -98,7 +98,7 @@ class CreateUser:
         document = Documents()
 
         check_user_quantity = query_executor.simple_consult_brute_query(check_user_query)
-        check_user_quantity = query_executor.treat_simple_result(check_user_quantity, to_remove_list)
+        check_user_quantity = query_executor.treat_simple_result(check_user_quantity, TO_REMOVE_LIST)
         check_user_quantity = int(check_user_quantity)
 
         col1, col2, col3 = st.columns(3)
@@ -171,7 +171,7 @@ class CreateUser:
                                     with col6:
                                         check_if_user_document_exists_query = """SELECT COUNT(id_usuario) FROM usuarios WHERE documento = {};""".format(user_document)
                                         check_if_user_exists = query_executor.simple_consult_brute_query(check_if_user_document_exists_query)
-                                        check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, to_remove_list)
+                                        check_if_user_exists = query_executor.treat_simple_result(check_if_user_exists, TO_REMOVE_LIST)
                                         check_if_user_exists = int(check_if_user_exists)
 
                                         if check_if_user_exists == 0:
@@ -241,7 +241,7 @@ class Login:
             """
 
             user_data = QueryExecutor().complex_compund_query(query=user_data_query, list_quantity=2, params=(st.session_state.sessao_id,))
-            user_data = QueryExecutor().treat_complex_result(values_to_treat=user_data, values_to_remove=to_remove_list)
+            user_data = QueryExecutor().treat_complex_result(values_to_treat=user_data, values_to_remove=TO_REMOVE_LIST)
 
             user_name = user_data[0]
             user_document = user_data[1]
@@ -258,7 +258,7 @@ class Login:
             """
 
             user_login_data = QueryExecutor().complex_compund_query(query=user_login_query, list_quantity=2, params=(st.session_state.sessao_id,))
-            user_login_data = QueryExecutor().treat_complex_result(values_to_treat=user_login_data, values_to_remove=to_remove_list)
+            user_login_data = QueryExecutor().treat_complex_result(values_to_treat=user_login_data, values_to_remove=TO_REMOVE_LIST)
 
             user_login = user_login_data[0]
             user_password = str(user_login_data[1])
@@ -284,7 +284,7 @@ class Login:
         """
 
         check_if_user_exists = QueryExecutor().simple_consult_query(query="SELECT COUNT(id_usuario) FROM usuarios WHERE login = %s AND senha = %s", params=(login, password))
-        check_if_user_exists = QueryExecutor().treat_simple_result(check_if_user_exists, to_remove_list)
+        check_if_user_exists = QueryExecutor().treat_simple_result(check_if_user_exists, TO_REMOVE_LIST)
         check_if_user_exists = int(check_if_user_exists)
 
         if check_if_user_exists == 1:
@@ -367,10 +367,10 @@ class Login:
         sex_query: str = "SELECT sexo FROM usuarios WHERE login = %s AND senha = %s"
 
         name = QueryExecutor().simple_consult_query(query=name_query, params=(logged_user, logged_user_password))
-        name = QueryExecutor().treat_simple_result(name, to_remove_list)
+        name = QueryExecutor().treat_simple_result(name, TO_REMOVE_LIST)
 
         sex = QueryExecutor().simple_consult_query(query=sex_query, params=(logged_user, logged_user_password))
-        sex = QueryExecutor().treat_simple_result(sex, to_remove_list)
+        sex = QueryExecutor().treat_simple_result(sex, TO_REMOVE_LIST)
 
         return name, sex
 
@@ -388,10 +388,10 @@ class Login:
 
         if sex == "M":
             st.image(
-                image="{}/library/images/man.png".format(absolute_app_path))
+                image="{}/library/images/man.png".format(ABSOLUTE_APP_PATH))
         elif sex == "F":
             st.image(
-                image="{}/library/images/woman.png".format(absolute_app_path))
+                image="{}/library/images/woman.png".format(ABSOLUTE_APP_PATH))
         st.text(body="{}".format(name))
         st.divider()
 
@@ -429,7 +429,7 @@ class Login:
                                 name_doc_query = """SELECT id_usuario, nome, documento FROM usuarios WHERE login = %s AND senha = %s;"""
 
                                 user_name_doc = QueryExecutor().complex_compund_query(query=name_doc_query, list_quantity=3, params=(user, hashed_password))
-                                user_name_doc = QueryExecutor().treat_numerous_simple_result(user_name_doc, to_remove_list)
+                                user_name_doc = QueryExecutor().treat_numerous_simple_result(user_name_doc, TO_REMOVE_LIST)
 
                                 user_id = int(user_name_doc[0])
                                 user_name = str(user_name_doc[1])
@@ -453,7 +453,7 @@ class Menu():
                 "Login": Login,
                 "Cadastro de usuário": CreateUser,
             }
-            st.image("{}/library/favicon.png".format(absolute_app_path))
+            st.image("{}/library/favicon.png".format(ABSOLUTE_APP_PATH))
 
             st.divider()
 

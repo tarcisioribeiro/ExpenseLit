@@ -1,7 +1,7 @@
 from datetime import datetime
 from dictionary.sql import user_current_accounts_query, expenses_statement_query, revenues_statement_query
 from functions.login import Login
-from dictionary.vars import to_remove_list, today, absolute_app_path
+from dictionary.vars import TO_REMOVE_LIST, today, ABSOLUTE_APP_PATH
 from dictionary.style import system_font
 from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
@@ -230,7 +230,7 @@ class AccountStatement:
 
         pdf = FPDF(orientation='L', unit="mm", format="A4")
         pdf.add_page()
-        pdf.add_font("SystemFont", "", "{}{}".format(absolute_app_path, system_font), uni=True)
+        pdf.add_font("SystemFont", "", "{}{}".format(ABSOLUTE_APP_PATH, system_font), uni=True)
 
         pdf.set_font("SystemFont", size=16)
         pdf.cell(0, 10, "Relatório de {}".format(statement_type), ln=True, align="C")
@@ -280,7 +280,7 @@ class AccountStatement:
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         col4, col5, col6 = st.columns(3)
 

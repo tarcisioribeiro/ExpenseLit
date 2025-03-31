@@ -3,34 +3,34 @@ import os
 
 operational_system = os.name
 
-config_file_path: str = ".streamlit/config.toml"
-session_state_path: str = "data/cache/session_state.py"
+C0NFIG_FILE_PATH: str = ".streamlit/config.toml"
+SESSION_STATE_PATH: str = "data/cache/session_state.py"
 
-dark_theme = '''[theme]
+DARK_THEME = '''[theme]
 primaryColor="#bd93f9"
 backgroundColor="#282a36"
 secondaryBackgroundColor="#44475a"
 textColor="#f8f8f2"'''
 
-light_theme = """[theme]
+LIGHT_THEME = """[theme]
 primaryColor = "#61afef"
 backgroundColor = "#fefefe"
 secondaryBackgroundColor = "#e6e6e6"
 textColor = "#3c4048"
 """
 
-server_config = """
+SERVER_CONFIG = """
 [server]
 headless = true
 enableStaticServing = true"""
 
-fonts_dictionary = {
+FONTS_DICTIONARY = {
     "sans serif": "/library/fonts/sans_serif/RobotoRegular.ttf",
     "serif": "/library/fonts/serif/CrimsonTextRegular.ttf",
     "monospace": "/library/fonts/monospace/CourierPrimeRegular.ttf"
 }
 
-default_account_image = "default.png"
+DEFAULT_ACCOUNT_IMAGE = "default.png"
 
 today = datetime.now()
 today = today.date()
@@ -44,7 +44,7 @@ first_month_day = first_month_day.date()
 today = str(today)
 first_month_day = str(first_month_day)
 
-months_dictionary = {
+MONTHS_DICTIONARY = {
     1: "Janeiro",
     2: "Fevereiro",
     3: "Março",
@@ -59,29 +59,29 @@ months_dictionary = {
     12: "Dezembro"
 }
 
-string_actual_month = months_dictionary[actual_month]
+string_actual_month = MONTHS_DICTIONARY[actual_month]
 
-special_caracters_dictionary = {
+SPECIAL_CARACTERS_DICTIONARY = {
     "í": "i",
     "ú": "u",
     "ô": "o",
 }
 
-expense_categories: list = [
+EXPENSE_CATEGORIES: list = [
     "Casa",
-    "Lazer",
     "Eletroeletrônicos",
-    "Serviços",
     "Entretenimento",
+    "Lazer",
     "Presente",
     "Restaurante",
     "Saúde",
+    "Serviços",
     "Supermercado",
     "Transporte",
     "Vestuário"
 ]
 
-revenue_categories: list = [
+REVENUE_CATEGORIES: list = [
     "Ajuste",
     "Depósito",
     "Prêmio",
@@ -90,16 +90,16 @@ revenue_categories: list = [
     "Rendimentos"
 ]
 
-transfer_categories: list = ["DOC", "TED", "Pix"]
+TRANSFER_CATEGORIES: list = ["DOC", "TED", "Pix"]
 
-accounts_type = [
+ACCOUNTS_TYPE = [
     "Conta Corrente",
     "Conta Salário",
     "Fundo de Garantia",
     "Vale Alimentação"
 ]
 
-to_remove_list: list = [
+TO_REMOVE_LIST: list = [
     "'",
     ")",
     "(",
@@ -111,9 +111,9 @@ to_remove_list: list = [
     "datetime.date"
 ]
 
-absolute_app_path = os.getcwd()
+ABSOLUTE_APP_PATH = os.getcwd()
 
-decimal_values = [
+DECIMAL_VALUES = [
     ",0",
     ",1",
     ",2",
@@ -127,5 +127,5 @@ decimal_values = [
     "0,0"
 ]
 
-transfer_image = "{}/library/images/transfer.png".format(absolute_app_path)
-SAVE_FOLDER = "{}/library/images/accounts/".format(absolute_app_path)
+TRANSFER_IMAGE = "{}/library/images/transfer.png".format(ABSOLUTE_APP_PATH)
+SAVE_FOLDER = "{}/library/images/accounts/".format(ABSOLUTE_APP_PATH)

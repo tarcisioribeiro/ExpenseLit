@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from dictionary.sql import not_payed_loans_query, user_current_accounts_query, last_expense_id_query
-from dictionary.vars import to_remove_list, today
+from dictionary.vars import TO_REMOVE_LIST, today
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
 from functions.login import Login
@@ -66,7 +66,7 @@ class PayLoan:
                     st.info(body="Valor total: :heavy_dollar_sign: {}".format(total_loan_value))
 
                     user_accounts = QueryExecutor().complex_consult_query(user_current_accounts_query, params=(user_name, user_document))
-                    user_accounts = QueryExecutor().treat_numerous_simple_result(user_accounts, to_remove_list)
+                    user_accounts = QueryExecutor().treat_numerous_simple_result(user_accounts, TO_REMOVE_LIST)
 
                     debt = st.selectbox(label="Selecionar dívida", options=description)
 
@@ -122,15 +122,15 @@ class PayLoan:
                     benefited_name, benefited_document = Login().get_user_data(return_option="user_doc_name")
 
                     paying_max_value = QueryExecutor().simple_consult_brute_query(paying_max_value_query)
-                    paying_max_value = QueryExecutor().treat_simple_result(paying_max_value, to_remove_list)
+                    paying_max_value = QueryExecutor().treat_simple_result(paying_max_value, TO_REMOVE_LIST)
                     paying_max_value = float(paying_max_value)
 
                     payed_actual_value = QueryExecutor().simple_consult_brute_query(payed_actual_value_query)
-                    payed_actual_value = QueryExecutor().treat_simple_result(payed_actual_value, to_remove_list)
+                    payed_actual_value = QueryExecutor().treat_simple_result(payed_actual_value, TO_REMOVE_LIST)
                     payed_actual_value = float(payed_actual_value)
 
                     total_actual_value = QueryExecutor().simple_consult_brute_query(total_actual_value_query)
-                    total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, to_remove_list)
+                    total_actual_value = QueryExecutor().treat_simple_result(total_actual_value, TO_REMOVE_LIST)
                     total_actual_value = float(total_actual_value)
 
                     paying_value = st.number_input(label="Valor", min_value=0.00, max_value=paying_max_value, step=0.01)
@@ -209,7 +209,7 @@ class PayLoan:
                         QueryExecutor().update_table_unique_register(update_loan_query, "Empréstimo atualizado com sucesso!", "Erro ao atualizar valores do empréstimo:")
 
                         last_expense_id = QueryExecutor().simple_consult_brute_query(last_expense_id_query)
-                        last_expense_id = QueryExecutor().treat_simple_result(last_expense_id, to_remove_list)
+                        last_expense_id = QueryExecutor().treat_simple_result(last_expense_id, TO_REMOVE_LIST)
                         last_expense_id = int(last_expense_id)
 
                         with col6:

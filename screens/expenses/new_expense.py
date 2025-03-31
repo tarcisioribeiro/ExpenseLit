@@ -1,6 +1,6 @@
 import streamlit as st
 from dictionary.sql import last_expense_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query
-from dictionary.vars import to_remove_list, expense_categories
+from dictionary.vars import TO_REMOVE_LIST, EXPENSE_CATEGORIES
 from functions.login import Login
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -21,7 +21,7 @@ class NewCurrentExpense:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         col1, col2, col3 = st.columns(3)
 
@@ -38,7 +38,7 @@ class NewCurrentExpense:
                 with st.expander(label="Dados", expanded=True):
 
                     id = QueryExecutor().simple_consult_brute_query(last_expense_id_query)
-                    id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                    id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
 
                     options = {
                         "Sim": "S",
@@ -51,7 +51,7 @@ class NewCurrentExpense:
                         label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(
-                        label=":card_index_dividers: Categoria", options=expense_categories)
+                        label=":card_index_dividers: Categoria", options=EXPENSE_CATEGORIES)
                     account = st.selectbox(
                         label=":bank: Conta", options=user_current_accounts)
                     payed = st.selectbox(
@@ -82,11 +82,11 @@ class NewCurrentExpense:
                         with data_validation_expander:
 
                             str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document))
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST)
                             selected_account_revenues = float(str_selected_account_revenues)
 
                             str_selected_account_expenses = QueryExecutor().simple_consult_query(total_account_expense_query, params=(account, user_name, user_document))
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST)
                             selected_account_expenses = float(str_selected_account_expenses)
 
                             account_available_value = round(selected_account_revenues - selected_account_expenses, 2)

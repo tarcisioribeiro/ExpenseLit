@@ -1,6 +1,6 @@
 from datetime import datetime
 from dictionary.sql import not_received_revenue_query
-from dictionary.vars import to_remove_list, today
+from dictionary.vars import TO_REMOVE_LIST, today
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from functions.login import Login
@@ -42,7 +42,7 @@ class ConfirmRevenue:
 
         get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
         id = QueryExecutor().simple_consult_brute_query(get_id_query)
-        id = QueryExecutor().treat_simple_result(id, to_remove_list)
+        id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
         id = int(id)
 
         return id
@@ -87,7 +87,7 @@ class ConfirmRevenue:
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(time[i], to_remove_list)
+                        aux_time = QueryExecutor().treat_simple_result(time[i], TO_REMOVE_LIST)
                         time_list.append(aux_time)
 
                     loan_data_df = pd.DataFrame({"ID": revenue_id, "Descrição": description, "Valor": value,

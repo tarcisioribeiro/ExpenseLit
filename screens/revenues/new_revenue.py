@@ -1,4 +1,4 @@
-from dictionary.vars import revenue_categories, to_remove_list
+from dictionary.vars import REVENUE_CATEGORIES, TO_REMOVE_LIST
 from dictionary.sql import last_revenue_id_query, user_current_accounts_query
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
@@ -26,7 +26,7 @@ class NewCurrentRevenue:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         return user_current_accounts
 
@@ -59,7 +59,7 @@ class NewCurrentRevenue:
                     }
 
                     id = QueryExecutor().simple_consult_brute_query(last_revenue_id_query)
-                    id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                    id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
                     id = int(id) + 1
 
                     description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a receita.")
@@ -67,7 +67,7 @@ class NewCurrentRevenue:
                         label=":dollar: Valor", min_value=0.01)
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(
-                        label=":card_index_dividers: Categoria", options=revenue_categories)
+                        label=":card_index_dividers: Categoria", options=REVENUE_CATEGORIES)
                     account = st.selectbox(
                         label=":bank: Conta", options=user_current_accounts)
                     received = st.selectbox(

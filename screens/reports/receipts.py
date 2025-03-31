@@ -6,9 +6,9 @@ from dictionary.vars import (
     operational_system,
     today,
     actual_horary,
-    to_remove_list,
-    absolute_app_path,
-    transfer_image,
+    TO_REMOVE_LIST,
+    ABSOLUTE_APP_PATH,
+    TRANSFER_IMAGE,
     SAVE_FOLDER
 )
 from dictionary.sql import user_current_accounts_query, account_image_query
@@ -129,7 +129,7 @@ class Receipts:
                 account, value, user_name, user_document)
 
         id = QueryExecutor().complex_consult_brute_query(id_query)
-        id = QueryExecutor().treat_numerous_simple_result(id, to_remove_list)
+        id = QueryExecutor().treat_numerous_simple_result(id, TO_REMOVE_LIST)
 
         if len(id) >= 1:
             return id, True
@@ -222,7 +222,7 @@ class Receipts:
 
             for i in range(0, len(description)):
                 aux_description = QueryExecutor().treat_simple_result(
-                    description[i], to_remove_list)
+                    description[i], TO_REMOVE_LIST)
                 description_list.append(aux_description)
 
             value = receipt_list[1]
@@ -230,7 +230,7 @@ class Receipts:
 
             for i in range(0, len(value)):
                 aux_value = QueryExecutor().treat_simple_result(
-                    value[i], to_remove_list)
+                    value[i], TO_REMOVE_LIST)
                 aux_value = float(aux_value)
                 value_list.append(aux_value)
 
@@ -239,7 +239,7 @@ class Receipts:
 
             for i in range(0, len(date)):
                 aux_date = QueryExecutor().treat_simple_result(
-                    date[i], to_remove_list)
+                    date[i], TO_REMOVE_LIST)
                 aux_date = aux_date.replace(" ", "-")
                 date_list.append(aux_date)
 
@@ -248,7 +248,7 @@ class Receipts:
 
             for i in range(0, len(time)):
                 aux_time = QueryExecutor().treat_simple_result(
-                    time[i], to_remove_list)
+                    time[i], TO_REMOVE_LIST)
                 aux_time = str(aux_time)
                 time_list.append(aux_time)
 
@@ -257,7 +257,7 @@ class Receipts:
 
             for i in range(0, len(category)):
                 aux_category = QueryExecutor().treat_simple_result(
-                    category[i], to_remove_list)
+                    category[i], TO_REMOVE_LIST)
                 category_list.append(aux_category)
 
             account = receipt_list[5]
@@ -265,7 +265,7 @@ class Receipts:
 
             for i in range(0, len(account)):
                 aux_account = QueryExecutor().treat_simple_result(
-                    account[i], to_remove_list)
+                    account[i], TO_REMOVE_LIST)
                 account_list.append(aux_account)
 
             return description_list, value_list, date_list, time_list,
@@ -302,7 +302,7 @@ class Receipts:
             params=(origin_account, user_name, user_document)
         )
         origin_account_image = QueryExecutor().treat_simple_result(
-            origin_account_image, to_remove_list
+            origin_account_image, TO_REMOVE_LIST
         )
         origin_account_image_path = SAVE_FOLDER + origin_account_image
         origin_pasted_image = Image.open(origin_account_image_path)
@@ -312,11 +312,11 @@ class Receipts:
             params=(destiny_account, user_name, user_document)
         )
         destiny_account_image = QueryExecutor().treat_simple_result(
-            destiny_account_image, to_remove_list)
+            destiny_account_image, TO_REMOVE_LIST)
         destiny_account_image_path = SAVE_FOLDER + destiny_account_image
         destiny_pasted_image = Image.open(destiny_account_image_path)
 
-        loaded_transfer_image = Image.open(transfer_image)
+        loaded_TRANSFER_IMAGE = Image.open(TRANSFER_IMAGE)
 
         float_value = round(value, 2)
 
@@ -340,7 +340,7 @@ class Receipts:
             font = ImageFont.truetype("cour.ttf", font_size)
         elif operational_system == "posix":
             font = ImageFont.truetype("{}{}".format(
-                absolute_app_path, system_font), font_size,
+                ABSOLUTE_APP_PATH, system_font), font_size,
             )
 
         border_color = "black"
@@ -356,7 +356,7 @@ class Receipts:
             header_font = ImageFont.truetype("cour.ttf", header_font_size)
         elif operational_system == "posix":
             header_font = ImageFont.truetype("{}{}".format(
-                absolute_app_path, system_font), font_size,)
+                ABSOLUTE_APP_PATH, system_font), font_size,)
 
         header_text = "Comprovante de Transferência"
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
@@ -387,12 +387,12 @@ class Receipts:
         draw.text((20, height - 40), reference_number, fill="black", font=font)
 
         image.paste(origin_pasted_image, (20, 250))
-        image.paste(loaded_transfer_image, (170, 250))
+        image.paste(loaded_TRANSFER_IMAGE, (170, 250))
         image.paste(destiny_pasted_image, (320, 250))
 
         archive_path = "{}/data/transfers/Comprovante_transferencia_{}_{}.png"
         archive_path = archive_path.format(
-            absolute_app_path, today, actual_horary
+            ABSOLUTE_APP_PATH, today, actual_horary
         )
 
         image.save(archive_path, dpi=(dpi, dpi))
@@ -443,7 +443,7 @@ class Receipts:
             params=(account, user_name, user_document))
         account_image = QueryExecutor().treat_simple_result(
             account_image,
-            to_remove_list
+            TO_REMOVE_LIST
         )
         account_image_path = SAVE_FOLDER + account_image
 
@@ -485,7 +485,7 @@ class Receipts:
             font = ImageFont.truetype("cour.ttf", font_size)
         elif operational_system == "posix":
             font = ImageFont.truetype("{}{}".format(
-                absolute_app_path, system_font), font_size)
+                ABSOLUTE_APP_PATH, system_font), font_size)
 
         border_color = "black"
         border_width = 4
@@ -500,7 +500,7 @@ class Receipts:
             header_font = ImageFont.truetype("cour.ttf", font_size)
         elif operational_system == "posix":
             header_font = ImageFont.truetype("{}{}".format(
-                absolute_app_path, system_font), font_size,)
+                ABSOLUTE_APP_PATH, system_font), font_size,)
 
         header_text = "Comprovante de {}".format(table)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
@@ -533,7 +533,7 @@ class Receipts:
         image.paste(pasted_image, (20, 220))
 
         archive_path = "{}/data/reports/Relatorio_{}_{}.png".format(
-            absolute_app_path,
+            ABSOLUTE_APP_PATH,
             today,
             actual_horary
         )
@@ -565,7 +565,7 @@ class Receipts:
             params=(user_name, user_document)
         )
         user_current_accounts = QueryExecutor().treat_numerous_simple_result(
-            user_current_accounts, to_remove_list)
+            user_current_accounts, TO_REMOVE_LIST)
 
         if len(user_current_accounts) > 0:
 

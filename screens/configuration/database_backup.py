@@ -1,4 +1,4 @@
-from dictionary.vars import operational_system, today, absolute_app_path
+from dictionary.vars import operational_system, today, ABSOLUTE_APP_PATH
 from dictionary.db_config import db_user, db_password, db_database
 from functions.get_actual_time import GetActualTime
 from pathlib import Path
@@ -39,7 +39,7 @@ class Backup:
         )
 
         if operational_system == "posix":
-            backup_shell_script_name = absolute_app_path + "/services/temp_backup.sh"
+            backup_shell_script_name = ABSOLUTE_APP_PATH + "/services/temp_backup.sh"
             with open(backup_shell_script_name, "w") as backup_archive:
                 backup_archive.write("#!/bin/bash")
                 backup_archive.write("\n")

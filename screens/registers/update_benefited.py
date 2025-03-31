@@ -1,5 +1,5 @@
 from functions.login import Login
-from dictionary.vars import today, to_remove_list
+from dictionary.vars import today, TO_REMOVE_LIST
 from dictionary.sql import benefited_quantity_query, beneficiaries_query
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -35,13 +35,13 @@ class Benefited:
 
         is_new_name_valid_query = "SELECT COUNT(id_beneficiado) FROM beneficiados WHERE nome = %s AND id_beneficiado <> %s;"
         is_new_name_valid = QueryExecutor().simple_consult_query(is_new_name_valid_query, params=(benefited_new_name, benefited_id))
-        is_new_name_valid = QueryExecutor().treat_simple_result(is_new_name_valid, to_remove_list)
+        is_new_name_valid = QueryExecutor().treat_simple_result(is_new_name_valid, TO_REMOVE_LIST)
 
         is_document_valid = Documents().validate_owner_document(benefited_new_document)
 
         is_new_document_valid_query = "SELECT COUNT(id_beneficiado) FROM beneficiados WHERE documento = %s AND id_beneficiado <> %s;"
         is_new_document_valid = QueryExecutor().simple_consult_query(is_new_document_valid_query, params=(benefited_new_document, benefited_id))
-        is_new_document_valid = QueryExecutor().treat_simple_result(is_new_document_valid, to_remove_list)
+        is_new_document_valid = QueryExecutor().treat_simple_result(is_new_document_valid, TO_REMOVE_LIST)
 
         if is_document_valid == False:
             is_new_register_valid = False
@@ -49,7 +49,7 @@ class Benefited:
 
         is_new_phone_valid_query = "SELECT COUNT(id_beneficiado) FROM beneficiados WHERE telefone = %s AND id_beneficiado <> %s;"
         is_new_phone_valid = QueryExecutor().simple_consult_query(is_new_phone_valid_query, params=(benefited_new_phone, benefited_id))
-        is_new_phone_valid = QueryExecutor().treat_simple_result(is_new_phone_valid, to_remove_list)
+        is_new_phone_valid = QueryExecutor().treat_simple_result(is_new_phone_valid, TO_REMOVE_LIST)
 
         if is_new_name_valid == "1":
                 st.error(body="O nome {} já está em uso.".format(benefited_new_name))
@@ -60,7 +60,7 @@ class Benefited:
 
         is_entire_data_valid_query = "SELECT COUNT(id_beneficiado) FROM beneficiados WHERE nome = %s AND documento = %s AND telefone = %s;"
         is_entire_data_valid = QueryExecutor().simple_consult_query(is_entire_data_valid_query, params=(benefited_new_name, benefited_new_document, benefited_new_phone))
-        is_entire_data_valid = QueryExecutor().treat_simple_result(is_entire_data_valid, to_remove_list)
+        is_entire_data_valid = QueryExecutor().treat_simple_result(is_entire_data_valid, TO_REMOVE_LIST)
 
         if is_new_name_valid == "0" and is_new_document_valid == "0" and is_new_phone_valid == "0" and is_entire_data_valid == "0":
             is_new_register_valid = True
@@ -79,7 +79,7 @@ class Benefited:
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         benefited_quantity = QueryExecutor().simple_consult_query(query=benefited_quantity_query, params=(user_name, user_document))
-        benefited_quantity = QueryExecutor().treat_simple_result(benefited_quantity, to_remove_list)
+        benefited_quantity = QueryExecutor().treat_simple_result(benefited_quantity, TO_REMOVE_LIST)
         benefited_quantity = int(benefited_quantity)
 
         if benefited_quantity == 0:
@@ -90,7 +90,7 @@ class Benefited:
         elif benefited_quantity >= 1:
 
             beneficiaries = QueryExecutor().complex_consult_query(query=beneficiaries_query, params=(user_name, user_document))
-            beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, to_remove_list)
+            beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, TO_REMOVE_LIST)
 
             col1, col2, col3, col4 = st.columns(4)
             
@@ -99,7 +99,7 @@ class Benefited:
 
             beneficiaries_complete_data_query = """SELECT beneficiados.id_beneficiado, beneficiados.nome, beneficiados.documento, beneficiados.telefone FROM beneficiados INNER JOIN usuarios ON beneficiados.nome <> usuarios.nome AND beneficiados.documento <> usuarios.documento WHERE usuarios.nome = %s AND usuarios.documento = %s AND beneficiados.nome = %s;"""
             beneficiaries_complete_data = QueryExecutor().complex_compund_query(query=beneficiaries_complete_data_query, list_quantity=4, params=(user_name, user_document, selected_beneficiary))
-            beneficiaries_complete_data = QueryExecutor().treat_complex_result(beneficiaries_complete_data, to_remove_list)
+            beneficiaries_complete_data = QueryExecutor().treat_complex_result(beneficiaries_complete_data, TO_REMOVE_LIST)
 
             with col1:
                 st.subheader(body=":floppy_disk: Registro")
@@ -143,7 +143,7 @@ class Benefited:
                             if is_data_passed_valid == True:
                                 get_loans_ids_query = """SELECT id_emprestimo FROM emprestimos WHERE devedor = %s AND documento_devedor = %s;"""
                                 loans_ids = QueryExecutor().complex_consult_query(query=get_loans_ids_query, params=(beneficiaries_complete_data[1], beneficiaries_complete_data[2]))
-                                loans_ids = QueryExecutor().treat_complex_result(loans_ids, to_remove_list)
+                                loans_ids = QueryExecutor().treat_complex_result(loans_ids, TO_REMOVE_LIST)
 
                                 if len(loans_ids) >= 1:
                                     ids = []

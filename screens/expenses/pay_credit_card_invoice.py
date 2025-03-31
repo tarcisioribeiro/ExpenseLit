@@ -1,5 +1,5 @@
 from dictionary.sql import owner_cards_query, card_invoices_query
-from dictionary.vars import today, to_remove_list, actual_year
+from dictionary.vars import today, TO_REMOVE_LIST, actual_year
 from functions.login import Login
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
@@ -71,7 +71,7 @@ class CreditCardInvoice:
         )
         selected_card_linked_account = QueryExecutor().treat_simple_result(
             selected_card_linked_account,
-            to_remove_list
+            TO_REMOVE_LIST
         )
 
         month_data = selected_month.split()
@@ -195,7 +195,6 @@ class CreditCardInvoice:
                 )
 
             description = "Fatura {}/{}".format(month_abbreviation, month_year)
-            st.info(description)
             actual_horary = GetActualTime().get_actual_time()
 
             pay_button = st.button(label=":pencil: Pagar Fatura")
@@ -324,7 +323,7 @@ class CreditCardInvoice:
             params=(user_name, user_document)
         )
         user_cards = QueryExecutor().treat_numerous_simple_result(
-            user_cards, to_remove_list
+            user_cards, TO_REMOVE_LIST
         )
 
         if len(user_cards) == 0:
@@ -345,7 +344,7 @@ class CreditCardInvoice:
                 params=(selected_card, user_name, user_document)
             )
             card_invoices_data = QueryExecutor().treat_numerous_simple_result(
-                card_invoices_data, to_remove_list
+                card_invoices_data, TO_REMOVE_LIST
             )
 
             with cl2:

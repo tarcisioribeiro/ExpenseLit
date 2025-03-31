@@ -2,7 +2,7 @@ import mysql.connector
 import streamlit as st
 from datetime import timedelta
 from dictionary.db_config import db_config
-from dictionary.vars import expense_categories, to_remove_list
+from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
 from dictionary.sql import last_credit_card_expense_id_query, owner_cards_query
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
@@ -78,7 +78,7 @@ class NewCreditCardExpense:
 
         user_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query, params=(user_name, user_document))
-        user_cards = QueryExecutor().treat_numerous_simple_result(user_cards, to_remove_list)
+        user_cards = QueryExecutor().treat_numerous_simple_result(user_cards, TO_REMOVE_LIST)
 
         col1, col2, col3 = st.columns(3)
 
@@ -105,7 +105,7 @@ class NewCreditCardExpense:
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(
                         label=":card_index_dividers: Categoria",
-                        options=expense_categories
+                        options=EXPENSE_CATEGORIES
                     )
                     card = st.selectbox(
                         label=":credit_card: Cartão",
@@ -156,7 +156,7 @@ class NewCreditCardExpense:
                         query=card_associated_account_query,
                         params=(user_name, user_document, card)
                         )
-                    card_associated_account = QueryExecutor().treat_simple_result(card_associated_account, to_remove_list)
+                    card_associated_account = QueryExecutor().treat_simple_result(card_associated_account, TO_REMOVE_LIST)
 
                     with col2:
 

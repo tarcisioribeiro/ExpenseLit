@@ -1,4 +1,4 @@
-from dictionary.vars import accounts_type, today, actual_horary, to_remove_list, SAVE_FOLDER, decimal_values, special_caracters_dictionary, default_account_image
+from dictionary.vars import ACCOUNTS_TYPE, today, actual_horary, TO_REMOVE_LIST, SAVE_FOLDER, DECIMAL_VALUES, DEFAULT_ACCOUNT_IMAGE
 from dictionary.app_vars import account_models
 from dictionary.sql import user_all_current_accounts_query
 from functions.login import Login
@@ -30,7 +30,7 @@ class UpdateAccounts:
             with st.expander(label="Dados cadastrais", expanded=True):
 
                 account_name = st.selectbox(label=":lower_left_ballpoint_pen: Nome da conta", options=account_models)
-                account_type = st.selectbox(label=":card_index_dividers: Tipo da conta", options=accounts_type)
+                account_type = st.selectbox(label=":card_index_dividers: Tipo da conta", options=ACCOUNTS_TYPE)
                 get_account_first_value = st.number_input(label=":heavy_dollar_sign: Valor inicial", step=0.01, min_value=0.01, help="Não é possível cadastrar uma conta sem um valor inicial.")
                 get_account_image = st.file_uploader(label=":camera: Imagem da conta", type=['png', 'jpg'], help="O envio da imagem não é obrigatório.")
                 confirm_values_ckecbox = st.checkbox(label="Confirmar Dados")
@@ -49,7 +49,7 @@ class UpdateAccounts:
                         str_value = str(get_account_first_value)
                         str_value = str_value.replace(".", ",")
                         last_two_values = str_value[-2:]
-                        if last_two_values in decimal_values:
+                        if last_two_values in DECIMAL_VALUES:
                             str_value = str_value + "0"
                         st.info(body="Nome da conta: {}".format(account_name))
                         st.info(body="Tipo da conta: {}".format(account_type))
@@ -57,7 +57,7 @@ class UpdateAccounts:
 
                     if type(get_account_image).__name__ != "NoneType":
                         image = Image.open(get_account_image)
-                        name, ext = os.path.splitext(default_account_image)
+                        name, ext = os.path.splitext(DEFAULT_ACCOUNT_IMAGE)
 
                         new_file_name = SAVE_FOLDER + name + ext
                         library_file_name = name + ext
@@ -73,7 +73,7 @@ class UpdateAccounts:
                         QueryExecutor().insert_query(insert_account_query, new_account_values, "Conta cadastrada com sucesso!", "Erro ao cadastrar conta:")
 
                     elif type(get_account_image).__name__ == "NoneType":
-                        library_file_name = default_account_image
+                        library_file_name = DEFAULT_ACCOUNT_IMAGE
 
                         insert_account_query = """INSERT INTO contas (nome_conta, tipo_conta, proprietario_conta, documento_proprietario_conta, caminho_arquivo_imagem) VALUES (%s, %s, %s, %s, %s)"""
                         new_account_values = (account_name, account_type, user_name, user_document, library_file_name)
@@ -120,7 +120,7 @@ class UpdateAccounts:
         col1, col2, col3 = st.columns(3)
 
         user_accounts = QueryExecutor().complex_consult_query(query=user_all_current_accounts_query, params=(user_name, user_document))
-        user_accounts = QueryExecutor().treat_numerous_simple_result(user_accounts, to_remove_list)
+        user_accounts = QueryExecutor().treat_numerous_simple_result(user_accounts, TO_REMOVE_LIST)
 
         options = {
             "Não": "N",

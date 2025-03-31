@@ -1,5 +1,5 @@
 from functions.login import Login
-from dictionary.vars import today, to_remove_list
+from dictionary.vars import today, TO_REMOVE_LIST
 from dictionary.sql import creditors_quantity_query, creditors_query
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -35,13 +35,13 @@ class Creditors:
 
         is_new_name_valid_query = "SELECT COUNT(id_credor) FROM credores WHERE nome = %s AND id_credor <> %s;"
         is_new_name_valid = QueryExecutor().simple_consult_query(is_new_name_valid_query, params=(creditor_new_name, creditor_id))
-        is_new_name_valid = QueryExecutor().treat_simple_result(is_new_name_valid, to_remove_list)
+        is_new_name_valid = QueryExecutor().treat_simple_result(is_new_name_valid, TO_REMOVE_LIST)
 
         is_document_valid = Documents().validate_owner_document(creditor_new_document)
 
         is_new_document_valid_query = "SELECT COUNT(id_credor) FROM credores WHERE documento = %s AND id_credor <> %s;"
         is_new_document_valid = QueryExecutor().simple_consult_query(is_new_document_valid_query, params=(creditor_new_document, creditor_id))
-        is_new_document_valid = QueryExecutor().treat_simple_result(is_new_document_valid, to_remove_list)
+        is_new_document_valid = QueryExecutor().treat_simple_result(is_new_document_valid, TO_REMOVE_LIST)
 
         if is_document_valid == False:
             is_new_register_valid = False
@@ -49,7 +49,7 @@ class Creditors:
 
         is_new_phone_valid_query = "SELECT COUNT(id_credor) FROM credores WHERE telefone = %s AND id_credor <> %s;"
         is_new_phone_valid = QueryExecutor().simple_consult_query(is_new_phone_valid_query, params=(creditor_new_phone, creditor_id))
-        is_new_phone_valid = QueryExecutor().treat_simple_result(is_new_phone_valid, to_remove_list)
+        is_new_phone_valid = QueryExecutor().treat_simple_result(is_new_phone_valid, TO_REMOVE_LIST)
 
         if is_new_name_valid == "1":
                 st.error(body="O nome {} já está em uso.".format(creditor_new_name))
@@ -60,7 +60,7 @@ class Creditors:
 
         is_entire_data_valid_query = "SELECT COUNT(id_credor) FROM credores WHERE nome = %s AND documento = %s AND telefone = %s;"
         is_entire_data_valid = QueryExecutor().simple_consult_query(is_entire_data_valid_query, params=(creditor_new_name, creditor_new_document, creditor_new_phone))
-        is_entire_data_valid = QueryExecutor().treat_simple_result(is_entire_data_valid, to_remove_list)
+        is_entire_data_valid = QueryExecutor().treat_simple_result(is_entire_data_valid, TO_REMOVE_LIST)
 
         if is_new_name_valid == "0" and is_new_document_valid == "0" and is_new_phone_valid == "0" and is_entire_data_valid == "0":
             is_new_register_valid = True
@@ -79,7 +79,7 @@ class Creditors:
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         creditors_quantity = QueryExecutor().simple_consult_query(query=creditors_quantity_query, params=(user_name, user_document))
-        creditors_quantity = QueryExecutor().treat_simple_result(creditors_quantity, to_remove_list)
+        creditors_quantity = QueryExecutor().treat_simple_result(creditors_quantity, TO_REMOVE_LIST)
         creditors_quantity = int(creditors_quantity)
 
         if creditors_quantity == 0:
@@ -90,7 +90,7 @@ class Creditors:
         elif creditors_quantity >= 1:
 
             creditors = QueryExecutor().complex_consult_query(query=creditors_query, params=(user_name, user_document))
-            creditors = QueryExecutor().treat_numerous_simple_result(creditors, to_remove_list)
+            creditors = QueryExecutor().treat_numerous_simple_result(creditors, TO_REMOVE_LIST)
 
             col1, col2, col3, col4 = st.columns(4)
             
@@ -99,7 +99,7 @@ class Creditors:
 
             creditors_complete_data_query = """SELECT credores.id_credor, credores.nome, credores.documento, credores.telefone FROM credores INNER JOIN usuarios ON credores.nome <> usuarios.nome AND credores.documento <> usuarios.documento WHERE usuarios.nome = %s AND usuarios.documento = %s AND credores.nome = %s;"""
             creditors_complete_data = QueryExecutor().complex_compund_query(query=creditors_complete_data_query, list_quantity=4, params=(user_name, user_document, selected_creditor))
-            creditors_complete_data = QueryExecutor().treat_complex_result(creditors_complete_data, to_remove_list)
+            creditors_complete_data = QueryExecutor().treat_complex_result(creditors_complete_data, TO_REMOVE_LIST)
 
             with col1:
                 st.subheader(body=":floppy_disk: Registro")
@@ -143,7 +143,7 @@ class Creditors:
                             if is_data_passed_valid == True:
                                 get_loans_ids_query = """SELECT id_emprestimo FROM emprestimos WHERE credor = %s AND documento_credor = %s;"""
                                 loans_ids = QueryExecutor().complex_consult_query(query=get_loans_ids_query, params=(creditors_complete_data[1], creditors_complete_data[2]))
-                                loans_ids = QueryExecutor().treat_complex_result(loans_ids, to_remove_list)
+                                loans_ids = QueryExecutor().treat_complex_result(loans_ids, TO_REMOVE_LIST)
 
                                 if len(loans_ids) >= 1:
                                     ids = []

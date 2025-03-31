@@ -1,6 +1,6 @@
 from datetime import datetime
 from dictionary.sql import not_payed_expense_query
-from dictionary.vars import to_remove_list, today, decimal_values
+from dictionary.vars import TO_REMOVE_LIST, today, DECIMAL_VALUES
 from functions.query_executor import QueryExecutor
 from functions.login import Login
 from screens.reports.receipts import Receipts
@@ -41,7 +41,7 @@ class ConfirmExpense:
 
         get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
         id = QueryExecutor().simple_consult_brute_query(get_id_query)
-        id = QueryExecutor().treat_simple_result(id, to_remove_list)
+        id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
         id = int(id)
 
         return id
@@ -82,7 +82,7 @@ class ConfirmExpense:
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(time[i], to_remove_list)
+                        aux_time = QueryExecutor().treat_simple_result(time[i], TO_REMOVE_LIST)
                         time_list.append(aux_time)
 
                     loan_data_df = pd.DataFrame({"ID": expense_id, "Descrição": description, "Valor": value, "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
@@ -133,7 +133,7 @@ class ConfirmExpense:
                         str_final_value = str(final_value)
                         str_final_value = str_final_value.replace(".", ",")
                         last_two_digits = str_final_value[-2:]
-                        if last_two_digits in decimal_values:
+                        if last_two_digits in DECIMAL_VALUES:
                             str_final_value = str_final_value + "0"
 
                         with st.subheader(body=":white_check_mark: Validação de Dados"):
@@ -157,7 +157,7 @@ class ConfirmExpense:
                         str_value = str(value)
                         str_value = str_value.replace(".", ",")
                         last_two_digits = str_value[-2:]
-                        if last_two_digits in decimal_values:
+                        if last_two_digits in DECIMAL_VALUES:
                             str_value = str_value + "0"
 
                         log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''

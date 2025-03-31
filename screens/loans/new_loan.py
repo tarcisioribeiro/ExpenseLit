@@ -1,5 +1,5 @@
 import streamlit as st
-from dictionary.vars import expense_categories, to_remove_list
+from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
 from dictionary.sql import last_loan_id_query, creditor_doc_name_query, user_current_accounts_query, creditors_query, total_account_revenue_query, total_account_expense_query
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -21,7 +21,7 @@ class TakeNewLoan:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         return user_current_accounts
 
@@ -45,7 +45,7 @@ class TakeNewLoan:
             creditors_quantity_query = '''SELECT COUNT(id_credor) FROM credores WHERE credores.documento <> %s OR credores.nome <> %s;'''
 
             creditors_quantity = QueryExecutor().simple_consult_query(query=creditors_quantity_query, params=(user_document, user_name))
-            creditors_quantity = int(QueryExecutor().treat_simple_result(creditors_quantity, to_remove_list))
+            creditors_quantity = int(QueryExecutor().treat_simple_result(creditors_quantity, TO_REMOVE_LIST))
 
             if creditors_quantity == 0:
                 with col2:
@@ -59,17 +59,17 @@ class TakeNewLoan:
 
                     with st.expander(label="Dados", expanded=True):
                         id = QueryExecutor().simple_consult_brute_query(last_loan_id_query)
-                        id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                        id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
                         id = int(id) + 1
 
                         description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição do empréstimo tomado.", max_chars=25)
                         value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                         date = st.date_input(label=":date: Data")
-                        category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories,)
+                        category = st.selectbox(label=":card_index_dividers: Categoria", options=EXPENSE_CATEGORIES,)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
 
                         creditors = QueryExecutor().complex_consult_query(creditors_query, params=(user_name, user_document))
-                        creditors = QueryExecutor().treat_numerous_simple_result(creditors, to_remove_list)
+                        creditors = QueryExecutor().treat_numerous_simple_result(creditors, TO_REMOVE_LIST)
                         creditor = st.selectbox(label="Credor", options=creditors)
 
                         creditor_doc_name_query = """
@@ -82,7 +82,7 @@ class TakeNewLoan:
                                     credores.nome = %s;"""
 
                         creditor_name_document = QueryExecutor().complex_consult_query(creditor_doc_name_query, params=(creditor, ))
-                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, to_remove_list)
+                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, TO_REMOVE_LIST)
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
                         benefited_name, benefited_document = Login().get_user_data(return_option="user_doc_name")
@@ -102,11 +102,11 @@ class TakeNewLoan:
 
                             with st.expander(label="Informações", expanded=True):
                                 str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document)))
-                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list))
+                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
                                 str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, user_name, user_document)))
-                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list))
+                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST))
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(
@@ -173,7 +173,7 @@ class TakeNewLoan:
             benefited_quantity_query = '''SELECT COUNT(id_beneficiado) FROM beneficiados WHERE beneficiados.documento <> %s OR beneficiados.nome <> %s;'''
 
             benefited_quantity = QueryExecutor().simple_consult_query(query=benefited_quantity_query, params=(user_name, user_document))
-            benefited_quantity = int(QueryExecutor().treat_simple_result(benefited_quantity, to_remove_list))
+            benefited_quantity = int(QueryExecutor().treat_simple_result(benefited_quantity, TO_REMOVE_LIST))
 
             if benefited_quantity == 0:
                 with col2:
@@ -187,22 +187,22 @@ class TakeNewLoan:
                     with st.expander(label="Dados", expanded=True):
 
                         id = QueryExecutor().simple_consult_brute_query(last_loan_id_query)
-                        id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                        id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
                         id = int(id) + 1
 
                         description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve do empréstimo.", max_chars=25)
                         value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                         date = st.date_input(label=":date: Data")
-                        category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories,)
+                        category = st.selectbox(label=":card_index_dividers: Categoria", options=EXPENSE_CATEGORIES,)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
 
                         beneficiaries_query = '''SELECT nome FROM beneficiados WHERE beneficiados.documento <> {} OR beneficiados.nome <> '{}';'''.format(user_document, user_name)
                         beneficiaries = QueryExecutor().complex_consult_query(beneficiaries_query)
-                        beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, to_remove_list)
+                        beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, TO_REMOVE_LIST)
                         benefited = st.selectbox(label="Beneficiado", options=beneficiaries)
 
                         creditor_name_document = QueryExecutor().complex_consult_query(creditor_doc_name_query)
-                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, to_remove_list)
+                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, TO_REMOVE_LIST)
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
 
@@ -215,7 +215,7 @@ class TakeNewLoan:
                                         WHERE
                                             beneficiados.nome = %s;"""
                         benefited_doc_name = QueryExecutor().complex_consult_query(benefited_doc_name_query, params=(benefited, ))
-                        benefited_doc_name = QueryExecutor().treat_complex_result(benefited_doc_name, to_remove_list)
+                        benefited_doc_name = QueryExecutor().treat_complex_result(benefited_doc_name, TO_REMOVE_LIST)
                         benefited_name = benefited_doc_name[0]
                         benefited_document = benefited_doc_name[1]
 
@@ -238,11 +238,11 @@ class TakeNewLoan:
                             with st.expander(label="Informações", expanded=True):
 
                                 str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document)))
-                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list))
+                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
                                 str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, user_name, user_document)))
-                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list))
+                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST))
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
@@ -307,7 +307,7 @@ class MakeNewLoan:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         return user_current_accounts
 
@@ -331,7 +331,7 @@ class MakeNewLoan:
             benefited_quantity_query = '''SELECT COUNT(id_beneficiado) FROM beneficiados WHERE beneficiados.documento <> %s OR beneficiados.nome <> %s;'''
 
             benefited_quantity = QueryExecutor().simple_consult_query(query=benefited_quantity_query, params=(user_name, user_document))
-            benefited_quantity = int(QueryExecutor().treat_simple_result(benefited_quantity, to_remove_list))
+            benefited_quantity = int(QueryExecutor().treat_simple_result(benefited_quantity, TO_REMOVE_LIST))
 
             if benefited_quantity == 0:
                 with col2:
@@ -345,22 +345,22 @@ class MakeNewLoan:
                     with st.expander(label="Dados", expanded=True):
 
                         id = QueryExecutor().simple_consult_brute_query(last_loan_id_query)
-                        id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                        id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
                         id = int(id) + 1
 
                         description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve do empréstimo.", max_chars=25)
                         value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                         date = st.date_input(label=":date: Data")
-                        category = st.selectbox(label=":card_index_dividers: Categoria", options=expense_categories,)
+                        category = st.selectbox(label=":card_index_dividers: Categoria", options=EXPENSE_CATEGORIES,)
                         account = st.selectbox(label=":bank: Conta", options=user_current_accounts)
 
                         beneficiaries_query = '''SELECT nome FROM beneficiados WHERE beneficiados.documento <> %s OR beneficiados.nome <> %s;'''
                         beneficiaries = QueryExecutor().complex_consult_query(query=beneficiaries_query, params=(user_document, user_name))
-                        beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, to_remove_list)
+                        beneficiaries = QueryExecutor().treat_numerous_simple_result(beneficiaries, TO_REMOVE_LIST)
                         benefited = st.selectbox(label="Beneficiado", options=beneficiaries)
 
                         creditor_name_document = QueryExecutor().complex_consult_query(creditor_doc_name_query, params=(user_name, user_document))
-                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, to_remove_list)
+                        creditor_name_document = QueryExecutor().treat_complex_result(creditor_name_document, TO_REMOVE_LIST)
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
 
@@ -373,7 +373,7 @@ class MakeNewLoan:
                                         WHERE
                                             beneficiados.nome = %s;"""
                         benefited_doc_name = QueryExecutor().complex_consult_query(query=benefited_doc_name_query, params=(benefited,))
-                        benefited_doc_name = QueryExecutor().treat_complex_result(benefited_doc_name, to_remove_list)
+                        benefited_doc_name = QueryExecutor().treat_complex_result(benefited_doc_name, TO_REMOVE_LIST)
                         benefited_name = benefited_doc_name[0]
                         benefited_document = benefited_doc_name[1]
 
@@ -396,11 +396,11 @@ class MakeNewLoan:
                             with st.expander(label="Informações", expanded=True):
 
                                 str_selected_account_revenues = (QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(account, user_name, user_document)))
-                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list))
+                                str_selected_account_revenues = (QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST))
                                 selected_account_revenues = float(str_selected_account_revenues)
 
                                 str_selected_account_expenses = (QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(account, user_name, user_document)))
-                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list))
+                                str_selected_account_expenses = (QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST))
                                 selected_account_expenses = float(str_selected_account_expenses)
 
                                 account_available_value = round(selected_account_revenues - selected_account_expenses, 2)

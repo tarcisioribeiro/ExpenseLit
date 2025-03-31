@@ -1,5 +1,5 @@
-from datetime import date
-from dictionary.vars import to_remove_list, today
+from datetime import date, datetime
+from dictionary.vars import TO_REMOVE_LIST, today
 from dictionary.app_vars import months, years
 from dictionary.sql import owner_cards_query, user_current_accounts_query, credit_card_expire_date_query
 from functions.credit_card import Credit_Card
@@ -26,7 +26,7 @@ class UpdateCreditCards:
         col1, col2, col3 = st.columns(3)
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         if len(user_current_accounts) == 0:
             with col2:
@@ -56,7 +56,7 @@ class UpdateCreditCards:
                 send_form_button = st.button(label=":floppy_disk: Cadastrar cartão")
 
                 if send_form_button and confirm_credit_card_values:
-                    today_datetime = self.get_today_datetime()
+                    today_datetime = datetime.strptime(today, '%Y-%m-%d').date()
 
                     with col3:
                         with st.spinner(text="Aguarde..."):
@@ -66,7 +66,15 @@ class UpdateCreditCards:
                             is_card_valid = Documents().validate_credit_card(card_number=card_number)
                             is_document_valid = (Documents().validate_owner_document(owner_document=user_document))
 
-                            if card_name != "" and card_number != "" and owner_name != "" and security_code != "" and confirm_security_code != "" and (security_code == confirm_security_code) and (today_datetime < expire_date):
+                            if (
+                                card_name != ""
+                                and card_number != ""
+                                and owner_name != ""
+                                and security_code != ""
+                                and confirm_security_code != ""
+                                and (security_code == confirm_security_code)
+                                and (today_datetime < expire_date)
+                                ):
                                 if is_document_valid == True and is_card_valid == True:
                                     st.success(body="Número de cartão válido.")
                                     st.success(body="Documento Válido.")
@@ -120,7 +128,7 @@ class UpdateCreditCards:
         col1, col2, col3 = st.columns(3)
 
         credit_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
-        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, to_remove_list)
+        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, TO_REMOVE_LIST)
 
         with col3:
 
@@ -134,7 +142,7 @@ class UpdateCreditCards:
 
             cc_max_limit_query = '''SELECT limite_maximo FROM cartao_credito WHERE nome_cartao = '{}' AND proprietario_cartao = '{}' AND documento_titular = {}'''.format(card, user_name, user_document)
             cc_max_limit = QueryExecutor().simple_consult_brute_query(cc_max_limit_query)
-            cc_max_limit = QueryExecutor().treat_simple_result(cc_max_limit, to_remove_list)
+            cc_max_limit = QueryExecutor().treat_simple_result(cc_max_limit, TO_REMOVE_LIST)
             cc_max_limit = float(cc_max_limit)
 
             inactive_options = {
@@ -181,7 +189,7 @@ class UpdateCreditCards:
         col1, col2, col3 = st.columns(3)
 
         credit_cards = QueryExecutor().complex_consult_query(query=owner_cards_query, params=(user_name, user_document))
-        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, to_remove_list)
+        credit_cards = QueryExecutor().treat_numerous_simple_result(credit_cards, TO_REMOVE_LIST)
 
         if len(credit_cards) == 0:
             with col2:
@@ -206,7 +214,7 @@ class UpdateCreditCards:
                 if register_invoice and confirm_invoice_data == True:
 
                     credit_card_expire_date = QueryExecutor().simple_consult_query(query=credit_card_expire_date_query, params=(user_document, card_name, user_name))
-                    credit_card_expire_date = QueryExecutor().treat_simple_result(credit_card_expire_date, to_remove_list)
+                    credit_card_expire_date = QueryExecutor().treat_simple_result(credit_card_expire_date, TO_REMOVE_LIST)
                     credit_card_expire_date = credit_card_expire_date.split()
                     credit_card_expire_date_formatted = date(int(credit_card_expire_date[0]), int(credit_card_expire_date[1]), int(credit_card_expire_date[2]))
                     str_credit_card_expire_date_formatted = credit_card_expire_date_formatted.strftime('%d/%m/%Y')
@@ -227,6 +235,7 @@ class UpdateCreditCards:
                                 st.info(body=":calendar: Mês: {}".format(month))
                                 st.info(body=":calendar: Início da fatura: {}".format(beggining_invoice_date.strftime('%d/%m/%Y')))
                                 st.info(body=":calendar: Fim da fatura: {}".format(ending_invoice_date.strftime('%d/%m/%Y')))
+                                st.info(body="Número do documento: {}.".format(owner_document))
 
                                 new_credit_card_invoice_query = """INSERT INTO fechamentos_cartao (nome_cartao, numero_cartao, documento_titular, ano, mes, data_comeco_fatura, data_fim_fatura) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                                 new_credit_card_invoice_values = (card_name, card_number, owner_document, year, month, beggining_invoice_date, ending_invoice_date)

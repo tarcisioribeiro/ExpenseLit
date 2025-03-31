@@ -11,7 +11,7 @@ from dictionary.sql import (
     accounts_expenses_query,
     accounts_query,
 )
-from dictionary.vars import to_remove_list, today
+from dictionary.vars import TO_REMOVE_LIST, today
 from functions.query_executor import QueryExecutor
 from functions.login import Login
 
@@ -36,7 +36,7 @@ class GetBalance:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         str_total_expenses = QueryExecutor().simple_consult_query(query=total_expense_query, params=(user_name, user_document))
-        str_total_expenses = QueryExecutor().treat_simple_result(str_total_expenses, to_remove_list)
+        str_total_expenses = QueryExecutor().treat_simple_result(str_total_expenses, TO_REMOVE_LIST)
 
         if str_total_expenses == 'None':
             total_expenses = 0.00
@@ -44,7 +44,7 @@ class GetBalance:
             total_expenses = float(str_total_expenses)
 
         str_total_revenues = QueryExecutor().simple_consult_query(query=total_revenue_query, params=(user_name, user_document))
-        str_total_revenues = QueryExecutor().treat_simple_result(str_total_revenues, to_remove_list)
+        str_total_revenues = QueryExecutor().treat_simple_result(str_total_revenues, TO_REMOVE_LIST)
 
         if str_total_revenues == 'None':
             total_revenues = 0.00
@@ -87,19 +87,19 @@ class GetBalance:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         accounts_expenses = QueryExecutor().complex_consult_query(query=accounts_expenses_query, params=(today, user_name, user_document))
-        accounts_expenses = QueryExecutor().treat_numerous_simple_result(accounts_expenses, to_remove_list)
+        accounts_expenses = QueryExecutor().treat_numerous_simple_result(accounts_expenses, TO_REMOVE_LIST)
 
         accounts_revenues = QueryExecutor().complex_consult_query(query=accounts_revenue_query, params=(today, user_name, user_document))
-        accounts_revenues = QueryExecutor().treat_numerous_simple_result(accounts_revenues, to_remove_list)
+        accounts_revenues = QueryExecutor().treat_numerous_simple_result(accounts_revenues, TO_REMOVE_LIST)
 
         future_accounts_expenses = QueryExecutor().complex_consult_query(query=future_accounts_expenses_query, params=(today, user_name, user_document))
-        future_accounts_expenses = QueryExecutor().treat_numerous_simple_result(future_accounts_expenses, to_remove_list)
+        future_accounts_expenses = QueryExecutor().treat_numerous_simple_result(future_accounts_expenses, TO_REMOVE_LIST)
 
         future_accounts_revenues = QueryExecutor().complex_consult_query(query=future_accounts_revenue_query, params=(user_name, user_document))
-        future_accounts_revenues = QueryExecutor().treat_numerous_simple_result(future_accounts_revenues, to_remove_list)
+        future_accounts_revenues = QueryExecutor().treat_numerous_simple_result(future_accounts_revenues, TO_REMOVE_LIST)
 
         accounts = QueryExecutor().complex_consult_query(query=accounts_query, params=(user_name, user_document))
-        accounts = QueryExecutor().treat_numerous_simple_result(accounts, to_remove_list)
+        accounts = QueryExecutor().treat_numerous_simple_result(accounts, TO_REMOVE_LIST)
 
         balance_list = []
         future_balance_list = []

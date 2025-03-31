@@ -20,9 +20,7 @@ Este projeto é software livre e está disponível para uso, modificação e dis
 
 ## 🚧 Limitações
 
-- **Versão nativa para Windows**: Atualmente, o projeto não oferece suporte nativo para sistemas Microsoft Windows, devido a um erro na execução do Streamlit em conjunto com o conector MySQL para o Python, que faz com que o processo seja encerrado em sequência. Devido a isso, a alternativa é a execução do aplicativo através do **[Subsistema Linux para Windows](https://learn.microsoft.com/pt-br/windows/wsl/install)**;
-- **Escalabilidade**: A solução foi projetada para uso em rede local, apesar de ser possível o acesso externo através do encaminhamento das portas usadas pelo Streamlit, utilizando o utilitário **[Ngrok](https://ngrok.com/)**;
-
+- **Escalabilidade**: A solução foi projetada para uso em rede local.
 - **Autenticação**: Não há suporte ao login por email e autenticação de dois fatores no momento, o que pode representar uma limitação de segurança.
 
 
@@ -66,20 +64,10 @@ Este projeto é software livre e está disponível para uso, modificação e dis
 
 Melhorias planejadas para futuras versões:
 
-- Desenvolvimento de uma versão nativa compátivel com o Windows, que permita a execução do Streamlit através de um serviço;
 - Desenvolvimento de uma API para o backend do aplicativo, através do framework **[Django](https://www.djangoproject.com/)**;
 - Suporte para múltiplas moedas;
 - Integração com APIs de bancos para sincronização automática de faturas de cartão;
 - Aplicativo móvel para Android e iOS, desenvolvido através do framework **[Flet](https://flet.dev/)**.
-
-## 💡 Contribuições
-
-Contribuições são sempre bem-vindas! Se quiser ajudar a melhorar o projeto, você pode:
-
-- Propor melhorias ou novas funcionalidades na aba **Issues** deste repositório;
-- Enviar pull requests com correções de bugs ou novos recursos.
-
-Certifique-se de ler o arquivo [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir.
 
 ## 🐞 Relatório de Bugs e Problemas
 
@@ -94,9 +82,8 @@ Se encontrar algum bug ou problema, você pode informa-lo na aba **Issues** dest
 ## Instalação
 
 Para realizar a instalação, siga este passo a passo:
-   
-   - [Instalação em ambientes GNU/Linux](Linux_Installation.md)
-   - [Instalação em ambientes Microsoft Windows](Windows_Installation.md)
+
+
 
 ---
 

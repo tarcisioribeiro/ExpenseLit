@@ -1,7 +1,7 @@
 from dictionary.db_config import db_config
 from dictionary.vars import (
     actual_year,
-    to_remove_list,
+    TO_REMOVE_LIST,
     string_actual_month
 )
 from functions.query_executor import QueryExecutor
@@ -43,7 +43,7 @@ class Credit_Card:
         AND nome_cartao = '{}'
         AND documento_titular = {};'''.format(selected_card, user_document)
         actual_month = QueryExecutor().simple_consult_brute_query(month_query)
-        actual_month = QueryExecutor().treat_simple_result(actual_month, to_remove_list)
+        actual_month = QueryExecutor().treat_simple_result(actual_month, TO_REMOVE_LIST)
 
         return actual_month
 
@@ -133,9 +133,15 @@ class Credit_Card:
                     AND despesas_cartao_credito.data <= fechamentos_cartao.data_fim_fatura
                     AND despesas_cartao_credito.pago = 'N'
                     AND fechamentos_cartao.ano = '{}'
-                    AND fechamentos_cartao.mes = '{}'
+                    AND fechamentos_cartao.mes LIKE '{}'
                     AND usuarios.nome = '{}'
-                    AND usuarios.documento = '{}';""".format(selected_card, year, selected_month,  user_name, user_document)
+                    AND usuarios.documento = '{}';""".format(
+                        selected_card,
+                        year,
+                        selected_month,
+                        user_name,
+                        user_document
+                    )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -457,7 +463,7 @@ class Credit_Card:
 
                 card_number = str_card_key_list[0]
                 card_owner = str_card_key_list[1]
-                card_owner_document = int(str_card_key_list[2])
+                card_owner_document = str_card_key_list[2]
                 card_security_code = str_card_key_list[3]
 
                 return (

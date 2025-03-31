@@ -1,4 +1,4 @@
-from dictionary.vars import decimal_values
+from dictionary.vars import DECIMAL_VALUES
 import streamlit as st
 
 
@@ -12,7 +12,7 @@ class Variable:
         str_value = str_value.replace(".", ",")
         last_two_values = str_value[-2:]
 
-        if last_two_values in decimal_values:
+        if last_two_values in DECIMAL_VALUES:
             str_value = str_value + "0"
 
         return str_value

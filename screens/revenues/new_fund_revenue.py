@@ -1,6 +1,6 @@
 from dictionary.sql import last_revenue_id_query, user_fund_accounts_query
 from functions.login import Login
-from dictionary.vars import to_remove_list
+from dictionary.vars import TO_REMOVE_LIST
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
@@ -26,7 +26,7 @@ class NewFundRevenue:
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
 
         user_fund_accounts = QueryExecutor().complex_consult_query(query=user_fund_accounts_query, params=(user_name, user_document))
-        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, to_remove_list)
+        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, TO_REMOVE_LIST)
         
         return user_fund_accounts
 
@@ -54,7 +54,7 @@ class NewFundRevenue:
                 with st.expander(label="Dados", expanded=True):
 
                     id = QueryExecutor().simple_consult_brute_query(last_revenue_id_query)
-                    id = QueryExecutor().treat_simple_result(id, to_remove_list)
+                    id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
                     id = int(id) + 1
 
                     options = {

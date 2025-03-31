@@ -6,7 +6,7 @@ from functions.get_balance import GetBalance
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from dictionary.sql import fund_expense_query, fund_revenue_query, ticket_expense_query, ticket_revenue_query, loan_expense_query, debts_expense_query, most_categories_expenses_query, most_credit_card_expenses_query, most_categories_revenues_query, owner_active_cards_query
-from dictionary.vars import to_remove_list, string_actual_month, actual_year, absolute_app_path
+from dictionary.vars import TO_REMOVE_LIST, string_actual_month, actual_year, ABSOLUTE_APP_PATH
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib import font_manager as fm
@@ -73,32 +73,32 @@ class Home:
         values_list.append(final_str_balance)
 
         ticket_revenue_ammount = QueryExecutor().simple_consult_query(query=ticket_revenue_query, params=(user_name, user_document))
-        ticket_revenue_ammount = QueryExecutor().treat_simple_result(ticket_revenue_ammount, to_remove_list)
+        ticket_revenue_ammount = QueryExecutor().treat_simple_result(ticket_revenue_ammount, TO_REMOVE_LIST)
         ticket_revenue_ammount = float(ticket_revenue_ammount)
         ticket_expense_ammount = QueryExecutor().simple_consult_query(query=ticket_expense_query, params=(user_name, user_document))
-        ticket_expense_ammount = QueryExecutor().treat_simple_result(ticket_expense_ammount, to_remove_list)
+        ticket_expense_ammount = QueryExecutor().treat_simple_result(ticket_expense_ammount, TO_REMOVE_LIST)
         ticket_expense_ammount = float(ticket_expense_ammount)
         ticket_ammount = ticket_revenue_ammount - ticket_expense_ammount
         final_str_ticket_ammount = Variable().treat_complex_string(ticket_ammount)
         values_list.append(final_str_ticket_ammount)
 
         fund_revenue_ammount = QueryExecutor().simple_consult_query(query=fund_revenue_query, params=(user_name, user_document))
-        fund_revenue_ammount = QueryExecutor().treat_simple_result(fund_revenue_ammount, to_remove_list)
+        fund_revenue_ammount = QueryExecutor().treat_simple_result(fund_revenue_ammount, TO_REMOVE_LIST)
         fund_revenue_ammount = float(fund_revenue_ammount)
         fund_expense_ammount = QueryExecutor().simple_consult_query(query=fund_expense_query, params=(user_name, user_document))
-        fund_expense_ammount = QueryExecutor().treat_simple_result(fund_expense_ammount, to_remove_list)
+        fund_expense_ammount = QueryExecutor().treat_simple_result(fund_expense_ammount, TO_REMOVE_LIST)
         fund_expense_ammount = float(fund_expense_ammount)
         fund_ammount = fund_revenue_ammount - fund_expense_ammount
         final_str_fund_ammount = Variable().treat_complex_string(fund_ammount)
         values_list.append(final_str_fund_ammount)
 
         loan_ammount = QueryExecutor().simple_consult_query(query=loan_expense_query, params=(user_name, user_document))
-        loan_ammount = QueryExecutor().treat_simple_result(loan_ammount, to_remove_list)
+        loan_ammount = QueryExecutor().treat_simple_result(loan_ammount, TO_REMOVE_LIST)
         final_str_loan_ammount = Variable().treat_complex_string(loan_ammount)
         values_list.append(final_str_loan_ammount)
 
         debts_ammount = QueryExecutor().simple_consult_query(query=debts_expense_query, params=(user_name, user_document))
-        debts_ammount = QueryExecutor().treat_simple_result(debts_ammount, to_remove_list)
+        debts_ammount = QueryExecutor().treat_simple_result(debts_ammount, TO_REMOVE_LIST)
         final_str_debts_ammount = Variable().treat_complex_string(debts_ammount)
         values_list.append(final_str_debts_ammount)
 
@@ -110,7 +110,7 @@ class Home:
         """
         balance = GetBalance().balance()
 
-        font_path = absolute_app_path + system_font
+        font_path = ABSOLUTE_APP_PATH + system_font
         custom_font = fm.FontProperties(fname=font_path, size=12)
         rcParams["font.family"] = custom_font.get_name()
 
@@ -187,7 +187,7 @@ class Home:
 
             with st.expander(label=":credit_card: Cartões de crédito", expanded=True):
                 cards_result = QueryExecutor().complex_consult_query(query=owner_active_cards_query, params=(user_name, user_document))
-                cards_result = QueryExecutor().treat_numerous_simple_result(cards_result, to_remove_list)
+                cards_result = QueryExecutor().treat_numerous_simple_result(cards_result, TO_REMOVE_LIST)
 
                 if len(cards_result) == 0:
                     st.info(body="Você ainda não possui cartões.")

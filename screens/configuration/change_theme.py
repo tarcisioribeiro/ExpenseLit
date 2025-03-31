@@ -1,9 +1,9 @@
 from dictionary.vars import (
-    absolute_app_path,
-    dark_theme,
-    server_config,
-    light_theme,
-    fonts_dictionary
+    ABSOLUTE_APP_PATH,
+    DARK_THEME,
+    SERVER_CONFIG,
+    LIGHT_THEME,
+    FONTS_DICTIONARY
 )
 from screens.homepage import Home
 from time import sleep
@@ -40,7 +40,7 @@ class ChangeTheme:
         font_option = font_option.replace(" ", "_")
 
         theme_image = "{}/reference/images/themes/{}/{}_{}.png".format(
-            absolute_app_path, color_dict[color_theme],
+            ABSOLUTE_APP_PATH, color_dict[color_theme],
             color_dict[color_theme],
             font_option)
         return theme_image
@@ -56,33 +56,33 @@ class ChangeTheme:
         font_option : str
             A fonte selecionada pelo usuário.
         """
-        config_archive: str = absolute_app_path + "/.streamlit/config.toml"
-        style_archive: str = absolute_app_path + "/dictionary/style.py"
+        config_archive: str = ABSOLUTE_APP_PATH + "/.streamlit/config.toml"
+        style_archive: str = ABSOLUTE_APP_PATH + "/dictionary/style.py"
 
         if theme_option == "Escuro":
             with open(config_archive, "w") as archive:
-                archive.write(dark_theme)
+                archive.write(DARK_THEME)
                 if font_option == "Selecione uma opção":
                     pass
                 else:
                     archive.write("\n")
                     archive.write('font = "{}"'.format(font_option))
                 archive.write("\n")
-                archive.write(server_config)
+                archive.write(SERVER_CONFIG)
 
         elif theme_option == "Claro":
             with open(config_archive, "w") as archive:
-                archive.write(light_theme)
+                archive.write(LIGHT_THEME)
                 if font_option == "Selecione uma opção":
                     pass
                 else:
                     archive.write("\n")
                     archive.write('font = "{}"'.format(font_option))
                 archive.write("\n")
-                archive.write(server_config)
+                archive.write(SERVER_CONFIG)
 
         if font_option != "Selecione uma opção":
-            font_archive = fonts_dictionary[font_option]
+            font_archive = FONTS_DICTIONARY[font_option]
             with open(style_archive, "w") as new_style_archive:
                 new_style_archive.write(
                     'system_font = "{}"'.format(font_archive)

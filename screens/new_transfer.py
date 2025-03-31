@@ -1,5 +1,5 @@
 import streamlit as st
-from dictionary.vars import transfer_categories, to_remove_list
+from dictionary.vars import TRANSFER_CATEGORIES, TO_REMOVE_LIST
 from dictionary.sql import last_transfer_id_query, user_current_accounts_query, total_account_revenue_query, total_account_expense_query, user_fund_accounts_query
 from functions.get_actual_time import GetActualTime
 from functions.login import Login
@@ -24,10 +24,10 @@ class NewTransfer:
         col4, col5, col6 = st.columns(3)
 
         user_fund_accounts = QueryExecutor().complex_consult_query(query=user_fund_accounts_query, params=(user_name, user_document))
-        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, to_remove_list)
+        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(user_fund_accounts, TO_REMOVE_LIST)
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         if len(user_fund_accounts) == 0 and len(user_current_accounts) == 0:
             with col5:
@@ -44,7 +44,7 @@ class NewTransfer:
                 st.subheader(body=":computer: Entrada de Dados")
 
                 to_treat_id = QueryExecutor().simple_consult_brute_query(last_transfer_id_query)
-                id = (int(QueryExecutor().treat_simple_result(to_treat_id, to_remove_list)) + 1)
+                id = (int(QueryExecutor().treat_simple_result(to_treat_id, TO_REMOVE_LIST)) + 1)
 
                 options = {
                     "Sim": "S",
@@ -55,7 +55,7 @@ class NewTransfer:
                     description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve da transferência.", max_chars=50)
                     value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
-                    category = st.selectbox(label=":card_index_dividers: Categoria", options=transfer_categories)
+                    category = st.selectbox(label=":card_index_dividers: Categoria", options=TRANSFER_CATEGORIES)
                     origin_account = st.selectbox(label=":bank: Conta de Origem", options=user_fund_accounts)
                     destiny_account = st.selectbox(label=":bank: Conta de Destino", options=user_current_accounts)
                     transfered = st.selectbox(label=":inbox_tray: Transferido", options=options.keys())
@@ -75,11 +75,11 @@ class NewTransfer:
 
                         with data_validation_expander:
                             str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(origin_account, user_name, user_document))
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST)
                             selected_account_revenues = float(str_selected_account_revenues)
 
                             str_selected_account_expenses = QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(origin_account, user_name, user_document))
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST)
                             selected_account_expenses = float(str_selected_account_expenses)
 
                             account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
@@ -148,7 +148,7 @@ class NewTransfer:
         col4, col5, col6 = st.columns(3)
 
         user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, to_remove_list)
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
 
         if len(user_current_accounts) == 0:
             with col5:
@@ -163,7 +163,7 @@ class NewTransfer:
 
                 with st.expander(label="Dados", expanded=True):
                     to_treat_id = QueryExecutor().simple_consult_brute_query(last_transfer_id_query)
-                    id = (int(QueryExecutor().treat_simple_result(to_treat_id, to_remove_list)) + 1)
+                    id = (int(QueryExecutor().treat_simple_result(to_treat_id, TO_REMOVE_LIST)) + 1)
 
                     options = {
                         "Sim": "S",
@@ -173,7 +173,7 @@ class NewTransfer:
                     description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", help="Descrição breve da transferência.", max_chars=50)
                     value = st.number_input(label=":dollar: Valor", step=0.01, min_value=0.01)
                     date = st.date_input(label=":date: Data")
-                    category = st.selectbox(label=":card_index_dividers: Categoria", options=transfer_categories)
+                    category = st.selectbox(label=":card_index_dividers: Categoria", options=TRANSFER_CATEGORIES)
                     origin_account = st.selectbox(label=":bank: Conta de Origem", options=user_current_accounts)
                     destiny_account = st.selectbox(label=":bank: Conta de Destino", options=user_current_accounts)
                     transfered = st.selectbox(label=":inbox_tray: Transferido", options=options)
@@ -193,11 +193,11 @@ class NewTransfer:
 
                         with data_validation_expander:
                             str_selected_account_revenues = QueryExecutor().simple_consult_query(query=total_account_revenue_query, params=(origin_account, user_name, user_document))
-                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, to_remove_list)
+                            str_selected_account_revenues = QueryExecutor().treat_simple_result(str_selected_account_revenues, TO_REMOVE_LIST)
                             selected_account_revenues = float(str_selected_account_revenues)
 
                             str_selected_account_expenses = QueryExecutor().simple_consult_query(query=total_account_expense_query, params=(origin_account, user_name, user_document))
-                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, to_remove_list)
+                            str_selected_account_expenses = QueryExecutor().treat_simple_result(str_selected_account_expenses, TO_REMOVE_LIST)
                             selected_account_expenses = float(str_selected_account_expenses)
 
                             account_available_value = round(selected_account_revenues - selected_account_expenses, 2)
