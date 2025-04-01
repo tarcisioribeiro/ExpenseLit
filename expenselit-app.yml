@@ -8,7 +8,7 @@ services:
       - DATABASE_HOST=localhost
       - DATABASE_PORT=3306
       - DATABASE_USER=root
-      - DATABASE_PASSWORD=orrARDrdr27!
+      - DATABASE_PASSWORD=123
       - DATABASE_NAME=financas
     deploy:
       replicas: 1
@@ -20,7 +20,7 @@ services:
   db:
     image: mysql:8.0.41
     environment:
-      MYSQL_ROOT_PASSWORD: 'orrARDrdr27!'
+      MYSQL_ROOT_PASSWORD: '123'
       MYSQL_DATABASE: 'financas'
     ports:
       - "20306:3306"

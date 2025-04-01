@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-db_host = os.getenv("DB_HOST")
-db_port = os.getenv("DB_PORT")
-db_user = os.getenv("DB_USER")
-db_password =  os.getenv("DB_PASSWORD")
-db_database = os.getenv("DB_NAME")
+db_host = 'localhost'
+db_port = 3306
+db_user = 'root'
+db_password =  '123'
+db_database = 'financas'
 
 db_config = {
     "host": db_host,
