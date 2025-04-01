@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   app:
     image: expenselit-app
@@ -22,7 +23,7 @@ services:
       MYSQL_ROOT_PASSWORD: 'orrARDrdr27!'
       MYSQL_DATABASE: 'financas'
     ports:
-      - "3306:3306"
+      - "20306:3306"
     deploy:
       replicas: 1
       restart_policy:
@@ -33,3 +34,4 @@ services:
 
 volumes:
   mysql_data:
+

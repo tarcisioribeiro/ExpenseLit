@@ -1,21 +1,10 @@
 FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/*
-
-RUN locale-gen pt_BR.UTF-8 && update-locale LANG=pt_BR.UTF-8
-
-ENV LANG=pt_BR.UTF-8 
-ENV LANGUAGE=pt_BR:pt 
-ENV LC_ALL=pt_BR.UTF-8
 
 RUN apt-get update && apt-get install -y \
     python3.10 python3-pip mysql-server netcat \
-    libjpeg-dev zlib1g-dev libfreetype6-dev \
-    liblcms2-dev && apt-get clean
+    && apt-get clean
 
 COPY . .
 
@@ -27,7 +16,8 @@ RUN service mysql start && \
 
 EXPOSE 8551 20306
 
-COPY services/wait-for-it.sh /wait-for-it.sh
+COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 CMD service mysql start && /wait-for-it.sh 3306 -- streamlit run main.py --server.port=8551
+

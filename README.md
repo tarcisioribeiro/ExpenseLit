@@ -6,7 +6,7 @@ Um aplicativo de controle financeiro feito em **[Python](https://www.python.org/
 
 ## 🛠 Sobre o Projeto
 
-Este projeto é software livre e está disponível para uso, modificação e distribuição, de acordo com os termos da licença [**MIT**](LICENSE). Ele é mantido unicamente por mim, e contribuições da comunidade são muito bem-vindas.
+Este projeto é software livre e está disponível para uso, modificação e distribuição, de acordo com os termos da licença [**MIT**](referenc/manuals/LICENSE). Ele é mantido unicamente por mim, e contribuições da comunidade são muito bem-vindas.
 
 ## ✨ Funcionalidades
 
