@@ -18,7 +18,7 @@ services:
       - .:/app
 
   db:
-    image: mysql:8.0.41
+    image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: '123'
       MYSQL_DATABASE: 'financas'

@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-WORKDIR /app/ExpenseLit
+WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     python3.10 python3-pip mysql-server netcat \
@@ -20,5 +20,4 @@ EXPOSE 8551 20306
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
-CMD service mysql start && /wait-for-it.sh 3306 -- streamlit run main.py --server.port=8551 --server.address=0.0.0.0
-
+CMD ["sh", "-c", "service mysql start && /wait-for-it.sh 3306 -- streamlit run main.py --server.port=8551 --server.address=localhost"]
