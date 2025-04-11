@@ -621,7 +621,7 @@ class Login:
         logged_user, logged_user_password = Login().get_user_data(
             return_option="user_login_password")
 
-        name_query: str = """[
+        name_query: str = """
         SELECT
             nome
         FROM
