@@ -116,9 +116,17 @@ class NewCurrentRevenue:
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 
-                        st.subheader(body=":pencil: Comprovante de Receita")
-                        Receipts().generate_receipt(
-                            'receitas', id, description, value, str(date), category, account)
+                        if received == "S":
+                            st.subheader(body=":pencil: Comprovante de Receita")
+                            Receipts().generate_receipt(
+                                'receitas',
+                                id,
+                                description,
+                                value,
+                                str(date),
+                                category,
+                                account
+                            )
 
                     elif description == "" or category == "Selecione uma opção":
                         with col5:

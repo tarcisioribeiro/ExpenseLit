@@ -111,13 +111,15 @@ class NewCurrentExpense:
                         log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))
                         QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
-                        st.subheader(
-                            body=":pencil: Comprovante de Despesa")
-
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 
-                        Receipts().generate_receipt('despesas', id, description, value, str(date), category, account)
+                        
+                        if payed == "S":
+                            st.subheader(
+                                body=":pencil: Comprovante de Despesa"
+                            )   
+                            Receipts().generate_receipt('despesas', id, description, value, str(date), category, account)
 
                     else:
                         with data_validation_expander:

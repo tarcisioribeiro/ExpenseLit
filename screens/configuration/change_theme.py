@@ -73,7 +73,7 @@ class ChangeTheme:
         elif theme_option == "Claro":
             with open(config_archive, "w") as archive:
                 archive.write(LIGHT_THEME)
-                if font_option == "Selecione uma opção":
+                if font_option == "sans serif":
                     pass
                 else:
                     archive.write("\n")

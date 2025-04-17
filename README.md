@@ -83,7 +83,15 @@ Se encontrar algum bug ou problema, você pode informa-lo na aba **Issues** dest
 
 Para realizar a instalação, siga este passo a passo:
 
+   `git clone https://github.com/tarcisioribeiro/ExpenseLit.git`
 
+   `docker build . -t expenselit-app`
+
+   `docker stack deploy -c expenselit-app.yml expenselit`
+
+* Acesse o aplicativo em um navegador:
+
+   http://'seu_ip_local':8551
 
 ---
 

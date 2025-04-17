@@ -151,17 +151,15 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-data/receipts/credit_card_expenses/*.png
-data/receipts/expenses/*.png
-data/receipts/loans/*.png
-data/receipts/pay_stub/*.png
-data/receipts/revenues/*.png
-data/receipts/transfers/*.png
-data/receipts/reports/*.png
+data/credit_card_expenses/*.png
+data/expenses/*.png
+data/loans/*.png
+data/revenues/*.png
+data/transfers/*.png
+data/reports/*.png
 library/images/accounts/*.png
 library/images/accounts/*.jpg
 data/cache/session_state.py
-services/temp_backup.sh
 library/fonts/sans_serif/RobotoRegular.cw127.pkl
 library/fonts/sans_serif/RobotoRegular.pkl
 library/fonts/serif/CrimsonTextRegular.cw127.pkl

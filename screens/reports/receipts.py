@@ -268,8 +268,14 @@ class Receipts:
                     account[i], TO_REMOVE_LIST)
                 account_list.append(aux_account)
 
-            return description_list, value_list, date_list, time_list,
-            category_list, account_list
+            return (
+                description_list,
+                value_list,
+                date_list,
+                time_list,
+                category_list,
+                account_list
+            )
 
     def generate_transfer_receipt(self, id: int, description: str,
                                   value: float, date: str, category: str,
@@ -626,14 +632,7 @@ class Receipts:
                                 )
 
                                 query = self.execute_query(table, query_data)
-                                (
-                                    description,
-                                    value,
-                                    date,
-                                    time,
-                                    category,
-                                    account) = self.treat_receipt_values(
-                                    query)
+                                description, value, date, time, category, account = self.treat_receipt_values(query)
 
                                 str_value_list = []
 

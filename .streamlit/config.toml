@@ -4,6 +4,7 @@ backgroundColor = "#fefefe"
 secondaryBackgroundColor = "#e6e6e6"
 textColor = "#3c4048"
 
+
 [server]
 headless = true
 enableStaticServing = true
