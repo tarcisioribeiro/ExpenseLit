@@ -118,7 +118,7 @@ class Home:
         last_revenues, last_expenses, max_revenue, max_expense = GetBalance().list_values()
 
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
-        user_name, user_sex = Login().check_user()
+        user_display_name, user_sex = Login().check_user()
 
         col1, col2, col3 = st.columns(3)
 
@@ -131,7 +131,7 @@ class Home:
 
             col21, col22, col23 = st.columns(3)
 
-            str_user_name = str(user_name)
+            str_user_name = str(user_display_name)
             str_user_name = str_user_name.split(" ")
 
             with col22:

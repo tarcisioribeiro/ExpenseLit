@@ -19,6 +19,7 @@ class UpdateAccounts:
         Coleta os dados e cadastra uma nova conta.
         """
         user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        st.info(user_name)
         logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
 
         col1, col2, col3 = st.columns(3)
@@ -83,17 +84,22 @@ class UpdateAccounts:
                     log_values = (logged_user, "Cadastro", "Cadastrou a conta {}.".format(account_name))
                     QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
 
+                    account_id_query = """SELECT id_conta FROM contas WHERE nome_conta = %s AND documento_proprietario_conta = %s;"""
+                    account_id = QueryExecutor().simple_consult_query(account_id_query, params=(account_name, user_document))
+                    account_id = QueryExecutor().treat_simple_result(account_id, TO_REMOVE_LIST)
+                    st.info(account_id)
+
                     new_account_first_revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                    new_account_first_revenue_values = ("Aporte Inicial", get_account_first_value, today, actual_horary, "Depósito", account_name, user_name, user_document, "S")
+                    new_account_first_revenue_values = ("Aporte Inicial", get_account_first_value, today, actual_horary, "Depósito", account_id, user_name, user_document, "S")
 
                     new_account_first_future_revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                    new_account_first_future_revenue_values = ("Aporte Inicial", 0, '2099-12-31', actual_horary, "Depósito", account_name, user_name, user_document, "N")
+                    new_account_first_future_revenue_values = ("Aporte Inicial", 0, '2099-12-31', actual_horary, "Depósito", account_id, user_name, user_document, "N")
 
                     new_account_first_expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                    new_account_first_expense_values = ("Valor Inicial", 0, today, actual_horary, "Ajuste", account_name, user_name, user_document, "S")
+                    new_account_first_expense_values = ("Valor Inicial", 0, today, actual_horary, "Ajuste", account_id, user_name, user_document, "S")
 
                     new_account_first_future_expense_query = "INSERT INTO despesas (descricao, valor, data, horario, categoria, conta, proprietario_despesa, documento_proprietario_despesa, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                    new_account_first_future_expense_values = ("Valor Inicial", 0, '2099-12-31', actual_horary, "Ajuste", account_name, user_name, user_document, "N")
+                    new_account_first_future_expense_values = ("Valor Inicial", 0, '2099-12-31', actual_horary, "Ajuste", account_id, user_name, user_document, "N")
 
                     QueryExecutor().insert_query(new_account_first_revenue_query, new_account_first_revenue_values, "Aporte inicial registrado com sucesso!", "Erro ao registrar aporte inicial:")
                     QueryExecutor().insert_query(new_account_first_future_revenue_query, new_account_first_future_revenue_values, "Aporte inicial registrado com sucesso!", "Erro ao registrar aporte inicial:")

@@ -17,7 +17,7 @@ WHERE
         AND usuarios.nome = %s
         AND usuarios.documento = %s
         AND despesas.pago = 'S'
-ORDER BY despesas.data DESC, despesas.id_despesa DESC
+ORDER BY despesas.data DESC, despesas.id DESC
 LIMIT 5;"""
 
 last_revenue_query: str = """
@@ -42,7 +42,7 @@ WHERE
         AND usuarios.nome = %s
         AND usuarios.documento = %s
         AND receitas.recebido = 'S'
-ORDER BY receitas.data DESC , receitas.id_receita DESC
+ORDER BY receitas.data DESC , receitas.id DESC
 LIMIT 5;"""
 
 total_expense_query: str = """
@@ -234,11 +234,11 @@ WHERE
 ORDER BY despesas.valor DESC
 LIMIT 5;"""
 
-last_expense_id_query: str = """SELECT id_despesa FROM despesas ORDER BY id_despesa DESC LIMIT 1;"""
-last_loan_id_query: str = """SELECT id_emprestimo FROM emprestimos ORDER BY id_emprestimo DESC LIMIT 1;"""
-last_credit_card_expense_id_query: str = """SELECT id_despesa_cartao FROM despesas_cartao_credito ORDER BY id_despesa_cartao DESC LIMIT 1;"""
-last_revenue_id_query: str = """SELECT id_receita FROM receitas ORDER BY id_receita DESC LIMIT 1;"""
-last_transfer_id_query: str = """SELECT id_transferencia FROM transferencias ORDER BY id_transferencia DESC LIMIT 1;"""
+last_expense_id_query: str = """SELECT id FROM despesas ORDER BY id DESC LIMIT 1;"""
+last_loan_id_query: str = """SELECT id FROM emprestimos ORDER BY id DESC LIMIT 1;"""
+last_credit_card_expense_id_query: str = """SELECT id FROM despesas_cartao_credito ORDER BY id DESC LIMIT 1;"""
+last_revenue_id_query: str = """SELECT id FROM receitas ORDER BY id DESC LIMIT 1;"""
+last_transfer_id_query: str = """SELECT id FROM transferencias ORDER BY id DESC LIMIT 1;"""
 
 ticket_revenue_query: str = """
 SELECT 
@@ -539,7 +539,7 @@ WHERE
 
 not_payed_loans_query = """
 SELECT
-    emprestimos.id_emprestimo AS 'ID',
+    emprestimos.id AS 'ID',
     emprestimos.descricao AS 'Descrição',
     emprestimos.valor AS 'Valor',
     emprestimos.valor_pago AS 'Valor Pago',
@@ -558,7 +558,7 @@ WHERE
 
 not_received_loans_query = """
 SELECT
-    emprestimos.id_emprestimo AS 'ID',
+    emprestimos.id AS 'ID',
     emprestimos.descricao AS 'Descrição',
     emprestimos.valor AS 'Valor',
     emprestimos.valor_pago AS 'Valor Pago',
@@ -575,7 +575,7 @@ WHERE
     AND usuarios.documento = %s
     AND pago = 'N';"""
 
-not_received_revenue_query = """SELECT id_receita, descricao, valor, data, horario, categoria, conta
+not_received_revenue_query = """SELECT id, descricao, valor, data, horario, categoria, conta
 FROM
     receitas
         INNER JOIN
@@ -592,7 +592,7 @@ WHERE
         AND usuarios.documento = %s;"""
 
 not_received_revenue_ids_query = """SELECT 
-    receitas.id_receita
+    receitas.id
 FROM
     receitas
         INNER JOIN
@@ -608,7 +608,7 @@ WHERE
         AND usuarios.nome = %s
         AND usuarios.documento = %s;"""
 
-not_payed_expense_query = """SELECT id_despesa, descricao, valor, data, horario, categoria, conta
+not_payed_expense_query = """SELECT id, descricao, valor, data, horario, categoria, conta
 FROM
     despesas
         INNER JOIN
@@ -626,7 +626,7 @@ WHERE
 
 not_payed_expenses_ids_query = """
 SELECT 
-    despesas.id_despesa
+    despesas.id
 FROM
     despesas
         INNER JOIN
@@ -761,3 +761,6 @@ account_image_query = """
             AND usuarios.documento = %s;"""
 
 credit_card_expire_date_query = """SELECT cartao_credito.data_validade FROM cartao_credito WHERE cartao_credito.documento_titular = %s AND cartao_credito.nome_cartao = %s AND cartao_credito.proprietario_cartao = %s;"""
+
+user_id_query = """SELECT id FROM usuarios WHERE login = %s AND senha = %s;"""
+account_id_query = """SELECT contas.id FROM contas INNER JOIN usuarios ON usuarios.id = contas.proprietario_conta WHERE id = %s AND senha = %s;"""

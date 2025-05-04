@@ -2,22 +2,27 @@ FROM ubuntu:22.04
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    python3.10 python3-pip mysql-server netcat \
-    curl wget nano \
-    && apt-get clean
+RUN apt-get update && \
+    apt-get install -y locales && \
+    locale-gen pt_BR.UTF-8 && \
+    update-locale LANG=pt_BR.UTF-8 && \
+    echo "LANG=pt_BR.UTF-8" >> /etc/default/locale && \
+    echo "keyboard-configuration  keyboard-configuration/layoutcode  select  br" | debconf-set-selections && \
+    echo "keyboard-configuration  keyboard-configuration/modelcode  select  abnt2" | debconf-set-selections && \
+    echo "keyboard-configuration  keyboard-configuration/variantcode  select  " | debconf-set-selections && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    keyboard-configuration console-setup \
+    python3.10 python3-pip netcat curl wget nano && \
+    apt-get clean
+
+ENV LANG=pt_BR.UTF-8
+ENV LANGUAGE=pt_BR:pt
+ENV LC_ALL=pt_BR.UTF-8
 
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN service mysql start && \
-    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123'; FLUSH PRIVILEGES;" && \
-    mysql -uroot -p'123' < reference/database/implantation_financas.sql
+COPY library/images/default.png /library/images/accounts/default.png
 
-EXPOSE 8551 20306
-
-COPY reference/services/wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
-
-CMD ["sh", "-c", "service mysql start && /wait-for-it.sh 3306 -- streamlit run main.py --server.port=8551 --server.address=0.0.0.0"]
+CMD ["sh", "-c", "streamlit run main.py --server.port=8551 --server.address=0.0.0.0"]

@@ -3,6 +3,7 @@ import mysql.connector
 import bcrypt
 import uuid
 from dictionary.vars import TO_REMOVE_LIST, ABSOLUTE_APP_PATH
+from dictionary.sql import user_id_query
 from dictionary.db_config import db_config
 from functions.query_executor import QueryExecutor
 from time import sleep
@@ -257,7 +258,7 @@ class CreateUser:
                                         )
                                     VALUES ( %s, %s, %s);'''
                                     log_values = (
-                                        user_login,
+                                        1,
                                         "Registro",
                                         "O usuário foi cadastrado no sistema."
                                     )
@@ -267,6 +268,98 @@ class CreateUser:
                                         "Log gravado.",
                                         "Erro ao gravar log:"
                                     )
+
+                                    new_creditor_query = """
+                                    INSERT INTO credores (
+                                        nome,
+                                        documento,
+                                        telefone
+                                    )
+                                    VALUES (%s, %s, %s);"""
+                                    new_creditor_values = (
+                                        user_name,
+                                        user_document,
+                                        user_phone
+                                    )
+
+                                    query_executor.insert_query(
+                                        new_creditor_query,
+                                        new_creditor_values,
+                                        "Credor cadastrado.",
+                                        "Erro ao cadastrar credor:"
+                                    )
+
+                                    log_query = '''
+                                    INSERT INTO
+                                        financas.logs_atividades (
+                                            usuario_log,
+                                            tipo_log,
+                                            conteudo_log
+                                        )
+                                    VALUES ( %s, %s, %s);'''
+                                    log_values = (
+                                        1,
+                                        "Registro",
+                                        """Cadastrou o credor {}
+                                        associado ao documento {}
+                                        no sistema.""".format(
+                                            user_name,
+                                            user_document
+                                        )
+                                    )
+                                    query_executor.insert_query(
+                                        log_query,
+                                        log_values,
+                                        "Log gravado.",
+                                        "Erro ao gravar log:"
+                                    )
+
+                                    new_benefited_query = """
+                                    INSERT INTO beneficiados (
+                                        nome,
+                                        documento,
+                                        telefone
+                                    )
+                                    VALUES (%s, %s, %s);"""
+
+                                    new_benefited_values = (
+                                        user_name,
+                                        user_document,
+                                        user_phone
+                                    )
+
+                                    query_executor.insert_query(
+                                        new_benefited_query,
+                                        new_benefited_values,
+                                        "Beneficiado cadastrado.",
+                                        "Erro ao cadastrar beneficiado:"
+                                    )
+
+                                    log_query = '''
+                                    INSERT INTO
+                                        financas.logs_atividades (
+                                            usuario_log,
+                                            tipo_log,
+                                            conteudo_log
+                                        )
+                                    VALUES ( %s, %s, %s);'''
+                                    log_values = (
+                                        1,
+                                        "Registro",
+                                        """Cadastrou o beneficiado {}
+                                        associado ao documento {}
+                                        no sistema.""".format(
+                                            user_name,
+                                            user_document
+                                        )
+                                    )
+                                    query_executor.insert_query(
+                                        log_query,
+                                        log_values,
+                                        "Log gravado.",
+                                        "Erro ao gravar log:"
+                                    )
+                                    sleep(2.5)
 
                                     with st.spinner(text="Recarregando..."):
                                         sleep(2.5)
@@ -340,9 +433,100 @@ class CreateUser:
                                                 )
                                             VALUES ( %s, %s, %s);'''
                                             log_values = (
-                                                user_login,
+                                                1,
                                                 "Registro",
                                                 """Cadastrou o usuário {}
+                                                associado ao documento {}
+                                                no sistema.""".format(
+                                                    user_name,
+                                                    user_document
+                                                )
+                                            )
+                                            query_executor.insert_query(
+                                                log_query,
+                                                log_values,
+                                                "Log gravado.",
+                                                "Erro ao gravar log:"
+                                            )
+
+                                            new_creditor_query = """
+                                            INSERT INTO credores (
+                                                nome,
+                                                documento,
+                                                telefone
+                                            )
+                                            VALUES (%s, %s, %s);"""
+                                            new_creditor_values = (
+                                                user_name,
+                                                user_document,
+                                                user_phone
+                                            )
+
+                                            query_executor.insert_query(
+                                                new_creditor_query,
+                                                new_creditor_values,
+                                                "Credor cadastrado."
+                                                "Erro ao cadastrar credor:"
+                                            )
+
+                                            log_query = '''
+                                            INSERT INTO
+                                                financas.logs_atividades (
+                                                    usuario_log,
+                                                    tipo_log,
+                                                    conteudo_log
+                                                )
+                                            VALUES ( %s, %s, %s);'''
+                                            log_values = (
+                                                1,
+                                                "Registro",
+                                                """Cadastrou o credor {}
+                                                associado ao documento {}
+                                                no sistema.""".format(
+                                                    user_name,
+                                                    user_document
+                                                )
+                                            )
+                                            query_executor.insert_query(
+                                                log_query,
+                                                log_values,
+                                                "Log gravado.",
+                                                "Erro ao gravar log:"
+                                            )
+
+                                            new_benefited_query = """
+                                            INSERT INTO credores (
+                                                nome,
+                                                documento,
+                                                telefone
+                                            )
+                                            VALUES (%s, %s, %s);"""
+
+                                            new_benefited_values = (
+                                                user_name,
+                                                user_document,
+                                                user_phone
+                                            )
+
+                                            query_executor.insert_query(
+                                                new_benefited_query,
+                                                new_benefited_values,
+                                                "Beneficiado cadastrado."
+                                                "Erro ao cadastrar beneficiado:"
+                                            )
+
+                                            log_query = '''
+                                            INSERT INTO
+                                                financas.logs_atividades (
+                                                    usuario_log,
+                                                    tipo_log,
+                                                    conteudo_log
+                                                )
+                                            VALUES ( %s, %s, %s);'''
+                                            log_values = (
+                                                1,
+                                                "Registro",
+                                                """Cadastrou o beneficiado {}
                                                 associado ao documento {}
                                                 no sistema.""".format(
                                                     user_name,
@@ -432,7 +616,7 @@ class Login:
         if return_option == "user_doc_name":
             user_data_query = """
             SELECT
-                usuarios.nome, usuarios.documento
+                usuarios.id_usuario, usuarios.documento
             FROM
                 usuarios
             INNER JOIN
@@ -461,7 +645,7 @@ class Login:
         elif return_option == "user_login_password":
 
             user_login_query = """
-            SELECT usuarios.login, usuarios.senha
+            SELECT usuarios.id_usuario, usuarios.senha
             FROM usuarios
             INNER JOIN usuarios_logados
             ON
@@ -619,7 +803,8 @@ class Login:
             O sexo do usuário.
         """
         logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password")
+            return_option="user_login_password"
+        )
 
         name_query: str = """
         SELECT
@@ -627,7 +812,7 @@ class Login:
         FROM
             usuarios
         WHERE
-            login = %s
+            id_usuario = %s
         AND
             senha = %s;
         """
@@ -637,7 +822,7 @@ class Login:
         FROM
             usuarios
         WHERE
-            login = %s AND senha = %s;"""
+            id_usuario = %s AND senha = %s;"""
 
         name = QueryExecutor().simple_consult_query(
             query=name_query, params=(logged_user, logged_user_password))
@@ -698,26 +883,6 @@ class Login:
                                 sleep(1)
                                 st.toast("Login bem-sucedido!")
 
-                                log_query = '''
-                                INSERT INTO
-                                    logs_atividades (
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    )
-                                VALUES (%s, %s, %s);'''
-                                log_values = (
-                                    user,
-                                    'Acesso',
-                                    'O usuário acessou o sistema.'
-                                )
-                                query_executor.insert_query(
-                                    log_query,
-                                    log_values,
-                                    "Log gravado.",
-                                    "Erro ao gravar log:"
-                                )
-
                                 name_doc_query = """
                                 SELECT
                                     id_usuario, nome, documento
@@ -744,6 +909,26 @@ class Login:
                                 user_id = int(user_name_doc[0])
                                 user_name = str(user_name_doc[1])
                                 user_document = str(user_name_doc[2])
+
+                                log_query = '''
+                                INSERT INTO
+                                    logs_atividades (
+                                        usuario_log,
+                                        tipo_log,
+                                        conteudo_log
+                                    )
+                                VALUES (%s, %s, %s);'''
+                                log_values = (
+                                    user_id,
+                                    'Acesso',
+                                    'O usuário acessou o sistema.'
+                                )
+                                query_executor.insert_query(
+                                    log_query,
+                                    log_values,
+                                    "Log gravado.",
+                                    "Erro ao gravar log:"
+                                )
 
                                 self.register_login(
                                     logged_user_id=user_id,
