@@ -120,6 +120,7 @@ class Home:
             TO_REMOVE_LIST
         )
         ticket_revenue_ammount = float(ticket_revenue_ammount)
+
         ticket_expense_ammount = QueryExecutor().simple_consult_query(
             query=ticket_expense_query,
             params=(user_name, user_document)

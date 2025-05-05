@@ -638,7 +638,7 @@ class Login:
             user_data = QueryExecutor().treat_complex_result(
                 values_to_treat=user_data, values_to_remove=TO_REMOVE_LIST)
 
-            user_name = user_data[0]
+            user_name = int(user_data[0])
             user_document = user_data[1]
 
             return user_name, user_document

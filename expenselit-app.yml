@@ -21,6 +21,7 @@ services:
       MYSQL_DATABASE: 'financas'
     ports:
       - "20306:3306"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql_data:/var/lib/mysql
       - ./reference/database/implantation_financas.sql:/docker-entrypoint-initdb.d/implantation_financas.sql

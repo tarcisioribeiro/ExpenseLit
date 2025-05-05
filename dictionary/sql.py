@@ -12,14 +12,18 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
     INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     d.categoria NOT IN ('Pix', 'TED', 'DOC', 'Ajuste')
-        AND despesas.descricao NOT IN('Aporte Inicial','Placeholder','Teste')
-        AND usuarios.nome = %s
+        AND d.descricao NOT IN (
+            'Aporte Inicial',
+            'Placeholder',
+            'Teste'
+        )
+        AND usuarios.id = %s
         AND usuarios.documento = %s
-        AND despesas.pago = 'S'
+        AND d.pago = 'S'
 ORDER BY d.data DESC, d.id DESC
 LIMIT 5;
 """
@@ -38,12 +42,12 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
         AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     r.categoria NOT IN ('Pix' , 'TED', 'DOC', 'Ajuste')
     AND r.data <= %s
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s
         AND r.recebido = 'S'
 ORDER BY r.data DESC , r.id DESC
@@ -56,16 +60,16 @@ SELECT
 FROM
     despesas AS d
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 INNER JOIN
     contas ON d.conta = contas.nome_conta
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 WHERE
-    despesas.pago = 'S'
+    d.pago = 'S'
     AND contas.tipo_conta NOT IN('Fundo de Garantia', 'Vale Alimentação')
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -75,16 +79,16 @@ SELECT
 FROM
     receitas AS r
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
-    AND receitas.documento_proprietario_receita = usuarios.documento
+    usuarios ON r.proprietario_receita = usuarios.id
+    AND r.documento_proprietario_receita = usuarios.documento
 INNER JOIN
     contas ON r.conta = contas.nome_conta
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 WHERE
-    receitas.recebido = 'S'
-    AND contas.tipo_conta NOT IN ('Fundo de Garantia' , 'Vale Alimentação')
-    AND usuarios.nome = %s
+    r.recebido = 'S'
+    AND contas.tipo_conta NOT IN ('Fundo de Garantia', 'Vale Alimentação')
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -98,7 +102,7 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
     AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     r.data <= %s
@@ -109,7 +113,7 @@ WHERE
             'Vale Alimentação',
             'Conta Salário'
         )
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s
 GROUP BY conta
 ORDER BY conta ASC;
@@ -125,7 +129,7 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     d.data <= %s
@@ -136,7 +140,7 @@ WHERE
         'Vale Alimentação',
         'Conta Salário'
     )
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY conta
 ORDER BY conta ASC;
@@ -152,7 +156,7 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     d.data >= %s
@@ -163,7 +167,7 @@ WHERE
         'Vale Alimentação',
         'Conta Salário'
     )
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY conta
 ORDER BY conta ASC;
@@ -179,7 +183,7 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
     AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     r.recebido = 'N'
@@ -189,7 +193,7 @@ WHERE
         'Vale Alimentação',
         'Conta Salário'
     )
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY conta
 ORDER BY conta ASC;
@@ -209,9 +213,9 @@ WHERE
             'Vale Alimentação',
             'Conta Salário'
         )
-        AND contas.proprietario_conta = usuarios.nome
+        AND contas.proprietario_conta = usuarios.id
         AND contas.documento_proprietario_conta = usuarios.documento
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s
 ORDER BY contas.nome_conta;
 """
@@ -231,12 +235,12 @@ FROM
         AND receitas.documento_proprietario_receita
         AND contas.documento_proprietario_conta
         INNER JOIN
-    usuarios ON receitas.proprietario_receita = usuarios.nome
+    usuarios ON receitas.proprietario_receita = usuarios.id
         AND receitas.documento_proprietario_receita = usuarios.documento
 WHERE
     receitas.categoria <> 'Ajuste'
         AND receitas.data <= %s
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s
 ORDER BY receitas.valor DESC
 LIMIT 5;
@@ -256,11 +260,11 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
         AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     d.categoria <> 'Ajuste'
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s
 ORDER BY d.valor DESC
 LIMIT 5;
@@ -284,7 +288,7 @@ SELECT id FROM transferencias ORDER BY id DESC LIMIT 1;
 
 ticket_revenue_query: str = """
 SELECT
-    COALESCE(CAST(SUM(receitas.valor) AS DECIMAL (10 , 2 )), 0)
+    COALESCE(CAST(SUM(r.valor) AS DECIMAL (10 , 2 )), 0)
 FROM
     receitas AS r
 INNER JOIN
@@ -292,14 +296,14 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
     INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
         AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     contas.tipo_conta = 'Vale Alimentação'
-AND contas.inativa = 'N'
-        AND r.recebido = 'S'
-        AND usuarios.nome = %s
-        AND usuarios.documento = %s;
+    AND contas.inativa = 'N'
+    AND r.recebido = 'S'
+    AND usuarios.id = %s
+    AND usuarios.documento = %s;
 """
 
 ticket_expense_query: str = """
@@ -312,13 +316,13 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     contas.tipo_conta = 'Vale Alimentação'
     AND contas.inativa = 'N'
-    AND despesas.pago = 'S'
-    AND usuarios.nome = %s
+    AND d.pago = 'S'
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -328,13 +332,13 @@ SELECT
         emprestimos.valor - emprestimos.valor_pago
     ) AS DECIMAL(10, 2)), 0)
 FROM
-    emprestimos AS
+    emprestimos
 INNER JOIN
-    usuarios ON emprestimos.credor = usuarios.nome
+    usuarios ON emprestimos.credor = usuarios.id
     AND emprestimos.documento_credor = usuarios.documento
 WHERE
     emprestimos.pago = 'N'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -346,11 +350,11 @@ SELECT
 FROM
     emprestimos
         INNER JOIN
-    usuarios ON emprestimos.devedor = usuarios.nome
-        AND emprestimos.documento_devedor = usuarios.documento
+    usuarios ON emprestimos.devedor = usuarios.id
+    AND emprestimos.documento_devedor = usuarios.documento
 WHERE
     emprestimos.pago = 'N'
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -364,12 +368,12 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
         AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     contas.tipo_conta = 'Fundo de Garantia'
-    AND receitas.recebido = 'S'
-    AND usuarios.nome = %s
+    AND r.recebido = 'S'
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -383,12 +387,12 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
     AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     contas.tipo_conta = 'Fundo de Garantia'
         AND d.pago = 'S'
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -403,7 +407,7 @@ INNER JOIN
     AND d.proprietario_despesa = contas.proprietario_conta
     AND d.documento_proprietario_despesa = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON d.proprietario_despesa = usuarios.nome
+    usuarios ON d.proprietario_despesa = usuarios.id
         AND d.documento_proprietario_despesa = usuarios.documento
 WHERE
     d.categoria NOT IN('Ajuste', 'Fatura Cartão')
@@ -412,9 +416,9 @@ WHERE
         'Vale Alimentação',
         'Conta Salário'
     )
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
-GROUP BY despesas.categoria;"""
+GROUP BY d.categoria;"""
 
 most_categories_revenues_query: str = """
 SELECT
@@ -427,7 +431,7 @@ INNER JOIN
     AND r.proprietario_receita = contas.proprietario_conta
     AND r.documento_proprietario_receita = contas.documento_proprietario_conta
 INNER JOIN
-    usuarios ON r.proprietario_receita = usuarios.nome
+    usuarios ON r.proprietario_receita = usuarios.id
         AND r.documento_proprietario_receita = usuarios.documento
 WHERE
     r.categoria <> 'Ajuste'
@@ -436,7 +440,7 @@ WHERE
         'Conta Salário',
         'Vale Alimentação'
     )
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY r.categoria;"""
 
@@ -451,11 +455,11 @@ INNER JOIN
     ON dcc.doc_proprietario_cartao = cc.documento_titular
         AND dcc.numero_cartao = cc.numero_cartao
 INNER JOIN
-    usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+    usuarios ON dcc.proprietario_despesa_cartao = usuarios.id
     AND dcc.doc_proprietario_cartao = usuarios.documento
 WHERE
     dcc.categoria <> 'Ajuste'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY dcc.categoria;
 """
@@ -466,7 +470,7 @@ SELECT
 FROM
     cartao_credito
         INNER JOIN
-    usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
+    usuarios ON cartao_credito.proprietario_cartao = usuarios.id
         AND cartao_credito.documento_titular = usuarios.documento
 WHERE
     usuarios.nome = %s
@@ -479,7 +483,7 @@ SELECT
 FROM
     cartao_credito
         INNER JOIN
-    usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
+    usuarios ON cartao_credito.proprietario_cartao = usuarios.id
         AND cartao_credito.documento_titular = usuarios.documento
 WHERE
     usuarios.nome = %s
@@ -493,7 +497,7 @@ SELECT
 FROM
     contas
         INNER JOIN
-    usuarios ON contas.proprietario_conta = usuarios.nome
+    usuarios ON contas.proprietario_conta = usuarios.id
         AND contas.documento_proprietario_conta = usuarios.documento
 WHERE
     contas.tipo_conta IN (
@@ -502,7 +506,7 @@ WHERE
     'Conta Salário'
     )
         AND contas.inativa = 'N'
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -512,7 +516,7 @@ SELECT
 FROM
     contas
         INNER JOIN
-    usuarios ON contas.proprietario_conta = usuarios.nome
+    usuarios ON contas.proprietario_conta = usuarios.id
         AND contas.documento_proprietario_conta = usuarios.documento
 WHERE
     contas.tipo_conta IN (
@@ -520,7 +524,7 @@ WHERE
         'Vale Alimentação',
         'Conta Salário'
     )
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -530,12 +534,12 @@ SELECT
 FROM
     contas
         INNER JOIN
-    usuarios ON contas.proprietario_conta = usuarios.nome
+    usuarios ON contas.proprietario_conta = usuarios.id
         AND contas.documento_proprietario_conta = usuarios.documento
 WHERE
     contas.tipo_conta IN ('Fundo de Garantia')
         AND contas.inativa = 'N'
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -570,7 +574,7 @@ SELECT
 FROM
     credores
         INNER JOIN
-    usuarios ON credores.nome = usuarios.nome
+    usuarios ON credores.nome = usuarios.id
         AND credores.documento = usuarios.documento
 WHERE
     usuarios.nome = %s
@@ -591,11 +595,11 @@ INNER JOIN
     AND emprestimos.documento_credor = credores.documento
 INNER JOIN
     usuarios
-    ON emprestimos.credor = usuarios.nome
+    ON emprestimos.credor = usuarios.id
     AND emprestimos.documento_credor = usuarios.documento
 WHERE
     pago = 'N'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
 GROUP BY emprestimos.devedor;
 """
@@ -628,11 +632,11 @@ INNER JOIN
     credores ON emprestimos.credor = credores.nome
     AND emprestimos.documento_credor = credores.documento
 INNER JOIN
-    usuarios ON emprestimos.credor = usuarios.nome
+    usuarios ON emprestimos.credor = usuarios.id
     AND emprestimos.documento_credor = usuarios.documento
 WHERE
     emprestimos.devedor = %s
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
         AND pago = 'N';
 """
@@ -650,7 +654,7 @@ SELECT
     emprestimos.credor AS 'Credor'
 FROM
     emprestimos
-    INNER JOIN usuarios ON emprestimos.devedor = usuarios.nome
+    INNER JOIN usuarios ON emprestimos.devedor = usuarios.id
     AND emprestimos.documento_devedor = usuarios.documento
 WHERE
     usuarios.nome = %s
@@ -671,7 +675,7 @@ SELECT
     emprestimos.devedor AS 'Devedor'
 FROM
     emprestimos
-    INNER JOIN usuarios ON emprestimos.credor = usuarios.nome
+    INNER JOIN usuarios ON emprestimos.credor = usuarios.id
     AND emprestimos.documento_credor = usuarios.documento
 WHERE
     usuarios.nome = %s
@@ -698,11 +702,11 @@ INNER JOIN
 INNER JOIN
     usuarios
     ON r.documento_proprietario_receita = usuarios.documento
-    AND r.proprietario_receita = usuarios.nome
+    AND r.proprietario_receita = usuarios.id
 WHERE
     r.recebido = 'N'
     AND r.data < '2099-12-31'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -717,11 +721,11 @@ INNER JOIN
     AND contas.documento_proprietario_conta = r.documento_proprietario_receita
 INNER JOIN
     usuarios ON r.documento_proprietario_receita = usuarios.documento
-    AND r.proprietario_receita = usuarios.nome
+    AND r.proprietario_receita = usuarios.id
 WHERE
     r.recebido = 'N'
     AND r.data < '2099-12-31'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -743,11 +747,11 @@ INNER JOIN
     AND contas.documento_proprietario_conta = d.documento_proprietario_despesa
 INNER JOIN
     usuarios ON d.documento_proprietario_despesa = usuarios.documento
-    AND d.proprietario_despesa = usuarios.nome
+    AND d.proprietario_despesa = usuarios.id
 WHERE
     d.pago = 'N'
     AND d.data < '2099-12-31'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -762,11 +766,11 @@ INNER JOIN
     AND contas.documento_proprietario_conta = d.documento_proprietario_despesa
 INNER JOIN
     usuarios ON d.documento_proprietario_despesa = usuarios.documento
-    AND d.proprietario_despesa = usuarios.nome
+    AND d.proprietario_despesa = usuarios.id
 WHERE
     d.pago = 'N'
     AND d.data < '2099-12-31'
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s;
 """
 
@@ -784,7 +788,7 @@ FROM
     contas ON despesas.conta = contas.nome_conta
         AND despesas.proprietario_despesa = contas.proprietario_conta
         INNER JOIN
-    usuarios ON despesas.proprietario_despesa = usuarios.nome
+    usuarios ON despesas.proprietario_despesa = usuarios.id
         AND despesas.documento_proprietario_despesa = usuarios.documento
 WHERE
     despesas.pago = 'S'
@@ -793,7 +797,7 @@ WHERE
         AND despesas.data <= %s
         AND despesas.conta IN %s
         AND despesas.valor > 0
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -811,7 +815,7 @@ FROM
     contas ON receitas.conta = contas.nome_conta
         AND receitas.proprietario_receita = contas.proprietario_conta
         INNER JOIN
-    usuarios ON receitas.proprietario_receita = usuarios.nome
+    usuarios ON receitas.proprietario_receita = usuarios.id
         AND receitas.documento_proprietario_receita = usuarios.documento
 WHERE
     receitas.recebido = 'S'
@@ -819,7 +823,7 @@ WHERE
         AND receitas.data >= %s
         AND receitas.data <= %s
         AND receitas.conta IN %s
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -829,12 +833,12 @@ SELECT
 FROM
     receitas
         INNER JOIN
-    usuarios ON receitas.proprietario_receita = usuarios.nome
+    usuarios ON receitas.proprietario_receita = usuarios.id
         AND receitas.documento_proprietario_receita = usuarios.documento
 WHERE
     receitas.recebido = 'S'
         AND receitas.conta = %s
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -844,12 +848,12 @@ SELECT
 FROM
     despesas
         INNER JOIN
-    usuarios ON despesas.proprietario_despesa = usuarios.nome
+    usuarios ON despesas.proprietario_despesa = usuarios.id
         AND despesas.documento_proprietario_despesa = usuarios.documento
 WHERE
     despesas.pago = 'S'
         AND despesas.conta = %s
-        AND usuarios.nome = %s
+        AND usuarios.id = %s
         AND usuarios.documento = %s;
 """
 
@@ -867,7 +871,7 @@ INNER JOIN
     ON usuarios.documento = fc.documento_titular
 WHERE
     fc.nome_cartao = %s
-    AND usuarios.nome = %s
+    AND usuarios.id = %s
     AND usuarios.documento = %s
     AND fc.fechado = 'N'
 ORDER BY
@@ -891,7 +895,7 @@ FROM
     credores
 INNER JOIN
     usuarios
-    ON credores.nome = usuarios.nome
+    ON credores.nome = usuarios.id
     AND credores.documento = usuarios.documento
 WHERE
     usuarios.login <> %s
@@ -918,10 +922,10 @@ account_image_query = """
         contas
             INNER JOIN
         usuarios ON contas.documento_proprietario_conta = usuarios.documento
-            AND contas.proprietario_conta = usuarios.nome
+            AND contas.proprietario_conta = usuarios.id
     WHERE
         contas.nome_conta = %s
-            AND usuarios.nome = %s
+            AND usuarios.id = %s
             AND usuarios.documento = %s;"""
 
 credit_card_expire_date_query = """
