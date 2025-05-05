@@ -632,7 +632,14 @@ class Receipts:
                                 )
 
                                 query = self.execute_query(table, query_data)
-                                description, value, date, time, category, account = self.treat_receipt_values(query)
+                                (
+                                    description,
+                                    value,
+                                    date,
+                                    time,
+                                    category,
+                                    account
+                                ) = self.treat_receipt_values(query)
 
                                 str_value_list = []
 

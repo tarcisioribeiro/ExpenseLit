@@ -17,7 +17,7 @@ class Documents:
 
         Returns
         -------
-        boolean 
+        boolean
             Se o número do cartão é ou não válido.
         """
 
@@ -58,7 +58,11 @@ class Documents:
         """
 
         if len(owner_document) != 11:
-            st.error(body="O documento pessoal não tem menos e nem mais que 11 caracteres.")
+            st.error(
+                body="""O documento pessoal não tem menos
+                e nem mais que 11 caracteres.
+                """
+            )
             return False
         else:
             st.info(body="Validando documento...")
@@ -88,7 +92,11 @@ class Documents:
 
             second_division_rest = (second_sum_value * 10) % 11
 
-            if first_division_rest == int(owner_document_list[9]) and second_division_rest == int(owner_document_list[10]):
+            if (
+                first_division_rest == int(owner_document_list[9])
+                ) and (
+                second_division_rest == int(owner_document_list[10])
+            ):
                 st.success(body="Documento válido.")
                 return True
             else:

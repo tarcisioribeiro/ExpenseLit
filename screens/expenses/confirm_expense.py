@@ -14,7 +14,15 @@ class ConfirmExpense:
     Classe que representa a confirmação de despesas ainda não pagas.
     """
 
-    def get_not_payed_expense_id(self, description: str, value: float, date: str, time: str, category: str, account: str):
+    def get_not_payed_expense_id(
+        self,
+        description: str,
+        value: float,
+        date: str,
+        time: str,
+        category: str,
+        account: str
+    ):
         """
         Realiza a consulta do id da despesa que ainda não foi paga.
 
@@ -39,7 +47,26 @@ class ConfirmExpense:
             O ID da despesa não paga.
         """
 
-        get_id_query = """SELECT id_despesa FROM despesas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
+        get_id_query = """
+        SELECT
+            id_despesa
+        FROM
+            despesas
+        WHERE
+            descricao = "{}"
+            AND valor = {}
+            AND data = "{}"
+            AND horario = "{}"
+            AND categoria = "{}"
+            AND conta = "{}";
+        """.format(
+            description,
+            value,
+            date,
+            time,
+            category,
+            account
+        )
         id = QueryExecutor().simple_consult_brute_query(get_id_query)
         id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
         id = int(id)
@@ -56,19 +83,39 @@ class ConfirmExpense:
             A nova data da despesa.
         """
 
-        update_not_payed_query = """UPDATE despesas SET data = "{}", pago = "S" WHERE id_despesa = {};""".format(new_date, id)
-        QueryExecutor().update_table_unique_register(update_not_payed_query,"Despesa atualizada com sucesso!", "Erro ao atualizar receita:")
+        update_not_payed_query = """
+        UPDATE
+            despesas
+        SET
+            data = "{}",
+            pago = "S"
+        WHERE
+            id_despesa = {};
+        """.format(new_date, id)
+        QueryExecutor().update_table_unique_register(
+            update_not_payed_query,
+            "Despesa atualizada com sucesso!",
+            "Erro ao atualizar receita:"
+        )
 
     def main_menu(self):
         """
         Exibe as despesas ainda não pagas.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
-        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
+        logged_user, logged_user_password = Login().get_user_data(
+            return_option="user_login_password"
+        )
 
         col4, col5, col6 = st.columns(3)
 
-        expense_values = QueryExecutor().complex_compund_query(query=not_payed_expense_query, list_quantity=7, params=(user_name, user_document))
+        expense_values = QueryExecutor().complex_compund_query(
+            query=not_payed_expense_query,
+            list_quantity=7,
+            params=(user_name, user_document)
+        )
 
         if len(expense_values[0]) >= 1:
 
@@ -77,19 +124,49 @@ class ConfirmExpense:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    expense_id, description, value, date, time, category, account = (expense_values)
+                    (
+                        expense_id,
+                        description,
+                        value,
+                        date,
+                        time,
+                        category,
+                        account
+                    ) = (expense_values)
 
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(time[i], TO_REMOVE_LIST)
+                        aux_time = QueryExecutor().treat_simple_result(
+                            time[i],
+                            TO_REMOVE_LIST
+                        )
                         time_list.append(aux_time)
 
-                    loan_data_df = pd.DataFrame({"ID": expense_id, "Descrição": description, "Valor": value, "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
-                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
-                    loan_data_df["Data"] = pd.to_datetime(loan_data_df["Data"]).dt.strftime("%d/%m/%Y")
+                    loan_data_df = pd.DataFrame(
+                        {
+                            "ID": expense_id,
+                            "Descrição": description,
+                            "Valor": value,
+                            "Data": date,
+                            "Horário": time_list,
+                            "Categoria": category,
+                            "Conta": account
+                        }
+                    )
+                    loan_data_df["Valor"] = loan_data_df["Valor"].apply(
+                        lambda x: f"R$ {x:.2f}".replace(".", ",")
+                    )
+                    loan_data_df["Data"] = pd.to_datetime(
+                        loan_data_df["Data"]).dt.strftime(
+                            "%d/%m/%Y"
+                        )
 
-                    st.dataframe(loan_data_df, hide_index=True,use_container_width=True)
+                    st.dataframe(
+                        loan_data_df,
+                        hide_index=True,
+                        use_container_width=True
+                    )
 
                     description_list = []
 
@@ -102,27 +179,57 @@ class ConfirmExpense:
                         query_str_date = str_date.strftime("%Y-%m-%d")
                         final_str_account = str(account[i])
 
-                        index_description.update({"descrição": description[i], "valor": str_value, "data": query_str_date, "horario": time[i], "categoria": category[i], "conta": final_str_account})
+                        index_description.update(
+                            {
+                                "descrição": description[i],
+                                "valor": str_value,
+                                "data": query_str_date,
+                                "horario": time[i],
+                                "categoria": category[i],
+                                "conta": final_str_account
+                            }
+                        )
 
                         formatted_data = str(index_description["data"])
-                        formatted_data = datetime.strptime(formatted_data, "%Y-%m-%d")
+                        formatted_data = datetime.strptime(
+                            formatted_data,
+                            "%Y-%m-%d"
+                        )
                         formatted_data = formatted_data.strftime("%d/%m/%Y")
 
-                        formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
+                        formatted_description = str(
+                            index_description["descrição"]
+                        ) + " - " + "R$ {}".format(
+                            str(index_description["valor"]
+                                ).replace(".", ",")) + (
+                                    " - " + formatted_data
+                                ) + " - " + str(
+                            index_description["horario"]
+                        ) + " - " + str(
+                            index_description["categoria"]
+                        ) + " - " + str(index_description["conta"])
                         description_list.append(formatted_description)
 
-                    selected_revenue = st.selectbox(label="Selecione a despesa", options=description_list)
+                    selected_revenue = st.selectbox(
+                        label="Selecione a despesa",
+                        options=description_list
+                    )
+                    print(selected_revenue)
 
                     confirm_selection = st.checkbox(label="Confirmar seleção")
 
-                update_button = st.button(label=":floppy_disk: Confirmar pagamento")
+                update_button = st.button(
+                    label=":floppy_disk: Confirmar pagamento"
+                )
 
                 if confirm_selection and update_button:
                     with col5:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        st.subheader(body=":white_check_mark: Validação de Dados")
+                        st.subheader(
+                            body=":white_check_mark: Validação de Dados"
+                        )
 
                         final_description = str(index_description["descrição"])
                         final_value = float(index_description["valor"])
@@ -136,11 +243,25 @@ class ConfirmExpense:
                         if last_two_digits in DECIMAL_VALUES:
                             str_final_value = str_final_value + "0"
 
-                        with st.subheader(body=":white_check_mark: Validação de Dados"):
+                        with st.subheader(
+                            body="""
+                            :white_check_mark: Validação de Dados
+                            """
+                        ):
                             with st.expander(label="Dados", expanded=True):
-                                st.info(body="Descrição: {}".format(final_description))
-                                st.info(body="Valor: :heavy_dollar_sign: {}".format(str_final_value))
-                                st.info(body="Categoria: {}".format(final_category))
+                                st.info(body="Descrição: {}".format(
+                                    final_description
+                                    )
+                                )
+                                st.info(
+                                    body="""
+                                    Valor: :heavy_dollar_sign: {}
+                                    """.format(str_final_value))
+                                st.info(
+                                    body="Categoria: {}".format(
+                                        final_category
+                                    )
+                                )
                                 st.info(body="Conta: {}".format(final_account))
 
                     with col6:
@@ -148,11 +269,29 @@ class ConfirmExpense:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        final_id = self.get_not_payed_expense_id(description=index_description["descrição"], value=index_description["valor"], date=index_description["data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
+                        final_id = self.get_not_payed_expense_id(
+                            description=index_description["descrição"],
+                            value=index_description["valor"],
+                            date=index_description["data"],
+                            time=index_description["horario"],
+                            category=index_description["categoria"],
+                            account=index_description["conta"]
+                        )
 
-                        self.update_not_payed_expenses(id=final_id, new_date=today)
+                        self.update_not_payed_expenses(
+                            id=final_id,
+                            new_date=today
+                        )
 
-                        Receipts().generate_receipt(table="despesas", id=final_id, description=final_description, value=final_value, date=final_date, category=final_category, account=final_account)
+                        Receipts().generate_receipt(
+                            table="despesas",
+                            id=final_id,
+                            description=final_description,
+                            value=final_value,
+                            date=final_date,
+                            category=final_category,
+                            account=final_account
+                        )
 
                         str_value = str(value)
                         str_value = str_value.replace(".", ",")
@@ -160,19 +299,41 @@ class ConfirmExpense:
                         if last_two_digits in DECIMAL_VALUES:
                             str_value = str_value + "0"
 
-                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma despesa no valor de R$ {} associada a conta {}.".format(str_value, account))
-                        QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                        log_query = '''
+                        INSERT INTO
+                            financas.logs_atividades (
+                                usuario_log,
+                                tipo_log,
+                                conteudo_log
+                            ) VALUES ( %s, %s, %s);
+                        '''
+                        log_values = (
+                            logged_user,
+                            "Registro",
+                            """
+                            Registrou uma despesa no valor de R$ {}
+                            associada a conta {}.
+                            """.format(str_value, account))
+                        QueryExecutor().insert_query(
+                            log_query,
+                            log_values,
+                            "Log gravado.",
+                            "Erro ao gravar log:"
+                        )
 
-                elif update_button and confirm_selection == False:
+                elif update_button and confirm_selection is False:
                     with col5:
                         st.subheader(body="")
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
                         with st.expander(label="Aviso", expanded=True):
-                            st.warning(body="Confirme os dados antes de prosseguir.")
+                            st.warning(
+                                body="Confirme os dados antes de prosseguir."
+                            )
 
         elif len(expense_values[0]) == 0:
 
             with col5:
-                st.info("Você não possui valores futuros a pagar aguardando confirmação.")
+                st.info(
+                    body="Você não possui valores futuros a pagar."
+                )

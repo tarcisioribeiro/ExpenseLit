@@ -72,13 +72,19 @@ class NewCreditCardExpense:
         """
         Obtém os dados da nova despesa de cartão.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
         logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password")
+            return_option="user_login_password"
+        )
 
         user_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query, params=(user_name, user_document))
-        user_cards = QueryExecutor().treat_numerous_simple_result(user_cards, TO_REMOVE_LIST)
+        user_cards = QueryExecutor().treat_numerous_simple_result(
+            user_cards,
+            TO_REMOVE_LIST
+        )
 
         col1, col2, col3 = st.columns(3)
 
@@ -95,8 +101,12 @@ class NewCreditCardExpense:
                 with st.expander(label="Dados da despesa", expanded=True):
 
                     input_id = int(self.get_last_credit_card_expense_id()) + 1
-                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição",
-                                                placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a despesa.")
+                    description = st.text_input(
+                        label=":lower_left_ballpoint_pen: Descrição",
+                        placeholder="Informe uma descrição",
+                        max_chars=25,
+                        help="Descrição simples para a despesa."
+                    )
                     value = st.number_input(
                         label=":dollar: Valor",
                         step=0.01,
@@ -111,10 +121,14 @@ class NewCreditCardExpense:
                         label=":credit_card: Cartão",
                         options=user_cards
                     )
-                    remaining_limit = Credit_Card().card_remaining_limit(selected_card=card)
+                    remaining_limit = Credit_Card().card_remaining_limit(
+                        selected_card=card
+                    )
                     remaining_limit = round(remaining_limit, 2)
 
-                    str_remaining_limit = Variable().treat_complex_string(remaining_limit)
+                    str_remaining_limit = Variable().treat_complex_string(
+                        remaining_limit
+                    )
 
                     parcel = st.number_input(
                         label=":pencil: Parcelas", min_value=1, step=1)
@@ -125,38 +139,52 @@ class NewCreditCardExpense:
                         help="Código CVV do cartão."
                     )
 
-                    credit_card_number, credit_card_owner, credit_card_owner_document, credit_card_code = Credit_Card(
-                    ).get_credit_card_key(card=card)
+                    (
+                        credit_card_number,
+                        credit_card_owner,
+                        credit_card_owner_document,
+                        credit_card_code
+                    ) = Credit_Card().get_credit_card_key(card=card)
 
                     confirm_values_checkbox = st.checkbox(
                         label="Confirmar Dados"
                     )
 
                 generate_receipt_button = st.button(
-                    label=":pencil: Gerar Comprovante", key="generate_receipt_button")
+                    label=":pencil: Gerar Comprovante",
+                    key="generate_receipt_button"
+                )
 
             with col3:
                 if confirm_values_checkbox and generate_receipt_button:
 
                     card_associated_account_query = """
-                    SELECT 
-                        contas.nome_conta
+                    SELECT
+                        c.nome_conta
                     FROM
-                        contas
-                            INNER JOIN
-                        cartao_credito AS cc ON contas.nome_conta = cc.conta_associada
-                            AND contas.proprietario_conta = cc.proprietario_cartao
-                            AND contas.documento_proprietario_conta = cc.documento_titular
+                        contas AS c
+                    INNER JOIN
+                        cartao_credito AS cc
+                    ON c.nome_conta = cc.conta_associada
+                    AND c.proprietario_conta = cc.proprietario_cartao
+                    AND c.documento_proprietario_conta = cc.documento_titular
                     WHERE
                         cc.proprietario_cartao = %s
-                            AND cc.documento_titular = %s
-                            AND cc.nome_cartao = %s;
+                        AND cc.documento_titular = %s
+                        AND cc.nome_cartao = %s;
                     """
-                    card_associated_account = QueryExecutor().simple_consult_query(
-                        query=card_associated_account_query,
-                        params=(user_name, user_document, card)
+                    card_associated_account = (
+                        QueryExecutor().simple_consult_query(
+                            query=card_associated_account_query,
+                            params=(user_name, user_document, card)
                         )
-                    card_associated_account = QueryExecutor().treat_simple_result(card_associated_account, TO_REMOVE_LIST)
+                    )
+                    card_associated_account = (
+                        QueryExecutor().treat_simple_result(
+                            card_associated_account,
+                            TO_REMOVE_LIST
+                        )
+                    )
 
                     with col2:
 
@@ -170,8 +198,11 @@ class NewCreditCardExpense:
                             label="Avisos", expanded=True)
 
                         with data_expander:
-                            st.info(body="Limite restante do cartão: R$ {}".format(
-                                str_remaining_limit))
+                            st.info(
+                                body="Limite restante do cartão: R$ {}".format(
+                                    str_remaining_limit
+                                )
+                            )
 
                     if (
                         description != ""
@@ -195,7 +226,33 @@ class NewCreditCardExpense:
 
                             actual_horary = GetActualTime().get_actual_time()
 
-                            credit_card_expense_query = "INSERT INTO despesas_cartao_credito (descricao, valor, data, horario, categoria, cartao, numero_cartao, proprietario_despesa_cartao, doc_proprietario_cartao, parcela, pago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                            credit_card_expense_query = """
+                            INSERT INTO
+                                despesas_cartao_credito (
+                                    descricao,
+                                    valor,
+                                    data,
+                                    horario,
+                                    categoria,
+                                    cartao,
+                                    numero_cartao,
+                                    proprietario_despesa_cartao,
+                                    doc_proprietario_cartao,
+                                    parcela,
+                                    pago)
+                            VALUES (
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s,
+                                %s);
+                            """
                             values = (
                                 description,
                                 (value / parcel),
@@ -214,9 +271,25 @@ class NewCreditCardExpense:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma despesa de cartão no valor de R$ {} associada a conta {}.".format(
-                            str_value, card))
+                        log_query = '''
+                        INSERT INTO
+                            financas.logs_atividades (
+                                usuario_log,
+                                tipo_log,
+                                conteudo_log
+                            )
+                        VALUES ( %s, %s, %s);
+                        '''
+                        log_values = (
+                            logged_user,
+                            "Registro",
+                            """Registrou uma despesa de cartã
+                            no valor de R$ {} associada a conta {}.
+                            """.format(
+                                str_value,
+                                card
+                            )
+                        )
                         QueryExecutor().insert_query(
                             log_query,
                             log_values,
@@ -238,7 +311,10 @@ class NewCreditCardExpense:
                         with data_expander:
                             if value > remaining_limit:
                                 st.error(
-                                    body="O valor da despesa é maior que o limite restante.")
+                                    body="""
+                                    O valor é maior que o limite restante.
+                                    """
+                                    )
                             if description == "":
                                 st.error(body="A descrição está vazia.")
                             if category == "Selecione uma opção":

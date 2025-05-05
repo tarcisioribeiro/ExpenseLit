@@ -24,7 +24,10 @@ class Reports:
             st.header(body=":ledger: Relatórios")
 
         with col2:
-            menu_selected_option = st.selectbox(label="Menu", options=superior_menu_options.keys())
+            menu_selected_option = st.selectbox(
+                label="Menu",
+                options=superior_menu_options.keys()
+            )
             selected_class = superior_menu_options[menu_selected_option]
 
         st.divider()

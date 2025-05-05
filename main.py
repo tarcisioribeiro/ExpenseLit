@@ -139,4 +139,3 @@ if os.path.isfile(software_env_path):
                     Erro ao conectar ao MySQL: {}.
                     """.format(error)
                 )
-

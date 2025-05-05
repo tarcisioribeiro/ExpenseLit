@@ -23,19 +23,31 @@ class NewCurrentRevenue:
         user_current_accounts : list
             A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
-        user_current_accounts = QueryExecutor().complex_consult_query(query=user_current_accounts_query, params=(user_name, user_document))
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(user_current_accounts, TO_REMOVE_LIST)
+        user_current_accounts = QueryExecutor().complex_consult_query(
+            query=user_current_accounts_query,
+            params=(user_name, user_document)
+        )
+        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+            user_current_accounts,
+            TO_REMOVE_LIST
+        )
 
         return user_current_accounts
 
     def main_menu(self):
         """
-        Realiza a coleta dos dados da nova receita e a insere no banco de dados.
+        Realiza a coleta dos dados da nova receita.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
-        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
+        logged_user, logged_user_password = Login().get_user_data(
+            return_option="user_login_password"
+        )
 
         user_current_accounts = self.get_user_current_accounts()
 
@@ -58,16 +70,28 @@ class NewCurrentRevenue:
                         "Não": "N"
                     }
 
-                    id = QueryExecutor().simple_consult_brute_query(last_revenue_id_query)
-                    id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
+                    id = QueryExecutor().simple_consult_brute_query(
+                        last_revenue_id_query
+                    )
+                    id = QueryExecutor().treat_simple_result(
+                        id,
+                        TO_REMOVE_LIST
+                    )
                     id = int(id) + 1
 
-                    description = st.text_input(label=":lower_left_ballpoint_pen: Descrição", placeholder="Informe uma descrição", max_chars=25, help="Descrição simples para a receita.")
+                    description = st.text_input(
+                        label=":lower_left_ballpoint_pen: Descrição",
+                        placeholder="Informe uma descrição",
+                        max_chars=25,
+                        help="Descrição simples para a receita."
+                    )
                     value = st.number_input(
                         label=":dollar: Valor", min_value=0.01)
                     date = st.date_input(label=":date: Data")
                     category = st.selectbox(
-                        label=":card_index_dividers: Categoria", options=REVENUE_CATEGORIES)
+                        label=":card_index_dividers: Categoria",
+                        options=REVENUE_CATEGORIES
+                    )
                     account = st.selectbox(
                         label=":bank: Conta", options=user_current_accounts)
                     received = st.selectbox(
@@ -77,7 +101,9 @@ class NewCurrentRevenue:
                         label="Confirmar Dados")
 
                 send_revenue_button = st.button(
-                    label=":pencil: Gerar Comprovante", key="send_revenue_button")
+                    label=":pencil: Gerar Comprovante",
+                    key="send_revenue_button"
+                )
 
             with col6:
 
@@ -94,30 +120,78 @@ class NewCurrentRevenue:
 
                     if description != "" and category != "Selecione uma opção":
                         with col5:
-                            with st.expander(label="Informações", expanded=True):
+                            with st.expander(
+                                label="Informações",
+                                expanded=True
+                            ):
                                 st.success(body="Dados Válidos.")
 
                         actual_horary = GetActualTime().get_actual_time()
 
-                        revenue_query = "INSERT INTO receitas (descricao, valor, data, horario, categoria, conta, proprietario_receita, documento_proprietario_receita, recebido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                        values = (description, value, date, actual_horary,
-                                  category, account, user_name, user_document, received)
+                        revenue_query = """
+                        INSERT INTO
+                            receitas (
+                                descricao,
+                                valor,
+                                data,
+                                horario,
+                                categoria,
+                                conta,
+                                proprietario_receita,
+                                documento_proprietario_receita,
+                                recebido
+                            )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                        values = (
+                            description,
+                            value,
+                            date,
+                            actual_horary,
+                            category,
+                            account,
+                            user_name,
+                            user_document,
+                            received
+                        )
                         QueryExecutor().insert_query(
-                            revenue_query, values, "Receita registrada com sucesso!", "Erro ao registrar receita:")
+                            revenue_query,
+                            values,
+                            "Receita registrada com sucesso!",
+                            "Erro ao registrar receita:"
+                        )
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(
-                            str_value, account))
+                        log_query = '''
+                        INSERT INTO
+                            financas.logs_atividades (
+                                usuario_log,
+                                tipo_log,
+                                conteudo_log
+                            ) VALUES ( %s, %s, %s);'''
+                        log_values = (
+                            logged_user,
+                            "Registro",
+                            """
+                            Registrou uma receita no valor de R$ {}
+                            associada a conta {}.""".format(
+                                str_value, account
+                                )
+                            )
                         QueryExecutor().insert_query(
-                            log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            log_query,
+                            log_values,
+                            "Log gravado.",
+                            "Erro ao gravar log:"
+                        )
 
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
 
                         if received == "S":
-                            st.subheader(body=":pencil: Comprovante de Receita")
+                            st.subheader(
+                                body=""":pencil: Comprovante de Receita"""
+                                )
                             Receipts().generate_receipt(
                                 'receitas',
                                 id,
@@ -128,12 +202,17 @@ class NewCurrentRevenue:
                                 account
                             )
 
-                    elif description == "" or category == "Selecione uma opção":
+                    elif (description == "") or (
+                        category == "Selecione uma opção"
+                    ):
                         with col5:
-                            with st.expander(label="Informações", expanded=True):
+                            with st.expander(
+                                label="Informações",
+                                expanded=True,
+                            ):
                                 if description == "":
                                     st.error(
-                                        body="A descrição deve ser preenchida.")
+                                        body="Preencha a descrição.")
                                 if category == "Selecione uma opção":
                                     st.error(
-                                        body="Informe uma categoria de receita.")
+                                        body="Informe uma categoria.")

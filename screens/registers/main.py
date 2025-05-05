@@ -1,4 +1,3 @@
-from functions.login import CreateUser
 from screens.registers.update_account import UpdateAccounts
 from screens.registers.update_credit_card import UpdateCreditCards
 from screens.registers.update_creditors import Creditors
@@ -33,7 +32,10 @@ class Registers:
 
         with col2:
 
-            selected_menu_option = st.selectbox(label="Menu", options=registers_menu_options.keys())
+            selected_menu_option = st.selectbox(
+                label="Menu",
+                options=registers_menu_options.keys()
+            )
             selected_class = registers_menu_options[selected_menu_option]
 
         selected_class.main_menu(cl2)

@@ -16,10 +16,10 @@ class CreditCardInvoice:
     Classe que representa as faturas de cartão.
     """
     def get_credit_card_expenses_data(
-            self,
-            selected_card: str,
-            selected_month: str,
-        ):
+        self,
+        selected_card: str,
+        selected_month: str,
+    ):
         """
         Realiza a consulta dos dados das despesas do cartão no mês.
 
@@ -80,7 +80,7 @@ class CreditCardInvoice:
 
         month_name = month_data[0]
         month_year = month_data[1]
-        
+
         months_abbreviation_dictionary = {
             "Janeiro": "Jan",
             "Fevereiro": "Fev",
@@ -97,7 +97,12 @@ class CreditCardInvoice:
         }
         month_abbreviation = months_abbreviation_dictionary[month_name]
 
-        return month_year, month_name, month_abbreviation, selected_card_linked_account
+        return (
+            month_year,
+            month_name,
+            month_abbreviation,
+            selected_card_linked_account
+        )
 
     def show_expenses(
             self,
@@ -123,7 +128,12 @@ class CreditCardInvoice:
             return_option="user_login_password"
         )
 
-        month_year, month_name, month_abbreviation, selected_card_linked_account = self.get_credit_card_expenses_data(selected_card, selected_month)
+        (
+            month_year,
+            month_name,
+            month_abbreviation,
+            selected_card_linked_account
+        ) = self.get_credit_card_expenses_data(selected_card, selected_month)
 
         month_expenses = Credit_Card().month_expenses(
             selected_card,

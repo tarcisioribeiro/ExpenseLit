@@ -20,23 +20,50 @@ class App:
 
     def logout(self):
         """
-        Realiza o logout da aplicação, deletando os registros de sessão do usuário.
+        Realiza o logout da aplicação,
+        deletando os registros de sessão do usuário.
         """
-        logged_user_name, logged_user_document = Login().get_user_data(return_option="user_doc_name")
-        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+        logged_user_name, logged_user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
+        logged_user, logged_user_password = Login().get_user_data(
+            return_option="user_login_password"
+        )
 
-        delete_session_query = """DELETE usuarios_logados FROM usuarios_logados WHERE nome_completo = %s AND documento = %s;"""
-        QueryExecutor().insert_query(query=delete_session_query, values=(logged_user_name, logged_user_document), success_message="Logout efetuado.", error_message="Erro ao efetuar logout:")
+        delete_session_query = """
+        DELETE
+            usuarios_logados
+        FROM
+            usuarios_logados
+        WHERE
+            nome_completo = %s
+            AND documento = %s;
+        """
+        QueryExecutor().insert_query(
+            query=delete_session_query,
+            values=(logged_user_name, logged_user_document),
+            success_message="Logout efetuado.",
+            error_message="Erro ao efetuar logout:"
+        )
 
-        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
+        log_query = '''
+        INSERT INTO
+            financas.logs_atividades (
+            usuario_log,
+            tipo_log,
+            conteudo_log
+        ) VALUES ( %s, %s, %s);'''
         log_values = (logged_user, "Logoff", "O usuário realizou logoff.")
-        QueryExecutor().insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
-
+        QueryExecutor().insert_query(
+            log_query,
+            log_values,
+            "Log gravado.",
+            "Erro ao gravar log:"
+        )
         with st.spinner("Aguarde um momento..."):
             sleep(1.25)
             st.toast("Saindo do sistema...")
             sleep(1.25)
-
         st.session_state.is_logged_in = False
         st.rerun()
 
@@ -44,7 +71,9 @@ class App:
         """
         Exibe a página inicial do projeto.
         """
-        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+        logged_user, logged_user_password = Login().get_user_data(
+            return_option="user_login_password"
+        )
 
         sidebar = st.sidebar
 
@@ -85,9 +114,24 @@ class App:
         if sidebar_logoff_button:
             with sidebar:
                 query_executor = QueryExecutor()
-                log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                log_values = (logged_user, "Logoff", "O usuário realizou logoff.")
-                query_executor.insert_query(log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                log_query = '''
+                INSERT INTO
+                    financas.logs_atividades (
+                    usuario_log,
+                    tipo_log,
+                    conteudo_log
+                ) VALUES ( %s, %s, %s);'''
+                log_values = (
+                    logged_user,
+                    "Logoff",
+                    "O usuário realizou logoff."
+                )
+                query_executor.insert_query(
+                    log_query,
+                    log_values,
+                    "Log gravado.",
+                    "Erro ao gravar log:"
+                )
                 self.logout()
 
         if sidebar_choice:

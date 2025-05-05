@@ -3,7 +3,6 @@ import mysql.connector
 import bcrypt
 import uuid
 from dictionary.vars import TO_REMOVE_LIST, ABSOLUTE_APP_PATH
-from dictionary.sql import user_id_query
 from dictionary.db_config import db_config
 from functions.query_executor import QueryExecutor
 from time import sleep
@@ -371,7 +370,7 @@ class CreateUser:
                                         document_exists_query = (
                                             """
                                             SELECT
-                                                COUNT(id_usuario)
+                                                COUNT(id)
                                             FROM
                                                 usuarios
                                             WHERE
@@ -512,7 +511,9 @@ class CreateUser:
                                                 new_benefited_query,
                                                 new_benefited_values,
                                                 "Beneficiado cadastrado."
-                                                "Erro ao cadastrar beneficiado:"
+                                                """
+                                                Erro ao cadastrar beneficiado:
+                                                """
                                             )
 
                                             log_query = '''
@@ -616,13 +617,13 @@ class Login:
         if return_option == "user_doc_name":
             user_data_query = """
             SELECT
-                usuarios.id_usuario, usuarios.documento
+                usuarios.id, usuarios.documento
             FROM
                 usuarios
             INNER JOIN
                 usuarios_logados
             ON
-                usuarios.id_usuario = usuarios_logados.usuario_id
+                usuarios.id = usuarios_logados.usuario_id
             WHERE
                 usuarios_logados.sessao_id = %s;
             """
@@ -645,11 +646,11 @@ class Login:
         elif return_option == "user_login_password":
 
             user_login_query = """
-            SELECT usuarios.id_usuario, usuarios.senha
+            SELECT usuarios.id, usuarios.senha
             FROM usuarios
             INNER JOIN usuarios_logados
             ON
-                usuarios.id_usuario = usuarios_logados.usuario_id
+                usuarios.id = usuarios_logados.usuario_id
             WHERE usuarios_logados.sessao_id = %s
             """
 
@@ -691,7 +692,7 @@ class Login:
         check_if_user_exists = QueryExecutor().simple_consult_query(
             query="""
             SELECT
-                COUNT(id_usuario)
+                COUNT(id)
             FROM
                 usuarios
             WHERE
@@ -812,7 +813,7 @@ class Login:
         FROM
             usuarios
         WHERE
-            id_usuario = %s
+            id = %s
         AND
             senha = %s;
         """
@@ -822,7 +823,7 @@ class Login:
         FROM
             usuarios
         WHERE
-            id_usuario = %s AND senha = %s;"""
+            id = %s AND senha = %s;"""
 
         name = QueryExecutor().simple_consult_query(
             query=name_query, params=(logged_user, logged_user_password))
@@ -885,7 +886,7 @@ class Login:
 
                                 name_doc_query = """
                                 SELECT
-                                    id_usuario, nome, documento
+                                    id, nome, documento
                                 FROM
                                     usuarios
                                 WHERE

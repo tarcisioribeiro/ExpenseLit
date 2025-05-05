@@ -33,18 +33,32 @@ class GetBalance:
             O valor total das despesas.
         """
 
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
-        str_total_expenses = QueryExecutor().simple_consult_query(query=total_expense_query, params=(user_name, user_document))
-        str_total_expenses = QueryExecutor().treat_simple_result(str_total_expenses, TO_REMOVE_LIST)
+        str_total_expenses = QueryExecutor().simple_consult_query(
+            query=total_expense_query,
+            params=(user_name, user_document)
+        )
+        str_total_expenses = QueryExecutor().treat_simple_result(
+            str_total_expenses,
+            TO_REMOVE_LIST
+        )
 
         if str_total_expenses == 'None':
             total_expenses = 0.00
         else:
             total_expenses = float(str_total_expenses)
 
-        str_total_revenues = QueryExecutor().simple_consult_query(query=total_revenue_query, params=(user_name, user_document))
-        str_total_revenues = QueryExecutor().treat_simple_result(str_total_revenues, TO_REMOVE_LIST)
+        str_total_revenues = QueryExecutor().simple_consult_query(
+            query=total_revenue_query,
+            params=(user_name, user_document)
+        )
+        str_total_revenues = QueryExecutor().treat_simple_result(
+            str_total_revenues,
+            TO_REMOVE_LIST
+        )
 
         if str_total_revenues == 'None':
             total_revenues = 0.00
@@ -84,22 +98,58 @@ class GetBalance:
         future_balance_list : list
             A lista com o balanço futuro das contas.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
-        accounts_expenses = QueryExecutor().complex_consult_query(query=accounts_expenses_query, params=(today, user_name, user_document))
-        accounts_expenses = QueryExecutor().treat_numerous_simple_result(accounts_expenses, TO_REMOVE_LIST)
+        accounts_expenses = QueryExecutor().complex_consult_query(
+            query=accounts_expenses_query,
+            params=(today, user_name, user_document)
+        )
+        accounts_expenses = QueryExecutor().treat_numerous_simple_result(
+            accounts_expenses,
+            TO_REMOVE_LIST
+        )
 
-        accounts_revenues = QueryExecutor().complex_consult_query(query=accounts_revenue_query, params=(today, user_name, user_document))
-        accounts_revenues = QueryExecutor().treat_numerous_simple_result(accounts_revenues, TO_REMOVE_LIST)
+        accounts_revenues = QueryExecutor().complex_consult_query(
+            query=accounts_revenue_query,
+            params=(today, user_name, user_document)
+        )
+        accounts_revenues = QueryExecutor().treat_numerous_simple_result(
+            accounts_revenues,
+            TO_REMOVE_LIST
+        )
 
-        future_accounts_expenses = QueryExecutor().complex_consult_query(query=future_accounts_expenses_query, params=(today, user_name, user_document))
-        future_accounts_expenses = QueryExecutor().treat_numerous_simple_result(future_accounts_expenses, TO_REMOVE_LIST)
+        future_accounts_expenses = QueryExecutor().complex_consult_query(
+            query=future_accounts_expenses_query,
+            params=(today, user_name, user_document)
+        )
+        future_accounts_expenses = (
+            QueryExecutor().treat_numerous_simple_result(
+                future_accounts_expenses,
+                TO_REMOVE_LIST
+            )
+        )
 
-        future_accounts_revenues = QueryExecutor().complex_consult_query(query=future_accounts_revenue_query, params=(user_name, user_document))
-        future_accounts_revenues = QueryExecutor().treat_numerous_simple_result(future_accounts_revenues, TO_REMOVE_LIST)
+        future_accounts_revenues = QueryExecutor().complex_consult_query(
+            query=future_accounts_revenue_query,
+            params=(user_name, user_document)
+        )
+        future_accounts_revenues = (
+            QueryExecutor().treat_numerous_simple_result(
+                future_accounts_revenues,
+                TO_REMOVE_LIST
+            )
+        )
 
-        accounts = QueryExecutor().complex_consult_query(query=accounts_query, params=(user_name, user_document))
-        accounts = QueryExecutor().treat_numerous_simple_result(accounts, TO_REMOVE_LIST)
+        accounts = QueryExecutor().complex_consult_query(
+            query=accounts_query,
+            params=(user_name, user_document)
+        )
+        accounts = QueryExecutor().treat_numerous_simple_result(
+            accounts,
+            TO_REMOVE_LIST
+        )
 
         balance_list = []
         future_balance_list = []
@@ -135,10 +185,24 @@ class GetBalance:
             Lista com as maiores despesas.
         """
 
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
-        last_expenses = QueryExecutor().complex_consult_query(query=last_expense_query, params=(user_name, user_document))
-        last_revenues = QueryExecutor().complex_consult_query(query=last_revenue_query, params=(today, user_name, user_document))
-        max_revenues = QueryExecutor().complex_consult_query(query=max_revenue_query, params=(today, user_name, user_document))
-        max_expenses = QueryExecutor().complex_consult_query(query=max_expense_query, params=(user_name, user_document))
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
+        last_expenses = QueryExecutor().complex_consult_query(
+            query=last_expense_query,
+            params=(user_name, user_document)
+        )
+        last_revenues = QueryExecutor().complex_consult_query(
+            query=last_revenue_query,
+            params=(today, user_name, user_document)
+        )
+        max_revenues = QueryExecutor().complex_consult_query(
+            query=max_revenue_query,
+            params=(today, user_name, user_document)
+        )
+        max_expenses = QueryExecutor().complex_consult_query(
+            query=max_expense_query,
+            params=(user_name, user_document)
+        )
 
         return last_revenues, last_expenses, max_revenues, max_expenses

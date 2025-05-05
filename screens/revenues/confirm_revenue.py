@@ -15,7 +15,15 @@ class ConfirmRevenue:
     Classe que representa a confirmação do recebimento de receitas.
     """
 
-    def get_not_received_revenue_id(self, description: str, value: float, date: str, time: str, category: str, account: str):
+    def get_not_received_revenue_id(
+            self,
+            description: str,
+            value: float,
+            date: str,
+            time: str,
+            category: str,
+            account: str
+    ):
         """
         Realiza a consulta dos id's das receitas não recebidas.
 
@@ -40,7 +48,19 @@ class ConfirmRevenue:
             O id da receita não recebida.
         """
 
-        get_id_query = """SELECT id_receita FROM receitas WHERE descricao = "{}" AND valor = {} AND data = "{}" AND horario = "{}" AND categoria = "{}" AND conta = "{}";""".format(description, value, date, time, category, account)
+        get_id_query = """
+        SELECT
+            id
+        FROM
+            receitas
+        WHERE
+            descricao = "{}"
+            AND valor = {}
+            AND data = "{}"
+            AND horario = "{}"
+            AND categoria = "{}"
+            AND conta = "{}";
+        """.format(description, value, date, time, category, account)
         id = QueryExecutor().simple_consult_brute_query(get_id_query)
         id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
         id = int(id)
@@ -59,21 +79,38 @@ class ConfirmRevenue:
             A nova data da receita.
         """
 
-        update_not_received_query = """UPDATE receitas SET data = "{}", recebido = "S" WHERE id_receita = {};""".format(
-            new_date, id)
+        update_not_received_query = """
+        UPDATE
+            receitas
+        SET
+            data = "{}",
+            recebido = "S"
+        WHERE id_receita = {};
+        """.format(new_date, id)
         QueryExecutor().update_table_unique_register(
-            update_not_received_query, "Receita atualizada com sucesso!", "Erro ao atualizar receita:")
+            update_not_received_query,
+            "Receita atualizada com sucesso!",
+            "Erro ao atualizar receita:"
+        )
 
     def main_menu(self):
         """
         Exibe as receitas não recebidas.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
-        logged_user, logged_user_password = Login().get_user_data(return_option="user_login_password")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
+        logged_user, logged_user_password = Login().get_user_data(
+            return_option="user_login_password"
+        )
 
         col4, col5, col6 = st.columns(3)
 
-        revenue_values = QueryExecutor().complex_compund_query(query=not_received_revenue_query, list_quantity=7, params=(user_name, user_document))
+        revenue_values = QueryExecutor().complex_compund_query(
+            query=not_received_revenue_query,
+            list_quantity=7,
+            params=(user_name, user_document)
+        )
 
         if len(revenue_values[0]) >= 1:
 
@@ -82,16 +119,36 @@ class ConfirmRevenue:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    revenue_id, description, value, date, time, category, account = (revenue_values)
+                    (
+                        revenue_id,
+                        description,
+                        value,
+                        date,
+                        time,
+                        category,
+                        account
+                    ) = (revenue_values)
 
                     time_list = []
 
                     for i in range(0, len(time)):
-                        aux_time = QueryExecutor().treat_simple_result(time[i], TO_REMOVE_LIST)
+                        aux_time = QueryExecutor().treat_simple_result(
+                            time[i],
+                            TO_REMOVE_LIST
+                        )
                         time_list.append(aux_time)
 
-                    loan_data_df = pd.DataFrame({"ID": revenue_id, "Descrição": description, "Valor": value,
-                                                "Data": date, "Horário": time_list, "Categoria": category, "Conta": account})
+                    loan_data_df = pd.DataFrame(
+                        {
+                            "ID": revenue_id,
+                            "Descrição": description,
+                            "Valor": value,
+                            "Data": date,
+                            "Horário": time_list,
+                            "Categoria": category,
+                            "Conta": account
+                        }
+                    )
                     loan_data_df["Valor"] = loan_data_df["Valor"].apply(
                         lambda x: f"R$ {x:.2f}".replace(".", ","))
                     loan_data_df["Data"] = pd.to_datetime(
@@ -112,7 +169,15 @@ class ConfirmRevenue:
                         final_str_account = str(account[i])
 
                         index_description.update(
-                            {"descrição": description[i], "valor": str_value, "data": query_str_date, "horario": time[i], "categoria": category[i], "conta": final_str_account})
+                            {
+                                "descrição": description[i],
+                                "valor": str_value,
+                                "data": query_str_date,
+                                "horario": time[i],
+                                "categoria": category[i],
+                                "conta": final_str_account
+                            }
+                        )
 
                         formatted_data = str(index_description["data"])
                         formatted_data = datetime.strptime(
@@ -120,12 +185,19 @@ class ConfirmRevenue:
                         formatted_data = formatted_data.strftime(
                             "%d/%m/%Y")
 
-                        formatted_description = str(index_description["descrição"]) + " - " + "R$ {}".format(str(index_description["valor"]).replace(
-                            ".", ",")) + " - " + formatted_data + " - " + str(index_description["horario"]) + " - " + str(index_description["categoria"]) + " - " + str(index_description["conta"])
+                        formatted_description = str(
+                            index_description["descrição"]
+                        ) + " - " + """
+                        R$ {}
+                        """.format(str(index_description["valor"]).replace(
+                            ".", ","
+                            )
+                        ) + " - " + formatted_data + " - " + str(
+                            index_description["horario"]
+                        ) + " - " + str(
+                            index_description["categoria"]
+                        ) + " - " + str(index_description["conta"])
                         description_list.append(formatted_description)
-
-                    selected_revenue = st.selectbox(
-                        label="Selecione a receita", options=description_list)
 
                     confirm_selection = st.checkbox(
                         label="Confirmar seleção")
@@ -152,12 +224,19 @@ class ConfirmRevenue:
                         str_final_value = Variable().treat_complex_string(
                             final_value)
 
-                        with st.subheader(body=":white_check_mark: Validação de dados"):
+                        with st.subheader(
+                            body=":white_check_mark: Validação de dados"
+                        ):
                             with st.expander(label="Dados", expanded=True):
                                 st.info(body="Descrição: {}".format(
                                     final_description))
-                                st.info(body="Valor: :heavy_dollar_sign: {}".format(
-                                    str_final_value))
+                                st.info(
+                                    body="""
+                                    Valor: :heavy_dollar_sign: {}
+                                    """.format(
+                                        str_final_value
+                                    )
+                                )
                                 st.info(body="Categoria: {}".format(
                                     final_category))
                                 st.info(body="Conta: {}".format(
@@ -168,22 +247,53 @@ class ConfirmRevenue:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
 
-                        final_id = self.get_not_received_revenue_id(description=index_description["descrição"], value=index_description["valor"], date=index_description[
-                            "data"], time=index_description["horario"], category=index_description["categoria"], account=index_description["conta"])
+                        final_id = self.get_not_received_revenue_id(
+                            description=index_description["descrição"],
+                            value=index_description["valor"],
+                            date=index_description["data"],
+                            time=index_description["horario"],
+                            category=index_description["categoria"],
+                            account=index_description["conta"]
+                        )
 
                         self.update_not_received_revenues(
                             id=final_id, new_date=today)
 
-                        Receipts().generate_receipt(table="receitas", id=final_id, description=final_description,
-                                                          value=final_value, date=final_date, category=final_category, account=final_account)
+                        Receipts().generate_receipt(
+                            table="receitas",
+                            id=final_id,
+                            description=final_description,
+                            value=final_value,
+                            date=final_date,
+                            category=final_category,
+                            account=final_account
+                        )
 
-                        log_query = '''INSERT INTO financas.logs_atividades (usuario_log, tipo_log, conteudo_log) VALUES ( %s, %s, %s);'''
-                        log_values = (logged_user, "Registro", "Registrou uma receita no valor de R$ {} associada a conta {}.".format(
-                            str_final_value, account))
+                        log_query = '''
+                        INSERT INTO
+                            financas.logs_atividades (
+                                usuario_log,
+                                tipo_log,
+                                conteudo_log
+                            )
+                        VALUES ( %s, %s, %s);'''
+                        log_values = (
+                            logged_user,
+                            "Registro",
+                            """Registrou uma receita no valor de R$ {}
+                            associada a conta {}.""".format(
+                                str_final_value,
+                                account
+                            )
+                        )
                         QueryExecutor().insert_query(
-                            log_query, log_values, "Log gravado.", "Erro ao gravar log:")
+                            log_query,
+                            log_values,
+                            "Log gravado.",
+                            "Erro ao gravar log:"
+                        )
 
-                elif update_button and confirm_selection == False:
+                elif update_button and confirm_selection is False:
                     with col5:
                         st.subheader(body="")
                         with st.spinner(text="Aguarde..."):

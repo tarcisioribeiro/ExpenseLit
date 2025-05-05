@@ -23,8 +23,11 @@ class Loan:
         }
 
         with col2:
-            loan_menu_options = st.selectbox(label="Menu", options=menu_options.keys())
+            loan_menu_options = st.selectbox(
+                label="Menu",
+                options=menu_options.keys()
+            )
             selected_class = menu_options[loan_menu_options]
-        
+
         st.divider()
         selected_class().main_menu()

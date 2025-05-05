@@ -33,7 +33,17 @@ class Variable:
         st.info(body="Tipo: {}.".format(variable_type))
         st.info(body="Conteúdo: {}.".format(variable))
 
-        if variable_type != "int" and variable_type != "float" and variable_type != "complex" and variable_type != "UploadedFile" and variable_type != "decimal.Decimal":
+        if (
+            variable_type != "int"
+            ) and (
+            variable_type != "float"
+            ) and (
+            variable_type != "complex"
+            ) and (
+            variable_type != "UploadedFile"
+            ) and (
+            variable_type != "decimal.Decimal"
+        ):
             st.info(body="Tamanho: {}.".format(len(variable)))
 
         if variable_type == "list":

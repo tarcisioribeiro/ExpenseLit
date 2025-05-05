@@ -31,19 +31,28 @@ class Credit_Card:
             O nome do mês de fatura do cartão no qual a data atual se encontra.
         """
 
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         month_query = '''
-        SELECT 
+        SELECT
             mes
         FROM
         fechamentos_cartao
         WHERE
-            CURDATE() BETWEEN data_comeco_fatura AND data_fim_fatura
+            CURDATE()
+            BETWEEN
+                data_comeco_fatura
+            AND
+                data_fim_fatura
         AND nome_cartao = '{}'
         AND documento_titular = {};'''.format(selected_card, user_document)
         actual_month = QueryExecutor().simple_consult_brute_query(month_query)
-        actual_month = QueryExecutor().treat_simple_result(actual_month, TO_REMOVE_LIST)
+        actual_month = QueryExecutor().treat_simple_result(
+            actual_month,
+            TO_REMOVE_LIST
+        )
 
         return actual_month
 
@@ -56,30 +65,39 @@ class Credit_Card:
         selected_card : str
             O cartão selecionado pelo usuário.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         actual_month = self.get_card_month(selected_card)
 
         credit_card_not_payed_expenses_query: str = """
-            SELECT 
-                COALESCE(SUM(despesas_cartao_credito.valor), 0)
+            SELECT
+                COALESCE(SUM(dcc.valor), 0)
             FROM
-                despesas_cartao_credito
-                    INNER JOIN
-                fechamentos_cartao ON despesas_cartao_credito.numero_cartao = fechamentos_cartao.numero_cartao
-                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
-                    INNER JOIN
-                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
+                despesas_cartao_credito AS dcc
+            INNER JOIN
+                fechamentos_cartao AS fc
+                ON dcc.numero_cartao = fc.numero_cartao
+                AND dcc.doc_proprietario_cartao = fc.documento_titular
+            INNER JOIN
+                usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+                    AND dcc.doc_proprietario_cartao = usuarios.documento
             WHERE
-                despesas_cartao_credito.cartao = '{}'
-                    AND despesas_cartao_credito.data <= fechamentos_cartao.data_comeco_fatura
-                    # AND despesas_cartao_credito.data <= fechamentos_cartao.data_fim_fatura
-                    AND despesas_cartao_credito.pago = 'N'
-                    AND fechamentos_cartao.ano <= '{}'
-                    AND fechamentos_cartao.mes = '{}'
-                    AND usuarios.nome = '{}'
-                    AND usuarios.documento = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
+                dcc.cartao = '{}'
+                AND dcc.data <= fc.data_comeco_fatura
+                AND dcc.pago = 'N'
+                AND fc.ano <= '{}'
+                AND fc.mes = '{}'
+                AND usuarios.nome = '{}'
+                AND usuarios.documento = '{}';
+            """.format(
+                selected_card,
+                actual_year,
+                actual_month,
+                user_name,
+                user_document
+            )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -91,12 +109,22 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(f"Erro ao consultar valor de despesas do cartão não pagas: {err}")
+            st.error(
+                f"""
+                Erro ao consultar valor de despesas do cartão não pagas: {err}
+                """
+            )
         finally:
             if connection.is_connected():
                 connection.close()
 
-    def month_expenses(self, selected_card: str, year: int, selected_month: str):
+    def month_expenses(
+            self,
+            selected_card: str,
+            year: int,
+            selected_month:
+            str
+    ):
         """
         Consulta as despesas de cartão no mês e cartão selecionados.
 
@@ -114,34 +142,38 @@ class Credit_Card:
         float
             O valor total das despesas do cartão no mês.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         credit_card_month_expenses_query: str = """
-            SELECT 
-                COALESCE(SUM(despesas_cartao_credito.valor), 0)
+            SELECT
+                COALESCE(SUM(dcc.valor), 0)
             FROM
-                despesas_cartao_credito
-                    INNER JOIN
-                fechamentos_cartao ON despesas_cartao_credito.numero_cartao = fechamentos_cartao.numero_cartao
-                    AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
-                    INNER JOIN
-                usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                    AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
+                despesas_cartao_credito AS dcc
+            INNER JOIN
+                fechamentos_cartao AS fc
+                ON dcc.numero_cartao = fc.numero_cartao
+                AND dcc.doc_proprietario_cartao = fc.documento_titular
+            INNER JOIN
+                usuarios
+                ON dcc.proprietario_despesa_cartao = usuarios.nome
+                AND dcc.doc_proprietario_cartao = usuarios.documento
             WHERE
-                despesas_cartao_credito.cartao = '{}'
-                    AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
-                    AND despesas_cartao_credito.data <= fechamentos_cartao.data_fim_fatura
-                    AND despesas_cartao_credito.pago = 'N'
-                    AND fechamentos_cartao.ano = '{}'
-                    AND fechamentos_cartao.mes LIKE '{}'
-                    AND usuarios.nome = '{}'
-                    AND usuarios.documento = '{}';""".format(
-                        selected_card,
-                        year,
-                        selected_month,
-                        user_name,
-                        user_document
-                    )
+                dcc.cartao = '{}'
+                AND dcc.data >= fc.data_comeco_fatura
+                AND dcc.data <= fc.data_fim_fatura
+                AND dcc.pago = 'N'
+                AND fc.ano = '{}'
+                AND fc.mes LIKE '{}'
+                AND usuarios.nome = '{}'
+                AND usuarios.documento = '{}';""".format(
+                    selected_card,
+                    year,
+                    selected_month,
+                    user_name,
+                    user_document
+                )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -153,14 +185,23 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(f"Erro ao consultar valor total de despesas do cartão no mês: {err}")
+            st.error(
+                f"""
+                Erro ao consultar valor de despesas do cartão no mês: {err}
+                """
+            )
         finally:
             if connection.is_connected():
                 connection.close()
 
-    def get_complete_card_month_expenses(self, selected_card: str, year: int, selected_month: str):
+    def get_complete_card_month_expenses(
+            self,
+            selected_card: str,
+            year: int,
+            selected_month: str
+    ):
         """
-        Consulta os detalhes das despesas de cartão no mês selecionado pelo usuário.
+        Consulta os detalhes das despesas de cartão no mês selecionado.
 
         Parameters
         ----------
@@ -184,32 +225,42 @@ class Credit_Card:
         parcela_list : list
             A lista com a parcela das despesas.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         credit_card_month_expenses_complete_query: str = """
-        SELECT 
-            despesas_cartao_credito.descricao AS 'Descrição',
-            despesas_cartao_credito.valor AS 'Valor',
-            despesas_cartao_credito.data AS 'Data',
-            despesas_cartao_credito.categoria AS 'Categoria',
-            CONCAT(despesas_cartao_credito.parcela, 'ª') AS 'Parcela'
+        SELECT
+            dcc.descricao AS 'Descrição',
+            dcc.valor AS 'Valor',
+            dcc.data AS 'Data',
+            dcc.categoria AS 'Categoria',
+            CONCAT(dcc.parcela, 'ª') AS 'Parcela'
         FROM
-            despesas_cartao_credito
-                INNER JOIN
-            fechamentos_cartao ON despesas_cartao_credito.numero_cartao = fechamentos_cartao.numero_cartao
-                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
-                INNER JOIN
-            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
+            despesas_cartao_credito AS dcc
+        INNER JOIN
+            fechamentos_cartao AS fc
+                ON dcc.numero_cartao = fcc.numero_cartao
+                AND dcc.doc_proprietario_cartao = fc.documento_titular
+        INNER JOIN
+            usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+                AND dcc.doc_proprietario_cartao = usuarios.documento
         WHERE
-            despesas_cartao_credito.cartao = '{}'
-                AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
-                AND despesas_cartao_credito.data <= fechamentos_cartao.data_fim_fatura
-                AND despesas_cartao_credito.pago = 'N'
-                AND fechamentos_cartao.ano = '{}'
-                AND fechamentos_cartao.mes = '{}'
+            dcc.cartao = '{}'
+                AND dcc.data >= fc.data_comeco_fatura
+                AND dcc.data <= fc.data_fim_fatura
+                AND dcc.pago = 'N'
+                AND fc.ano = '{}'
+                AND fc.mes = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.documento = '{}';""".format(selected_card, year, selected_month, user_name, user_document)
+                AND usuarios.documento = '{}';
+        """.format(
+            selected_card,
+            year,
+            selected_month,
+            user_name,
+            user_document
+        )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -240,12 +291,20 @@ class Credit_Card:
             )
 
         except mysql.connector.Error as err:
-            st.error(f"Erro ao consultar detalhamento das despesas do cartão no mês: {err}")
+            st.error(
+                f"""
+                Erro ao consultar detalhamento no mês: {err}"""
+            )
         finally:
             if connection.is_connected():
                 connection.close()
 
-    def get_card_id_month_expenses(self, selected_card: str, year: int, selected_month: str):
+    def get_card_id_month_expenses(
+        self,
+        selected_card: str,
+        year: int,
+        selected_month: str
+    ):
         """
         Consulta o id das despesas de cartão no mês selecionado.
 
@@ -263,28 +322,38 @@ class Credit_Card:
         converted_id_list : list
             A lista com os ID's de despesas de cartão no mês.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         credit_card_id_expenses_query = """
-        SELECT 
-            despesas_cartao_credito.id_despesa_cartao
+        SELECT
+            dcc.id_despesa_cartao
         FROM
-            despesas_cartao_credito
-                INNER JOIN
-            fechamentos_cartao ON despesas_cartao_credito.numero_cartao = fechamentos_cartao.numero_cartao
-                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
-                INNER JOIN
-            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
+            despesas_cartao_credito AS dcc
+        INNER JOIN
+            fechamentos_cartao AS fc
+                ON dcc.numero_cartao = fc.numero_cartao
+                AND dcc.doc_proprietario_cartao = fc.documento_titular
+        INNER JOIN
+            usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+                AND dcc.doc_proprietario_cartao = usuarios.documento
         WHERE
-            despesas_cartao_credito.cartao = '{}'
-                AND despesas_cartao_credito.data >= fechamentos_cartao.data_comeco_fatura
-                AND despesas_cartao_credito.data <= fechamentos_cartao.data_fim_fatura
-                AND fechamentos_cartao.ano = '{}'
-                AND fechamentos_cartao.mes = '{}'
+            dcc.cartao = '{}'
+                AND dcc.data >= fc.data_comeco_fatura
+                AND dcc.data <= fc.data_fim_fatura
+                AND fc.ano = '{}'
+                AND fc.mes = '{}'
                 AND usuarios.nome = '{}'
                 AND usuarios.documento = '{}'
-                AND pago = 'N';""".format(selected_card, year, selected_month, user_name, user_document)
+                AND pago = 'N';
+        """.format(
+            selected_card,
+            year,
+            selected_month,
+            user_name,
+            user_document
+        )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -324,29 +393,39 @@ class Credit_Card:
         float
             O valor total das despesas futuras.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         actual_month = self.get_card_month(selected_card)
 
         credit_card_next_expenses_query: str = """
-        SELECT 
-            COALESCE(SUM(despesas_cartao_credito.valor), 0)
+        SELECT
+            COALESCE(SUM(dcc.valor), 0)
         FROM
-            despesas_cartao_credito
-                INNER JOIN
-            fechamentos_cartao ON despesas_cartao_credito.numero_cartao = fechamentos_cartao.numero_cartao
-                AND despesas_cartao_credito.doc_proprietario_cartao = fechamentos_cartao.documento_titular
-                INNER JOIN
-            usuarios ON despesas_cartao_credito.proprietario_despesa_cartao = usuarios.nome
-                AND despesas_cartao_credito.doc_proprietario_cartao = usuarios.documento
+            despesas_cartao_credito AS dcc
+        INNER JOIN
+            fechamentos_cartao AS fc
+            ON dcc.numero_cartao = fc.numero_cartao
+                AND dcc.doc_proprietario_cartao = fc.documento_titular
+        INNER JOIN
+            usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+                AND dcc.doc_proprietario_cartao = usuarios.documento
         WHERE
-            despesas_cartao_credito.cartao = '{}'
-                AND despesas_cartao_credito.pago = 'N'
-                AND despesas_cartao_credito.data > fechamentos_cartao.data_fim_fatura
-                AND fechamentos_cartao.ano = '{}'
-                AND fechamentos_cartao.mes = '{}'
+            dcc.cartao = '{}'
+                AND dcc.pago = 'N'
+                AND dcc.data > fc.data_fim_fatura
+                AND fc.ano = '{}'
+                AND fc.mes = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.documento = '{}';""".format(selected_card, actual_year, actual_month, user_name, user_document)
+                AND usuarios.documento = '{}';
+        """.format(
+            selected_card,
+            actual_year,
+            actual_month,
+            user_name,
+            user_document
+        )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -358,7 +437,11 @@ class Credit_Card:
                 return float(result[0])
             return 0.0
         except mysql.connector.Error as err:
-            st.error(f"Erro ao consultar valor total das despesas futuras do cartão: {err}")
+            st.error(
+                f"""
+                Erro ao consultar valor das despesas futuras: {err}
+                """
+            )
         finally:
             if connection.is_connected():
                 connection.close()
@@ -377,10 +460,12 @@ class Credit_Card:
         float
             O limite de crédito do cartão.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         credit_card_limit_query: str = """
-        SELECT 
+        SELECT
             COALESCE(SUM(cartao_credito.limite_credito), 0)
         FROM
             cartao_credito
@@ -390,7 +475,11 @@ class Credit_Card:
         WHERE
             cartao_credito.nome_cartao = '{}'
         AND usuarios.nome = '{}'
-        AND usuarios.documento = '{}';""".format(selected_card, user_name, user_document)
+        AND usuarios.documento = '{}';""".format(
+            selected_card,
+            user_name,
+            user_document
+        )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -427,10 +516,12 @@ class Credit_Card:
         card_security_code : str
             O código de segurança do cartão.
         """
-        user_name, user_document = Login().get_user_data(return_option="user_doc_name")
+        user_name, user_document = Login().get_user_data(
+            return_option="user_doc_name"
+        )
 
         card_key_query = """
-        SELECT 
+        SELECT
             cartao_credito.numero_cartao,
             cartao_credito.proprietario_cartao,
             cartao_credito.documento_titular,
@@ -443,7 +534,12 @@ class Credit_Card:
         WHERE
             cartao_credito.nome_cartao = '{}'
                 AND usuarios.nome = '{}'
-                AND usuarios.documento = '{}';""".format(card, user_name, user_document)
+                AND usuarios.documento = '{}';
+        """.format(
+            card,
+            user_name,
+            user_document
+        )
 
         try:
             connection = mysql.connector.connect(**db_config)
@@ -452,7 +548,13 @@ class Credit_Card:
             result = cursor.fetchall()
             cursor.close()
 
-            if result is not None and len(result) > 0 and result[0] is not None:
+            if (
+                result is not None
+                ) and (
+                len(result) > 0
+                ) and (
+                result[0] is not None
+            ):
 
                 str_card_key_list = str(result[0])
 
@@ -472,9 +574,6 @@ class Credit_Card:
                     card_owner_document,
                     card_security_code,
                 )
-
-            else:
-                return ["9999999999999999", "Sem proprietário", 99999999999, 000]
 
         except mysql.connector.Error as err:
             st.error(f"Erro ao consultar chave do cartão: {err}")
@@ -498,7 +597,11 @@ class Credit_Card:
         """
         card_total_limit = self.card_limit(selected_card)
         not_payed_expenses = self.not_payed_expenses(selected_card)
-        month_card_expenses = self.month_expenses(selected_card, actual_year, string_actual_month)
+        month_card_expenses = self.month_expenses(
+            selected_card,
+            actual_year,
+            string_actual_month
+        )
         future_card_expenses = self.future_expenses(selected_card)
         total_card_expenses = month_card_expenses + \
             future_card_expenses + not_payed_expenses
