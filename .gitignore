@@ -158,7 +158,6 @@ data/revenues/*.png
 data/transfers/*.png
 data/reports/*.png
 library/images/accounts/*.png
-library/images/accounts/*.jpg
 data/cache/session_state.py
 library/fonts/sans_serif/RobotoRegular.cw127.pkl
 library/fonts/sans_serif/RobotoRegular.pkl

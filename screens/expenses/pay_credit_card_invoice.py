@@ -332,7 +332,7 @@ class CreditCardInvoice:
             query=owner_cards_query,
             params=(user_name, user_document)
         )
-        user_cards = QueryExecutor().treat_numerous_simple_result(
+        user_cards = QueryExecutor().treat_simple_results(
             user_cards, TO_REMOVE_LIST
         )
 
@@ -353,7 +353,7 @@ class CreditCardInvoice:
                 query=card_invoices_query,
                 params=(selected_card, user_name, user_document)
             )
-            card_invoices_data = QueryExecutor().treat_numerous_simple_result(
+            card_invoices_data = QueryExecutor().treat_simple_results(
                 card_invoices_data, TO_REMOVE_LIST
             )
 

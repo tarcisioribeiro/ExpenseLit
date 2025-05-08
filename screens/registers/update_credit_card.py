@@ -4,7 +4,8 @@ from dictionary.app_vars import months, years
 from dictionary.sql import (
     owner_cards_query,
     user_current_accounts_query,
-    credit_card_expire_date_query
+    credit_card_expire_date_query,
+    unique_account_id_query
 )
 from functions.credit_card import Credit_Card
 from functions.login import Login
@@ -37,7 +38,7 @@ class UpdateCreditCards:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -108,6 +109,15 @@ class UpdateCreditCards:
                         today, '%Y-%m-%d'
                     ).date()
 
+                    account_id = QueryExecutor().simple_consult_query(
+                        unique_account_id_query,
+                        (associated_account, user_name, user_document)
+                    )
+                    account_id = QueryExecutor().treat_simple_result(
+                        account_id,
+                        TO_REMOVE_LIST
+                    )
+
                     with col3:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
@@ -168,7 +178,7 @@ class UpdateCreditCards:
                                         security_code,
                                         credit_limit_value,
                                         credit_limit_value,
-                                        associated_account
+                                        account_id
                                     )
                                     QueryExecutor().insert_query(
                                         new_credit_card_query,
@@ -302,145 +312,152 @@ class UpdateCreditCards:
             query=owner_cards_query,
             params=(user_name, user_document)
         )
-        credit_cards = QueryExecutor().treat_numerous_simple_result(
+        credit_cards = QueryExecutor().treat_simple_results(
             credit_cards,
             TO_REMOVE_LIST
         )
 
-        with col3:
+        if len(credit_cards) > 0:
 
-            cc1, cc2 = st.columns(2)
+            with col3:
 
-            with cc2:
-                card = st.selectbox(
-                    label="Escolha um cartão",
-                    options=credit_cards
-                )
+                cc1, cc2 = st.columns(2)
 
-        with col1:
-            st.subheader(body=":computer: Entrada de Dados")
-
-            cc_max_limit_query = '''
-            SELECT
-                limite_maximo
-            FROM
-                cartao_credito
-            WHERE
-                nome_cartao = '{}'
-                AND proprietario_cartao = '{}'
-                AND documento_titular = {}
-            '''.format(
-                card,
-                user_name,
-                user_document
-            )
-            cc_max_limit = QueryExecutor().simple_consult_brute_query(
-                cc_max_limit_query
-            )
-            cc_max_limit = QueryExecutor().treat_simple_result(
-                cc_max_limit,
-                TO_REMOVE_LIST
-            )
-            cc_max_limit = float(cc_max_limit)
-
-            inactive_options = {
-                "Não": "N",
-                "Sim": "S",
-            }
-
-            with st.expander(label="Dados", expanded=True):
-                new_card_name = st.text_input(
-                    label="Nome do cartão",
-                    max_chars=100,
-                    help="Novo nome descritivo para o cartão."
-                )
-                print(new_card_name)
-                new_limit = st.number_input(
-                    label=":heavy_dollar_sign: Limite",
-                    min_value=0.00,
-                    max_value=cc_max_limit,
-                    step=0.01,
-                    help="Novo valor do limite do cartão."
-                )
-                inactive = st.selectbox(
-                    label="Inativo",
-                    options=inactive_options.keys(),
-                    help="Define se o cartão será inativado."
-                )
-                confirm_values = st.checkbox(label="Confirmar Dados")
-
-        send_data_button = st.button(label=":floppy_disk: Atualizar valores")
-
-        if confirm_values and send_data_button:
-
-            inactive = inactive_options[inactive]
-            new_limit_query = '''
-            UPDATE
-                cartao_credito
-            SET
-                limite_credito = {},
-                inativo = '{}'
-            WHERE
-                nome_cartao = '{}'
-                AND proprietario_cartao = '{}'
-                AND documento_titular = {};
-            '''.format(
-                new_limit,
-                inactive,
-                card,
-                user_name,
-                user_document
-            )
-
-            with col2:
-                with st.spinner(text='Aguarde...'):
-                    sleep(2.5)
-
-                    formatted_limit = Variable().treat_complex_string(
-                        new_limit
+                with cc2:
+                    card = st.selectbox(
+                        label="Escolha um cartão",
+                        options=credit_cards
                     )
 
-                    st.subheader(
-                        body=":white_check_mark: Validação de Dados"
+            with col1:
+                st.subheader(body=":computer: Entrada de Dados")
+
+                cc_max_limit_query = '''
+                SELECT
+                    limite_maximo
+                FROM
+                    cartao_credito
+                WHERE
+                    nome_cartao = '{}'
+                    AND proprietario_cartao = '{}'
+                    AND documento_titular = {}
+                '''.format(
+                    card,
+                    user_name,
+                    user_document
+                )
+                cc_max_limit = QueryExecutor().simple_consult_brute_query(
+                    cc_max_limit_query
+                )
+                cc_max_limit = QueryExecutor().treat_simple_result(
+                    cc_max_limit,
+                    TO_REMOVE_LIST
+                )
+                cc_max_limit = float(cc_max_limit)
+
+                inactive_options = {
+                    "Não": "N",
+                    "Sim": "S",
+                }
+
+                with st.expander(label="Dados", expanded=True):
+                    new_card_name = st.text_input(
+                        label="Nome do cartão",
+                        max_chars=100,
+                        help="Novo nome descritivo para o cartão."
                     )
-                    with st.expander(
-                        label="Avisos",
-                        expanded=True
-                    ):
-                        st.info(
-                            body="Novo limite: R$ {}".format(
-                                formatted_limit
+                    print(new_card_name)
+                    new_limit = st.number_input(
+                        label=":heavy_dollar_sign: Limite",
+                        min_value=0.00,
+                        max_value=cc_max_limit,
+                        step=0.01,
+                        help="Novo valor do limite do cartão."
+                    )
+                    inactive = st.selectbox(
+                        label="Inativo",
+                        options=inactive_options.keys(),
+                        help="Define se o cartão será inativado."
+                    )
+                    confirm_values = st.checkbox(label="Confirmar Dados")
+
+            send_data_button = st.button(
+                label=":floppy_disk: Atualizar valores"
+            )
+
+            if confirm_values and send_data_button:
+
+                inactive = inactive_options[inactive]
+                new_limit_query = '''
+                UPDATE
+                    cartao_credito
+                SET
+                    limite_credito = {},
+                    inativo = '{}'
+                WHERE
+                    nome_cartao = '{}'
+                    AND proprietario_cartao = '{}'
+                    AND documento_titular = {};
+                '''.format(
+                    new_limit,
+                    inactive,
+                    card,
+                    user_name,
+                    user_document
+                )
+
+                with col2:
+                    with st.spinner(text='Aguarde...'):
+                        sleep(2.5)
+
+                        formatted_limit = Variable().treat_complex_string(
+                            new_limit
+                        )
+
+                        st.subheader(
+                            body=":white_check_mark: Validação de Dados"
+                        )
+                        with st.expander(
+                            label="Avisos",
+                            expanded=True
+                        ):
+                            st.info(
+                                body="Novo limite: R$ {}".format(
+                                    formatted_limit
+                                )
+                            )
+
+                        QueryExecutor().update_table_unique_register(
+                            new_limit_query,
+                            "Limite atualizado com sucesso!",
+                            "Erro ao atualizar limite:"
+                        )
+
+                        log_query = '''
+                        INSERT INTO
+                            financas.logs_atividades (
+                                usuario_log,
+                                tipo_log,
+                                conteudo_log
+                            )
+                        VALUES ( %s, %s, %s);
+                        '''
+                        log_values = (
+                            logged_user,
+                            "Registro",
+                            "Atualizou o limite do cartão {}.".format(
+                                card
                             )
                         )
-
-                    QueryExecutor().update_table_unique_register(
-                        new_limit_query,
-                        "Limite atualizado com sucesso!",
-                        "Erro ao atualizar limite:"
-                    )
-
-                    log_query = '''
-                    INSERT INTO
-                        financas.logs_atividades (
-                            usuario_log,
-                            tipo_log,
-                            conteudo_log
+                        QueryExecutor().insert_query(
+                            log_query,
+                            log_values,
+                            "Log gravado.",
+                            "Erro ao gravar log:"
                         )
-                    VALUES ( %s, %s, %s);
-                    '''
-                    log_values = (
-                        logged_user,
-                        "Registro",
-                        "Atualizou o limite do cartão {}.".format(
-                            card
-                        )
-                    )
-                    QueryExecutor().insert_query(
-                        log_query,
-                        log_values,
-                        "Log gravado.",
-                        "Erro ao gravar log:"
-                    )
+        elif len(credit_cards) == 0:
+            with col2:
+                st.warning(body="Você ainda não cadastrou cartões.")
 
     def update_credit_card_invoices(self):
         """
@@ -459,14 +476,14 @@ class UpdateCreditCards:
             query=owner_cards_query,
             params=(user_name, user_document)
         )
-        credit_cards = QueryExecutor().treat_numerous_simple_result(
+        credit_cards = QueryExecutor().treat_simple_results(
             credit_cards,
             TO_REMOVE_LIST
         )
 
         if len(credit_cards) == 0:
             with col2:
-                st.warning(body="Você ainda não possui cartões cadastrados.")
+                st.warning(body="Você ainda não cadastrou cartões.")
 
         elif len(credit_cards) >= 1:
             with col1:
@@ -521,11 +538,6 @@ class UpdateCreditCards:
                             int(credit_card_expire_date[0]),
                             int(credit_card_expire_date[1]),
                             int(credit_card_expire_date[2])
-                        )
-                    )
-                    credit_card_expire_date_formatted = (
-                        credit_card_expire_date_formatted.strftime(
-                            '%d/%m/%Y'
                         )
                     )
 

@@ -106,7 +106,7 @@ class GetBalance:
             query=accounts_expenses_query,
             params=(today, user_name, user_document)
         )
-        accounts_expenses = QueryExecutor().treat_numerous_simple_result(
+        accounts_expenses = QueryExecutor().treat_simple_results(
             accounts_expenses,
             TO_REMOVE_LIST
         )
@@ -115,7 +115,7 @@ class GetBalance:
             query=accounts_revenue_query,
             params=(today, user_name, user_document)
         )
-        accounts_revenues = QueryExecutor().treat_numerous_simple_result(
+        accounts_revenues = QueryExecutor().treat_simple_results(
             accounts_revenues,
             TO_REMOVE_LIST
         )
@@ -125,7 +125,7 @@ class GetBalance:
             params=(today, user_name, user_document)
         )
         future_accounts_expenses = (
-            QueryExecutor().treat_numerous_simple_result(
+            QueryExecutor().treat_simple_results(
                 future_accounts_expenses,
                 TO_REMOVE_LIST
             )
@@ -136,7 +136,7 @@ class GetBalance:
             params=(user_name, user_document)
         )
         future_accounts_revenues = (
-            QueryExecutor().treat_numerous_simple_result(
+            QueryExecutor().treat_simple_results(
                 future_accounts_revenues,
                 TO_REMOVE_LIST
             )
@@ -146,7 +146,7 @@ class GetBalance:
             query=accounts_query,
             params=(user_name, user_document)
         )
-        accounts = QueryExecutor().treat_numerous_simple_result(
+        accounts = QueryExecutor().treat_simple_results(
             accounts,
             TO_REMOVE_LIST
         )

@@ -1,14 +1,11 @@
 DROP DATABASE IF EXISTS financas;
 
-CREATE DATABASE IF NOT EXISTS financas
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS financas;
 
 USE `financas`;
 
 DROP TABLE IF EXISTS `usuarios`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `usuarios` (
   `id` int NOT NULL AUTO_INCREMENT,
   `login` varchar(25) NOT NULL,
@@ -22,27 +19,20 @@ CREATE TABLE `usuarios` (
   UNIQUE KEY `chave_usuario` (`login`,`senha`),
   UNIQUE KEY `unq_usuarios_nome` (`nome`,`documento`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `anos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `anos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `ano` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `anos` WRITE;
-/*!40000 ALTER TABLE `anos` DISABLE KEYS */;
 INSERT INTO `anos` VALUES (1,2020),(2,2021),(3,2022),(4,2023),(5,2024),(6,2025),(7,2026),(8,2027),(9,2028);
-/*!40000 ALTER TABLE `anos` ENABLE KEYS */;
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `beneficiados`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `beneficiados` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) DEFAULT NULL,
@@ -51,11 +41,8 @@ CREATE TABLE `beneficiados` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_beneficiado` (`nome`,`documento`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `contas`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome_conta` varchar(100) NOT NULL,
@@ -69,11 +56,9 @@ CREATE TABLE `contas` (
   KEY `fk_contas_usuario` (`proprietario_conta`),
   CONSTRAINT `fk_contas_usuario` FOREIGN KEY (`proprietario_conta`) REFERENCES `usuarios` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `cartao_credito`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `cartao_credito` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome_cartao` varchar(100) NOT NULL,
@@ -95,11 +80,9 @@ CREATE TABLE `cartao_credito` (
   CONSTRAINT `fk_cartao_credito_conta` FOREIGN KEY (`conta_associada`) REFERENCES `contas` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_cartao_credito_usuario` FOREIGN KEY (`proprietario_cartao`) REFERENCES `usuarios` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `credores`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `credores` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
@@ -108,11 +91,9 @@ CREATE TABLE `credores` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `chave_credor` (`nome`,`documento`,`telefone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `despesas`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `despesas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descricao` varchar(100) NOT NULL DEFAULT 'Despesa',
@@ -129,11 +110,9 @@ CREATE TABLE `despesas` (
   KEY `fk_despesas_contas` (`conta`),
   CONSTRAINT `fk_despesas_contas` FOREIGN KEY (`conta`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `despesas_cartao_credito`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `despesas_cartao_credito` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descricao` varchar(100) NOT NULL DEFAULT 'Despesa Cartão',
@@ -152,11 +131,9 @@ CREATE TABLE `despesas_cartao_credito` (
   KEY `fk_despesas_cartao_credito` (`cartao`,`numero_cartao`),
   CONSTRAINT `fk_despesas_cartao_credito` FOREIGN KEY (`cartao`, `numero_cartao`) REFERENCES `cartao_credito` (`nome_cartao`, `numero_cartao`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `emprestimos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `emprestimos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descricao` varchar(100) NOT NULL,
@@ -180,11 +157,9 @@ CREATE TABLE `emprestimos` (
   CONSTRAINT `fk_credor_emprestimo` FOREIGN KEY (`credor`) REFERENCES `credores` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_emprestimos_contas` FOREIGN KEY (`conta`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `fechamentos_cartao`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `fechamentos_cartao` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome_cartao` varchar(100) NOT NULL,
@@ -200,11 +175,9 @@ CREATE TABLE `fechamentos_cartao` (
   KEY `fk_fechamentos_cartao` (`nome_cartao`,`numero_cartao`),
   CONSTRAINT `fk_fechamentos_cartao` FOREIGN KEY (`nome_cartao`, `numero_cartao`) REFERENCES `cartao_credito` (`nome_cartao`, `numero_cartao`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `logs_atividades`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `logs_atividades` (
   `id` int NOT NULL AUTO_INCREMENT,
   `data_log` date NOT NULL DEFAULT (curdate()),
@@ -216,11 +189,9 @@ CREATE TABLE `logs_atividades` (
   KEY `fk_logs_atividades_usuarios` (`usuario_log`),
   CONSTRAINT `fk_logs_atividades_usuarios` FOREIGN KEY (`usuario_log`) REFERENCES `usuarios` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `meses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `meses` (
   `id` int NOT NULL AUTO_INCREMENT,
   `numero_mes` tinyint NOT NULL,
@@ -228,33 +199,41 @@ CREATE TABLE `meses` (
   `abreviacao` varchar(5) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `meses` WRITE;
-/*!40000 ALTER TABLE `meses` DISABLE KEYS */;
-INSERT INTO `meses` VALUES (1,1,'Janeiro','Jan'),(2,2,'Fevereiro','Fev'),(3,3,'Março','Mar'),(4,4,'Abril','Abr'),(5,5,'Maio','Mai'),(6,6,'Junho','Jun'),(7,7,'Julho','Jul'),(8,8,'Agosto','Ago'),(9,9,'Setembro','Set'),(10,10,'Outubro','Out'),(11,11,'Novembro','Nov'),(12,12,'Dezembro','Dez');
-/*!40000 ALTER TABLE `meses` ENABLE KEYS */;
+
+INSERT INTO
+  `meses`
+VALUES
+  (1,1,'Janeiro','Jan'),
+  (2,2,'Fevereiro','Fev'),
+  (3,3,'Março','Mar'),
+  (4,4,'Abril','Abr'),
+  (5,5,'Maio','Mai'),
+  (6,6,'Junho','Jun'),
+  (7,7,'Julho','Jul'),
+  (8,8,'Agosto','Ago'),
+  (9,9,'Setembro','Set'),
+  (10,10,'Outubro','Out'),
+  (11,11,'Novembro','Nov'),
+  (12,12,'Dezembro','Dez');
+
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `modelos_conta`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `modelos_conta` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome_instituicao` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `modelos_conta` WRITE;
-/*!40000 ALTER TABLE `modelos_conta` DISABLE KEYS */;
 INSERT INTO `modelos_conta` VALUES (1,'Banco do Brasil'),(2,'Bradesco'),(3,'Ben Visa Vale'),(4,'Caixa Econômica Federal'),(5,'Carteira'),(6,'Ifood Benefícios'),(7,'Itaú'),(8,'Nubank'),(9,'Mercado Pago'),(10,'Picpay'),(11,'Santander'),(12,'Sicoob');
-/*!40000 ALTER TABLE `modelos_conta` ENABLE KEYS */;
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `receitas`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `receitas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descricao` varchar(100) NOT NULL DEFAULT 'Receita',
@@ -271,11 +250,9 @@ CREATE TABLE `receitas` (
   KEY `fk_receitas_contas` (`conta`),
   CONSTRAINT `fk_receitas_contas` FOREIGN KEY (`conta`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `transferencias`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `transferencias` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descricao` varchar(100) NOT NULL DEFAULT 'Transferência',
@@ -295,16 +272,13 @@ CREATE TABLE `transferencias` (
   CONSTRAINT `fk_transferencias_despesas` FOREIGN KEY (`conta_origem`) REFERENCES `contas` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_transferencias_receitas` FOREIGN KEY (`conta_destino`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `transferencias` WRITE;
-/*!40000 ALTER TABLE `transferencias` DISABLE KEYS */;
-/*!40000 ALTER TABLE `transferencias` ENABLE KEYS */;
+
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `usuarios_logados`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `usuarios_logados` (
   `id` int NOT NULL AUTO_INCREMENT,
   `usuario_id` int NOT NULL,
@@ -315,4 +289,3 @@ CREATE TABLE `usuarios_logados` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `sessao_id` (`sessao_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;

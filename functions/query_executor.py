@@ -244,7 +244,7 @@ class QueryExecutor:
 
         return final_result
 
-    def treat_numerous_simple_result(
+    def treat_simple_results(
             self,
             values_to_treat: list,
             values_to_remove: list

@@ -901,7 +901,7 @@ class Login:
                                     )
                                 )
                                 user_name_doc = (
-                                    QueryExecutor().treat_numerous_simple_result(
+                                    QueryExecutor().treat_simple_results(
                                         user_name_doc,
                                         TO_REMOVE_LIST
                                     )

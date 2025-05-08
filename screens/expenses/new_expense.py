@@ -3,7 +3,8 @@ from dictionary.sql import (
     last_expense_id_query,
     user_current_accounts_query,
     total_account_revenue_query,
-    total_account_expense_query
+    total_account_expense_query,
+    unique_account_id_query
 )
 from dictionary.vars import TO_REMOVE_LIST, EXPENSE_CATEGORIES
 from functions.login import Login
@@ -33,7 +34,7 @@ class NewCurrentExpense:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -116,10 +117,28 @@ class NewCurrentExpense:
 
                         with data_validation_expander:
 
+                            account_id = QueryExecutor().simple_consult_query(
+                                unique_account_id_query,
+                                (
+                                    account,
+                                    user_name,
+                                    user_document
+                                )
+                            )
+
+                            account_id = QueryExecutor().treat_simple_result(
+                                account_id,
+                                TO_REMOVE_LIST
+                            )
+
                             str_selected_account_revenues = (
                                 QueryExecutor().simple_consult_query(
                                     query=total_account_revenue_query,
-                                    params=(account, user_name, user_document)
+                                    params=(
+                                        account_id,
+                                        user_name,
+                                        user_document
+                                    )
                                 )
                             )
                             str_selected_account_revenues = (
@@ -135,7 +154,11 @@ class NewCurrentExpense:
                             str_selected_account_expenses = (
                                 QueryExecutor().simple_consult_query(
                                     total_account_expense_query,
-                                    params=(account, user_name, user_document)
+                                    params=(
+                                        account_id,
+                                        user_name,
+                                        user_document
+                                    )
                                 )
                             )
                             str_selected_account_expenses = (
@@ -196,7 +219,7 @@ class NewCurrentExpense:
                             date,
                             actual_horary,
                             category,
-                            account,
+                            account_id,
                             user_name,
                             user_document,
                             payed

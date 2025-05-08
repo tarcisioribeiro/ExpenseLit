@@ -345,7 +345,7 @@ class Home:
                     query=owner_active_cards_query,
                     params=(user_name, user_document)
                 )
-                cards_result = QueryExecutor().treat_numerous_simple_result(
+                cards_result = QueryExecutor().treat_simple_results(
                     cards_result,
                     TO_REMOVE_LIST
                 )

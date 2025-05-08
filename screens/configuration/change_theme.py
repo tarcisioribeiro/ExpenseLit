@@ -42,7 +42,8 @@ class ChangeTheme:
         theme_image = "{}/reference/images/themes/{}/{}_{}.png".format(
             ABSOLUTE_APP_PATH, color_dict[color_theme],
             color_dict[color_theme],
-            font_option)
+            font_option
+        )
         return theme_image
 
     def change_theme(self, theme_option: str, font_option: str):
@@ -62,7 +63,7 @@ class ChangeTheme:
         if theme_option == "Escuro":
             with open(config_archive, "w") as archive:
                 archive.write(DARK_THEME)
-                if font_option == "Selecione uma opção":
+                if font_option == "sans serif":
                     pass
                 else:
                     archive.write("\n")
@@ -81,7 +82,7 @@ class ChangeTheme:
                 archive.write("\n")
                 archive.write(SERVER_CONFIG)
 
-        if font_option != "Selecione uma opção":
+        if font_option != "sans serif":
             font_archive = FONTS_DICTIONARY[font_option]
             with open(style_archive, "w") as new_style_archive:
                 new_style_archive.write(
@@ -103,9 +104,13 @@ class ChangeTheme:
             st.subheader(body=":page_with_curl: Opções")
             with st.expander(label="Aparência", expanded=True):
                 selected_theme = st.radio(
-                    label="Tema", options=themes_options.keys())
+                    label="Tema",
+                    options=themes_options.keys()
+                )
                 font_option = st.selectbox(
-                    label="Fonte", options=themes_options[selected_theme])
+                    label="Fonte",
+                    options=themes_options[selected_theme]
+                )
             theme_confirm_option = st.checkbox(label="Confirmar opção")
 
         if theme_confirm_option:
@@ -113,7 +118,9 @@ class ChangeTheme:
                 with st.spinner(text="Aguarde..."):
                     sleep(1.5)
                 theme_image = self.search_theme_image(
-                    selected_theme, font_option)
+                    selected_theme,
+                    font_option
+                )
                 st.subheader(body=":camera: Prévia do Tema")
                 with st.expander(label="Visualização", expanded=True):
                     st.image(theme_image)
@@ -125,10 +132,13 @@ class ChangeTheme:
                 with st.expander(label="Votação", expanded=True):
                     st.write("Confirmar a mudança de tema?")
                     selected_option = st.radio(
-                        label="Opções", options=["Sim", "Não"])
+                        label="Opções",
+                        options=["Sim", "Não"]
+                    )
 
                 confirm_vote = st.button(
-                    label=":floppy_disk: Confirmar mudança de tema")
+                    label=":floppy_disk: Confirmar mudança de tema"
+                )
 
                 if confirm_vote:
                     if selected_option == "Sim":

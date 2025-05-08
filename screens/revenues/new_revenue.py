@@ -1,5 +1,9 @@
 from dictionary.vars import REVENUE_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import last_revenue_id_query, user_current_accounts_query
+from dictionary.sql import (
+    last_revenue_id_query,
+    user_current_accounts_query,
+    unique_account_id_query
+)
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
 from functions.login import Login
@@ -31,7 +35,7 @@ class NewCurrentRevenue:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -111,6 +115,15 @@ class NewCurrentRevenue:
 
                     received = options[received]
 
+                    account_id = QueryExecutor().simple_consult_query(
+                        unique_account_id_query,
+                        (account, user_name, user_document)
+                    )
+                    account_id = QueryExecutor().treat_simple_result(
+                        account_id,
+                        TO_REMOVE_LIST
+                    )
+
                     with col5:
                         with st.spinner("Aguarde..."):
                             sleep(2.5)
@@ -148,7 +161,7 @@ class NewCurrentRevenue:
                             date,
                             actual_horary,
                             category,
-                            account,
+                            account_id,
                             user_name,
                             user_document,
                             received

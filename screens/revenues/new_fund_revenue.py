@@ -31,7 +31,7 @@ class NewFundRevenue:
             query=user_fund_accounts_query,
             params=(user_name, user_document)
         )
-        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_fund_accounts = QueryExecutor().treat_simple_results(
             user_fund_accounts,
             TO_REMOVE_LIST
         )

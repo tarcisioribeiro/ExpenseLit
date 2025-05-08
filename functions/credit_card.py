@@ -81,7 +81,7 @@ class Credit_Card:
                 ON dcc.numero_cartao = fc.numero_cartao
                 AND dcc.doc_proprietario_cartao = fc.documento_titular
             INNER JOIN
-                usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+                usuarios ON dcc.proprietario_despesa_cartao = usuarios.id
                     AND dcc.doc_proprietario_cartao = usuarios.documento
             WHERE
                 dcc.cartao = '{}'
@@ -89,7 +89,7 @@ class Credit_Card:
                 AND dcc.pago = 'N'
                 AND fc.ano <= '{}'
                 AND fc.mes = '{}'
-                AND usuarios.nome = '{}'
+                AND usuarios.id = {}
                 AND usuarios.documento = '{}';
             """.format(
                 selected_card,
@@ -157,7 +157,7 @@ class Credit_Card:
                 AND dcc.doc_proprietario_cartao = fc.documento_titular
             INNER JOIN
                 usuarios
-                ON dcc.proprietario_despesa_cartao = usuarios.nome
+                ON dcc.proprietario_despesa_cartao = usuarios.id
                 AND dcc.doc_proprietario_cartao = usuarios.documento
             WHERE
                 dcc.cartao = '{}'
@@ -166,7 +166,7 @@ class Credit_Card:
                 AND dcc.pago = 'N'
                 AND fc.ano = '{}'
                 AND fc.mes LIKE '{}'
-                AND usuarios.nome = '{}'
+                AND usuarios.id = {}
                 AND usuarios.documento = '{}';""".format(
                     selected_card,
                     year,
@@ -243,7 +243,7 @@ class Credit_Card:
                 ON dcc.numero_cartao = fcc.numero_cartao
                 AND dcc.doc_proprietario_cartao = fc.documento_titular
         INNER JOIN
-            usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+            usuarios ON dcc.proprietario_despesa_cartao = usuarios.id
                 AND dcc.doc_proprietario_cartao = usuarios.documento
         WHERE
             dcc.cartao = '{}'
@@ -252,7 +252,7 @@ class Credit_Card:
                 AND dcc.pago = 'N'
                 AND fc.ano = '{}'
                 AND fc.mes = '{}'
-                AND usuarios.nome = '{}'
+                AND usuarios.id = {}
                 AND usuarios.documento = '{}';
         """.format(
             selected_card,
@@ -409,7 +409,7 @@ class Credit_Card:
             ON dcc.numero_cartao = fc.numero_cartao
                 AND dcc.doc_proprietario_cartao = fc.documento_titular
         INNER JOIN
-            usuarios ON dcc.proprietario_despesa_cartao = usuarios.nome
+            usuarios ON dcc.proprietario_despesa_cartao = usuarios.id
                 AND dcc.doc_proprietario_cartao = usuarios.documento
         WHERE
             dcc.cartao = '{}'
@@ -417,7 +417,7 @@ class Credit_Card:
                 AND dcc.data > fc.data_fim_fatura
                 AND fc.ano = '{}'
                 AND fc.mes = '{}'
-                AND usuarios.nome = '{}'
+                AND usuarios.id = {}
                 AND usuarios.documento = '{}';
         """.format(
             selected_card,
@@ -471,10 +471,10 @@ class Credit_Card:
             cartao_credito
                 INNER JOIN
             usuarios ON cartao_credito.documento_titular = usuarios.documento
-                AND cartao_credito.proprietario_cartao = usuarios.nome
+                AND cartao_credito.proprietario_cartao = usuarios.id
         WHERE
             cartao_credito.nome_cartao = '{}'
-        AND usuarios.nome = '{}'
+        AND usuarios.id = {}
         AND usuarios.documento = '{}';""".format(
             selected_card,
             user_name,
@@ -529,11 +529,11 @@ class Credit_Card:
         FROM
             cartao_credito
                 INNER JOIN
-            usuarios ON cartao_credito.proprietario_cartao = usuarios.nome
+            usuarios ON cartao_credito.proprietario_cartao = usuarios.id
                 AND cartao_credito.documento_titular = usuarios.documento
         WHERE
             cartao_credito.nome_cartao = '{}'
-                AND usuarios.nome = '{}'
+                AND usuarios.id = {}
                 AND usuarios.documento = '{}';
         """.format(
             card,
@@ -603,6 +603,7 @@ class Credit_Card:
             string_actual_month
         )
         future_card_expenses = self.future_expenses(selected_card)
+
         total_card_expenses = month_card_expenses + \
             future_card_expenses + not_payed_expenses
         remaining_limit = card_total_limit - total_card_expenses

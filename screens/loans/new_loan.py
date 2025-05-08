@@ -33,7 +33,7 @@ class TakeNewLoan:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -64,18 +64,20 @@ class TakeNewLoan:
         ):
             creditors_quantity_query = '''
             SELECT
-                COUNT(id)
+                COUNT(credores.id)
             FROM
                 credores
+            INNER JOIN usuarios
+                ON usuarios.documento = credores.documento
             WHERE
-                credores.documento <> %s
-                OR credores.nome <> %s;
+                credores.documento <> %s;
             '''
 
             creditors_quantity = QueryExecutor().simple_consult_query(
                 query=creditors_quantity_query,
-                params=(user_document, user_name)
+                params=(user_document,)
             )
+
             creditors_quantity = int(QueryExecutor().treat_simple_result(
                 creditors_quantity,
                 TO_REMOVE_LIST
@@ -128,7 +130,7 @@ class TakeNewLoan:
                             params=(user_name, user_document)
                         )
                         creditors = (
-                            QueryExecutor().treat_numerous_simple_result(
+                            QueryExecutor().treat_simple_results(
                                 creditors,
                                 TO_REMOVE_LIST
                             )
@@ -454,7 +456,7 @@ class TakeNewLoan:
         ):
             benefited_quantity_query = '''
             SELECT
-                COUNT(id_beneficiado)
+                COUNT(id)
             FROM
                 beneficiados
             WHERE
@@ -858,7 +860,7 @@ class MakeNewLoan:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -895,12 +897,15 @@ class MakeNewLoan:
 
             benefited_quantity_query = '''
             SELECT
-                COUNT(id_beneficiado)
+                COUNT(beneficiados.id)
             FROM
                 beneficiados
+            INNER JOIN
+                usuarios
+                ON beneficiados.documento = usuarios.documento
             WHERE
-                beneficiados.documento <> %s
-                OR beneficiados.nome <> %s;
+                usuarios.id <> %s
+                OR beneficiados.documento <> %s;
             '''
             benefited_quantity = QueryExecutor().simple_consult_query(
                 query=benefited_quantity_query,
@@ -967,7 +972,7 @@ class MakeNewLoan:
                             params=(user_document, user_name)
                         )
                         beneficiaries = (
-                            QueryExecutor().treat_numerous_simple_result(
+                            QueryExecutor().treat_simple_results(
                                 beneficiaries,
                                 TO_REMOVE_LIST
                             )
@@ -980,7 +985,8 @@ class MakeNewLoan:
                         creditor_name_document = (
                             QueryExecutor().complex_consult_query(
                                 creditor_doc_name_query,
-                                params=(user_name, user_document))
+                                params=(user_document,)
+                            )
                         )
                         creditor_name_document = (
                             QueryExecutor().treat_complex_result(
@@ -992,13 +998,14 @@ class MakeNewLoan:
                         creditor_document = creditor_name_document[1]
 
                         benefited_doc_name_query = """
-                                        SELECT
-                                            beneficiados.nome,
-                                            beneficiados.documento
-                                        FROM
-                                            beneficiados
-                                        WHERE
-                                            beneficiados.nome = %s;"""
+                        SELECT
+                            beneficiados.nome,
+                            beneficiados.documento
+                        FROM
+                            beneficiados
+                        WHERE
+                            beneficiados.nome = %s;
+                        """
                         benefited_doc_name = (
                             QueryExecutor().complex_consult_query(
                                 query=benefited_doc_name_query,

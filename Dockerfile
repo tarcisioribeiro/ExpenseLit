@@ -18,10 +18,13 @@ RUN apt-get update && \
 ENV LANG=pt_BR.UTF-8
 ENV LANGUAGE=pt_BR:pt
 ENV LC_ALL=pt_BR.UTF-8
+ENV TZ=America/Sao_Paulo
 
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8551
 
 COPY library/images/default.png /library/images/accounts/default.png
 

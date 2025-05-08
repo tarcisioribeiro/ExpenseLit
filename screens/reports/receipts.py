@@ -11,7 +11,11 @@ from dictionary.vars import (
     TRANSFER_IMAGE,
     SAVE_FOLDER
 )
-from dictionary.sql import user_current_accounts_query, account_image_query
+from dictionary.sql import (
+    user_current_accounts_query,
+    account_image_query,
+    user_real_name_query
+)
 from functions.query_executor import QueryExecutor
 from functions.login import Login
 from functions.variable import Variable
@@ -303,6 +307,19 @@ class Receipts:
         user_name, user_document = Login().get_user_data(
             return_option="user_doc_name"
         )
+
+        user_real_name = QueryExecutor().simple_consult_query(
+            user_real_name_query,
+            (
+                user_name,
+                user_document
+            )
+        )
+        user_real_name = QueryExecutor().treat_simple_result(
+            user_real_name,
+            TO_REMOVE_LIST
+        )
+
         origin_account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
             params=(origin_account, user_name, user_document)
@@ -389,7 +406,7 @@ class Receipts:
         draw.line([(20, 240), (width - 20, 240)], fill="black", width=2)
         draw.line([(width - 400, height - 60),
                   (width - 20, height - 60)], fill="black", width=2)
-        draw.text((520, 400), f"{user_name}", fill="black", font=font)
+        draw.text((520, 400), f"{user_real_name}", fill="black", font=font)
         draw.text((20, height - 40), reference_number, fill="black", font=font)
 
         image.paste(origin_pasted_image, (20, 250))
@@ -443,14 +460,28 @@ class Receipts:
         user_name, user_document = Login().get_user_data(
             return_option="user_doc_name"
         )
+        user_real_name = QueryExecutor().simple_consult_query(
+            user_real_name_query,
+            (
+                user_name,
+                user_document
+            )
+        )
+
+        user_real_name = QueryExecutor().treat_simple_result(
+            user_real_name,
+            TO_REMOVE_LIST
+        )
 
         account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
-            params=(account, user_name, user_document))
+            params=(account, user_name, user_document)
+        )
         account_image = QueryExecutor().treat_simple_result(
             account_image,
             TO_REMOVE_LIST
         )
+
         account_image_path = SAVE_FOLDER + account_image
 
         table_dictionary = {
@@ -527,11 +558,14 @@ class Receipts:
         draw.text((20, 90), f"Valor: R$ {value}", fill="black", font=font)
         draw.text((20, 120), f"Data: {date}", fill="black", font=font)
         draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
-        draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
+        if table != "Despesa de Cartão":
+            draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
+        elif table == "Despesa de Cartão":
+            draw.text((20, 180), f"Cartão: {account}", fill="black", font=font)
         draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
         draw.line([(width - 400, height - 60),
                   (width - 20, height - 60)], fill="black", width=2)
-        draw.text((400, 360), f"{user_name}", fill="black", font=font)
+        draw.text((400, 360), f"{user_real_name}", fill="black", font=font)
         draw.text((20, height - 40), reference_number, fill="black", font=font)
 
         pasted_image = Image.open(account_image_path)
@@ -570,7 +604,7 @@ class Receipts:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts, TO_REMOVE_LIST)
 
         if len(user_current_accounts) > 0:

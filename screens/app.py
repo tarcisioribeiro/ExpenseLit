@@ -35,9 +35,12 @@ class App:
             usuarios_logados
         FROM
             usuarios_logados
+        INNER JOIN
+            usuarios
+            ON usuarios_logados.usuario_id = usuarios.id
         WHERE
-            nome_completo = %s
-            AND documento = %s;
+            usuarios.id = %s
+            AND usuarios.documento = %s;
         """
         QueryExecutor().insert_query(
             query=delete_session_query,

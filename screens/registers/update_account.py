@@ -355,7 +355,7 @@ class UpdateAccounts:
             query=user_all_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_accounts = QueryExecutor().treat_simple_results(
             user_accounts,
             TO_REMOVE_LIST
         )

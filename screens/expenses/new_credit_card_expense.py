@@ -3,7 +3,11 @@ import streamlit as st
 from datetime import timedelta
 from dictionary.db_config import db_config
 from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import last_credit_card_expense_id_query, owner_cards_query
+from dictionary.sql import (
+    last_credit_card_expense_id_query,
+    owner_cards_query,
+    credit_card_id_query
+)
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -80,8 +84,10 @@ class NewCreditCardExpense:
         )
 
         user_cards = QueryExecutor().complex_consult_query(
-            query=owner_cards_query, params=(user_name, user_document))
-        user_cards = QueryExecutor().treat_numerous_simple_result(
+            query=owner_cards_query,
+            params=(user_name, user_document)
+        )
+        user_cards = QueryExecutor().treat_simple_results(
             user_cards,
             TO_REMOVE_LIST
         )
@@ -93,8 +99,7 @@ class NewCreditCardExpense:
             with col2:
                 st.info("Você ainda não possui cartões cadastrados.")
 
-        elif len(user_cards) >= 1 and user_cards[0] != "Selecione uma opção":
-
+        elif len(user_cards) >= 1:
             with col1:
                 st.subheader(body=":computer: Entrada de Dados")
 
@@ -158,166 +163,245 @@ class NewCreditCardExpense:
             with col3:
                 if confirm_values_checkbox and generate_receipt_button:
 
-                    card_associated_account_query = """
+                    credit_card_id = QueryExecutor().simple_consult_query(
+                        credit_card_id_query,
+                        (user_name, user_document, card)
+                    )
+
+                    credit_card_id = QueryExecutor().treat_simple_result(
+                        credit_card_id,
+                        TO_REMOVE_LIST
+                    )
+
+                    credit_card_id = int(credit_card_id)
+
+                    invoices_quantity_query = """
                     SELECT
-                        c.nome_conta
+                        COUNT(fc.id)
                     FROM
-                        contas AS c
+                        fechamentos_cartao AS fc
                     INNER JOIN
                         cartao_credito AS cc
-                    ON c.nome_conta = cc.conta_associada
-                    AND c.proprietario_conta = cc.proprietario_cartao
-                    AND c.documento_proprietario_conta = cc.documento_titular
+                        ON fc.documento_titular = cc.documento_titular
+                    INNER JOIN
+                        usuarios AS u
+                        ON fc.documento_titular = u.documento
                     WHERE
-                        cc.proprietario_cartao = %s
-                        AND cc.documento_titular = %s
-                        AND cc.nome_cartao = %s;
+                        cc.id = %s
+                        AND cc.nome_cartao = %s
+                        AND u.id = %s
+                        AND u.documento = %s;
                     """
-                    card_associated_account = (
-                        QueryExecutor().simple_consult_query(
-                            query=card_associated_account_query,
-                            params=(user_name, user_document, card)
+
+                    invoices_quantity = QueryExecutor().simple_consult_query(
+                        invoices_quantity_query,
+                        (
+                            credit_card_id,
+                            card,
+                            user_name,
+                            user_document
                         )
                     )
-                    card_associated_account = (
-                        QueryExecutor().treat_simple_result(
-                            card_associated_account,
-                            TO_REMOVE_LIST
-                        )
+                    invoices_quantity = QueryExecutor().treat_simple_result(
+                        invoices_quantity,
+                        TO_REMOVE_LIST
                     )
 
-                    with col2:
+                    invoices_quantity = int(invoices_quantity)
 
-                        with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                    if invoices_quantity > 0:
 
-                        st.subheader(
-                            body=":white_check_mark: Validação de Dados")
+                        card_associated_account_id_query = """
+                        SELECT
+                            c.id
+                        FROM
+                            contas AS c
+                        INNER JOIN
+                            cartao_credito AS cc
+                        ON c.id = cc.conta_associada
+                        AND
+                        c.proprietario_conta = cc.proprietario_cartao
+                        AND
+                        c.documento_proprietario_conta = cc.documento_titular
+                        WHERE
+                            cc.proprietario_cartao = %s
+                            AND cc.documento_titular = %s
+                            AND cc.nome_cartao = %s;
+                        """
 
-                        data_expander = st.expander(
-                            label="Avisos", expanded=True)
+                        card_associated_account_id = (
+                            QueryExecutor().simple_consult_query(
+                                query=card_associated_account_id_query,
+                                params=(user_name, user_document, card)
+                            )
+                        )
 
-                        with data_expander:
-                            st.info(
-                                body="Limite restante do cartão: R$ {}".format(
-                                    str_remaining_limit
+                        card_associated_account_id = (
+                            QueryExecutor().treat_simple_result(
+                                card_associated_account_id,
+                                TO_REMOVE_LIST
+                            )
+                        )
+
+                        with col2:
+
+                            with st.spinner("Aguarde..."):
+                                sleep(2.5)
+
+                            st.subheader(
+                                body=":white_check_mark: Validação de Dados"
+                                )
+
+                            data_expander = st.expander(
+                                label="Avisos", expanded=True
+                            )
+
+                            with data_expander:
+                                st.info(
+                                    body="""
+                                        Limite restante do cartão: R$ {}
+                                        """.format(
+                                            str_remaining_limit
+                                        )
+                                )
+
+                        if (
+                            description != ""
+                            and value >= 0.01 and value <= remaining_limit
+                            and date
+                            and category != "Selecione uma opção"
+                            and card != "Selecione uma opção"
+                            and inputed_credit_card_code == credit_card_code
+                        ):
+                            with data_expander:
+                                st.success(body="Dados válidos.")
+
+                            st.subheader(
+                                body=":pencil: Comprovante de Despesa")
+                            with st.spinner("Aguarde..."):
+                                sleep(2.5)
+
+                            for i in range(0, parcel):
+                                if i >= 1:
+                                    date += timedelta(days=30)
+
+                                actual_horary = (
+                                    GetActualTime().get_actual_time()
+                                )
+
+                                credit_card_expense_query = """
+                                INSERT INTO
+                                    despesas_cartao_credito (
+                                        descricao,
+                                        valor,
+                                        data,
+                                        horario,
+                                        categoria,
+                                        cartao,
+                                        numero_cartao,
+                                        proprietario_despesa_cartao,
+                                        doc_proprietario_cartao,
+                                        parcela,
+                                        pago)
+                                VALUES (
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s);
+                                """
+                                values = (
+                                    description,
+                                    (value / parcel),
+                                    date,
+                                    actual_horary,
+                                    category,
+                                    card,
+                                    credit_card_number,
+                                    credit_card_owner,
+                                    credit_card_owner_document,
+                                    i + 1,
+                                    "N",
+                                )
+                                self.insert_new_credit_card_expense(
+                                    credit_card_expense_query, values
+                                )
+
+                            str_value = Variable().treat_complex_string(value)
+
+                            log_query = '''
+                            INSERT INTO
+                                financas.logs_atividades (
+                                    usuario_log,
+                                    tipo_log,
+                                    conteudo_log
+                                )
+                            VALUES ( %s, %s, %s);
+                            '''
+                            log_values = (
+                                logged_user,
+                                "Registro",
+                                """Registrou uma despesa de cartã
+                                no valor de R$ {} associada a conta {}.
+                                """.format(
+                                    str_value,
+                                    card
                                 )
                             )
+                            QueryExecutor().insert_query(
+                                log_query,
+                                log_values,
+                                "Log gravado.",
+                                "Erro ao gravar log:"
+                            )
 
-                    if (
-                        description != ""
-                        and value >= 0.01 and value <= remaining_limit
-                        and date
-                        and category != "Selecione uma opção"
-                        and card != "Selecione uma opção"
-                        and inputed_credit_card_code == credit_card_code
-                    ):
-                        with data_expander:
-                            st.success(body="Dados válidos.")
-
-                        st.subheader(
-                            body=":pencil: Comprovante de Despesa")
-                        with st.spinner("Aguarde..."):
-                            sleep(2.5)
-
-                        for i in range(0, parcel):
-                            if i >= 1:
-                                date += timedelta(days=30)
-
-                            actual_horary = GetActualTime().get_actual_time()
-
-                            credit_card_expense_query = """
-                            INSERT INTO
-                                despesas_cartao_credito (
-                                    descricao,
-                                    valor,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    cartao,
-                                    numero_cartao,
-                                    proprietario_despesa_cartao,
-                                    doc_proprietario_cartao,
-                                    parcela,
-                                    pago)
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s);
-                            """
-                            values = (
+                            Receipts().generate_receipt(
+                                'despesas_cartao_credito',
+                                input_id,
                                 description,
-                                (value / parcel),
-                                date,
-                                actual_horary,
+                                value,
+                                str(date),
                                 category,
-                                card,
-                                credit_card_number,
-                                credit_card_owner,
-                                credit_card_owner_document,
-                                i + 1,
-                                "N",
+                                card_associated_account_id
                             )
-                            self.insert_new_credit_card_expense(
-                                credit_card_expense_query, values)
 
-                        str_value = Variable().treat_complex_string(value)
+                        else:
+                            with data_expander:
+                                if value > remaining_limit:
+                                    st.error(
+                                        body="""
+                                        O valor é maior que o limite restante.
+                                        """
+                                        )
+                                if description == "":
+                                    st.error(body="A descrição está vazia.")
+                                if category == "Selecione uma opção":
+                                    st.error(body="Selecione uma categoria.")
+                                if (
+                                    inputed_credit_card_code
+                                ) != credit_card_code:
+                                    st.error(body="Código do cartão inválido.")
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);
-                        '''
-                        log_values = (
-                            logged_user,
-                            "Registro",
-                            """Registrou uma despesa de cartã
-                            no valor de R$ {} associada a conta {}.
-                            """.format(
-                                str_value,
-                                card
-                            )
-                        )
-                        QueryExecutor().insert_query(
-                            log_query,
-                            log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
-                        )
-
-                        Receipts().generate_receipt(
-                            'despesas_cartao_credito',
-                            input_id,
-                            description,
-                            value,
-                            str(date),
-                            category,
-                            card_associated_account
-                        )
-
-                    else:
-                        with data_expander:
-                            if value > remaining_limit:
-                                st.error(
+                    elif invoices_quantity == 0:
+                        with col2:
+                            with st.spinner(text="Aguarde..."):
+                                sleep(2.5)
+                            st.subheader(
+                                body=":white_check_mark: Validação de Dados"
+                                )
+                            with st.expander(
+                                label="Validação de Dados",
+                                expanded=True
+                            ):
+                                st.warning(
                                     body="""
-                                    O valor é maior que o limite restante.
-                                    """
-                                    )
-                            if description == "":
-                                st.error(body="A descrição está vazia.")
-                            if category == "Selecione uma opção":
-                                st.error(body="Selecione uma categoria.")
-                            if inputed_credit_card_code != credit_card_code:
-                                st.error(body="Código do cartão inválido.")
+                                        Você ainda não cadastrou
+                                        fechamentos de fatura para o cartão {}.
+                                        """.format(card)
+                                )

@@ -57,7 +57,6 @@ class AccountStatement:
 
         placeholders = ", ".join(["%s"] * len(accounts))
 
-        # Modificando a consulta para usar os placeholders corretamente
         revenues_query = revenues_statement_query.replace(
             "IN %s", f"IN ({placeholders})"
         )
@@ -518,7 +517,7 @@ class AccountStatement:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -551,6 +550,8 @@ class AccountStatement:
                 consult_tables = st.button(label=":chart: Gerar Relatórios")
 
             if confirm_choice and consult_tables:
+                medium_value = 0
+
                 with col5:
                     with st.spinner(text="Aguarde..."):
                         sleep(2.5)

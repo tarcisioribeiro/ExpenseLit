@@ -3,6 +3,7 @@ from dictionary.vars import TRANSFER_CATEGORIES, TO_REMOVE_LIST
 from dictionary.sql import (
     last_transfer_id_query,
     user_current_accounts_query,
+    unique_account_id_query,
     total_account_revenue_query,
     total_account_expense_query,
     user_fund_accounts_query
@@ -37,7 +38,7 @@ class NewTransfer:
             query=user_fund_accounts_query,
             params=(user_name, user_document)
         )
-        user_fund_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_fund_accounts = QueryExecutor().treat_simple_results(
             user_fund_accounts,
             TO_REMOVE_LIST
         )
@@ -45,7 +46,7 @@ class NewTransfer:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -57,11 +58,11 @@ class NewTransfer:
                     contas de fundo de garantia.
                     """
                 )
-        if len(user_current_accounts) == 0:
+        elif len(user_current_accounts) == 0:
             with col5:
                 st.info(
                     body="Você ainda não possui contas correntes.")
-        if len(user_fund_accounts) == 0:
+        elif len(user_fund_accounts) == 0:
             with col5:
                 st.info(
                     body="Você ainda não possui contas de fundo de garantia."
@@ -142,11 +143,29 @@ class NewTransfer:
                         )
 
                         with data_validation_expander:
+                            origin_account_id = (
+                                QueryExecutor().simple_consult_query(
+                                    query=unique_account_id_query,
+                                    params=(
+                                        origin_account,
+                                        user_name,
+                                        user_document
+                                    )
+                                )
+                            )
+                            origin_account_id = (
+                                QueryExecutor().treat_simple_result(
+                                    origin_account_id,
+                                    TO_REMOVE_LIST
+                                )
+                            )
+                            st.info(origin_account_id)
+
                             str_selected_account_revenues = (
                                 QueryExecutor().simple_consult_query(
                                     query=total_account_revenue_query,
                                     params=(
-                                        origin_account,
+                                        origin_account_id,
                                         user_name,
                                         user_document
                                     )
@@ -426,7 +445,7 @@ class NewTransfer:
             query=user_current_accounts_query,
             params=(user_name, user_document)
         )
-        user_current_accounts = QueryExecutor().treat_numerous_simple_result(
+        user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
             TO_REMOVE_LIST
         )
@@ -514,12 +533,46 @@ class NewTransfer:
                             expanded=True
                         )
 
+                        origin_account_id = (
+                            QueryExecutor().simple_consult_query(
+                                query=unique_account_id_query,
+                                params=(
+                                    origin_account,
+                                    user_name,
+                                    user_document
+                                )
+                            )
+                        )
+                        origin_account_id = (
+                            QueryExecutor().treat_simple_result(
+                                origin_account_id,
+                                TO_REMOVE_LIST
+                            )
+                        )
+
+                        destiny_account_id = (
+                            QueryExecutor().simple_consult_query(
+                                query=unique_account_id_query,
+                                params=(
+                                    destiny_account,
+                                    user_name,
+                                    user_document
+                                )
+                            )
+                        )
+                        destiny_account_id = (
+                            QueryExecutor().treat_simple_result(
+                                destiny_account_id,
+                                TO_REMOVE_LIST
+                            )
+                        )
+
                         with data_validation_expander:
                             str_selected_account_revenues = (
                                 QueryExecutor().simple_consult_query(
                                     query=total_account_revenue_query,
                                     params=(
-                                        origin_account,
+                                        origin_account_id,
                                         user_name,
                                         user_document
                                     )
@@ -644,8 +697,8 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            origin_account,
-                            destiny_account,
+                            origin_account_id,
+                            destiny_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
@@ -656,7 +709,7 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            origin_account,
+                            origin_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
@@ -667,7 +720,7 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            destiny_account,
+                            destiny_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
