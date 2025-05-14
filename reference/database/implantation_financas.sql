@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 9.3.0, for Linux (x86_64)
 --
 -- Host: localhost    Database: financas
 -- ------------------------------------------------------
--- Server version	8.0.42-0ubuntu0.24.04.1
+-- Server version	9.3.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -19,7 +19,7 @@
 -- Current Database: `financas`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `financas` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `financas` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `financas`;
 
@@ -98,6 +98,7 @@ CREATE TABLE `cartao_credito` (
   UNIQUE KEY `chave_cartao` (`numero_cartao`,`doc_titular_cartao`,`id_conta_associada`),
   UNIQUE KEY `unq_cartao_credito_nome_cartao` (`nome_cartao`,`numero_cartao`),
   UNIQUE KEY `unq_cartao_credito_id_prop_cartao` (`id_prop_cartao`,`doc_titular_cartao`),
+  UNIQUE KEY `unq_cartao_credito_id` (`id`,`numero_cartao`),
   KEY `fk_cartao_credito_conta` (`id_conta_associada`),
   CONSTRAINT `fk_cartao_credito_conta` FOREIGN KEY (`id_conta_associada`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -113,6 +114,78 @@ LOCK TABLES `cartao_credito` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `categorias_despesa`
+--
+
+DROP TABLE IF EXISTS `categorias_despesa`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categorias_despesa` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categorias_despesa`
+--
+
+LOCK TABLES `categorias_despesa` WRITE;
+/*!40000 ALTER TABLE `categorias_despesa` DISABLE KEYS */;
+INSERT INTO `categorias_despesa` VALUES (1,'Casa'),(2,'Eletroeletrônicos'),(3,'Entretenimento'),(4,'Lazer'),(5,'Presente'),(6,'Restaurante'),(7,'Saúde'),(8,'Serviços'),(9,'Supermercado'),(10,'Transporte'),(11,'Vestuário');
+/*!40000 ALTER TABLE `categorias_despesa` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categorias_receita`
+--
+
+DROP TABLE IF EXISTS `categorias_receita`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categorias_receita` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categorias_receita`
+--
+
+LOCK TABLES `categorias_receita` WRITE;
+/*!40000 ALTER TABLE `categorias_receita` DISABLE KEYS */;
+INSERT INTO `categorias_receita` VALUES (1,'Ajuste'),(2,'Depósito'),(3,'Entretenimento'),(4,'Prêmio'),(5,'Salário'),(6,'Vale'),(7,'Saúde'),(8,'Rendimentos');
+/*!40000 ALTER TABLE `categorias_receita` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categorias_transferencia`
+--
+
+DROP TABLE IF EXISTS `categorias_transferencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categorias_transferencia` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categorias_transferencia`
+--
+
+LOCK TABLES `categorias_transferencia` WRITE;
+/*!40000 ALTER TABLE `categorias_transferencia` DISABLE KEYS */;
+INSERT INTO `categorias_transferencia` VALUES (1,'DOC'),(2,'TED'),(3,'Pix');
+/*!40000 ALTER TABLE `categorias_transferencia` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `contas`
 --
 
@@ -121,17 +194,15 @@ DROP TABLE IF EXISTS `contas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contas` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nome_conta` varchar(100) NOT NULL,
   `id_tipo_conta` int NOT NULL,
+  `nome_conta` varchar(100) NOT NULL,
   `id_prop_conta` int NOT NULL,
   `doc_prop_conta` varchar(11) NOT NULL,
   `caminho_imagem` varchar(255) NOT NULL DEFAULT 'default.png',
   `inativa` char(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unq_contas_proprietario_conta` (`id_tipo_conta`,`doc_prop_conta`),
-  KEY `fk_proprietario_conta` (`id_prop_conta`,`doc_prop_conta`),
-  CONSTRAINT `fk_proprietario_conta` FOREIGN KEY (`id_prop_conta`, `doc_prop_conta`) REFERENCES `usuarios` (`id`, `documento`),
-  CONSTRAINT `fk_tipo_conta` FOREIGN KEY (`id_tipo_conta`) REFERENCES `modelos_conta` (`id`)
+  UNIQUE KEY `unq_conta` (`id_tipo_conta`,`nome_conta`,`id_prop_conta`,`doc_prop_conta`),
+  CONSTRAINT `fk_id_tipo_conta` FOREIGN KEY (`id_tipo_conta`) REFERENCES `tipos_conta` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -190,10 +261,9 @@ CREATE TABLE `despesas` (
   `pago` char(1) NOT NULL DEFAULT 'S',
   PRIMARY KEY (`id`),
   UNIQUE KEY `chave_despesa` (`valor`,`data`,`horario`,`categoria`,`id_conta`,`id_prop_despesa`,`doc_prop_despesa`),
-  KEY `fk_despesas_contas` (`id_conta`),
   KEY `fk_proprietario_despesa` (`id_prop_despesa`,`doc_prop_despesa`),
-  CONSTRAINT `fk_despesas_contas` FOREIGN KEY (`id_conta`) REFERENCES `contas` (`id`),
-  CONSTRAINT `fk_proprietario_despesa` FOREIGN KEY (`id_prop_despesa`, `doc_prop_despesa`) REFERENCES `contas` (`id_tipo_conta`, `doc_prop_conta`)
+  KEY `fk_despesas_contas` (`id_conta`),
+  CONSTRAINT `fk_despesas_contas` FOREIGN KEY (`id_conta`) REFERENCES `contas` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -294,23 +364,21 @@ DROP TABLE IF EXISTS `fechamentos_cartao`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `fechamentos_cartao` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nome_cartao` varchar(100) NOT NULL,
+  `id_cartao` int NOT NULL,
   `numero_cartao` varchar(16) NOT NULL,
   `id_prop_cartao` int NOT NULL,
   `doc_prop_cartao` varchar(11) NOT NULL,
-  `id_ano` int NOT NULL,
-  `id_mes` int NOT NULL,
+  `ano` int NOT NULL,
+  `mes` varchar(100) NOT NULL,
   `data_comeco_fatura` date NOT NULL,
   `data_fim_fatura` date NOT NULL,
   `fechado` varchar(1) DEFAULT 'N',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `chave_fechamento_cartao` (`numero_cartao`,`doc_prop_cartao`,`id_ano`,`id_mes`),
-  KEY `fk_fechamentos_cartao` (`nome_cartao`,`numero_cartao`),
-  KEY `fk_ano_fechamento` (`id_ano`),
-  KEY `fk_mes_fechamento` (`id_mes`),
-  CONSTRAINT `fk_ano_fechamento` FOREIGN KEY (`id_ano`) REFERENCES `anos` (`id`),
-  CONSTRAINT `fk_fechamentos_cartao` FOREIGN KEY (`nome_cartao`, `numero_cartao`) REFERENCES `cartao_credito` (`nome_cartao`, `numero_cartao`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_mes_fechamento` FOREIGN KEY (`id_mes`) REFERENCES `meses` (`id`)
+  UNIQUE KEY `chave_fechamento_cartao` (`numero_cartao`,`doc_prop_cartao`,`ano`,`mes`),
+  KEY `fk_fechamentos_cartao` (`id_cartao`,`numero_cartao`),
+  KEY `fk_ano_fechamento` (`ano`),
+  KEY `fk_mes_fechamento` (`mes`),
+  CONSTRAINT `fk_chave_cartao` FOREIGN KEY (`id_cartao`, `numero_cartao`) REFERENCES `cartao_credito` (`id`, `numero_cartao`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -385,11 +453,13 @@ DROP TABLE IF EXISTS `modelos_conta`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modelos_conta` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `nome_instituicao` varchar(100) NOT NULL,
-  `tipo` varchar(50) DEFAULT (_utf8mb4'Conta Corrente'),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `id_tipo` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_id_tipo` (`id_tipo`),
+  CONSTRAINT `fk_tipo_conta` FOREIGN KEY (`id_tipo`) REFERENCES `tipos_conta` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -398,7 +468,7 @@ CREATE TABLE `modelos_conta` (
 
 LOCK TABLES `modelos_conta` WRITE;
 /*!40000 ALTER TABLE `modelos_conta` DISABLE KEYS */;
-INSERT INTO `modelos_conta` VALUES (1,'Nubank','Conta Corrente'),(2,'Sicoob','Conta Corrente'),(3,'Mercado Pago','Conta Corrente'),(4,'Ifood Benefícios','Vale Alimentação'),(5,'Caixa Econômica Federal','Fundo de Garantia');
+INSERT INTO `modelos_conta` VALUES (1,'Nubank',1),(2,'Sicoob',1),(3,'Mercado Pago',1),(4,'Ifood Benefícios',4),(5,'Caixa Econômica Federal',3);
 /*!40000 ALTER TABLE `modelos_conta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -424,7 +494,6 @@ CREATE TABLE `receitas` (
   UNIQUE KEY `chave_despesa` (`valor`,`data`,`horario`,`categoria`,`id_conta`,`id_prop_receita`,`doc_prop_receita`),
   KEY `fk_proprietario_receita` (`id_prop_receita`,`doc_prop_receita`),
   KEY `fk_receitas_contas` (`id_conta`),
-  CONSTRAINT `fk_proprietario_receita` FOREIGN KEY (`id_prop_receita`, `doc_prop_receita`) REFERENCES `contas` (`id_tipo_conta`, `doc_prop_conta`),
   CONSTRAINT `fk_receitas_contas` FOREIGN KEY (`id_conta`) REFERENCES `contas` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -436,6 +505,30 @@ CREATE TABLE `receitas` (
 LOCK TABLES `receitas` WRITE;
 /*!40000 ALTER TABLE `receitas` DISABLE KEYS */;
 /*!40000 ALTER TABLE `receitas` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tipos_conta`
+--
+
+DROP TABLE IF EXISTS `tipos_conta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tipos_conta` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tipos_conta`
+--
+
+LOCK TABLES `tipos_conta` WRITE;
+/*!40000 ALTER TABLE `tipos_conta` DISABLE KEYS */;
+INSERT INTO `tipos_conta` VALUES (1,'Conta Corrente'),(2,'Conta Salário'),(3,'Fundo de Garantia'),(4,'Vale Alimentação');
+/*!40000 ALTER TABLE `tipos_conta` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -546,4 +639,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-09  8:32:11
+-- Dump completed on 2025-05-13 21:20:08

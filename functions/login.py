@@ -1,13 +1,31 @@
-import streamlit as st
-import mysql.connector
 import bcrypt
+import streamlit as st
 import uuid
-from dictionary.vars import TO_REMOVE_LIST, ABSOLUTE_APP_PATH
-from dictionary.db_config import db_config
+from dictionary.sql.benefited_queries import (
+    new_benefited_query
+)
+from dictionary.sql.creditor_queries import (
+    insert_creditor_query
+)
+from dictionary.sql.others_queries import (
+    register_session_query
+)
+from dictionary.sql.user_queries import (
+    check_user_query,
+    count_users_query,
+    document_exists_query,
+    insert_new_user_query,
+    name_query,
+    password_query,
+    user_login_query,
+    user_data_query,
+    sex_query,
+)
+
+from dictionary.vars import ABSOLUTE_APP_PATH, TO_REMOVE_LIST
+from functions.validate_document import Documents
 from functions.query_executor import QueryExecutor
 from time import sleep
-from dictionary.sql import check_user_query
-from functions.validate_document import Documents
 
 
 class CreateUser:
@@ -98,8 +116,10 @@ class CreateUser:
         query_executor = QueryExecutor()
         document = Documents()
 
-        check_user_quantity = query_executor.simple_consult_brute_query(
-            check_user_query)
+        check_user_quantity = query_executor.simple_consult_query(
+            check_user_query,
+            ()
+        )
         check_user_quantity = query_executor.treat_simple_result(
             check_user_quantity, TO_REMOVE_LIST)
         check_user_quantity = int(check_user_quantity)
@@ -128,21 +148,25 @@ class CreateUser:
         with col4:
             st.subheader(body=":computer: Entrada de Dados")
             with st.expander(label="Dados de login", expanded=True):
-                user_login = st.text_input(label="Login de usuário",
-                                           max_chars=25,
-                                           help="""
-                                           O login deve conter apenas
-                                           letras minúsculas, sem espaços.""",)
-                user_password = st.text_input(label="Senha de usuário",
-                                              max_chars=100,
-                                              help="""A senha deve conter ao
-                                              mínimo 8 caracteres,
-                                              1 letra maiúscula,
-                                              1 minúscula e
-                                              1 caractere especial,
-                                              sem espaços.""",
-                                              type="password",
-                                              key="user_password")
+                user_login = st.text_input(
+                    label="Login de usuário",
+                    max_chars=25,
+                    help="""
+                        O login deve conter apenas
+                        letras minúsculas, sem espaços.
+                    """,
+                )
+                user_password = st.text_input(
+                    label="Senha de usuário",
+                    max_chars=100,
+                    help="""
+                    A senha deve conter ao mínimo 8 caracteres,
+                    1 letra maiúscula, 1 minúscula e 1 caractere especial,
+                    sem espaços.
+                    """,
+                    type="password",
+                    key="user_password"
+                )
                 confirm_user_password = st.text_input(
                     label="Confirmação de senha",
                     max_chars=100,
@@ -192,18 +216,21 @@ class CreateUser:
                         with st.spinner(text="Aguarde..."):
                             sleep(2.5)
                         st.subheader(
-                            body=":white_check_mark: Validação de Dados")
+                            body=":white_check_mark: Validação de Dados"
+                        )
                         with st.expander(
                             label="Validação dos dados",
                             expanded=True
                         ):
                             is_document_valid = (
                                 document.validate_owner_document(
-                                    user_document)
+                                    user_document
+                                )
                             )
                             valid_login = self.is_login_valid(user_login)
                             valid_password = self.is_password_valid(
-                                user_password)
+                                user_password
+                            )
 
                             if (
                                     user_login != ""
@@ -217,21 +244,10 @@ class CreateUser:
                             ):
 
                                 hashed_password = self.hash_password(
-                                    user_password)
+                                    user_password
+                                )
 
                                 if check_user_quantity == 0:
-                                    insert_new_user_query = """
-                                    INSERT INTO
-                                        usuarios (
-                                            login,
-                                            senha,
-                                            nome,
-                                            documento,
-                                            telefone,
-                                            email,
-                                            sexo
-                                        )
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s);"""
                                     new_user_values = (
                                         user_login,
                                         hashed_password,
@@ -248,33 +264,16 @@ class CreateUser:
                                         "Erro ao cadastrar novo usuário:"
                                     )
 
-                                    log_query = '''
-                                    INSERT INTO
-                                        financas.logs_atividades (
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                        )
-                                    VALUES ( %s, %s, %s);'''
                                     log_values = (
                                         1,
                                         "Registro",
                                         "O usuário foi cadastrado no sistema."
                                     )
-                                    query_executor.insert_query(
-                                        log_query,
-                                        log_values,
-                                        "Log gravado.",
-                                        "Erro ao gravar log:"
+
+                                    query_executor.register_log_query(
+                                        log_values
                                     )
 
-                                    new_creditor_query = """
-                                    INSERT INTO credores (
-                                        nome,
-                                        documento,
-                                        telefone
-                                    )
-                                    VALUES (%s, %s, %s);"""
                                     new_creditor_values = (
                                         user_name,
                                         user_document,
@@ -282,20 +281,12 @@ class CreateUser:
                                     )
 
                                     query_executor.insert_query(
-                                        new_creditor_query,
+                                        insert_creditor_query,
                                         new_creditor_values,
                                         "Credor cadastrado.",
                                         "Erro ao cadastrar credor:"
                                     )
 
-                                    log_query = '''
-                                    INSERT INTO
-                                        financas.logs_atividades (
-                                            usuario_log,
-                                            tipo_log,
-                                            conteudo_log
-                                        )
-                                    VALUES ( %s, %s, %s);'''
                                     log_values = (
                                         1,
                                         "Registro",
@@ -306,20 +297,9 @@ class CreateUser:
                                             user_document
                                         )
                                     )
-                                    query_executor.insert_query(
-                                        log_query,
-                                        log_values,
-                                        "Log gravado.",
-                                        "Erro ao gravar log:"
+                                    query_executor.register_log_query(
+                                        log_values
                                     )
-
-                                    new_benefited_query = """
-                                    INSERT INTO beneficiados (
-                                        nome,
-                                        documento,
-                                        telefone
-                                    )
-                                    VALUES (%s, %s, %s);"""
 
                                     new_benefited_values = (
                                         user_name,
@@ -334,14 +314,6 @@ class CreateUser:
                                         "Erro ao cadastrar beneficiado:"
                                     )
 
-                                    log_query = '''
-                                    INSERT INTO
-                                        financas.logs_atividades (
-                                            usuario_log,
-                                            tipo_log,
-                                            conteudo_log
-                                        )
-                                    VALUES ( %s, %s, %s);'''
                                     log_values = (
                                         1,
                                         "Registro",
@@ -352,11 +324,9 @@ class CreateUser:
                                             user_document
                                         )
                                     )
-                                    query_executor.insert_query(
-                                        log_query,
-                                        log_values,
-                                        "Log gravado.",
-                                        "Erro ao gravar log:"
+
+                                    query_executor.register_log_query(
+                                        log_values
                                     )
                                     sleep(2.5)
 
@@ -367,15 +337,6 @@ class CreateUser:
                                 elif check_user_quantity >= 1:
 
                                     with col6:
-                                        document_exists_query = (
-                                            """
-                                            SELECT
-                                                COUNT(id)
-                                            FROM
-                                                usuarios
-                                            WHERE
-                                                documento = %s;
-                                            """)
                                         check_if_user_exists = (
                                             QueryExecutor.simple_consult_query(
                                                 query=document_exists_query,
@@ -392,20 +353,6 @@ class CreateUser:
                                             check_if_user_exists)
 
                                         if check_if_user_exists == 0:
-                                            insert_new_user_query = """
-                                            INSERT INTO
-                                                usuarios (
-                                                    login,
-                                                    senha,
-                                                    nome,
-                                                    documento,
-                                                    telefone,
-                                                    email,
-                                                    sexo
-                                                )
-                                            VALUES (
-                                                %s, %s, %s, %s, %s, %s, %s
-                                            );"""
                                             new_user_values = (
                                                 user_login,
                                                 hashed_password,
@@ -423,14 +370,6 @@ class CreateUser:
                                             )
                                             sleep(2.5)
 
-                                            log_query = '''
-                                            INSERT INTO
-                                                financas.logs_atividades (
-                                                    usuario_log,
-                                                    tipo_log,
-                                                    conteudo_log
-                                                )
-                                            VALUES ( %s, %s, %s);'''
                                             log_values = (
                                                 1,
                                                 "Registro",
@@ -441,20 +380,10 @@ class CreateUser:
                                                     user_document
                                                 )
                                             )
-                                            query_executor.insert_query(
-                                                log_query,
-                                                log_values,
-                                                "Log gravado.",
-                                                "Erro ao gravar log:"
+                                            query_executor.register_log_query(
+                                                log_values
                                             )
 
-                                            new_creditor_query = """
-                                            INSERT INTO credores (
-                                                nome,
-                                                documento,
-                                                telefone
-                                            )
-                                            VALUES (%s, %s, %s);"""
                                             new_creditor_values = (
                                                 user_name,
                                                 user_document,
@@ -462,20 +391,12 @@ class CreateUser:
                                             )
 
                                             query_executor.insert_query(
-                                                new_creditor_query,
+                                                insert_creditor_query,
                                                 new_creditor_values,
                                                 "Credor cadastrado."
                                                 "Erro ao cadastrar credor:"
                                             )
 
-                                            log_query = '''
-                                            INSERT INTO
-                                                financas.logs_atividades (
-                                                    usuario_log,
-                                                    tipo_log,
-                                                    conteudo_log
-                                                )
-                                            VALUES ( %s, %s, %s);'''
                                             log_values = (
                                                 1,
                                                 "Registro",
@@ -486,20 +407,9 @@ class CreateUser:
                                                     user_document
                                                 )
                                             )
-                                            query_executor.insert_query(
-                                                log_query,
-                                                log_values,
-                                                "Log gravado.",
-                                                "Erro ao gravar log:"
+                                            query_executor.register_log_query(
+                                                log_values
                                             )
-
-                                            new_benefited_query = """
-                                            INSERT INTO credores (
-                                                nome,
-                                                documento,
-                                                telefone
-                                            )
-                                            VALUES (%s, %s, %s);"""
 
                                             new_benefited_values = (
                                                 user_name,
@@ -516,14 +426,6 @@ class CreateUser:
                                                 """
                                             )
 
-                                            log_query = '''
-                                            INSERT INTO
-                                                financas.logs_atividades (
-                                                    usuario_log,
-                                                    tipo_log,
-                                                    conteudo_log
-                                                )
-                                            VALUES ( %s, %s, %s);'''
                                             log_values = (
                                                 1,
                                                 "Registro",
@@ -534,18 +436,19 @@ class CreateUser:
                                                     user_document
                                                 )
                                             )
-                                            query_executor.insert_query(
-                                                log_query,
-                                                log_values,
-                                                "Log gravado.",
-                                                "Erro ao gravar log:"
+
+                                            query_executor.register_log_query(
+                                                log_values
                                             )
+
                                             sleep(2.5)
 
                                         elif check_if_user_exists >= 1:
-                                            st.error("""Já existe um usuário
+                                            st.error(
+                                                """Já existe um usuário
                                                 associado ao documento {}.
-                                                """.format(user_document))
+                                                """.format(user_document)
+                                            )
 
                             elif (
                                     user_login == ""
@@ -594,15 +497,10 @@ class Login:
     com métodos de validação e obtenção dos dados de login.
     """
 
-    def get_user_data(self, return_option: str):
+    def get_user_data(self):
         """
         Faz a consulta dos dados do usuário,
         de acordo com a opção de dados retornados selecionada.
-
-        Parameters
-        ----------
-        return_option : str
-            Define os dados que serão retornados pela função.
 
         Returns
         -------
@@ -611,71 +509,23 @@ class Login:
         user_document : str
             Documento do usuário logado.
         """
-        user_login_query = ""
-        user_data_query = ""
 
-        if return_option == "user_doc_name":
-            user_data_query = """
-            SELECT
-                usuarios.id, usuarios.documento
-            FROM
-                usuarios
-            INNER JOIN
-                usuarios_logados
-            ON
-                usuarios.id = usuarios_logados.usuario_id
-            WHERE
-                usuarios_logados.sessao_id = %s;
-            """
-
-            user_data = (
-                QueryExecutor().complex_compund_query(
-                    query=user_data_query,
-                    list_quantity=2,
-                    params=(st.session_state.sessao_id,)
-                )
+        user_data = (
+            QueryExecutor().complex_compund_query(
+                query=user_login_query,
+                list_quantity=2,
+                params=(st.session_state.sessao_id,)
             )
-            user_data = QueryExecutor().treat_complex_result(
-                values_to_treat=user_data, values_to_remove=TO_REMOVE_LIST)
+        )
+        user_data = QueryExecutor().treat_complex_result(
+            values_to_treat=user_data,
+            values_to_remove=TO_REMOVE_LIST
+        )
 
-            user_name = int(user_data[0])
-            user_document = user_data[1]
+        user_id = int(user_data[0])
+        user_document = user_data[1]
 
-            return user_name, user_document
-
-        elif return_option == "user_login_password":
-
-            user_login_query = """
-            SELECT usuarios.id, usuarios.senha
-            FROM usuarios
-            INNER JOIN usuarios_logados
-            ON
-                usuarios.id = usuarios_logados.usuario_id
-            WHERE usuarios_logados.sessao_id = %s
-            """
-
-            user_login_data = (
-                QueryExecutor().complex_compund_query(
-                    query=user_login_query,
-                    list_quantity=2,
-                    params=(st.session_state.sessao_id,)
-                )
-            )
-            user_login_data = QueryExecutor().treat_complex_result(
-                values_to_treat=user_login_data,
-                values_to_remove=TO_REMOVE_LIST
-            )
-
-            user_login = user_login_data[0]
-            user_password = str(user_login_data[1])
-
-            if user_password.startswith('b'):
-                user_password = user_password[1:]
-
-            return user_login, user_password
-
-        else:
-            st.error(body="Parâmetro não reconhecido.")
+        return user_id, user_document
 
     def validate_login(self, login: str, password: str):
         """
@@ -690,14 +540,8 @@ class Login:
         """
 
         check_if_user_exists = QueryExecutor().simple_consult_query(
-            query="""
-            SELECT
-                COUNT(id)
-            FROM
-                usuarios
-            WHERE
-                login = %s AND senha = %s""",
-            params=(login, password)
+            count_users_query,
+            (login, password)
         )
         check_if_user_exists = QueryExecutor().treat_simple_result(
             check_if_user_exists, TO_REMOVE_LIST)
@@ -726,12 +570,11 @@ class Login:
         hashed_password : str
             A senha do usuário encriptada.
         """
-        connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor()
 
-        query = "SELECT senha FROM usuarios WHERE login = %s"
-        cursor.execute(query, (user,))
-        result = cursor.fetchone()
+        result = QueryExecutor().simple_consult_query(
+            password_query,
+            (user,)
+        )
 
         if result:
             hashed_password = result[0].encode(
@@ -765,19 +608,12 @@ class Login:
         """
         session_id = str(uuid.uuid4())
 
-        register_session_query = """
-        INSERT INTO
-            usuarios_logados (
-                usuario_id,
-                nome_completo,
-                documento,
-                sessao_id
-            )
-        VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            data_login = CURRENT_TIMESTAMP, sessao_id = VALUES(sessao_id);"""
-        session_values = (logged_user_id, logged_user_name,
-                          logged_user_document, session_id)
+        session_values = (
+            logged_user_id,
+            logged_user_document,
+            logged_user_name,
+            session_id
+        )
 
         QueryExecutor.insert_query(
             self,
@@ -789,7 +625,7 @@ class Login:
 
         sleep(1.25)
 
-        st.session_state.usuario_id = logged_user_id
+        st.session_state.id_usuario = logged_user_id
         st.session_state.sessao_id = session_id
 
     def check_user(self):
@@ -803,34 +639,24 @@ class Login:
         sex : str
             O sexo do usuário.
         """
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
-
-        name_query: str = """
-        SELECT
-            nome
-        FROM
-            usuarios
-        WHERE
-            id = %s
-        AND
-            senha = %s;
-        """
-        sex_query: str = """
-        SELECT
-            sexo
-        FROM
-            usuarios
-        WHERE
-            id = %s AND senha = %s;"""
+        user_id, user_document = Login().get_user_data()
 
         name = QueryExecutor().simple_consult_query(
-            query=name_query, params=(logged_user, logged_user_password))
+            name_query,
+            (
+                user_id,
+                user_document
+            )
+        )
         name = QueryExecutor().treat_simple_result(name, TO_REMOVE_LIST)
 
         sex = QueryExecutor().simple_consult_query(
-            query=sex_query, params=(logged_user, logged_user_password))
+            sex_query,
+            (
+                user_id,
+                user_document
+            )
+        )
         sex = QueryExecutor().treat_simple_result(sex, TO_REMOVE_LIST)
 
         return name, sex
@@ -860,7 +686,6 @@ class Login:
         """
         Realiza a coleta dos dados de login do usuário.
         """
-        query_executor = QueryExecutor()
 
         col1, col2, col3 = st.columns(3)
 
@@ -884,18 +709,9 @@ class Login:
                                 sleep(1)
                                 st.toast("Login bem-sucedido!")
 
-                                name_doc_query = """
-                                SELECT
-                                    id, nome, documento
-                                FROM
-                                    usuarios
-                                WHERE
-                                    login = %s AND senha = %s;
-                                """
-
                                 user_name_doc = (
                                     QueryExecutor().complex_compund_query(
-                                        query=name_doc_query,
+                                        query=user_data_query,
                                         list_quantity=3,
                                         params=(user, hashed_password)
                                     )
@@ -911,24 +727,14 @@ class Login:
                                 user_name = str(user_name_doc[1])
                                 user_document = str(user_name_doc[2])
 
-                                log_query = '''
-                                INSERT INTO
-                                    logs_atividades (
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    )
-                                VALUES (%s, %s, %s);'''
                                 log_values = (
                                     user_id,
                                     'Acesso',
                                     'O usuário acessou o sistema.'
                                 )
-                                query_executor.insert_query(
-                                    log_query,
-                                    log_values,
-                                    "Log gravado.",
-                                    "Erro ao gravar log:"
+
+                                QueryExecutor().register_log_query(
+                                    log_values
                                 )
 
                                 self.register_login(

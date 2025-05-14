@@ -1,4 +1,11 @@
 from datetime import datetime
+from dictionary.sql.others_queries import (
+    accounts_type_query,
+    expense_categories_query,
+    revenue_categories_query,
+    transfer_categories_query
+)
+from functions.query_executor import QueryExecutor
 import os
 
 operational_system = os.name
@@ -34,7 +41,6 @@ DEFAULT_ACCOUNT_IMAGE = "default.png"
 
 today = datetime.now()
 today = today.date()
-actual_horary = datetime.now().strftime("%H:%M:%S")
 actual_year = today.year
 actual_year = str(actual_year)
 actual_month = today.month
@@ -44,62 +50,8 @@ first_month_day = first_month_day.date()
 today = str(today)
 first_month_day = str(first_month_day)
 
-MONTHS_DICTIONARY = {
-    1: "Janeiro",
-    2: "Fevereiro",
-    3: "Março",
-    4: "Abril",
-    5: "Maio",
-    6: "Junho",
-    7: "Julho",
-    8: "Agosto",
-    9: "Setembro",
-    10: "Outubro",
-    11: "Novembro",
-    12: "Dezembro"
-}
 
-string_actual_month = MONTHS_DICTIONARY[actual_month]
-
-SPECIAL_CARACTERS_DICTIONARY = {
-    "í": "i",
-    "ú": "u",
-    "ô": "o",
-}
-
-EXPENSE_CATEGORIES: list = [
-    "Casa",
-    "Eletroeletrônicos",
-    "Entretenimento",
-    "Lazer",
-    "Presente",
-    "Restaurante",
-    "Saúde",
-    "Serviços",
-    "Supermercado",
-    "Transporte",
-    "Vestuário"
-]
-
-REVENUE_CATEGORIES: list = [
-    "Ajuste",
-    "Depósito",
-    "Prêmio",
-    "Salário",
-    "Vale",
-    "Rendimentos"
-]
-
-TRANSFER_CATEGORIES: list = ["DOC", "TED", "Pix"]
-
-ACCOUNTS_TYPE = [
-    "Conta Corrente",
-    "Conta Salário",
-    "Fundo de Garantia",
-    "Vale Alimentação"
-]
-
-TO_REMOVE_LIST: list = [
+TO_REMOVE_LIST = [
     "'",
     ")",
     "(",
@@ -110,6 +62,48 @@ TO_REMOVE_LIST: list = [
     "]",
     "datetime.date"
 ]
+
+SPECIAL_CARACTERS_DICTIONARY = {
+    "í": "i",
+    "ú": "u",
+    "ô": "o",
+}
+
+EXPENSE_CATEGORIES = QueryExecutor().complex_consult_query(
+    expense_categories_query,
+    ()
+)
+EXPENSE_CATEGORIES = QueryExecutor().treat_simple_results(
+    EXPENSE_CATEGORIES,
+    TO_REMOVE_LIST
+)
+
+REVENUE_CATEGORIES = QueryExecutor().complex_consult_query(
+    revenue_categories_query,
+    ()
+)
+REVENUE_CATEGORIES = QueryExecutor().treat_simple_results(
+    REVENUE_CATEGORIES,
+    TO_REMOVE_LIST
+)
+
+TRANSFER_CATEGORIES = QueryExecutor().complex_consult_query(
+    transfer_categories_query,
+    params=()
+)
+TRANSFER_CATEGORIES = QueryExecutor().treat_simple_results(
+    TRANSFER_CATEGORIES,
+    TO_REMOVE_LIST
+)
+
+ACCOUNTS_TYPE = QueryExecutor().complex_consult_query(
+    accounts_type_query,
+    ()
+)
+ACCOUNTS_TYPE = QueryExecutor().treat_simple_results(
+    ACCOUNTS_TYPE,
+    TO_REMOVE_LIST
+)
 
 ABSOLUTE_APP_PATH = os.getcwd()
 

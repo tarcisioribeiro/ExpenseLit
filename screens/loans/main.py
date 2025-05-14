@@ -1,4 +1,4 @@
-from screens.loans.new_loan import TakeNewLoan, MakeNewLoan
+from screens.loans.new_loan import MakeNewLoan, TakeNewLoan
 import streamlit as st
 
 

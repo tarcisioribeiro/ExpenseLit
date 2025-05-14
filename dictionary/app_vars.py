@@ -1,31 +1,47 @@
+from dictionary.sql.others_queries import (
+    account_models_query,
+    get_actual_month_query,
+    months_query,
+    years_query
+)
+from dictionary.vars import actual_month, TO_REMOVE_LIST
 from functions.query_executor import QueryExecutor
 
-to_remove_list: list = [
-    "'",
-    ")",
-    "(",
-    ",",
-    "Decimal",
-    '"',
-    "[",
-    "]",
-    "datetime.date"
-]
 
-months_query = '''SELECT nome_mes FROM meses;'''
-account_models_query = '''SELECT nome_instituicao FROM modelos_conta;'''
-years_query = '''SELECT ano FROM anos;'''
-
-months = QueryExecutor().complex_consult_brute_query(months_query)
-months = QueryExecutor().treat_simple_results(months, to_remove_list)
-
-account_models = QueryExecutor().complex_consult_brute_query(
-    account_models_query
+months = QueryExecutor().complex_consult_query(
+    months_query,
+    ()
 )
-account_models = QueryExecutor().treat_simple_results(
+months = QueryExecutor().treat_simple_results(months, TO_REMOVE_LIST)
+
+account_models = QueryExecutor().complex_compund_query(
+    account_models_query,
+    2,
+    ()
+)
+
+account_models = QueryExecutor().treat_compund_result(
     account_models,
-    to_remove_list
+    TO_REMOVE_LIST
 )
 
-years = QueryExecutor().complex_consult_brute_query(years_query)
-years = QueryExecutor().treat_simple_results(years, to_remove_list)
+values = account_models[0]
+index = account_models[1]
+
+account_models = dict(zip(index, values))
+
+years = QueryExecutor().complex_consult_query(
+    years_query,
+    ()
+)
+
+years = QueryExecutor().treat_simple_results(years, TO_REMOVE_LIST)
+
+string_actual_month = QueryExecutor().simple_consult_query(
+    get_actual_month_query,
+    (actual_month,)
+)
+string_actual_month = QueryExecutor().treat_simple_result(
+    string_actual_month,
+    TO_REMOVE_LIST
+)

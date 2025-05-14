@@ -1,20 +1,30 @@
+from dictionary.app_vars import account_models
+from dictionary.sql.account_queries import (
+    unique_account_id_query,
+    user_all_current_accounts_query,
+    insert_account_query,
+    update_account_query
+)
+from dictionary.sql.expenses_queries import insert_expense_query
+from dictionary.sql.revenues_queries import insert_revenue_query
 from dictionary.vars import (
     ACCOUNTS_TYPE,
-    today,
-    actual_horary,
-    TO_REMOVE_LIST,
-    SAVE_FOLDER,
     DECIMAL_VALUES,
-    DEFAULT_ACCOUNT_IMAGE
+    DEFAULT_ACCOUNT_IMAGE,
+    SAVE_FOLDER,
+    TO_REMOVE_LIST,
+    today
 )
-from dictionary.app_vars import account_models
-from dictionary.sql import user_all_current_accounts_query
+from functions.get_actual_time import GetActualTime
 from functions.login import Login
 from functions.query_executor import QueryExecutor
 from PIL import Image
 from time import sleep
 import os
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class UpdateAccounts:
@@ -26,19 +36,15 @@ class UpdateAccounts:
         """
         Coleta os dados e cadastra uma nova conta.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+        actual_horary = GetActualTime().get_actual_time()
+
         col1, col2, col3 = st.columns(3)
         with col1:
             st.subheader(body=":computer: Entrada de Dados")
             with st.expander(label="Dados cadastrais", expanded=True):
                 account_name = st.selectbox(
                     label=":lower_left_ballpoint_pen: Nome da conta",
-                    options=account_models
+                    options=account_models.keys()
                 )
                 account_type = st.selectbox(
                     label=":card_index_dividers: Tipo da conta",
@@ -100,21 +106,10 @@ class UpdateAccounts:
                                 """.format(save_path)
                             )
 
-                        insert_account_query = """
-                        INSERT INTO
-                            contas (
-                                nome_conta,
-                                tipo_conta,
-                                proprietario_conta,
-                                documento_proprietario_conta,
-                                caminho_arquivo_imagem
-                            )
-                        VALUES (%s, %s, %s, %s, %s);
-                        """
                         new_account_values = (
                             account_name,
-                            account_type,
-                            user_name,
+                            account_models[account_name],
+                            user_id,
                             user_document,
                             library_file_name
                         )
@@ -128,21 +123,10 @@ class UpdateAccounts:
                     elif type(get_account_image).__name__ == "NoneType":
                         library_file_name = DEFAULT_ACCOUNT_IMAGE
 
-                        insert_account_query = """
-                        INSERT INTO
-                            contas (
-                                nome_conta,
-                                tipo_conta,
-                                proprietario_conta,
-                                documento_proprietario_conta,
-                                caminho_arquivo_imagem
-                            )
-                        VALUES (%s, %s, %s, %s, %s);
-                        """
                         new_account_values = (
                             account_name,
-                            account_type,
-                            user_name,
+                            account_models[account_name],
+                            user_id,
                             user_document,
                             library_file_name
                         )
@@ -152,58 +136,25 @@ class UpdateAccounts:
                             "Conta cadastrada com sucesso!",
                             "Erro ao cadastrar conta:"
                         )
-                    log_query = '''
-                    INSERT INTO
-                        financas.logs_atividades (
-                            usuario_log,
-                            tipo_log,
-                            conteudo_log
-                        )
-                    VALUES ( %s, %s, %s);
-                    '''
+
                     log_values = (
-                        logged_user,
+                        user_id,
                         "Cadastro",
                         "Cadastrou a conta {}.".format(account_name)
                     )
-                    QueryExecutor().insert_query(
-                        log_query,
-                        log_values,
-                        "Log gravado.",
-                        "Erro ao gravar log:"
+                    QueryExecutor().register_log_query(
+                        log_values
                     )
-                    account_id_query = """
-                    SELECT
-                        id
-                    FROM
-                        contas
-                    WHERE
-                        nome_conta = %s
-                        AND documento_proprietario_conta = %s;
-                    """
                     account_id = QueryExecutor().simple_consult_query(
-                        account_id_query,
-                        params=(account_name, user_document)
+                        unique_account_id_query,
+                        params=(account_name, user_id, user_document)
                     )
                     account_id = QueryExecutor().treat_simple_result(
                         account_id,
                         TO_REMOVE_LIST
                     )
+                    account_id = int(account_id)
 
-                    new_account_first_revenue_query = """
-                    INSERT INTO
-                        receitas (
-                            descricao,
-                            valor,
-                            data,
-                            horario,
-                            categoria,
-                            conta,
-                            proprietario_receita,
-                            documento_proprietario_receita,
-                            recebido
-                        )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     new_account_first_revenue_values = (
                         "Aporte Inicial",
                         get_account_first_value,
@@ -211,25 +162,11 @@ class UpdateAccounts:
                         actual_horary,
                         "Depósito",
                         account_id,
-                        user_name,
+                        user_id,
                         user_document,
                         "S"
                     )
 
-                    new_account_first_future_revenue_query = """
-                    INSERT INTO
-                        receitas (
-                            descricao,
-                            valor,
-                            data,
-                            horario,
-                            categoria,
-                            conta,
-                            proprietario_receita,
-                            documento_proprietario_receita,
-                            recebido
-                        )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     new_account_first_future_revenue_values = (
                         "Aporte Inicial",
                         0,
@@ -237,25 +174,11 @@ class UpdateAccounts:
                         actual_horary,
                         "Depósito",
                         account_id,
-                        user_name,
+                        user_id,
                         user_document,
                         "N"
                     )
 
-                    new_account_first_expense_query = """
-                    INSERT INTO
-                        despesas (
-                            descricao,
-                            valor,
-                            data,
-                            horario,
-                            categoria,
-                            conta,
-                            proprietario_despesa,
-                            documento_proprietario_despesa,
-                            pago
-                        )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     new_account_first_expense_values = (
                         "Valor Inicial",
                         0,
@@ -263,35 +186,10 @@ class UpdateAccounts:
                         actual_horary,
                         "Ajuste",
                         account_id,
-                        user_name,
+                        user_id,
                         user_document,
                         "S")
 
-                    new_account_first_future_expense_query = """
-                    INSERT INTO
-                        despesas (
-                            descricao,
-                            valor,
-                            data,
-                            horario,
-                            categoria,
-                            conta,
-                            proprietario_despesa,
-                            documento_proprietario_despesa,
-                            pago
-                        )
-                    VALUES (
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
-                    );
-                    """
                     new_account_first_future_expense_values = (
                         "Valor Inicial",
                         0,
@@ -299,30 +197,30 @@ class UpdateAccounts:
                         actual_horary,
                         "Ajuste",
                         account_id,
-                        user_name,
+                        user_id,
                         user_document,
                         "N"
                     )
                     QueryExecutor().insert_query(
-                        new_account_first_revenue_query,
+                        insert_revenue_query,
                         new_account_first_revenue_values,
                         "Aporte inicial registrado com sucesso!",
                         "Erro ao registrar aporte inicial:"
                     )
                     QueryExecutor().insert_query(
-                        new_account_first_future_revenue_query,
+                        insert_revenue_query,
                         new_account_first_future_revenue_values,
                         "Aporte inicial registrado com sucesso!",
                         "Erro ao registrar aporte inicial:"
                     )
                     QueryExecutor().insert_query(
-                        new_account_first_expense_query,
+                        insert_expense_query,
                         new_account_first_expense_values,
                         "Valor inicial registrado com sucesso!",
                         "Erro ao registrar valor inicial:"
                     )
                     QueryExecutor().insert_query(
-                        new_account_first_future_expense_query,
+                        insert_expense_query,
                         new_account_first_future_expense_values,
                         "Valor inicial registrado com sucesso!",
                         "Erro ao registrar valor inicial:"
@@ -344,16 +242,11 @@ class UpdateAccounts:
         """
         Realiza a atualização dos dados da conta do usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+
         col1, col2, col3 = st.columns(3)
         user_accounts = QueryExecutor().complex_consult_query(
             query=user_all_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_accounts = QueryExecutor().treat_simple_results(
             user_accounts,
@@ -392,47 +285,25 @@ class UpdateAccounts:
                 inactive_selected_account = options[
                     inactive_selected_account
                 ]
-                update_account_query = '''
-                UPDATE
-                    contas
-                SET
-                    inativa = '{}',
-                    tipo_conta = '{}'
-                WHERE
-                    nome_conta = '{}'
-                    AND proprietario_conta = '{}'
-                    AND documento_proprietario_conta = {};
-                '''.format(
-                    inactive_selected_account,
-                    account_type,
-                    account_selected,
-                    user_name,
-                    user_document
-                )
-                QueryExecutor().update_table_unique_register(
+                QueryExecutor().update_unique_register(
                     update_account_query,
+                    (
+                        inactive_selected_account,
+                        account_type,
+                        account_selected,
+                        user_id,
+                        user_document
+                    ),
                     "Conta atualizada com sucesso!",
                     "Erro ao atualizar conta:"
                 )
-                log_query = '''
-                INSERT INTO
-                    financas.logs_atividades (
-                        usuario_log,
-                        tipo_log,
-                        conteudo_log
-                    )
-                VALUES ( %s, %s, %s);
-                '''
                 log_values = (
-                    logged_user,
+                    user_id,
                     "Atualização",
                     "Atualizou a conta {}.".format(account_selected)
                 )
-                QueryExecutor().insert_query(
-                    log_query,
-                    log_values,
-                    "Log gravado.",
-                    "Erro ao gravar log:"
+                QueryExecutor().register_log_query(
+                    log_values
                 )
 
     def main_menu(self, menu_position):

@@ -1,11 +1,26 @@
-from functions.login import Login
+from dictionary.sql.creditor_queries import (
+    creditors_complete_data_query,
+    creditors_quantity_query,
+    creditors_names_query,
+    get_loans_creditor_ids_query,
+    insert_creditor_query,
+    is_entire_creditor_data_valid_query,
+    is_new_creditor_document_valid_query,
+    is_new_creditor_name_valid_query,
+    is_new_creditor_phone_valid_query,
+    new_creditor_data_query,
+    new_creditor_loans_data_query
+)
 from dictionary.vars import today, TO_REMOVE_LIST
-from dictionary.sql import creditors_quantity_query, creditors_query
+from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
-from functions.get_actual_time import GetActualTime
 from time import sleep
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class Creditors:
@@ -42,17 +57,8 @@ class Creditors:
 
         is_new_register_valid = True
 
-        is_new_name_valid_query = """
-        SELECT
-            COUNT(id_credor)
-        FROM
-            credores
-        WHERE
-            nome = %s
-            AND id_credor <> %s;
-        """
         is_new_name_valid = QueryExecutor().simple_consult_query(
-            is_new_name_valid_query,
+            is_new_creditor_name_valid_query,
             params=(
                 creditor_new_name,
                 creditor_id
@@ -67,17 +73,8 @@ class Creditors:
             creditor_new_document
         )
 
-        is_new_document_valid_query = """
-        SELECT
-            COUNT(id_credor)
-        FROM
-            credores
-        WHERE
-            documento = %s
-            AND id_credor <> %s;
-        """
         is_new_document_valid = QueryExecutor().simple_consult_query(
-            is_new_document_valid_query,
+            is_new_creditor_document_valid_query,
             params=(
                 creditor_new_document,
                 creditor_id
@@ -92,17 +89,8 @@ class Creditors:
             is_new_register_valid = False
             st.error(body="Os novos dados não são válidos.")
 
-        is_new_phone_valid_query = """
-        SELECT
-            COUNT(id_credor)
-        FROM
-            credores
-        WHERE
-            telefone = %s
-            AND id_credor <> %s;
-        """
         is_new_phone_valid = QueryExecutor().simple_consult_query(
-            is_new_phone_valid_query,
+            is_new_creditor_phone_valid_query,
             params=(
                 creditor_new_phone,
                 creditor_id
@@ -132,18 +120,8 @@ class Creditors:
                 """.format(creditor_new_phone)
             )
 
-        is_entire_data_valid_query = """
-        SELECT
-            COUNT(id_credor)
-        FROM
-            credores
-        WHERE
-            nome = %s
-            AND documento = %s
-            AND telefone = %s;
-        """
         is_entire_data_valid = QueryExecutor().simple_consult_query(
-            is_entire_data_valid_query,
+            is_entire_creditor_data_valid_query,
             params=(
                 creditor_new_name,
                 creditor_new_document,
@@ -182,16 +160,10 @@ class Creditors:
         """
         Atualiza os dados do credor.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         creditors_quantity = QueryExecutor().simple_consult_query(
             query=creditors_quantity_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         creditors_quantity = QueryExecutor().treat_simple_result(
             creditors_quantity,
@@ -207,8 +179,8 @@ class Creditors:
         elif creditors_quantity >= 1:
 
             creditors = QueryExecutor().complex_consult_query(
-                query=creditors_query,
-                params=(user_name, user_document)
+                query=creditors_names_query,
+                params=(user_id, user_document)
             )
             creditors = QueryExecutor().treat_numerous_simple_result(
                 creditors,
@@ -219,32 +191,19 @@ class Creditors:
 
             with col4:
                 selected_creditor = st.selectbox(
-                    label="Beneficiado", options=creditors)
+                    label="Beneficiado",
+                    options=creditors
+                )
 
-            creditors_complete_data_query = """
-            SELECT
-                credores.id,
-                credores.nome,
-                credores.documento,
-                credores.telefone
-            FROM
-                credores
-            INNER JOIN
-                usuarios ON
-                    credores.nome <> usuarios.nome
-                    AND credores.documento <> usuarios.documento
-            WHERE
-                usuarios.nome = %s
-                AND usuarios.documento = %s
-                AND credores.nome = %s;
-            """
             creditors_complete_data = QueryExecutor().complex_compund_query(
                 query=creditors_complete_data_query,
                 list_quantity=4,
-                params=(user_name, user_document, selected_creditor)
+                params=(user_id, user_document, selected_creditor)
             )
             creditors_complete_data = QueryExecutor().treat_complex_result(
-                creditors_complete_data, TO_REMOVE_LIST)
+                creditors_complete_data,
+                TO_REMOVE_LIST
+            )
 
             with col1:
                 st.subheader(body=":floppy_disk: Registro")
@@ -324,18 +283,10 @@ class Creditors:
                                 )
 
                             if is_data_passed_valid is True:
-                                get_loans_ids_query = """
-                                SELECT
-                                    id_emprestimo
-                                FROM
-                                    emprestimos
-                                WHERE
-                                    credor = %s
-                                    AND documento_credor = %s;
-                                """
+
                                 loans_ids = (
                                     QueryExecutor().complex_consult_query(
-                                        query=get_loans_ids_query,
+                                        query=get_loans_creditor_ids_query,
                                         params=(
                                             creditors_complete_data[1],
                                             creditors_complete_data[2]
@@ -354,64 +305,38 @@ class Creditors:
                                     for i in range(0, len(loans_ids)):
                                         ids.append(int(loans_ids[i]))
                                     ids = tuple(ids)
-                                    new_creditor_loans_data_query = """
-                                    UPDATE
-                                        emprestimos
-                                    SET
-                                        credor = '{}',
-                                        documento_credor = {}
-                                    WHERE credor = '{}'
-                                        AND documento_credor = {}
-                                        AND id_emprestimo IN{};
-                                    """.format(
-                                        new_name,
-                                        new_document,
-                                        creditors_complete_data[1],
-                                        creditors_complete_data[2],
-                                        ids
-                                    )
+
                                     QueryExecutor().update_unique_register(
                                         new_creditor_loans_data_query,
+                                        (
+                                            new_name,
+                                            new_document,
+                                            creditors_complete_data[1],
+                                            creditors_complete_data[2],
+                                            ids
+                                        ),
                                         "Registros atualizados com sucesso!",
                                         "Erro ao atualizar registros:"
                                     )
 
-                                new_creditor_data_query = """
-                                UPDATE
-                                    credores
-                                SET
-                                    nome = '{}',
-                                    documento = {},
-                                    telefone = '{}'
-                                    WHERE id_credor = {};
-                                """.format(
-                                    new_name,
-                                    new_document,
-                                    new_phone,
-                                    int(
-                                        creditors_complete_data[0]
-                                        )
-                                    )
-                                QueryExecutor().update_table_unique_register(
+                                QueryExecutor().update_unique_register(
                                     new_creditor_data_query,
+                                    (
+                                        new_name,
+                                        new_document,
+                                        new_phone,
+                                        int(creditors_complete_data[0])
+                                    ),
                                     "Credor atualizado com sucesso!",
                                     "Erro ao atualizar credor:"
                                 )
 
                                 actual_time = GetActualTime().get_actual_time()
-                                log_query = '''
-                                INSERT INTO
-                                    logs_atividades (
-                                        data_log,
-                                        horario_log,
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    ) VALUES (%s, %s, %s, %s, %s)'''
+
                                 log_values = (
                                     today,
                                     actual_time,
-                                    logged_user,
+                                    user_id,
                                     "Atualização",
                                     """
                                     O usuário atualizou o credor {}.
@@ -420,23 +345,14 @@ class Creditors:
                                     )
                                 )
 
-                                QueryExecutor().insert_query(
-                                    log_query,
+                                QueryExecutor().register_log_query(
                                     log_values,
-                                    "Log gravado com sucesso!",
-                                    "Erro ao gravar log:"
                                 )
 
     def new_creditor(self):
         """
         Realiza o cadastro de um novo credor.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
@@ -488,18 +404,11 @@ class Creditors:
                             st.success(body="Documento válido.")
 
                             if (
-                                creditor_name != user_name
+                                creditor_name != user_id
                             ) and (
                                     creditor_document != int(user_document)
                             ):
-                                insert_creditor_query = '''
-                                INSERT INTO
-                                    credores (
-                                        `nome`,
-                                        `documento`,
-                                        `telefone`
-                                    )
-                                VALUES (%s, %s, %s);'''
+
                                 query_values = (
                                     creditor_name,
                                     creditor_document,
@@ -513,39 +422,24 @@ class Creditors:
                                     "Erro ao cadastrar credor:"
                                 )
 
-                                actual_time = GetActualTime().get_actual_time()
-                                log_query = '''
-                                INSERT INTO
-                                    logs_atividades (
-                                        data_log,
-                                        horario_log,
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    )
-                                VALUES (%s, %s, %s, %s, %s);'''
                                 log_values = (
-                                    today,
-                                    actual_time,
-                                    logged_user,
+                                    user_id,
                                     "Cadastro",
                                     """
                                     O usuário cadastrou o credor {}.
                                     """.format(creditor_name)
                                 )
 
-                                QueryExecutor().insert_query(
-                                    log_query, log_values,
-                                    "Log gravado com sucesso!",
-                                    "Erro ao gravar log:"
+                                QueryExecutor().register_log_query(
+                                    log_values,
                                 )
 
                             if (
-                                creditor_name == user_name
+                                creditor_name == user_id
                             ) or (
                                     creditor_document == int(user_document)
                             ):
-                                if creditor_name == user_name:
+                                if creditor_name == user_id:
                                     st.error(
                                         body="""
                                         Este credor já foi cadastrado"""

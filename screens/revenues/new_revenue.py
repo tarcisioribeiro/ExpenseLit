@@ -1,8 +1,11 @@
 from dictionary.vars import REVENUE_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import (
-    last_revenue_id_query,
+from dictionary.sql.account_queries import (
     user_current_accounts_query,
     unique_account_id_query
+)
+from dictionary.sql.revenues_queries import (
+    insert_revenue_query,
+    last_revenue_id_query
 )
 from functions.query_executor import QueryExecutor
 from functions.get_actual_time import GetActualTime
@@ -11,6 +14,9 @@ from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class NewCurrentRevenue:
@@ -27,13 +33,10 @@ class NewCurrentRevenue:
         user_current_accounts : list
             A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -46,12 +49,6 @@ class NewCurrentRevenue:
         """
         Realiza a coleta dos dados da nova receita.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         user_current_accounts = self.get_user_current_accounts()
 
@@ -74,8 +71,9 @@ class NewCurrentRevenue:
                         "Não": "N"
                     }
 
-                    id = QueryExecutor().simple_consult_brute_query(
-                        last_revenue_id_query
+                    id = QueryExecutor().simple_consult_query(
+                        last_revenue_id_query,
+                        params=()
                     )
                     id = QueryExecutor().treat_simple_result(
                         id,
@@ -117,7 +115,7 @@ class NewCurrentRevenue:
 
                     account_id = QueryExecutor().simple_consult_query(
                         unique_account_id_query,
-                        (account, user_name, user_document)
+                        (account, user_id, user_document)
                     )
                     account_id = QueryExecutor().treat_simple_result(
                         account_id,
@@ -141,20 +139,6 @@ class NewCurrentRevenue:
 
                         actual_horary = GetActualTime().get_actual_time()
 
-                        revenue_query = """
-                        INSERT INTO
-                            receitas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_receita,
-                                documento_proprietario_receita,
-                                recebido
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                         values = (
                             description,
                             value,
@@ -162,12 +146,12 @@ class NewCurrentRevenue:
                             actual_horary,
                             category,
                             account_id,
-                            user_name,
+                            user_id,
                             user_document,
                             received
                         )
                         QueryExecutor().insert_query(
-                            revenue_query,
+                            insert_revenue_query,
                             values,
                             "Receita registrada com sucesso!",
                             "Erro ao registrar receita:"
@@ -175,15 +159,8 @@ class NewCurrentRevenue:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            ) VALUES ( %s, %s, %s);'''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """
                             Registrou uma receita no valor de R$ {}
@@ -191,11 +168,8 @@ class NewCurrentRevenue:
                                 str_value, account
                                 )
                             )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                         with st.spinner("Aguarde..."):

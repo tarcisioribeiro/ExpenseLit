@@ -1,12 +1,32 @@
 import streamlit as st
 from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import (
-    last_loan_id_query,
-    creditor_doc_name_query,
+from dictionary.sql.account_queries import (
     user_current_accounts_query,
-    creditors_query,
-    total_account_revenue_query,
+    unique_account_id_query
+)
+from dictionary.sql.benefited_queries import (
+    beneficiaries_query,
+    benefited_doc_name_query,
+    benefited_quantity_query,
+    choosed_benefited_id_query
+)
+from dictionary.sql.creditor_queries import (
+    creditors_complete_data_query,
+    creditor_doc_name_query,
+    creditors_names_query,
+    creditors_quantity_query
+)
+from dictionary.sql.expenses_queries import (
+    insert_expense_query,
     total_account_expense_query
+)
+from dictionary.sql.loan_queries import (
+    insert_loan_query,
+    last_loan_id_query
+)
+from dictionary.sql.revenues_queries import (
+    insert_revenue_query,
+    total_account_revenue_query
 )
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
@@ -14,6 +34,9 @@ from functions.variable import Variable
 from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class TakeNewLoan:
@@ -25,13 +48,10 @@ class TakeNewLoan:
         -------
         user_current_accounts: list = A lista com as contas correntes.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -44,12 +64,6 @@ class TakeNewLoan:
         """
         Coleta os dados do novo empréstimo tomado pelo cliente.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
@@ -62,20 +76,10 @@ class TakeNewLoan:
         elif len(user_current_accounts) >= 1 and (
             user_current_accounts[0] != "Selecione uma opção"
         ):
-            creditors_quantity_query = '''
-            SELECT
-                COUNT(credores.id)
-            FROM
-                credores
-            INNER JOIN usuarios
-                ON usuarios.documento = credores.documento
-            WHERE
-                credores.documento <> %s;
-            '''
 
             creditors_quantity = QueryExecutor().simple_consult_query(
                 query=creditors_quantity_query,
-                params=(user_document,)
+                params=(user_id, user_document)
             )
 
             creditors_quantity = int(QueryExecutor().treat_simple_result(
@@ -95,8 +99,9 @@ class TakeNewLoan:
                     st.subheader(body=":computer: Entrada de Dados")
 
                     with st.expander(label="Dados", expanded=True):
-                        id = QueryExecutor().simple_consult_brute_query(
-                            last_loan_id_query
+                        id = QueryExecutor().simple_consult_query(
+                            last_loan_id_query,
+                            ()
                         )
                         id = QueryExecutor().treat_simple_result(
                             id,
@@ -126,8 +131,8 @@ class TakeNewLoan:
                         )
 
                         creditors = QueryExecutor().complex_consult_query(
-                            creditors_query,
-                            params=(user_name, user_document)
+                            creditors_names_query,
+                            params=(user_id, user_document)
                         )
                         creditors = (
                             QueryExecutor().treat_simple_results(
@@ -140,19 +145,10 @@ class TakeNewLoan:
                             options=creditors
                         )
 
-                        creditor_doc_name_query = """
-                        SELECT
-                            credores.nome,
-                            credores.documento
-                        FROM
-                            credores
-                        WHERE
-                            credores.nome = %s;"""
-
                         creditor_name_document = (
                             QueryExecutor().complex_consult_query(
-                                creditor_doc_name_query,
-                                params=(creditor, )
+                                creditors_complete_data_query,
+                                params=(user_id, user_document, creditor)
                             )
                         )
                         creditor_name_document = (
@@ -164,9 +160,7 @@ class TakeNewLoan:
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
                         benefited_name, benefited_document = (
-                            Login().get_user_data(
-                                return_option="user_doc_name"
-                            )
+                            Login().get_user_data()
                         )
                         confirm_values_check_box = st.checkbox(
                             label="Confirmar Dados"
@@ -179,6 +173,16 @@ class TakeNewLoan:
 
                 with col3:
                     if confirm_values_check_box and generate_receipt_button:
+
+                        account_id = QueryExecutor().simple_consult_query(
+                            unique_account_id_query,
+                            (account, user_id, user_document)
+                        )
+                        account_id = QueryExecutor().treat_simple_result(
+                            account_id,
+                            TO_REMOVE_LIST
+                        )
+                        account_id = int(account_id)
 
                         actual_horary = GetActualTime().get_actual_time()
 
@@ -198,7 +202,7 @@ class TakeNewLoan:
                                         query=total_account_revenue_query,
                                         params=(
                                             account,
-                                            user_name,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -218,7 +222,7 @@ class TakeNewLoan:
                                         query=total_account_expense_query,
                                         params=(
                                             account,
-                                            user_name,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -258,101 +262,42 @@ class TakeNewLoan:
                                 ):
                                     st.success(body="Dados válidos.")
 
-                            expense_query = '''
-                            INSERT INTO
-                                despesas (
-                                    descricao,
-                                    valor,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    proprietario_despesa,
-                                    documento_proprietario_despesa,
-                                    pago
-                                )
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
                             expense_values = (
                                 description,
                                 value,
                                 date,
                                 actual_horary,
                                 category,
-                                account,
+                                account_id,
                                 creditor_name,
                                 creditor_document,
                                 "S"
                             )
                             QueryExecutor().insert_query(
-                                expense_query,
+                                insert_expense_query,
                                 expense_values,
                                 "Despesa registrada com sucesso!",
                                 "Erro ao registrar despesa:"
                             )
 
-                            revenue_query = '''
-                            INSERT INTO
-                                receitas (
-                                    descricao,
-                                    valor,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    proprietario_receita,
-                                    documento_proprietario_receita,
-                                    recebido
-                                )
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                            '''
                             revenue_values = (
                                 description,
                                 value,
                                 date,
                                 actual_horary,
                                 category,
-                                account,
-                                user_name,
+                                account_id,
+                                user_id,
                                 user_document,
                                 "S"
                             )
                             QueryExecutor().insert_query(
-                                revenue_query,
+                                insert_revenue_query,
                                 revenue_values,
                                 "Receita registrada com sucesso!",
                                 "Erro ao registrar receita:"
                             )
 
-                            loan_query = '''
-                            INSERT INTO
-                                emprestimos(
-                                    descricao,
-                                    valor,
-                                    valor_pago,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    devedor,
-                                    documento_devedor,
-                                    credor,
-                                    documento_credor,pago
-                                )
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s
-                            );
-                            '''
                             loan_values = (
                                 description,
                                 value,
@@ -360,7 +305,7 @@ class TakeNewLoan:
                                 date,
                                 actual_horary,
                                 category,
-                                account,
+                                account_id,
                                 benefited_name,
                                 benefited_document,
                                 creditor_name,
@@ -368,32 +313,21 @@ class TakeNewLoan:
                                 "N"
                             )
                             QueryExecutor().insert_query(
-                                loan_query,
+                                insert_loan_query,
                                 loan_values,
                                 "Empréstimo registrado com sucesso!",
                                 "Erro ao registrar empréstimo:"
                             )
                             str_value = Variable().treat_complex_string(value)
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);
-                            '''
+
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Registro",
                                 """Tomou um empréstimo no valor
                                 de R$ {} associado a conta {}.
                                 """.format(str_value, account))
-                            QueryExecutor().insert_query(
-                                log_query,
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
 
                             st.subheader(
@@ -434,12 +368,7 @@ class TakeNewLoan:
         """
         Coleta os dados do empréstimo que está sendo concedido pelo usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+
         col1, col2, col3 = st.columns(3)
         user_current_accounts = self.get_user_current_accounts()
         if len(user_current_accounts) == 0:
@@ -454,18 +383,10 @@ class TakeNewLoan:
             ) != (
                 "Selecione uma opção"
         ):
-            benefited_quantity_query = '''
-            SELECT
-                COUNT(id)
-            FROM
-                beneficiados
-            WHERE
-                beneficiados.documento <> %s
-                OR beneficiados.nome <> %s;
-            '''
+
             benefited_quantity = QueryExecutor().simple_consult_query(
                 query=benefited_quantity_query,
-                params=(user_name, user_document)
+                params=(user_id, user_document)
             )
             benefited_quantity = int(QueryExecutor().treat_simple_result(
                 benefited_quantity,
@@ -513,17 +434,10 @@ class TakeNewLoan:
                             label=":bank: Conta",
                             options=user_current_accounts
                         )
-                        beneficiaries_query = '''
-                        SELECT
-                            nome
-                        FROM
-                            beneficiados
-                        WHERE
-                            beneficiados.documento <> {}
-                            OR beneficiados.nome <> '{}';
-                        '''.format(user_document, user_name)
-                        beneficiaries = QueryExecutor().complex_consult_query(
-                            beneficiaries_query
+
+                        beneficiaries = QueryExecutor().simple_consult_query(
+                            beneficiaries_query,
+                            (user_document, user_id)
                         )
                         beneficiaries = (
                             QueryExecutor().treat_numerous_simple_result(
@@ -548,19 +462,11 @@ class TakeNewLoan:
                         )
                         creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
-                        benefited_doc_name_query = """
-                        SELECT
-                            beneficiados.nome,
-                            beneficiados.documento
-                        FROM
-                            beneficiados
-                        WHERE
-                            beneficiados.nome = %s;
-                        """
+
                         benefited_doc_name = (
                             QueryExecutor().complex_consult_query(
                                 benefited_doc_name_query,
-                                params=(benefited, )
+                                params=(benefited,)
                             )
                         )
                         benefited_doc_name = (
@@ -583,6 +489,17 @@ class TakeNewLoan:
 
                 with col3:
                     if confirm_values_check_box and generate_receipt_button:
+
+                        account_id = QueryExecutor().simple_consult_query(
+                            unique_account_id_query,
+                            (account, user_id, user_document)
+                        )
+                        account_id = QueryExecutor().treat_simple_result(
+                            account_id,
+                            TO_REMOVE_LIST
+                        )
+                        account_id = int(account_id)
+
                         actual_horary = GetActualTime().get_actual_time()
                         with col2:
                             with st.spinner("Aguarde..."):
@@ -599,7 +516,7 @@ class TakeNewLoan:
                                         query=total_account_revenue_query,
                                         params=(
                                             account,
-                                            user_name,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -617,8 +534,8 @@ class TakeNewLoan:
                                     QueryExecutor().simple_consult_query(
                                         query=total_account_expense_query,
                                         params=(
-                                            account,
-                                            user_name,
+                                            account_id,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -659,79 +576,24 @@ class TakeNewLoan:
                                 ):
                                     st.success(body="Dados válidos.")
 
-                            expense_query = '''
-                            INSERT INTO
-                                despesas (
-                                    descricao,
-                                    valor,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    proprietario_despesa,
-                                    documento_proprietario_despesa,
-                                    pago
-                                )
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s
-                            );
-                            '''
                             expense_values = (
                                 description,
                                 value,
                                 date,
                                 actual_horary,
                                 category,
-                                account,
+                                account_id,
                                 creditor_name,
                                 creditor_document,
                                 "S"
                             )
                             QueryExecutor().insert_query(
-                                expense_query,
+                                insert_expense_query,
                                 expense_values,
                                 "Despesa registrado com sucesso!",
                                 "Erro ao registrar despesa:"
                             )
 
-                            loan_query = '''
-                            INSERT INTO
-                                emprestimos (
-                                    descricao,
-                                    valor,
-                                    valor_pago,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    devedor,
-                                    documento_devedor,
-                                    credor,
-                                    documento_credor,
-                                    pago
-                                )
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s
-                            );'''
                             loan_values = (
                                 description,
                                 value,
@@ -739,15 +601,15 @@ class TakeNewLoan:
                                 date,
                                 actual_horary,
                                 category,
-                                account,
+                                account_id,
                                 benefited_name,
                                 benefited_document,
-                                creditor_name,
+                                user_id,
                                 creditor_document,
                                 "N"
                             )
                             QueryExecutor().insert_query(
-                                loan_query,
+                                insert_loan_query,
                                 loan_values,
                                 "Empréstimo registrado com sucesso!",
                                 "Erro ao registrar empréstimo:"
@@ -755,27 +617,15 @@ class TakeNewLoan:
 
                             str_value = Variable().treat_complex_string(value)
 
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);
-                            '''
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Registro",
                                 """
                                 Registrou um empréstimo no valor de
                                 R$ {} a partir da conta {}.
                                 """.format(str_value, account))
-                            QueryExecutor().insert_query(
-                                log_query,
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
                             st.subheader(
                                 body=":pencil: Comprovante de Empréstimo")
@@ -852,13 +702,10 @@ class MakeNewLoan:
         user_current_accounts : list
             A lista com as contas correntes do usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -871,12 +718,6 @@ class MakeNewLoan:
         """
         Coleta os dados do empréstimo que está sendo concedido pelo usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
@@ -895,21 +736,9 @@ class MakeNewLoan:
                 user_current_accounts[0]
                 ) != "Selecione uma opção":
 
-            benefited_quantity_query = '''
-            SELECT
-                COUNT(beneficiados.id)
-            FROM
-                beneficiados
-            INNER JOIN
-                usuarios
-                ON beneficiados.documento = usuarios.documento
-            WHERE
-                usuarios.id <> %s
-                OR beneficiados.documento <> %s;
-            '''
             benefited_quantity = QueryExecutor().simple_consult_query(
                 query=benefited_quantity_query,
-                params=(user_name, user_document)
+                params=(user_id, user_document)
             )
             benefited_quantity = int(QueryExecutor().treat_simple_result(
                 benefited_quantity,
@@ -928,8 +757,9 @@ class MakeNewLoan:
 
                     with st.expander(label="Dados", expanded=True):
 
-                        id = QueryExecutor().simple_consult_brute_query(
-                            last_loan_id_query
+                        id = QueryExecutor().simple_consult_query(
+                            last_loan_id_query,
+                            ()
                         )
                         id = QueryExecutor().treat_simple_result(
                             id,
@@ -958,18 +788,9 @@ class MakeNewLoan:
                             options=user_current_accounts
                         )
 
-                        beneficiaries_query = '''
-                        SELECT
-                            nome
-                        FROM
-                            beneficiados
-                        WHERE
-                            beneficiados.documento <> %s
-                            OR beneficiados.nome <> %s;
-                        '''
                         beneficiaries = QueryExecutor().complex_consult_query(
                             query=beneficiaries_query,
-                            params=(user_document, user_name)
+                            params=(user_id, user_document)
                         )
                         beneficiaries = (
                             QueryExecutor().treat_simple_results(
@@ -985,7 +806,7 @@ class MakeNewLoan:
                         creditor_name_document = (
                             QueryExecutor().complex_consult_query(
                                 creditor_doc_name_query,
-                                params=(user_document,)
+                                params=(user_id, user_document)
                             )
                         )
                         creditor_name_document = (
@@ -994,18 +815,8 @@ class MakeNewLoan:
                                 TO_REMOVE_LIST
                             )
                         )
-                        creditor_name = creditor_name_document[0]
                         creditor_document = creditor_name_document[1]
 
-                        benefited_doc_name_query = """
-                        SELECT
-                            beneficiados.nome,
-                            beneficiados.documento
-                        FROM
-                            beneficiados
-                        WHERE
-                            beneficiados.nome = %s;
-                        """
                         benefited_doc_name = (
                             QueryExecutor().complex_consult_query(
                                 query=benefited_doc_name_query,
@@ -1033,6 +844,27 @@ class MakeNewLoan:
                 with col3:
                     if confirm_values_check_box and generate_receipt_button:
 
+                        benefited_id = QueryExecutor().simple_consult_query(
+                            choosed_benefited_id_query,
+                            (benefited_name, benefited_document)
+                        )
+
+                        benefited_id = QueryExecutor().treat_simple_result(
+                            benefited_id,
+                            TO_REMOVE_LIST
+                        )
+                        benefited_id = int(benefited_id)
+
+                        account_id = QueryExecutor().simple_consult_query(
+                            unique_account_id_query,
+                            (account, user_id, user_document)
+                        )
+                        account_id = QueryExecutor().treat_simple_result(
+                            account_id,
+                            TO_REMOVE_LIST
+                        )
+                        account_id = int(account_id)
+
                         actual_horary = GetActualTime().get_actual_time()
 
                         with col2:
@@ -1052,8 +884,8 @@ class MakeNewLoan:
                                     QueryExecutor().simple_consult_query(
                                         query=total_account_revenue_query,
                                         params=(
-                                            account,
-                                            user_name,
+                                            account_id,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -1072,8 +904,8 @@ class MakeNewLoan:
                                     QueryExecutor().simple_consult_query(
                                         query=total_account_expense_query,
                                         params=(
-                                            account,
-                                            user_name,
+                                            account_id,
+                                            user_id,
                                             user_document
                                         )
                                     )
@@ -1114,70 +946,24 @@ class MakeNewLoan:
                                 ):
                                     st.success(body="Dados válidos.")
 
-                            expense_query = ''']
-                            INSERT INTO
-                                despesas (
-                                    descricao,
-                                    valor,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    proprietario_despesa,
-                                    documento_proprietario_despesa,
-                                    pago
-                                )
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                            '''
                             expense_values = (
                                 description,
                                 value,
                                 date,
                                 actual_horary,
                                 category,
-                                account,
-                                creditor_name,
+                                account_id,
+                                user_id,
                                 creditor_document,
                                 "S"
                             )
                             QueryExecutor().insert_query(
-                                expense_query,
+                                insert_expense_query,
                                 expense_values,
                                 "Despesa registrado com sucesso!",
                                 "Erro ao registrar despesa:"
                             )
 
-                            loan_query = '''
-                            INSERT INTO
-                                emprestimos (
-                                    descricao,
-                                    valor,
-                                    valor_pago,
-                                    data,
-                                    horario,
-                                    categoria,
-                                    conta,
-                                    devedor,
-                                    documento_devedor,
-                                    credor,
-                                    documento_credor,
-                                    pago
-                                )
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s
-                            );
-                            '''
                             loan_values = (
                                 description,
                                 value,
@@ -1185,15 +971,15 @@ class MakeNewLoan:
                                 date,
                                 actual_horary,
                                 category,
-                                account,
-                                benefited_name,
+                                account_id,
+                                benefited_id,
                                 benefited_document,
-                                creditor_name,
+                                user_id,
                                 creditor_document,
                                 "N"
                             )
                             QueryExecutor().insert_query(
-                                loan_query,
+                                insert_loan_query,
                                 loan_values,
                                 "Empréstimo registrado com sucesso!",
                                 "Erro ao registrar empréstimo:"
@@ -1201,28 +987,16 @@ class MakeNewLoan:
 
                             str_value = Variable().treat_complex_string(value)
 
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);
-                            '''
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Registro",
                                 """
                                 Registrou um empréstimo no valor de R$ {}
                                 a partir da conta {}.
                             """.format(str_value, account)
                             )
-                            QueryExecutor().insert_query(
-                                log_query,
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
                             st.subheader(
                                 body=":pencil: Comprovante de Empréstimo"

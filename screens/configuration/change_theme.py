@@ -1,9 +1,9 @@
 from dictionary.vars import (
     ABSOLUTE_APP_PATH,
     DARK_THEME,
-    SERVER_CONFIG,
+    FONTS_DICTIONARY,
     LIGHT_THEME,
-    FONTS_DICTIONARY
+    SERVER_CONFIG
 )
 from screens.homepage import Home
 from time import sleep

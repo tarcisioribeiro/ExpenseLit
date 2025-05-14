@@ -1,5 +1,5 @@
 from dictionary.db_config import db_config
-from dictionary.vars import operational_system
+from dictionary.sql.others_queries import log_query
 import mysql.connector
 import streamlit as st
 
@@ -31,6 +31,7 @@ class QueryExecutor:
         error_message : str
             A mensagem a ser exibida caso a consulta apresente erros.
         """
+
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
@@ -39,11 +40,8 @@ class QueryExecutor:
             cursor.close()
             st.toast(":white_check_mark: {}".format(success_message))
         except mysql.connector.Error as error:
-            if error.errno == 1062 or error.errno == 23000:
-                st.error("Já há um registro com estes dados.")
-            else:
-                st.toast(":warning: {} {}".format(error_message, error))
-                st.error(error)
+            st.toast(":warning: {} {}".format(error_message, error))
+            st.error(error)
         finally:
             if connection.is_connected():
                 connection.close()
@@ -61,10 +59,14 @@ class QueryExecutor:
         params : tuple
             A tupla com os valores a serem consultados.
         """
+
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
-            cursor.execute(query, params)
+            if len(params) > 0:
+                cursor.execute(query, params)
+            elif len(params) == 0:
+                cursor.execute(query)
             simple_value = cursor.fetchone()
             cursor.close()
             if simple_value is not None:
@@ -74,35 +76,6 @@ class QueryExecutor:
         except mysql.connector.Error as error:
             st.toast(":warning: Erro ao consultar dado: {}".format(error))
             st.error(error)
-        finally:
-            if connection.is_connected():
-                connection.close()
-
-    def simple_consult_brute_query(self, query: str):
-        """
-        Realiza uma consulta simples no banco de dados.
-
-        Parameters
-        ----------
-        query : str
-            A consulta a ser inserida.
-        """
-        try:
-            connection = mysql.connector.connect(**db_config)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            simple_value = cursor.fetchone()
-            cursor.close()
-            if simple_value is not None:
-                return simple_value
-            else:
-                return 0
-        except mysql.connector.Error as error:
-            if operational_system == "posix":
-                st.toast(":warning: Erro ao consultar dado: {}".format(error))
-                st.error(error)
-            elif operational_system == "nt":
-                print("Erro ao consultar dado: {}".format(error))
         finally:
             if connection.is_connected():
                 connection.close()
@@ -133,6 +106,7 @@ class QueryExecutor:
             Uma lista contendo múltiplas listas,
             cada uma correspondendo aos valores retornados pela consulta.
         """
+
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
@@ -171,41 +145,14 @@ class QueryExecutor:
         complex_value : list
             A lista com os valores da consulta.
         """
+
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
-            cursor.execute(query, params)
-            complex_value = cursor.fetchall()
-            cursor.close()
-            if complex_value is not None:
-                return complex_value
-            else:
-                return [0]
-        except mysql.connector.Error as error:
-            st.toast(":warning: Erro ao consultar dados: {}".format(error))
-            st.error(error)
-        finally:
-            if connection.is_connected():
-                connection.close()
-
-    def complex_consult_brute_query(self, query: str):
-        """
-        Realiza uma consulta complexa no banco de dados.
-
-        Parameters
-        ----------
-        query : str
-            A consulta a ser inserida.
-
-        Returns
-        -------
-        complex_value : list
-            A lista com os valores da consulta.
-        """
-        try:
-            connection = mysql.connector.connect(**db_config)
-            cursor = connection.cursor()
-            cursor.execute(query)
+            if len(params) >= 1:
+                cursor.execute(query, params)
+            elif len(params) == 0:
+                cursor.execute(query)
             complex_value = cursor.fetchall()
             cursor.close()
             if complex_value is not None:
@@ -236,6 +183,7 @@ class QueryExecutor:
         final_result : str
             O valor tratado.
         """
+
         final_result = str(value_to_treat)
 
         for i in range(0, len(values_to_remove)):
@@ -265,6 +213,7 @@ class QueryExecutor:
         final_list : list
             Os valores tratados.
         """
+
         aux_str = ""
         aux_list = []
 
@@ -284,7 +233,11 @@ class QueryExecutor:
 
         return final_list
 
-    def treat_complex_result(self, values_to_treat, values_to_remove: list):
+    def treat_complex_result(
+        self,
+        values_to_treat: str,
+        values_to_remove: list
+    ):
         """
         Realiza o tratamento de uma cadeia de caracteres,
         de acordo com os parametros informados.
@@ -301,6 +254,7 @@ class QueryExecutor:
         final_result : str
             O valor tratado.
         """
+
         aux_str = ""
         aux_list = []
 
@@ -314,10 +268,46 @@ class QueryExecutor:
                 final_str = str(aux_list[i])
                 for i in range(0, len(values_to_remove)):
                     final_str = final_str.replace(
-                        "{}".format(values_to_remove[i]), "")
+                        "{}".format(values_to_remove[i]),
+                        ""
+                    )
                 final_list.append(final_str)
 
         return final_list
+
+    def treat_compund_result(
+        self,
+        values_to_treat: list,
+        values_to_remove: list
+    ):
+        """
+        Realiza o tratamento de valores de consultas de uma lista.
+
+        Parameters
+        ----------
+        values_to_treat : list
+            A lista de valores a serem tratados.
+        values_to_remove : list
+            Os valores a serem removidos da lista.
+
+        Returns
+        -------
+        treated_list : list
+            A lista com os valores tratados.
+        """
+
+        treated_list = []
+        aux_list = None
+        aux_var = None
+
+        for i in range(0, len(values_to_treat)):
+            aux_list = values_to_treat[i]
+            for i in range(0, len(aux_list)):
+                aux_var = aux_list[i]
+                aux_list[i] = aux_var
+            treated_list.append(aux_list)
+
+        return treated_list
 
     def check_if_value_exists(self, query):
         """
@@ -341,7 +331,6 @@ class QueryExecutor:
     def update_table_registers(
             self,
             table: str,
-            table_field: str,
             id_list: list
     ):
         """
@@ -357,13 +346,13 @@ class QueryExecutor:
         id_list : list
             Os id's de identificação dos registros que serão atualizados.
         """
+
         for i in range(0, len(id_list)):
 
             update_id_query = """
-            UPDATE {} SET pago = 'S' WHERE id_{} = {}
+            UPDATE {} SET pago = 'S' WHERE id = {}
             """.format(
                 table,
-                table_field,
                 id_list[i]
             )
 
@@ -383,6 +372,7 @@ class QueryExecutor:
     def update_unique_register(
             self,
             query: str,
+            params: tuple,
             success_message: str,
             error_message: str
     ):
@@ -398,10 +388,11 @@ class QueryExecutor:
         error_message : str
             A mensagem que será exibida caso ocorram erros.
         """
+
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
-            cursor.execute(query)
+            cursor.execute(query, params)
             connection.commit()
             cursor.close()
 
@@ -411,3 +402,20 @@ class QueryExecutor:
         finally:
             if connection.is_connected():
                 connection.close()
+
+    def register_log_query(self, log_values):
+        """
+        Realiza a inserção do log no banco de dados.
+
+        Parameters
+        ----------
+        log_values : tuple
+            A lista de valores a serem inseridos.
+        """
+
+        self.insert_query(
+            log_query,
+            log_values,
+            "Log gravado.",
+            "Erro ao gravar log:"
+        )

@@ -1,6 +1,6 @@
 from functions.query_executor import QueryExecutor
 from dictionary.vars import TO_REMOVE_LIST
-from dictionary.sql import check_user_query
+from dictionary.sql.user_queries import check_user_query
 import os
 import streamlit as st
 import mysql.connector
@@ -84,8 +84,9 @@ if os.path.isfile(software_env_path):
         if connection.is_connected():
             def main():
                 query_executor = QueryExecutor()
-                user_quantity = query_executor.simple_consult_brute_query(
-                    check_user_query
+                user_quantity = query_executor.simple_consult_query(
+                    check_user_query,
+                    params=()
                 )
                 user_quantity = query_executor.treat_simple_result(
                     user_quantity,

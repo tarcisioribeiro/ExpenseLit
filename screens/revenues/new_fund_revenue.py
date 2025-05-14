@@ -1,12 +1,22 @@
-from dictionary.sql import last_revenue_id_query, user_fund_accounts_query
-from functions.login import Login
+from dictionary.sql.account_queries import (
+    unique_account_id_query,
+    user_fund_accounts_query
+)
+from dictionary.sql.revenues_queries import (
+    insert_revenue_query,
+    last_revenue_id_query
+)
 from dictionary.vars import TO_REMOVE_LIST
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class NewFundRevenue:
@@ -23,13 +33,10 @@ class NewFundRevenue:
         user_fund_accounts : list
             A lista com as contas de fundo de garantia do usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         user_fund_accounts = QueryExecutor().complex_consult_query(
             query=user_fund_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_fund_accounts = QueryExecutor().treat_simple_results(
             user_fund_accounts,
@@ -41,12 +48,6 @@ class NewFundRevenue:
         """
         Coleta os dados da nova receita de fundo de garantia.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         user_fund_accounts = self.get_user_fund_accounts()
 
@@ -63,8 +64,9 @@ class NewFundRevenue:
                 st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados", expanded=True):
-                    id = QueryExecutor().simple_consult_brute_query(
-                        last_revenue_id_query
+                    id = QueryExecutor().simple_consult_query(
+                        last_revenue_id_query,
+                        ()
                     )
                     id = QueryExecutor().treat_simple_result(
                         id,
@@ -132,42 +134,36 @@ class NewFundRevenue:
                         description != ""
                         and value >= 0.01
                         and date != ""
-                        and category != "Selecione uma opção"
-                        and account != "Selecione uma opção"
                     ):
 
                         with data_validation_expander:
                             st.success(body="Dados válidos.")
 
+                        account_id = QueryExecutor().simple_consult_query(
+                            unique_account_id_query,
+                            (account, user_id, user_document)
+                        )
+                        account_id = QueryExecutor().treat_simple_result(
+                            account_id,
+                            TO_REMOVE_LIST
+                        )
+                        account_id = int(account_id)
+
                         actual_horary = GetActualTime().get_actual_time()
 
-                        revenue_query = """
-                        INSERT INTO
-                            receitas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_receita,
-                                documento_proprietario_receita,
-                                recebido
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                         values = (
                             description,
                             value,
                             date,
                             actual_horary,
                             category,
-                            account,
-                            user_name,
+                            account_id,
+                            user_id,
                             user_document,
                             received,
                         )
                         QueryExecutor().insert_query(
-                            revenue_query,
+                            insert_revenue_query,
                             values,
                             "Receita registrada com sucesso!",
                             "Erro ao registrar receita:"
@@ -175,27 +171,17 @@ class NewFundRevenue:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);'''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """Registrou uma receita no valor de R$ {}
                             associada a conta {}.""".format(
-                                str_value, account
+                                str_value,
+                                account
                             )
                         )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                         st.subheader(body=":pencil: Comprovante de Receita")
@@ -217,5 +203,3 @@ class NewFundRevenue:
                         with data_validation_expander:
                             if description == '':
                                 st.error(body="A descrição está vazia.")
-                            if category == "Selecione uma opção":
-                                st.error(body="Selecione uma categoria.")

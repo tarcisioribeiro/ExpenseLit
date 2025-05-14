@@ -1,19 +1,31 @@
 import streamlit as st
-from dictionary.vars import TRANSFER_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import (
-    last_transfer_id_query,
-    user_current_accounts_query,
+from dictionary.sql.account_queries import (
+    user_fund_accounts_query,
     unique_account_id_query,
-    total_account_revenue_query,
-    total_account_expense_query,
-    user_fund_accounts_query
+    user_current_accounts_query
 )
+from dictionary.sql.expenses_queries import (
+    insert_expense_query,
+    total_account_expense_query
+)
+from dictionary.sql.revenues_queries import (
+    insert_revenue_query,
+    total_account_revenue_query
+)
+from dictionary.sql.transfer_queries import (
+    last_transfer_id_query,
+    insert_transfer_query,
+)
+from dictionary.vars import TRANSFER_CATEGORIES, TO_REMOVE_LIST
 from functions.get_actual_time import GetActualTime
 from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class NewTransfer:
@@ -25,18 +37,12 @@ class NewTransfer:
         """
         Realiza a coleta dos dados da transferência do fundo de garantia.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col4, col5, col6 = st.columns(3)
 
         user_fund_accounts = QueryExecutor().complex_consult_query(
             query=user_fund_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_fund_accounts = QueryExecutor().treat_simple_results(
             user_fund_accounts,
@@ -44,7 +50,7 @@ class NewTransfer:
         )
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -72,8 +78,9 @@ class NewTransfer:
             with col4:
                 st.subheader(body=":computer: Entrada de Dados")
 
-                to_treat_id = QueryExecutor().simple_consult_brute_query(
-                    last_transfer_id_query
+                to_treat_id = QueryExecutor().simple_consult_query(
+                    last_transfer_id_query,
+                    ()
                 )
                 id = (
                         int(
@@ -148,7 +155,7 @@ class NewTransfer:
                                     query=unique_account_id_query,
                                     params=(
                                         origin_account,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -159,14 +166,28 @@ class NewTransfer:
                                     TO_REMOVE_LIST
                                 )
                             )
-                            st.info(origin_account_id)
-
+                            destiny_account_id = (
+                                QueryExecutor().simple_consult_query(
+                                    query=unique_account_id_query,
+                                    params=(
+                                        destiny_account,
+                                        user_id,
+                                        user_document
+                                    )
+                                )
+                            )
+                            destiny_account_id = (
+                                QueryExecutor().treat_simple_result(
+                                    destiny_account_id,
+                                    TO_REMOVE_LIST
+                                )
+                            )
                             str_selected_account_revenues = (
                                 QueryExecutor().simple_consult_query(
                                     query=total_account_revenue_query,
                                     params=(
                                         origin_account_id,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -184,8 +205,8 @@ class NewTransfer:
                                 QueryExecutor().simple_consult_query(
                                     query=total_account_expense_query,
                                     params=(
-                                        origin_account,
-                                        user_name,
+                                        origin_account_id,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -232,57 +253,8 @@ class NewTransfer:
 
                         actual_horary = GetActualTime().get_actual_time()
                         revenue_owner_name, revenue_owner_document = (
-                            Login().get_user_data(
-                                return_option="user_doc_name"
-                            )
+                            Login().get_user_data()
                         )
-
-                        transfer_query = """
-                        INSERT INTO
-                            transferencias (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta_origem,
-                                conta_destino,
-                                proprietario_transferencia,
-                                documento_proprietario_transferencia,
-                                transferido
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        ;"""
-                        expense_query = """
-                        INSERT INTO
-                            despesas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_despesa,
-                                documento_proprietario_despesa,
-                                pago
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
-                        revenue_query = """
-                        INSERT INTO
-                            receitas (
-                            descricao,
-                            valor,
-                            data,
-                            horario,
-                            categoria,
-                            conta,
-                            proprietario_receita,
-                            documento_proprietario_receita,
-                            recebido
-                        )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
 
                         transfer_values = (
                             description,
@@ -290,8 +262,8 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            origin_account,
-                            destiny_account,
+                            origin_account_id,
+                            destiny_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
@@ -302,7 +274,7 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            origin_account,
+                            origin_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
@@ -313,25 +285,25 @@ class NewTransfer:
                             date,
                             actual_horary,
                             category,
-                            destiny_account,
+                            destiny_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
                         )
                         QueryExecutor().insert_query(
-                            transfer_query,
+                            insert_transfer_query,
                             transfer_values,
                             "Transferência registrada com sucesso!",
                             "Erro ao registrar transferência:",
                         )
                         QueryExecutor().insert_query(
-                            expense_query,
+                            insert_expense_query,
                             expense_values,
                             "Despesa registrada com sucesso!",
                             "Erro ao registrar despesa:"
                         )
                         QueryExecutor().insert_query(
-                            revenue_query,
+                            insert_revenue_query,
                             revenue_values,
                             "Receita registrada com sucesso!",
                             "Erro ao registrar receita:"
@@ -339,17 +311,8 @@ class NewTransfer:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);
-                        '''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """Registrou uma transferência no valor de R$ {}
                             da conta {} para a conta {}.
@@ -359,11 +322,8 @@ class NewTransfer:
                                 destiny_account
                             )
                         )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                         st.subheader(
@@ -432,18 +392,12 @@ class NewTransfer:
         """
         Coleta os dados da nova transferência e a insere no banco de dados.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col4, col5, col6 = st.columns(3)
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -464,8 +418,9 @@ class NewTransfer:
                 st.subheader(body=":computer: Entrada de Dados")
 
                 with st.expander(label="Dados", expanded=True):
-                    to_treat_id = QueryExecutor().simple_consult_brute_query(
-                        last_transfer_id_query
+                    to_treat_id = QueryExecutor().simple_consult_query(
+                        last_transfer_id_query,
+                        ()
                     )
                     id = (
                             int(
@@ -538,7 +493,7 @@ class NewTransfer:
                                 query=unique_account_id_query,
                                 params=(
                                     origin_account,
-                                    user_name,
+                                    user_id,
                                     user_document
                                 )
                             )
@@ -555,7 +510,7 @@ class NewTransfer:
                                 query=unique_account_id_query,
                                 params=(
                                     destiny_account,
-                                    user_name,
+                                    user_id,
                                     user_document
                                 )
                             )
@@ -573,7 +528,7 @@ class NewTransfer:
                                     query=total_account_revenue_query,
                                     params=(
                                         origin_account_id,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -593,7 +548,7 @@ class NewTransfer:
                                     query=total_account_expense_query,
                                     params=(
                                         origin_account,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -639,57 +594,8 @@ class NewTransfer:
 
                         actual_horary = GetActualTime().get_actual_time()
                         revenue_owner_name, revenue_owner_document = (
-                            Login().get_user_data(
-                                return_option="user_doc_name"
-                            )
+                            Login().get_user_data()
                         )
-
-                        transfer_query = """
-                        INSERT INTO
-                            transferencias (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta_origem,
-                                conta_destino,
-                                proprietario_transferencia,
-                                documento_proprietario_transferencia,
-                                transferido
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
-                        expense_query = """
-                        INSERT INTO
-                            despesas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_despesa,
-                                documento_proprietario_despesa,
-                                pago
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
-                        revenue_query = """
-                        INSERT INTO
-                            receitas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_receita,
-                                documento_proprietario_receita,
-                                recebido
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
 
                         transfer_values = (
                             description,
@@ -726,19 +632,19 @@ class NewTransfer:
                             transfered
                         )
                         QueryExecutor().insert_query(
-                            transfer_query,
+                            insert_transfer_query,
                             transfer_values,
                             "Transferência registrada com sucesso!",
                             "Erro ao registrar transferência:",
                         )
                         QueryExecutor().insert_query(
-                            expense_query,
+                            insert_expense_query,
                             expense_values,
                             "Despesa registrada com sucesso!",
                             "Erro ao registrar despesa:"
                         )
                         QueryExecutor().insert_query(
-                            revenue_query,
+                            insert_revenue_query,
                             revenue_values,
                             "Receita registrada com sucesso!",
                             "Erro ao registrar receita:"
@@ -746,17 +652,8 @@ class NewTransfer:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);
-                        '''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """
                             Registrou uma transferência no valor de R$ {}
@@ -767,11 +664,8 @@ class NewTransfer:
                                 destiny_account
                             )
                         )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                         st.subheader(

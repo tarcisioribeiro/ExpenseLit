@@ -1,11 +1,17 @@
 from datetime import date, datetime
-from dictionary.vars import TO_REMOVE_LIST, today
 from dictionary.app_vars import months, years
-from dictionary.sql import (
-    owner_cards_query,
+from dictionary.vars import TO_REMOVE_LIST, today
+from dictionary.sql.account_queries import (
     user_current_accounts_query,
-    credit_card_expire_date_query,
     unique_account_id_query
+)
+from dictionary.sql.credit_card_queries import (
+    cc_max_limit_query,
+    credit_card_expire_date_query,
+    new_credit_card_invoice_query,
+    new_credit_card_query,
+    new_limit_query,
+    owner_cards_query
 )
 from functions.credit_card import Credit_Card
 from functions.login import Login
@@ -14,6 +20,9 @@ from functions.validate_document import Documents
 from functions.variable import Variable
 from time import sleep
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class UpdateCreditCards:
@@ -25,18 +34,12 @@ class UpdateCreditCards:
         """
         Realiza o cadastro de um novo cartão de crédito.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -111,7 +114,11 @@ class UpdateCreditCards:
 
                     account_id = QueryExecutor().simple_consult_query(
                         unique_account_id_query,
-                        (associated_account, user_name, user_document)
+                        (
+                            associated_account,
+                            user_id,
+                            user_document
+                        )
                     )
                     account_id = QueryExecutor().treat_simple_result(
                         account_id,
@@ -151,28 +158,11 @@ class UpdateCreditCards:
                                     st.success(body="Número de cartão válido.")
                                     st.success(body="Documento Válido.")
 
-                                    new_credit_card_query = """
-                                    INSERT INTO
-                                        cartao_credito (
-                                            nome_cartao,
-                                            numero_cartao,
-                                            nome_titular,
-                                            proprietario_cartao,
-                                            documento_titular,
-                                            data_validade,
-                                            codigo_seguranca,
-                                            limite_credito,
-                                            limite_maximo,
-                                            conta_associada
-                                        )
-                                    VALUES (
-                                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-                                    );"""
                                     new_credit_card_values = (
                                         card_name,
                                         card_number,
                                         owner_name,
-                                        user_name,
+                                        user_id,
                                         user_document,
                                         expire_date,
                                         security_code,
@@ -187,16 +177,8 @@ class UpdateCreditCards:
                                         "Erro ao cadastrar cartão"
                                     )
 
-                                    log_query = '''
-                                    INSERT INTO
-                                        logs_atividades (
-                                            usuario_log,
-                                            tipo_log,
-                                            conteudo_log
-                                        )
-                                    VALUES ( %s, %s, %s);'''
                                     log_values = (
-                                        logged_user,
+                                        user_id,
                                         "Cadastro",
                                         """
                                         Cadastrou o cartão {}
@@ -206,11 +188,8 @@ class UpdateCreditCards:
                                             associated_account
                                         )
                                     )
-                                    QueryExecutor().insert_query(
-                                        log_query,
+                                    QueryExecutor().register_log_query(
                                         log_values,
-                                        "Log gravado.",
-                                        "Erro ao gravar log:"
                                     )
 
                                 elif (
@@ -299,18 +278,12 @@ class UpdateCreditCards:
         """
         Atualiza os dados do cartão de crédito.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
         credit_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         credit_cards = QueryExecutor().treat_simple_results(
             credit_cards,
@@ -332,22 +305,13 @@ class UpdateCreditCards:
             with col1:
                 st.subheader(body=":computer: Entrada de Dados")
 
-                cc_max_limit_query = '''
-                SELECT
-                    limite_maximo
-                FROM
-                    cartao_credito
-                WHERE
-                    nome_cartao = '{}'
-                    AND proprietario_cartao = '{}'
-                    AND documento_titular = {}
-                '''.format(
-                    card,
-                    user_name,
-                    user_document
-                )
-                cc_max_limit = QueryExecutor().simple_consult_brute_query(
-                    cc_max_limit_query
+                cc_max_limit = QueryExecutor().simple_consult_query(
+                    cc_max_limit_query,
+                    (
+                        card,
+                        user_id,
+                        user_document
+                    )
                 )
                 cc_max_limit = QueryExecutor().treat_simple_result(
                     cc_max_limit,
@@ -388,23 +352,6 @@ class UpdateCreditCards:
             if confirm_values and send_data_button:
 
                 inactive = inactive_options[inactive]
-                new_limit_query = '''
-                UPDATE
-                    cartao_credito
-                SET
-                    limite_credito = {},
-                    inativo = '{}'
-                WHERE
-                    nome_cartao = '{}'
-                    AND proprietario_cartao = '{}'
-                    AND documento_titular = {};
-                '''.format(
-                    new_limit,
-                    inactive,
-                    card,
-                    user_name,
-                    user_document
-                )
 
                 with col2:
                     with st.spinner(text='Aguarde...'):
@@ -427,33 +374,28 @@ class UpdateCreditCards:
                                 )
                             )
 
-                        QueryExecutor().update_table_unique_register(
+                        QueryExecutor().update_unique_register(
                             new_limit_query,
+                            (
+                                new_limit,
+                                inactive,
+                                card,
+                                user_id,
+                                user_document
+                            ),
                             "Limite atualizado com sucesso!",
                             "Erro ao atualizar limite:"
                         )
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);
-                        '''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             "Atualizou o limite do cartão {}.".format(
                                 card
                             )
                         )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
         elif len(credit_cards) == 0:
             with col2:
@@ -463,18 +405,12 @@ class UpdateCreditCards:
         """
         Realiza o cadastro dos fechamentos de fatura do cartão de crédito.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
         credit_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         credit_cards = QueryExecutor().treat_simple_results(
             credit_cards,
@@ -495,12 +431,16 @@ class UpdateCreditCards:
                         options=credit_cards
                     )
                     (
+                        card_id,
                         card_number,
                         owner_name,
                         owner_document,
                         card_code
                     ) = Credit_Card().get_credit_card_key(card=card_name)
-                    year = st.selectbox(label=":calendar: Ano", options=years)
+                    year = st.selectbox(
+                        label=":calendar: Ano",
+                        options=years
+                    )
                     month = st.selectbox(
                         label=":calendar: Mês",
                         options=months
@@ -523,7 +463,11 @@ class UpdateCreditCards:
                     credit_card_expire_date = (
                         QueryExecutor().simple_consult_query(
                             query=credit_card_expire_date_query,
-                            params=(user_document, card_name, user_name)
+                            params=(
+                                user_document,
+                                card_name,
+                                user_id
+                            )
                         )
                     )
                     credit_card_expire_date = (
@@ -595,22 +539,10 @@ class UpdateCreditCards:
                                     )
                                 )
 
-                                new_credit_card_invoice_query = """
-                                INSERT INTO
-                                    fechamentos_cartao (
-                                        nome_cartao,
-                                        numero_cartao,
-                                        documento_titular,
-                                        ano,
-                                        mes,
-                                        data_comeco_fatura,
-                                        data_fim_fatura
-                                    )
-                                VALUES (%s, %s, %s, %s, %s, %s, %s);
-                                """
                                 new_credit_card_invoice_values = (
-                                    card_name,
+                                    card_id,
                                     card_number,
+                                    user_id,
                                     owner_document,
                                     year,
                                     month,
@@ -625,27 +557,15 @@ class UpdateCreditCards:
                                     "Erro ao cadastrar fechamento:"
                                 )
 
-                                log_query = '''
-                                INSERT INTO
-                                    financas.logs_atividades (
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    )
-                                VALUES ( %s, %s, %s);
-                                '''
                                 log_values = (
-                                    logged_user,
+                                    user_id,
                                     "Cadastro",
                                     """
                                     Cadastrou um fechamento do cartão {}.
                                     """.format(card_name)
                                 )
-                                QueryExecutor().insert_query(
-                                    log_query,
+                                QueryExecutor().register_log_query(
                                     log_values,
-                                    "Log gravado.",
-                                    "Erro ao gravar log:"
                                 )
 
                             elif (

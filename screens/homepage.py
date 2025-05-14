@@ -1,33 +1,45 @@
-from dictionary.style import system_font
-from datetime import datetime
-from functions.credit_card import Credit_Card
-from functions.login import Login
-from functions.get_balance import GetBalance
-from functions.query_executor import QueryExecutor
-from functions.variable import Variable
-from dictionary.sql import (
-    fund_expense_query,
-    fund_revenue_query,
-    ticket_expense_query,
-    ticket_revenue_query,
-    loan_expense_query,
-    debts_expense_query,
-    most_categories_expenses_query,
-    most_credit_card_expenses_query,
-    most_categories_revenues_query,
+from dictionary.app_vars import string_actual_month
+from dictionary.sql.credit_card_queries import (
     owner_active_cards_query
 )
+from dictionary.sql.credit_card_expenses_queries import (
+    most_credit_card_expenses_query
+)
+from dictionary.sql.credit_card_queries import credit_card_name_query
+from dictionary.sql.expenses_queries import (
+    fund_expense_query,
+    ticket_expense_query,
+    most_categories_expenses_query
+)
+from dictionary.sql.loan_queries import (
+    debts_expense_query,
+    loan_expense_query
+)
+from dictionary.sql.revenues_queries import (
+    fund_revenue_query,
+    ticket_revenue_query,
+    most_categories_revenues_query
+)
+from dictionary.style import system_font
 from dictionary.vars import (
     TO_REMOVE_LIST,
-    string_actual_month,
     actual_year,
     ABSOLUTE_APP_PATH
 )
-import matplotlib.pyplot as plt
+from datetime import datetime
+from functions.credit_card import Credit_Card
+from functions.get_balance import GetBalance
+from functions.login import Login
+from functions.query_executor import QueryExecutor
+from functions.variable import Variable
 from matplotlib import rcParams
 from matplotlib import font_manager as fm
+import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class Home:
@@ -51,8 +63,20 @@ class Home:
         future_expenses = credit_card.future_expenses(selected_card)
         card_limit = credit_card.card_limit(selected_card)
         remaining_limit = credit_card.card_remaining_limit(selected_card)
+        card_name = QueryExecutor().simple_consult_query(
+            credit_card_name_query,
+            (
+                selected_card,
+                user_id,
+                user_document
+            )
+        )
+        card_name = QueryExecutor().treat_simple_result(
+            card_name,
+            TO_REMOVE_LIST
+        )
 
-        st.info(body="Cartão {}".format(selected_card))
+        st.info(body="Cartão {}".format(card_name))
         credit_card_data_df = pd.DataFrame(
             {
                 "Categoria": [
@@ -102,10 +126,6 @@ class Home:
         """
         balance = GetBalance().balance()
 
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-
         values_list = []
 
         final_str_balance = Variable().treat_complex_string(balance)
@@ -113,7 +133,7 @@ class Home:
 
         ticket_revenue_ammount = QueryExecutor().simple_consult_query(
             query=ticket_revenue_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         ticket_revenue_ammount = QueryExecutor().treat_simple_result(
             ticket_revenue_ammount,
@@ -123,7 +143,7 @@ class Home:
 
         ticket_expense_ammount = QueryExecutor().simple_consult_query(
             query=ticket_expense_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         ticket_expense_ammount = QueryExecutor().treat_simple_result(
             ticket_expense_ammount,
@@ -138,7 +158,7 @@ class Home:
 
         fund_revenue_ammount = QueryExecutor().simple_consult_query(
             query=fund_revenue_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         fund_revenue_ammount = QueryExecutor().treat_simple_result(
             fund_revenue_ammount,
@@ -147,7 +167,7 @@ class Home:
         fund_revenue_ammount = float(fund_revenue_ammount)
         fund_expense_ammount = QueryExecutor().simple_consult_query(
             query=fund_expense_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         fund_expense_ammount = QueryExecutor().treat_simple_result(
             fund_expense_ammount,
@@ -160,7 +180,7 @@ class Home:
 
         loan_ammount = QueryExecutor().simple_consult_query(
             query=loan_expense_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         loan_ammount = QueryExecutor().treat_simple_result(
             loan_ammount,
@@ -171,7 +191,7 @@ class Home:
 
         debts_ammount = QueryExecutor().simple_consult_query(
             query=debts_expense_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         debts_ammount = QueryExecutor().treat_simple_result(
             debts_ammount,
@@ -201,9 +221,6 @@ class Home:
             GetBalance().list_values()
         )
 
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
         user_display_name, user_sex = Login().check_user()
 
         col1, col2, col3 = st.columns(3)
@@ -337,13 +354,16 @@ class Home:
                         use_container_width=True
                     )
 
+                elif len(accounts_balance) == 0:
+                    st.warning(body="Você ainda não possui contas.")
+
             with st.expander(
                 label=":credit_card: Cartões de crédito",
                 expanded=True
             ):
                 cards_result = QueryExecutor().complex_consult_query(
                     query=owner_active_cards_query,
-                    params=(user_name, user_document)
+                    params=(user_id, user_document)
                 )
                 cards_result = QueryExecutor().treat_simple_results(
                     cards_result,
@@ -351,7 +371,7 @@ class Home:
                 )
 
                 if len(cards_result) == 0:
-                    st.info(body="Você ainda não possui cartões.")
+                    st.warning(body="Você ainda não possui cartões.")
 
                 elif len(cards_result) >= 1 and cards_result[0] != "":
                     for i in range(0, len(cards_result)):
@@ -489,7 +509,7 @@ class Home:
             ):
                 accounts_expense_graph = QueryExecutor().complex_consult_query(
                     query=most_categories_expenses_query,
-                    params=(user_name, user_document)
+                    params=(user_id, user_document)
                 )
                 if len(accounts_expense_graph) > 0:
                     account_df = pd.DataFrame(accounts_expense_graph, columns=[
@@ -548,7 +568,7 @@ class Home:
                 credit_card_expense_graph = (
                     QueryExecutor().complex_consult_query(
                         query=most_credit_card_expenses_query,
-                        params=(user_name, user_document)
+                        params=(user_id, user_document)
                     )
                 )
 
@@ -616,7 +636,7 @@ class Home:
             ):
                 accounts_revenue_graph = QueryExecutor().complex_consult_query(
                     most_categories_revenues_query,
-                    params=(user_name, user_document)
+                    params=(user_id, user_document)
                 )
                 if len(accounts_revenue_graph) > 0:
                     account_df = pd.DataFrame(accounts_revenue_graph, columns=[

@@ -1,18 +1,26 @@
 import streamlit as st
-from dictionary.sql import (
-    last_expense_id_query,
+from dictionary.sql.account_queries import (
     user_current_accounts_query,
-    total_account_revenue_query,
-    total_account_expense_query,
     unique_account_id_query
 )
-from dictionary.vars import TO_REMOVE_LIST, EXPENSE_CATEGORIES
+from dictionary.sql.expenses_queries import (
+    last_expense_id_query,
+    total_account_expense_query,
+    insert_expense_query
+)
+from dictionary.sql.revenues_queries import (
+    total_account_revenue_query
+)
+from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
 from functions.login import Login
 from functions.get_actual_time import GetActualTime
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class NewCurrentExpense:
@@ -24,15 +32,10 @@ class NewCurrentExpense:
         """
         Obtém os dados de uma nova despesa em conta corrente.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -56,8 +59,9 @@ class NewCurrentExpense:
 
                 with st.expander(label="Dados", expanded=True):
 
-                    id = QueryExecutor().simple_consult_brute_query(
-                        last_expense_id_query
+                    id = QueryExecutor().simple_consult_query(
+                        last_expense_id_query,
+                        ()
                     )
                     id = QueryExecutor().treat_simple_result(
                         id,
@@ -121,7 +125,7 @@ class NewCurrentExpense:
                                 unique_account_id_query,
                                 (
                                     account,
-                                    user_name,
+                                    user_id,
                                     user_document
                                 )
                             )
@@ -136,7 +140,7 @@ class NewCurrentExpense:
                                     query=total_account_revenue_query,
                                     params=(
                                         account_id,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -156,7 +160,7 @@ class NewCurrentExpense:
                                     total_account_expense_query,
                                     params=(
                                         account_id,
-                                        user_name,
+                                        user_id,
                                         user_document
                                     )
                                 )
@@ -198,21 +202,7 @@ class NewCurrentExpense:
                             st.success(body="Dados Válidos.")
 
                         actual_horary = GetActualTime().get_actual_time()
-                        expense_query = """
-                        INSERT INTO
-                            despesas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_despesa,
-                                documento_proprietario_despesa,
-                                pago
-                            )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                        """
+
                         values = (
                             description,
                             value,
@@ -220,12 +210,12 @@ class NewCurrentExpense:
                             actual_horary,
                             category,
                             account_id,
-                            user_name,
+                            user_id,
                             user_document,
                             payed
                         )
                         QueryExecutor().insert_query(
-                            expense_query,
+                            insert_expense_query,
                             values,
                             "Despesa registrada com sucesso!",
                             "Erro ao registrar despesa:"
@@ -233,26 +223,14 @@ class NewCurrentExpense:
 
                         str_value = Variable().treat_complex_string(value)
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);
-                        '''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """Registrou uma despesa no valor de R$ {}
                             associada a conta {}.
                         """.format(str_value, account))
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                         with st.spinner("Aguarde..."):

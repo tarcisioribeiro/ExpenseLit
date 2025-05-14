@@ -1,18 +1,19 @@
 from datetime import datetime
-from dictionary.sql import (
-    user_current_accounts_query,
-    expenses_statement_query,
-    revenues_statement_query
-)
-from functions.login import Login
-from dictionary.vars import TO_REMOVE_LIST, today, ABSOLUTE_APP_PATH
+from dictionary.sql.account_queries import user_current_accounts_query
+from dictionary.sql.expenses_queries import expenses_statement_query
+from dictionary.sql.revenues_queries import revenues_statement_query
 from dictionary.style import system_font
+from dictionary.vars import ABSOLUTE_APP_PATH, TO_REMOVE_LIST, today
 from fpdf import FPDF
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from time import sleep
 import pandas as pd
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class AccountStatement:
@@ -48,9 +49,6 @@ class AccountStatement:
         data_df_list : list
             A lista com os gráficos estruturados.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         value_list = []
         data_df_list = []
@@ -72,7 +70,7 @@ class AccountStatement:
                     initial_data,
                     final_data,
                     *accounts,
-                    user_name,
+                    user_id,
                     user_document
                 )
             )
@@ -151,7 +149,7 @@ class AccountStatement:
                     initial_data,
                     final_data,
                     *accounts,
-                    user_name,
+                    user_id,
                     user_document
                 )
             )
@@ -231,7 +229,7 @@ class AccountStatement:
                     initial_data,
                     final_data,
                     *accounts,
-                    user_name,
+                    user_id,
                     user_document
                 )
             )
@@ -308,7 +306,7 @@ class AccountStatement:
                     initial_data,
                     final_data,
                     *accounts,
-                    user_name,
+                    user_id,
                     user_document
                 )
             )
@@ -408,10 +406,6 @@ class AccountStatement:
         pdf: O PDF gerado pela função.
         """
 
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-
         unformatted_today = datetime.strptime(today, '%Y-%m-%d')
         formatted_today = unformatted_today.strftime('%d/%m/%Y')
 
@@ -494,7 +488,7 @@ class AccountStatement:
         pdf.cell(
             0,
             10,
-            "Nome do usuário: {}.".format(user_name),
+            "Nome do usuário: {}.".format(user_id),
             align="R",
             ln=True
         )
@@ -506,16 +500,10 @@ class AccountStatement:
         """
         Menu principal.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         user_current_accounts = QueryExecutor().complex_consult_query(
             query=user_current_accounts_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
             user_current_accounts,
@@ -630,16 +618,8 @@ class AccountStatement:
                                 "%d/%m/%Y"
                             )
 
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);'''
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Consulta",
                                 """
                                 Consultou o relatório de {}
@@ -650,11 +630,8 @@ class AccountStatement:
                                     formatted_final_data
                                 )
                             )
-                            QueryExecutor().insert_query(
-                                log_query,
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
 
                             time = GetActualTime().get_actual_time()

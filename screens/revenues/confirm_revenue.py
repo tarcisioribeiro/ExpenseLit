@@ -1,13 +1,20 @@
 from datetime import datetime
-from dictionary.sql import not_received_revenue_query
+from dictionary.sql.revenues_queries import (
+    get_revenue_id_query,
+    update_not_received_query,
+    not_received_revenue_query
+)
 from dictionary.vars import TO_REMOVE_LIST, today
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
-from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class ConfirmRevenue:
@@ -48,20 +55,17 @@ class ConfirmRevenue:
             O id da receita não recebida.
         """
 
-        get_id_query = """
-        SELECT
-            id
-        FROM
-            receitas
-        WHERE
-            descricao = "{}"
-            AND valor = {}
-            AND data = "{}"
-            AND horario = "{}"
-            AND categoria = "{}"
-            AND conta = "{}";
-        """.format(description, value, date, time, category, account)
-        id = QueryExecutor().simple_consult_brute_query(get_id_query)
+        id = QueryExecutor().simple_consult_query(
+            get_revenue_id_query,
+            (
+                description,
+                value,
+                date,
+                time,
+                category,
+                account
+            )
+        )
         id = QueryExecutor().treat_simple_result(id, TO_REMOVE_LIST)
         id = int(id)
 
@@ -79,16 +83,9 @@ class ConfirmRevenue:
             A nova data da receita.
         """
 
-        update_not_received_query = """
-        UPDATE
-            receitas
-        SET
-            data = "{}",
-            recebido = "S"
-        WHERE id_receita = {};
-        """.format(new_date, id)
-        QueryExecutor().update_table_unique_register(
+        QueryExecutor().update_unique_register(
             update_not_received_query,
+            (new_date, id),
             "Receita atualizada com sucesso!",
             "Erro ao atualizar receita:"
         )
@@ -97,19 +94,13 @@ class ConfirmRevenue:
         """
         Exibe as receitas não recebidas.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col4, col5, col6 = st.columns(3)
 
         revenue_values = QueryExecutor().complex_compund_query(
             query=not_received_revenue_query,
             list_quantity=7,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
 
         if len(revenue_values[0]) >= 1:
@@ -257,7 +248,8 @@ class ConfirmRevenue:
                         )
 
                         self.update_not_received_revenues(
-                            id=final_id, new_date=today)
+                            id=final_id, new_date=today
+                        )
 
                         Receipts().generate_receipt(
                             table="receitas",
@@ -269,16 +261,8 @@ class ConfirmRevenue:
                             account=final_account
                         )
 
-                        log_query = '''
-                        INSERT INTO
-                            financas.logs_atividades (
-                                usuario_log,
-                                tipo_log,
-                                conteudo_log
-                            )
-                        VALUES ( %s, %s, %s);'''
                         log_values = (
-                            logged_user,
+                            user_id,
                             "Registro",
                             """Registrou uma receita no valor de R$ {}
                             associada a conta {}.""".format(
@@ -286,11 +270,8 @@ class ConfirmRevenue:
                                 account
                             )
                         )
-                        QueryExecutor().insert_query(
-                            log_query,
+                        QueryExecutor().register_log_query(
                             log_values,
-                            "Log gravado.",
-                            "Erro ao gravar log:"
                         )
 
                 elif update_button and confirm_selection is False:

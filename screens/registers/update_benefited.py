@@ -1,11 +1,27 @@
-from functions.login import Login
+
 from dictionary.vars import today, TO_REMOVE_LIST
-from dictionary.sql import benefited_quantity_query, beneficiaries_query
+from dictionary.sql.benefited_queries import (
+    benefited_quantity_query,
+    beneficiaries_query,
+    beneficiaries_complete_data_query,
+    insert_benefited_query,
+    is_entire_benefited_data_valid_query,
+    is_new_benefited_document_valid_query,
+    is_new_benefited_name_valid_query,
+    is_new_benefited_phone_valid_query,
+    new_benefited_data_query,
+    new_benefited_loans_data_query,
+    get_loans_ids_query
+)
+from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
-from functions.get_actual_time import GetActualTime
 from time import sleep
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class Benefited:
@@ -41,63 +57,38 @@ class Benefited:
 
         is_new_register_valid = True
 
-        is_new_name_valid_query = """
-        SELECT
-            COUNT(id)
-        FROM
-            beneficiados
-        WHERE
-            nome = %s
-            AND id <> %s;
-        """
         is_new_name_valid = QueryExecutor().simple_consult_query(
-            is_new_name_valid_query,
+            is_new_benefited_name_valid_query,
             params=(
                 benefited_new_name,
                 benefited_id
             )
         )
         is_new_name_valid = QueryExecutor().treat_simple_result(
-            is_new_name_valid,
+            is_new_benefited_name_valid_query,
             TO_REMOVE_LIST
         )
         is_document_valid = Documents().validate_owner_document(
             benefited_new_document
         )
-        is_new_document_valid_query = """
-        SELECT
-            COUNT(id)
-        FROM
-            beneficiados
-        WHERE
-            documento = %s
-            AND id <> %s;
-        """
+
         is_new_document_valid = QueryExecutor().simple_consult_query(
-            is_new_document_valid_query,
+            is_new_benefited_document_valid_query,
             params=(
                 benefited_new_document,
                 benefited_id
             )
         )
         is_new_document_valid = QueryExecutor().treat_simple_result(
-            is_new_document_valid,
+            is_new_benefited_document_valid_query,
             TO_REMOVE_LIST
         )
         if is_document_valid is False:
             is_new_register_valid = False
             st.error(body="Os novos dados não são válidos.")
-        is_new_phone_valid_query = """
-        SELECT
-            COUNT(id)
-        FROM
-            beneficiados
-        WHERE
-            telefone = %s
-            AND id <> %s;
-        """
+
         is_new_phone_valid = QueryExecutor().simple_consult_query(
-            is_new_phone_valid_query,
+            is_new_benefited_phone_valid_query,
             params=(benefited_new_phone, benefited_id)
         )
         is_new_phone_valid = QueryExecutor().treat_simple_result(
@@ -122,18 +113,9 @@ class Benefited:
                 O telefone {} já está em uso.
                 """.format(benefited_new_phone)
             )
-        is_entire_data_valid_query = """
-        SELECT
-            COUNT(id)
-        FROM
-            beneficiados
-        WHERE
-            nome = %s
-            AND documento = %s
-            AND telefone = %s;
-        """
+
         is_entire_data_valid = QueryExecutor().simple_consult_query(
-            is_entire_data_valid_query,
+            is_entire_benefited_data_valid_query,
             params=(
                 benefited_new_name,
                 benefited_new_document,
@@ -170,15 +152,10 @@ class Benefited:
         """
         Atualiza os dados do beneficiado.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+
         benefited_quantity = QueryExecutor().simple_consult_query(
             query=benefited_quantity_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         benefited_quantity = QueryExecutor().treat_simple_result(
             benefited_quantity,
@@ -194,7 +171,7 @@ class Benefited:
         elif benefited_quantity >= 1:
             beneficiaries = QueryExecutor().complex_consult_query(
                 query=beneficiaries_query,
-                params=(user_name, user_document)
+                params=(user_id, user_document)
             )
             beneficiaries = QueryExecutor().treat_numerous_simple_result(
                 beneficiaries,
@@ -206,27 +183,12 @@ class Benefited:
                     label="Beneficiado",
                     options=beneficiaries
                 )
-            beneficiaries_complete_data_query = """
-            SELECT
-                beneficiados.id,
-                beneficiados.nome,
-                beneficiados.documento,
-                beneficiados.telefone
-            FROM
-                beneficiados
-            INNER JOIN usuarios
-                ON beneficiados.nome <> usuarios.nome
-                AND beneficiados.documento <> usuarios.documento
-            WHERE
-                usuarios.nome = %s
-                AND usuarios.documento = %s
-                AND beneficiados.nome = %s;
-            """
+
             beneficiaries_complete_data = (
                 QueryExecutor().complex_compund_query(
                     query=beneficiaries_complete_data_query,
                     list_quantity=4,
-                    params=(user_name, user_document, selected_beneficiary)
+                    params=(user_id, user_document, selected_beneficiary)
                 )
             )
             beneficiaries_complete_data = QueryExecutor().treat_complex_result(
@@ -303,15 +265,7 @@ class Benefited:
                                     )
                                 )
                             if is_data_passed_valid is True:
-                                get_loans_ids_query = """
-                                SELECT
-                                    id
-                                FROM
-                                    emprestimos
-                                WHERE
-                                    devedor = %s
-                                    AND documento_devedor = %s;
-                                """
+
                                 loans_ids = (
                                     QueryExecutor().complex_consult_query(
                                         query=get_loans_ids_query,
@@ -332,64 +286,39 @@ class Benefited:
                                     for i in range(0, len(loans_ids)):
                                         ids.append(int(loans_ids[i]))
                                     ids = tuple(ids)
-                                    new_benefited_loans_data_query = """
-                                    UPDATE
-                                        emprestimos
-                                    SET
-                                        devedor = '{}',
-                                        documento_devedor = {}
-                                    WHERE
-                                        devedor = '{}'
-                                        AND documento_devedor = {}
-                                        AND id IN{};
-                                    """.format(
+
+                                    new_benefited_loans_data_query.format(
                                         new_name,
                                         new_document,
                                         beneficiaries_complete_data[1],
                                         beneficiaries_complete_data[2],
                                         ids
                                     )
+
                                     QueryExecutor().update_unique_register(
                                         new_benefited_loans_data_query,
                                         "Registros atualizados com sucesso!",
                                         "Erro ao atualizar registros:"
                                     )
-                                new_benefited_data_query = """
-                                UPDATE
-                                    beneficiados
-                                SET
-                                    nome = '{}',
-                                    documento = {},
-                                    telefone = '{}'
-                                WHERE
-                                    id = {};
-                                """.format(
+
+                                new_benefited_data_query.format(
                                     new_name,
                                     new_document,
                                     new_phone,
                                     int(beneficiaries_complete_data[0])
                                 )
+
                                 QueryExecutor().update_table_unique_register(
                                     new_benefited_data_query,
                                     "Beneficiado atualizado com sucesso!",
                                     "Erro ao atualizar beneficiado:"
                                 )
                                 actual_time = GetActualTime().get_actual_time()
-                                log_query = '''
-                                INSERT INTO
-                                    logs_atividades (
-                                        data_log,
-                                        horario_log,
-                                        usuario_log,
-                                        tipo_log,
-                                        conteudo_log
-                                    )
-                                VALUES (%s, %s, %s, %s, %s);
-                                '''
+
                                 log_values = (
                                     today,
                                     actual_time,
-                                    logged_user,
+                                    user_id,
                                     "Atualização",
                                     """
                                     O usuário atualizou o beneficiado {}.
@@ -397,23 +326,14 @@ class Benefited:
                                         beneficiaries_complete_data[1]
                                         )
                                     )
-                                QueryExecutor().insert_query(
-                                    log_query,
-                                    log_values,
-                                    "Log gravado com sucesso!",
-                                    "Erro ao gravar log:"
+                                QueryExecutor().register_log_query(
+                                    log_values
                                 )
 
     def new_benefited(self):
         """
         Cadastra um novo beneficiado.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
         col1, col2, col3 = st.columns(3)
         with col1:
             st.subheader(body=":computer: Entrada de Dados")
@@ -461,24 +381,17 @@ class Benefited:
                             st.success(body="Documento válido.")
 
                         if (
-                            benefited_name != user_name
+                            benefited_name != user_id
                             ) and (
                                 benefited_document != int(user_document)
                         ):
-                            insert_benefited_query = '''
-                            INSERT INTO
-                                beneficiados (
-                                    `nome`,
-                                    `documento`,
-                                    `telefone`
-                                )
-                            VALUES (%s, %s, %s);
-                            '''
+
                             query_values = (
                                 benefited_name,
                                 benefited_document,
                                 benefited_phone
                             )
+
                             QueryExecutor().insert_query(
                                 insert_benefited_query,
                                 query_values,
@@ -486,43 +399,26 @@ class Benefited:
                                 "Erro ao cadastrar beneficiado:"
                             )
                             actual_time = GetActualTime().get_actual_time()
-                            log_query = '''
-                            INSERT INTO
-                                logs_atividades (
-                                    data_log,
-                                    horario_log,
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES (
-                                %s,
-                                %s,
-                                %s,
-                                %s,
-                                %s
-                            );
-                            '''
                             log_values = (
                                 today,
                                 actual_time,
-                                logged_user,
+                                user_id,
                                 "Cadastro",
                                 """
                                 O usuário cadastrou o beneficiado {}.
-                                """.format(benefited_name))
-                            QueryExecutor().insert_query(
-                                log_query,
-                                log_values,
-                                "Log gravado com sucesso!",
-                                "Erro ao gravar log:"
+                                """.format(benefited_name)
                             )
+
+                            QueryExecutor().register_log_query(
+                                log_values
+                            )
+
                         if (
-                            benefited_name == user_name
+                            benefited_name == user_id
                             ) or (
                                 benefited_document == int(user_document)
                         ):
-                            if benefited_name == user_name:
+                            if benefited_name == user_id:
                                 st.error(
                                     body="Este beneficiado já foi cadastrado."
                                 )

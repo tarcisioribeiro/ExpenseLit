@@ -1,14 +1,29 @@
-from dictionary.sql import owner_cards_query, card_invoices_query
-from dictionary.vars import today, TO_REMOVE_LIST, actual_year
-from functions.login import Login
+from dictionary.sql.credit_card_queries import (
+    owner_cards_query,
+    card_invoices_query
+)
+from dictionary.sql.credit_card_expenses_queries import (
+    update_invoice_query
+)
+from dictionary.sql.account_queries import (
+    selected_card_linked_account_query
+)
+from dictionary.sql.expenses_queries import (
+    insert_expense_query
+)
+from dictionary.vars import actual_year, TO_REMOVE_LIST, today
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from screens.reports.receipts import Receipts
 from time import sleep
 import pandas as pd
 import streamlit as st
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class CreditCardInvoice:
@@ -41,30 +56,13 @@ class CreditCardInvoice:
         selected_card_linked_account : str
             A conta vinculada ao cartão.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
-        selected_card_linked_account_query = """
-        SELECT
-            DISTINCT(cc.conta_associada)
-        FROM
-            contas
-        INNER JOIN
-            cartao_credito AS cc
-            ON contas.proprietario_conta = cc.proprietario_cartao
-            AND contas.documento_proprietario_conta = cc.documento_titular
-        WHERE
-            cc.nome_cartao = %s
-            AND contas.proprietario_conta = %s
-            AND contas.documento_proprietario_conta = %s;
-        """
         selected_card_linked_account = (
             QueryExecutor().simple_consult_query(
                 selected_card_linked_account_query,
                 params=(
                     selected_card,
-                    user_name,
+                    user_id,
                     user_document
                 )
             )
@@ -121,12 +119,6 @@ class CreditCardInvoice:
         selected_month : str
             O mês da fatura selecionado pelo usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         (
             month_year,
@@ -154,14 +146,15 @@ class CreditCardInvoice:
         elif month_expenses > 0:
             id_list = Credit_Card().get_card_id_month_expenses(
                 selected_card,
-                month_year, month_name
+                month_year,
+                month_name
             )
             (
-                descricao_list,
-                valor_list,
-                data_list,
-                categoria_list,
-                parcela_list
+                description_list,
+                value_list,
+                date_list,
+                category_list,
+                installment_list
             ) = (
                 Credit_Card().get_complete_card_month_expenses(
                     selected_card,
@@ -171,11 +164,11 @@ class CreditCardInvoice:
             )
 
             credit_card_month_expenses_list_df = pd.DataFrame({
-                "Descrição": descricao_list,
-                "Valor": valor_list,
-                "Data": data_list,
-                "Categoria": categoria_list,
-                "Parcela": parcela_list, })
+                "Descrição": description_list,
+                "Valor": value_list,
+                "Data": date_list,
+                "Categoria": category_list,
+                "Parcela": installment_list, })
             credit_card_month_expenses_list_df["Valor"] = (
                 credit_card_month_expenses_list_df["Valor"].apply(
                     lambda x: f"R$ {x:.2f}".replace(".", ",")
@@ -208,21 +201,7 @@ class CreditCardInvoice:
             actual_horary = GetActualTime().get_actual_time()
 
             pay_button = st.button(label=":pencil: Pagar Fatura")
-            expense_query = """
-            INSERT INTO
-                despesas (
-                    descricao,
-                    valor,
-                    data,
-                    horario,
-                    categoria,
-                    conta,
-                    proprietario_despesa,
-                    documento_proprietario_despesa,
-                    pago
-                )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-            """
+
             values = (
                 description,
                 month_expenses,
@@ -230,20 +209,12 @@ class CreditCardInvoice:
                 actual_horary,
                 "Fatura Cartão",
                 selected_card_linked_account,
-                user_name,
+                user_id,
                 user_document,
                 "S"
             )
 
-            update_invoice_query = '''
-            UPDATE
-                fechamentos_cartao
-            SET fechado = 'S'
-            WHERE nome_cartao = '{}'
-                AND mes = '{}'
-                AND ano = '{}'
-                AND documento_titular = {};
-            '''.format(
+            update_invoice_query.format(
                 selected_card,
                 selected_month,
                 actual_year,
@@ -253,34 +224,33 @@ class CreditCardInvoice:
             if confirm_values_checkbox and pay_button:
                 QueryExecutor().update_table_registers(
                     "despesas_cartao_credito",
-                    "despesa_cartao",
                     id_list
                 )
                 QueryExecutor().insert_query(
-                    expense_query,
+                    insert_expense_query,
                     values,
                     "Fatura paga com sucesso!",
                     "Erro ao pagar fatura:"
                 )
-                QueryExecutor().update_table_unique_register(
+                QueryExecutor().update_unique_register(
                     update_invoice_query,
+                    (
+                        selected_card,
+                        user_id,
+                        user_document,
+                        month_name,
+                        month_year,
+                        user_id,
+                        user_document
+                    ),
                     "Fatura fechada com sucesso!",
                     "Falha ao fechar fatura:"
                 )
 
                 str_value = Variable().treat_complex_string(month_expenses)
 
-                log_query = '''
-                INSERT INTO
-                    financas.logs_atividades (
-                        usuario_log,
-                        tipo_log,
-                        conteudo_log
-                    )
-                VALUES ( %s, %s, %s);
-                '''
                 log_values = (
-                    logged_user,
+                    user_id,
                     "Registro",
                     """
                     Registrou uma despesa no valor de R$ {}
@@ -289,11 +259,8 @@ class CreditCardInvoice:
                         selected_card
                     )
                 )
-                QueryExecutor().insert_query(
-                    log_query,
+                QueryExecutor().register_log_query(
                     log_values,
-                    "Log gravado.",
-                    "Erro ao gravar log:"
                 )
 
                 with column_disposition:
@@ -305,7 +272,7 @@ class CreditCardInvoice:
                     with st.expander(label="Arquivo", expanded=True):
                         Receipts().generate_receipt(
                             "despesas",
-                            id_list[0],
+                            int(id_list[0]),
                             description="Fatura Cartão de {}".format(
                                 selected_month
                             ),
@@ -319,18 +286,12 @@ class CreditCardInvoice:
         """
         Exibe as faturas de cartão que ainda não foram pagas.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         col1, col2, col3 = st.columns(3)
 
         user_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_cards = QueryExecutor().treat_simple_results(
             user_cards, TO_REMOVE_LIST
@@ -351,20 +312,33 @@ class CreditCardInvoice:
 
             card_invoices_data = QueryExecutor().complex_consult_query(
                 query=card_invoices_query,
-                params=(selected_card, user_name, user_document)
+                params=(
+                    selected_card,
+                    user_id,
+                    user_document,
+                    user_id,
+                    user_document
+                    )
             )
             card_invoices_data = QueryExecutor().treat_simple_results(
                 card_invoices_data, TO_REMOVE_LIST
             )
+            if len(card_invoices_data) >= 1:
 
-            with cl2:
-                selected_month = st.selectbox(
-                    label="Selecione o mês", options=card_invoices_data
-                )
+                with cl2:
+                    selected_month = st.selectbox(
+                        label="Selecione o mês", options=card_invoices_data
+                    )
 
-            with col1:
-                self.show_expenses(
-                    selected_card,
-                    selected_month,
-                    column_disposition=col2
-                )
+                with col1:
+                    self.show_expenses(
+                        selected_card,
+                        selected_month,
+                        column_disposition=col2
+                    )
+
+            elif len(card_invoices_data) == 0:
+                with col2:
+                    st.info(body=f"""
+                            Não há faturas em aberto no cartão {selected_card}.
+                            """)

@@ -1,26 +1,36 @@
 import pandas as pd
 import streamlit as st
+from dictionary.sql.account_queries import (
+    account_image_query,
+    user_all_current_accounts_query,
+    accounts_name_query
+)
+from dictionary.sql.credit_card_expenses_queries import (
+    card_associated_account_id_query,
+    card_account_name_query
+)
+from dictionary.sql.user_queries import (
+    user_real_name_query
+)
 from dictionary.style import system_font
 from datetime import datetime
 from dictionary.vars import (
+    ABSOLUTE_APP_PATH,
     operational_system,
     today,
-    actual_horary,
+    SAVE_FOLDER,
     TO_REMOVE_LIST,
-    ABSOLUTE_APP_PATH,
     TRANSFER_IMAGE,
-    SAVE_FOLDER
 )
-from dictionary.sql import (
-    user_current_accounts_query,
-    account_image_query,
-    user_real_name_query
-)
-from functions.query_executor import QueryExecutor
+from functions.get_actual_time import GetActualTime
 from functions.login import Login
+from functions.query_executor import QueryExecutor
 from functions.variable import Variable
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class Receipts:
@@ -28,8 +38,13 @@ class Receipts:
     Classe responsável pela geração e consulta de comprovantes.
     """
 
-    def validate_query(self, table: str,
-                       date: str, account: str, value: float):
+    def validate_query(
+        self,
+        table: str,
+        date: str,
+        account: str,
+        value: float
+    ):
         """
         Realiza a validação da consulta passada como consulta.
 
@@ -52,88 +67,128 @@ class Receipts:
         boolean
             Se a consulta é válida.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         if table == "despesas":
             id_query = """
             SELECT
-                despesas.id_despesa
+                d.id
             FROM
-                despesas
-                INNER JOIN usuarios ON
-                    despesas.proprietario_despesa = usuarios.nome
-                AND
-                despesas.documento_proprietario_despesa = usuarios.documento
+                despesas AS d
+            INNER JOIN usuarios AS u
+                ON d.id_prop_despesa = u.id
+                AND d.doc_prop_despesa = u.documento
             WHERE
-                despesas.data = '{}'
-            AND despesas.conta = '{}'
-            AND despesas.valor = {}
-            AND usuarios.nome = '{}'
-            AND usuarios.documento = {};""".format(
-                date.strftime("%Y-%m-%d"),
-                account, value, user_name, user_document)
+                d.data = %s
+                AND d.id_conta IN (
+                    SELECT
+                        c.id
+                    FROM
+                        contas AS c
+                    INNER JOIN usuarios AS u
+                        ON u.id = c.id_prop_conta
+                        AND u.documento = c.doc_prop_conta
+                    WHERE
+                        c.nome_conta = %s
+                        AND u.id = %s
+                        AND u.documento = %s
+                )
+                AND d.valor = %s
+                AND u.id = %s
+                AND u.documento = %s;
+            """
 
         if table == "receitas":
             id_query = """
             SELECT
-                receitas.id_receita
+                r.id
             FROM
-                receitas
-                INNER JOIN usuarios ON
-                    receitas.proprietario_receita = usuarios.nome
-                AND
-                receitas.documento_proprietario_receita = usuarios.documento
+                receitas AS r
+            INNER JOIN usuarios AS u
+                ON r.id_prop_receita = u.id
+                AND r.doc_prop_receita = u.documento
             WHERE
-                receitas.data = '{}'
-            AND receitas.conta = '{}'
-            AND receitas.valor = {}
-            AND usuarios.nome = '{}'
-            AND usuarios.documento = {};""".format(
-                date.strftime("%Y-%m-%d"),
-                account, value, user_name, user_document)
+                r.data = %s
+                AND r.id_conta IN (
+                    SELECT
+                        c.id
+                    FROM
+                        contas AS c
+                    INNER JOIN usuarios AS u
+                        ON u.id = c.id_prop_conta
+                        AND u.documento = c.doc_prop_conta
+                    WHERE
+                        c.nome_conta = %s
+                        AND u.id = %s
+                        AND u.documento = %s
+                )
+                AND r.valor = %s
+                AND u.id = %s
+                AND u.documento = %s;
+            """
 
         if table == "despesas_cartao_credito":
             id_query = """
             SELECT
-                dpscc.id_despesa_cartao
+                dcc.id
             FROM
-            despesas_cartao_credito AS dpscc
-                INNER JOIN
-            usuarios AS users ON
-            despesas_cartao_credito.proprietario_despesa_cartao = users.nome
-            AND
-            dpscc.doc_proprietario_cartao = users.documento
+                despesas_cartao_credito AS dcc
+            INNER JOIN usuarios AS u
+                ON dcc.id_prop_despesa_cartao = u.id
+                AND dcc.doc_prop_cartao = u.documento
             WHERE
-                dpscc.data = '{}'
-            AND dpscc.cartao = '{}'
-            AND dpscc.valor = {}
-            AND users.nome = '{}'
-            AND users.documento = {};""".format(
-                date.strftime("%Y-%m-%d"),
-                account, value, user_name, user_document)
+                dcc.data = %s
+                AND dcc.cartao = %s
+                AND dcc.valor = %s
+                AND u.id = %s
+                AND u.documento = %s;
+            """
 
         if table == "emprestimos":
             id_query = """
             SELECT
-                emprestimos.id_emprestimo
+                e.id
             FROM
-                emprestimos
-                    INNER JOIN
-                usuarios ON emprestimos.credor = usuarios.nome
-                    AND emprestimos.documento_credor = usuarios.documento
+                emprestimos AS e
+            INNER JOIN usuarios AS u
+                ON e.id_credor = u.id
+                AND e.doc_credor = u.documento
             WHERE
-                emprestimos.data = '{}'
-            AND emprestimos.conta = '{}'
-            AND emprestimos.valor = {}
-            AND usuarios.nome = '{}'
-            AND usuarios.documento = {};""".format(
-                date.strftime("%Y-%m-%d"),
-                account, value, user_name, user_document)
+                e.data = %s
+                AND e.id_conta IN (
+                    SELECT
+                        c.id
+                    FROM
+                        contas AS c
+                    INNER JOIN usuarios AS u
+                        ON u.id = c.id_prop_conta
+                        AND u.documento = c.doc_prop_conta
+                    WHERE
+                        c.nome_conta = %s
+                        AND u.id = %s
+                        AND u.documento = %s
+                )
+                AND e.valor = %s
+                AND u.id = %s
+                AND u.documento = %s;
+            """
 
-        id = QueryExecutor().complex_consult_brute_query(id_query)
-        id = QueryExecutor().treat_numerous_simple_result(id, TO_REMOVE_LIST)
+        id = QueryExecutor().complex_consult_query(
+            id_query,
+            (
+                date.strftime("%Y-%m-%d"),
+                account,
+                user_id,
+                user_document,
+                value,
+                user_id,
+                user_document
+            )
+        )
+
+        id = QueryExecutor().treat_simple_results(
+            id,
+            TO_REMOVE_LIST
+        )
 
         if len(id) >= 1:
             return id, True
@@ -157,35 +212,55 @@ class Receipts:
         if table == "despesas_cartao_credito":
             values_query = """
             SELECT
-                descricao, valor, data, horario, categoria, cartao
+                descricao,
+                valor,
+                data,
+                horario,
+                categoria,
+                cartao
             FROM
-                despesas_cartao_credito WHERE id_despesa_cartao IN %s;"""
-            values_query = values_query.replace(
-                "IN %s", f"IN ({placeholders})"
-            )
+                despesas_cartao_credito
+            WHERE
+                id IN %s;
+            """
 
         elif table == "receitas":
             values_query = """
             SELECT
-                descricao, valor, data, horario, categoria, conta
+                descricao,
+                valor,
+                data,
+                horario,
+                categoria,
+                id_conta
             FROM
-                receitas WHERE id_receita IN %s;"""
-            values_query = values_query.replace(
-                "IN %s", f"IN ({placeholders})"
-            )
+                receitas AS r
+            WHERE
+                id IN %s;
+            """
 
         elif table == "despesas":
             values_query = """
             SELECT
-                descricao, valor, data, horario, categoria, conta
+                descricao,
+                valor,
+                data,
+                horario,
+                categoria,
+                id_conta
             FROM
-                despesas WHERE id_despesa IN %s;"""
-            values_query = values_query.replace(
-                "IN %s", f"IN ({placeholders})"
-            )
+                despesas
+            WHERE id IN %s;
+            """
+
+        values_query = values_query.replace(
+            "IN %s", f"IN ({placeholders})"
+        )
 
         consult_values = QueryExecutor().complex_compund_query(
-            values_query, 6, params=(*id_list,)
+            values_query,
+            6,
+            params=(*id_list,)
         )
 
         return consult_values
@@ -304,14 +379,11 @@ class Receipts:
         destiny_account : str
             A conta de destino da transferência.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
 
         user_real_name = QueryExecutor().simple_consult_query(
             user_real_name_query,
             (
-                user_name,
+                user_id,
                 user_document
             )
         )
@@ -322,20 +394,31 @@ class Receipts:
 
         origin_account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
-            params=(origin_account, user_name, user_document)
+            params=(
+                origin_account,
+                user_id,
+                user_document
+            )
         )
         origin_account_image = QueryExecutor().treat_simple_result(
-            origin_account_image, TO_REMOVE_LIST
+            origin_account_image,
+            TO_REMOVE_LIST
         )
         origin_account_image_path = SAVE_FOLDER + origin_account_image
         origin_pasted_image = Image.open(origin_account_image_path)
 
         destiny_account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
-            params=(destiny_account, user_name, user_document)
+            params=(
+                destiny_account,
+                user_id,
+                user_document
+            )
         )
         destiny_account_image = QueryExecutor().treat_simple_result(
-            destiny_account_image, TO_REMOVE_LIST)
+            destiny_account_image,
+            TO_REMOVE_LIST
+        )
         destiny_account_image_path = SAVE_FOLDER + destiny_account_image
         destiny_pasted_image = Image.open(destiny_account_image_path)
 
@@ -413,6 +496,8 @@ class Receipts:
         image.paste(loaded_TRANSFER_IMAGE, (170, 250))
         image.paste(destiny_pasted_image, (320, 250))
 
+        actual_horary = GetActualTime().get_actual_time()
+
         archive_path = "{}/data/transfers/Comprovante_transferencia_{}_{}.png"
         archive_path = archive_path.format(
             ABSOLUTE_APP_PATH, today, actual_horary
@@ -457,13 +542,11 @@ class Receipts:
         account : str
             A conta da despesa/receita.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
+
         user_real_name = QueryExecutor().simple_consult_query(
             user_real_name_query,
             (
-                user_name,
+                user_id,
                 user_document
             )
         )
@@ -472,15 +555,48 @@ class Receipts:
             user_real_name,
             TO_REMOVE_LIST
         )
-
-        account_image = QueryExecutor().simple_consult_query(
-            query=account_image_query,
-            params=(account, user_name, user_document)
-        )
-        account_image = QueryExecutor().treat_simple_result(
-            account_image,
-            TO_REMOVE_LIST
-        )
+        if table != 'despesas_cartao_credito':
+            account_image = QueryExecutor().simple_consult_query(
+                query=account_image_query,
+                params=(
+                    account,
+                    user_id,
+                    user_document
+                )
+            )
+            account_image = QueryExecutor().treat_simple_result(
+                account_image,
+                TO_REMOVE_LIST
+            )
+        elif table == 'despesas_cartao_credito':
+            account_id = QueryExecutor().simple_consult_query(
+                card_associated_account_id_query,
+                (user_id, user_document, account)
+            )
+            account_id = QueryExecutor().treat_simple_result(
+                account_id,
+                TO_REMOVE_LIST
+            )
+            card_account_name = QueryExecutor().simple_consult_query(
+                card_account_name_query,
+                (user_id, user_document, account_id)
+            )
+            card_account_name = QueryExecutor().treat_simple_result(
+                card_account_name,
+                TO_REMOVE_LIST
+            )
+            account_image = QueryExecutor().simple_consult_query(
+                query=account_image_query,
+                params=(
+                    card_account_name,
+                    user_id,
+                    user_document
+                )
+            )
+            account_image = QueryExecutor().treat_simple_result(
+                account_image,
+                TO_REMOVE_LIST
+            )
 
         account_image_path = SAVE_FOLDER + account_image
 
@@ -507,8 +623,11 @@ class Receipts:
         description = description.replace("'", "")
         category = category.capitalize()
         category = category.replace("'", "")
+        if table != "Despesa de Cartão":
+            account = str(account)
+        elif table == "Despesa de Cartão":
+            account = str(card_account_name)
         account = account.replace("'", "")
-
         date = datetime.strptime(date, "%Y-%m-%d")
         date = date.strftime("%d/%m/%Y")
 
@@ -537,7 +656,8 @@ class Receipts:
             header_font = ImageFont.truetype("cour.ttf", font_size)
         elif operational_system == "posix":
             header_font = ImageFont.truetype("{}{}".format(
-                ABSOLUTE_APP_PATH, system_font), font_size,)
+                ABSOLUTE_APP_PATH, system_font), font_size,
+            )
 
         header_text = "Comprovante de {}".format(table)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
@@ -558,10 +678,15 @@ class Receipts:
         draw.text((20, 90), f"Valor: R$ {value}", fill="black", font=font)
         draw.text((20, 120), f"Data: {date}", fill="black", font=font)
         draw.text((20, 150), f"Categoria: {category}", fill="black", font=font)
-        if table != "Despesa de Cartão":
+        if table != "Despesa de cartão":
             draw.text((20, 180), f"Conta: {account}", fill="black", font=font)
-        elif table == "Despesa de Cartão":
-            draw.text((20, 180), f"Cartão: {account}", fill="black", font=font)
+        elif table == "Despesa de cartão":
+            draw.text(
+                (20, 180),
+                f"Cartão: {card_account_name}",
+                fill="black",
+                font=font
+            )
         draw.line([(20, 210), (width - 20, 210)], fill="black", width=2)
         draw.line([(width - 400, height - 60),
                   (width - 20, height - 60)], fill="black", width=2)
@@ -571,6 +696,8 @@ class Receipts:
         pasted_image = Image.open(account_image_path)
 
         image.paste(pasted_image, (20, 220))
+
+        actual_horary = GetActualTime().get_actual_time()
 
         archive_path = "{}/data/reports/Relatorio_{}_{}.png".format(
             ABSOLUTE_APP_PATH,
@@ -592,20 +719,20 @@ class Receipts:
         """
         Coleta os dados da consulta do comprovante.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password")
 
         col4, col5, col6 = st.columns(3)
 
         user_current_accounts = QueryExecutor().complex_consult_query(
-            query=user_current_accounts_query,
-            params=(user_name, user_document)
+            query=user_all_current_accounts_query,
+            params=(
+                user_id,
+                user_document
+            )
         )
         user_current_accounts = QueryExecutor().treat_simple_results(
-            user_current_accounts, TO_REMOVE_LIST)
+            user_current_accounts,
+            TO_REMOVE_LIST
+        )
 
         if len(user_current_accounts) > 0:
 
@@ -622,10 +749,14 @@ class Receipts:
 
                 with st.expander(label="Filtros", expanded=True):
                     report_type = st.selectbox(
-                        label="Relatório", options=receipt_options.keys())
+                        label="Relatório",
+                        options=receipt_options.keys()
+                    )
                     date = st.date_input(label="Data")
                     account = st.selectbox(
-                        label="Conta", options=user_current_accounts)
+                        label="Conta",
+                        options=user_current_accounts
+                    )
                     value = st.number_input(
                         label="Valor",
                         placeholder="Informe o valor",
@@ -644,7 +775,11 @@ class Receipts:
                         st.subheader(body=":page_facing_up: Resultados")
 
                         query_data, is_query_valid = self.validate_query(
-                            table, date, account, value)
+                            table,
+                            date,
+                            account,
+                            value
+                        )
 
                         if is_query_valid:
 
@@ -662,7 +797,8 @@ class Receipts:
 
                                 st.info(
                                     "Registro(s) encontrado(s): {}.".format(
-                                        ids_string)
+                                        ids_string
+                                    )
                                 )
 
                                 query = self.execute_query(table, query_data)
@@ -674,6 +810,21 @@ class Receipts:
                                     category,
                                     account
                                 ) = self.treat_receipt_values(query)
+
+                                account = (
+                                    QueryExecutor().simple_consult_query(
+                                        accounts_name_query,
+                                        (
+                                            user_id,
+                                            user_document,
+                                            int(account[0])
+                                        )
+                                    )
+                                )
+                                account = QueryExecutor().treat_simple_result(
+                                    account,
+                                    TO_REMOVE_LIST
+                                )
 
                                 str_value_list = []
 
@@ -726,10 +877,12 @@ class Receipts:
                                     select_id_register)
 
                                 confirm_register_selection = st.checkbox(
-                                    label="Confirmar seleção")
+                                    label="Confirmar seleção"
+                                )
 
                             receipt_button = st.button(
-                                label=":pencil: Gerar Comprovante")
+                                label=":pencil: Gerar Comprovante"
+                            )
 
                             if (confirm_register_selection and receipt_button):
                                 with col6:
@@ -743,17 +896,11 @@ class Receipts:
                                         value[id_list_index],
                                         date[id_list_index],
                                         category[id_list_index],
-                                        account[id_list_index]
+                                        account
                                     )
 
-                                log_query = '''
-                                    INSERT INTO
-                                        financas.logs_atividades
-                                        (usuario_log, tipo_log, conteudo_log)
-                                    VALUES ( %s, %s, %s);
-                                    '''
                                 log_values = (
-                                    logged_user,
+                                    user_id,
                                     "Consulta",
                                     """Consultou comprovante de {} na data {},
                                         associado a conta {}.""".format(
@@ -762,11 +909,8 @@ class Receipts:
                                         account
                                     )
                                 )
-                                QueryExecutor().insert_query(
-                                    log_query,
+                                QueryExecutor().register_log_query(
                                     log_values,
-                                    "Log gravado.",
-                                    "Erro ao gravar log:"
                                 )
 
                         elif is_query_valid is False:

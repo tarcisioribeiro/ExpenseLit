@@ -1,20 +1,25 @@
-import mysql.connector
 import streamlit as st
 from datetime import timedelta
-from dictionary.db_config import db_config
 from dictionary.vars import EXPENSE_CATEGORIES, TO_REMOVE_LIST
-from dictionary.sql import (
+from dictionary.sql.credit_card_expenses_queries import (
     last_credit_card_expense_id_query,
-    owner_cards_query,
-    credit_card_id_query
+    invoices_quantity_query,
+    card_associated_account_id_query,
+    credit_card_expense_query
+)
+from dictionary.sql.credit_card_queries import (
+    owner_cards_query
 )
 from functions.credit_card import Credit_Card
 from functions.get_actual_time import GetActualTime
+from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.variable import Variable
-from functions.login import Login
 from screens.reports.receipts import Receipts
 from time import sleep
+
+
+user_id, user_document = Login().get_user_data()
 
 
 class NewCreditCardExpense:
@@ -27,25 +32,16 @@ class NewCreditCardExpense:
         Obtém o último ID de despesas de cartão.
         """
 
-        try:
-            connection = mysql.connector.connect(**db_config)
-            cursor = connection.cursor()
-            cursor.execute(last_credit_card_expense_id_query)
+        last_id = QueryExecutor().simple_consult_query(
+            last_credit_card_expense_id_query,
+            ()
+        )
+        last_id = QueryExecutor().treat_simple_result(
+            last_id,
+            TO_REMOVE_LIST
+        )
 
-            result = cursor.fetchone()
-
-            if result is not None:
-                id = result[0]
-                return id
-            else:
-                return 0
-
-        except mysql.connector.Error as err:
-            st.toast(
-                f"Erro ao consultar o id da última despesa de cartão: {err}")
-        finally:
-            if connection.is_connected():
-                connection.close()
+        return last_id
 
     def insert_new_credit_card_expense(self, query: str, values: tuple):
         """
@@ -59,33 +55,21 @@ class NewCreditCardExpense:
             A tupla com os valores da nova despesa.
         """
 
-        try:
-            connection = mysql.connector.connect(**db_config)
-            cursor = connection.cursor()
-            cursor.execute(query, values)
-            connection.commit()
-            cursor.close()
-            st.toast("Despesa registrada com sucesso.")
-        except mysql.connector.Error as err:
-            st.toast(f"Erro ao inserir despesa de cartão de crédito: {err}")
-        finally:
-            if connection.is_connected():
-                connection.close()
+        QueryExecutor().insert_query(
+            query,
+            values,
+            "Despesa de cartão registrada.",
+            "Erro ao registrar despesa de cartão:"
+        )
 
     def main_menu(self):
         """
         Obtém os dados da nova despesa de cartão.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
 
         user_cards = QueryExecutor().complex_consult_query(
             query=owner_cards_query,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
         user_cards = QueryExecutor().treat_simple_results(
             user_cards,
@@ -145,6 +129,7 @@ class NewCreditCardExpense:
                     )
 
                     (
+                        card_id,
                         credit_card_number,
                         credit_card_owner,
                         credit_card_owner_document,
@@ -163,42 +148,12 @@ class NewCreditCardExpense:
             with col3:
                 if confirm_values_checkbox and generate_receipt_button:
 
-                    credit_card_id = QueryExecutor().simple_consult_query(
-                        credit_card_id_query,
-                        (user_name, user_document, card)
-                    )
-
-                    credit_card_id = QueryExecutor().treat_simple_result(
-                        credit_card_id,
-                        TO_REMOVE_LIST
-                    )
-
-                    credit_card_id = int(credit_card_id)
-
-                    invoices_quantity_query = """
-                    SELECT
-                        COUNT(fc.id)
-                    FROM
-                        fechamentos_cartao AS fc
-                    INNER JOIN
-                        cartao_credito AS cc
-                        ON fc.documento_titular = cc.documento_titular
-                    INNER JOIN
-                        usuarios AS u
-                        ON fc.documento_titular = u.documento
-                    WHERE
-                        cc.id = %s
-                        AND cc.nome_cartao = %s
-                        AND u.id = %s
-                        AND u.documento = %s;
-                    """
-
                     invoices_quantity = QueryExecutor().simple_consult_query(
                         invoices_quantity_query,
                         (
-                            credit_card_id,
+                            card_id,
                             card,
-                            user_name,
+                            user_id,
                             user_document
                         )
                     )
@@ -211,28 +166,10 @@ class NewCreditCardExpense:
 
                     if invoices_quantity > 0:
 
-                        card_associated_account_id_query = """
-                        SELECT
-                            c.id
-                        FROM
-                            contas AS c
-                        INNER JOIN
-                            cartao_credito AS cc
-                        ON c.id = cc.conta_associada
-                        AND
-                        c.proprietario_conta = cc.proprietario_cartao
-                        AND
-                        c.documento_proprietario_conta = cc.documento_titular
-                        WHERE
-                            cc.proprietario_cartao = %s
-                            AND cc.documento_titular = %s
-                            AND cc.nome_cartao = %s;
-                        """
-
                         card_associated_account_id = (
                             QueryExecutor().simple_consult_query(
                                 query=card_associated_account_id_query,
-                                params=(user_name, user_document, card)
+                                params=(user_id, user_document, card)
                             )
                         )
 
@@ -289,40 +226,13 @@ class NewCreditCardExpense:
                                     GetActualTime().get_actual_time()
                                 )
 
-                                credit_card_expense_query = """
-                                INSERT INTO
-                                    despesas_cartao_credito (
-                                        descricao,
-                                        valor,
-                                        data,
-                                        horario,
-                                        categoria,
-                                        cartao,
-                                        numero_cartao,
-                                        proprietario_despesa_cartao,
-                                        doc_proprietario_cartao,
-                                        parcela,
-                                        pago)
-                                VALUES (
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s,
-                                    %s);
-                                """
                                 values = (
                                     description,
                                     (value / parcel),
                                     date,
                                     actual_horary,
                                     category,
-                                    card,
+                                    card_id,
                                     credit_card_number,
                                     credit_card_owner,
                                     credit_card_owner_document,
@@ -335,17 +245,8 @@ class NewCreditCardExpense:
 
                             str_value = Variable().treat_complex_string(value)
 
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);
-                            '''
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Registro",
                                 """Registrou uma despesa de cartã
                                 no valor de R$ {} associada a conta {}.
@@ -354,11 +255,8 @@ class NewCreditCardExpense:
                                     card
                                 )
                             )
-                            QueryExecutor().insert_query(
-                                log_query,
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
 
                             Receipts().generate_receipt(
@@ -368,7 +266,7 @@ class NewCreditCardExpense:
                                 value,
                                 str(date),
                                 category,
-                                card_associated_account_id
+                                card_id
                             )
 
                         else:

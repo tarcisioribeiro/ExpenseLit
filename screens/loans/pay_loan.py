@@ -1,9 +1,19 @@
 import streamlit as st
 import pandas as pd
-from dictionary.sql import (
-    not_payed_loans_query,
-    user_current_accounts_query,
+from dictionary.sql.account_queries import (
+    unique_account_id_query,
+    user_current_accounts_query
+)
+from dictionary.sql.expenses_queries import (
+    insert_expense_query,
     last_expense_id_query
+)
+from dictionary.sql.loan_queries import update_debt_query
+from dictionary.sql.loan_queries import (
+    not_payed_loans_query,
+    payed_actual_value_query,
+    paying_max_value_query,
+    total_actual_value_query
 )
 from dictionary.vars import TO_REMOVE_LIST, today
 from functions.query_executor import QueryExecutor
@@ -14,25 +24,96 @@ from screens.reports.receipts import Receipts
 from time import sleep
 
 
+user_id, user_document = Login().get_user_data()
+
+
 class PayLoan:
     """
     Classe que representa o pagamento dos empréstimos tomados pelo usuário.
     """
+    def mount_loan_df(self, values: list):
+        """
+        Elabora o dataframe dos empréstimos não pagos.
+
+        Parameters
+        ----------
+        values : list
+            A lista com os valores a serem exibidos.
+        Returns
+        -------
+        loan_data_df : DataFrame
+            O dataframe elaborado.
+        """
+
+        loan_data_df = pd.DataFrame(
+            {
+                "ID": values[0],
+                "Descrição": values[1],
+                "Valor Total": values[2],
+                "Valor Pago": values[3],
+                "Valor a Pagar": values[4],
+                "Data": values[5],
+                "Categoria": values[6],
+                "Conta": values[7],
+                "Credor": values[8]
+            }
+        )
+
+        loan_data_df["Valor Total"] = loan_data_df[
+            "Valor Total"
+        ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+        loan_data_df["Valor Pago"] = loan_data_df[
+            "Valor Pago"
+        ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+        loan_data_df["Valor a Pagar"] = loan_data_df[
+            "Valor a Pagar"
+        ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
+        loan_data_df["Data"] = pd.to_datetime(
+            loan_data_df["Data"]
+        ).dt.strftime("%d/%m/%Y")
+
+        return loan_data_df
+
+    def search_loan_id(
+        self,
+        id_list: list,
+        description_list: list,
+        option: str
+    ):
+        """
+        Procura o ID da opção escolhida, retornando o número do ID.
+
+        Parameters
+        ----------
+        id_list : list
+            A lista dos id's.
+        description_list : list
+            A lista com as descrições.
+
+        Returns
+        -------
+        choosed_id : int
+            O id correspondente a opção.
+        """
+        aux_id = None
+
+        for i in range(0, len(description_list)):
+            if description_list[i] == option:
+                aux_id = int(id_list[i])
+            else:
+                pass
+
+        return aux_id
 
     def main_menu(self):
         """
         Exibe os empréstimos tomados pelo usuário.
         """
-        user_name, user_document = Login().get_user_data(
-            return_option="user_doc_name"
-        )
-        logged_user, logged_user_password = Login().get_user_data(
-            return_option="user_login_password"
-        )
+
         not_payed_loans = QueryExecutor().complex_compund_query(
             query=not_payed_loans_query,
             list_quantity=9,
-            params=(user_name, user_document)
+            params=(user_id, user_document)
         )
 
         if len(not_payed_loans[0]) >= 1:
@@ -41,43 +122,8 @@ class PayLoan:
 
             with col4:
 
-                (
-                    id,
-                    description,
-                    total_value,
-                    payed_value,
-                    remaining_value,
-                    date,
-                    category,
-                    account,
-                    creditor
-                ) = not_payed_loans
+                loan_data_df = self.mount_loan_df(not_payed_loans)
 
-                loan_data_df = pd.DataFrame(
-                    {
-                        "Descrição": description,
-                        "Valor Total": total_value,
-                        "Valor Pago": payed_value,
-                        "Valor a Pagar": remaining_value,
-                        "Data": date,
-                        "Categoria": category,
-                        "Conta": account,
-                        "Credor": creditor
-                    }
-                )
-
-                loan_data_df["Valor Total"] = loan_data_df[
-                    "Valor Total"
-                ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Valor Pago"] = loan_data_df[
-                    "Valor Pago"
-                ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Valor a Pagar"] = loan_data_df[
-                    "Valor a Pagar"
-                ].apply(lambda x: f"R$ {x:.2f}".replace(".", ","))
-                loan_data_df["Data"] = pd.to_datetime(
-                    loan_data_df["Data"]
-                ).dt.strftime("%d/%m/%Y")
                 st.subheader(body=":computer: Entrada de Dados")
                 with st.expander(label="Valores", expanded=True):
                     st.dataframe(
@@ -86,8 +132,8 @@ class PayLoan:
                         use_container_width=True
                     )
                     total_loan_value = 0
-                    for i in range(0, len(remaining_value)):
-                        total_loan_value += remaining_value[i]
+                    for i in range(0, len(not_payed_loans[4])):
+                        total_loan_value += not_payed_loans[4][i]
                     total_loan_value = str(total_loan_value)
                     total_loan_value = total_loan_value.replace(".", ",")
                     st.info(body="Valor total: :heavy_dollar_sign: {}".format(
@@ -96,116 +142,62 @@ class PayLoan:
                     )
                     user_accounts = QueryExecutor().complex_consult_query(
                         user_current_accounts_query,
-                        params=(user_name, user_document)
+                        params=(user_id, user_document)
                     )
                     user_accounts = (
-                        QueryExecutor().treat_numerous_simple_result(
+                        QueryExecutor().treat_simple_results(
                             user_accounts,
                             TO_REMOVE_LIST
                         )
                     )
                     debt = st.selectbox(
-                        label="Selecionar dívida",
-                        options=description
+                        label="Selecionar dívida", options=not_payed_loans[1]
                     )
-                    paying_max_value_query = '''
-                    SELECT
-                        DISTINCT(
-                            e.valor - e.valor_pago
-                        )
-                    FROM
-                        emprestimos AS e
-                    INNER JOIN
-                        contas AS c
-                        ON c.proprietario_conta = e.devedor
-                        AND (
-                        c.documento_proprietario_conta = e.documento_devedor
-                        )
-                    INNER JOIN
-                        usuarios
-                        ON
-                        usuarios.nome = e.devedor
-                        AND usuarios.documento = e.documento_devedor
-                    WHERE
-                        emprestimos.pago = 'N'
-                            AND emprestimos.descricao = '{}';
-                    '''.format(debt)
 
-                    payed_actual_value_query = '''
-                    SELECT
-                        DISTINCT(e.valor_pago)
-                    FROM
-                        emprestimos AS e
-                        INNER JOIN
-                    contas AS c ON
-                        c.proprietario_conta = e.devedor
-                    AND c.documento_proprietario_conta = e.documento_devedor
-                    INNER JOIN
-                    usuarios ON usuarios.nome = e.devedor
-                        AND usuarios.documento = e.documento_devedor
-                    WHERE
-                        e.pago = 'N'
-                        AND e.descricao = '{}';
-                    '''.format(debt)
-
-                    total_actual_value_query = '''
-                    SELECT
-                        DISTINCT(e.valor)
-                    FROM
-                        emprestimos AS e
-                    INNER JOIN
-                        contas AS c
-                    ON c.proprietario_conta = e.devedor
-                    AND c.documento_proprietario_conta = e.documento_devedor
-                    INNER JOIN
-                        usuarios ON usuarios.nome = e.devedor
-                    AND usuarios.documento = e.documento_devedor
-                    WHERE
-                        emprestimos.pago = 'N'
-                            AND emprestimos.descricao = '{}';
-                    '''.format(debt)
-
-                    benefited_name, benefited_document = Login().get_user_data(
-                        return_option="user_doc_name"
+                    choosed_id = self.search_loan_id(
+                        not_payed_loans[0],
+                        not_payed_loans[1],
+                        debt
                     )
 
                     paying_max_value = (
-                        QueryExecutor().simple_consult_brute_query(
-                            paying_max_value_query
+                        QueryExecutor().simple_consult_query(
+                            paying_max_value_query,
+                            (choosed_id,)
                         )
                     )
                     paying_max_value = (
                         QueryExecutor().treat_simple_result(
-                            paying_max_value,
-                            TO_REMOVE_LIST
+                            paying_max_value, TO_REMOVE_LIST
                         )
                     )
                     paying_max_value = float(paying_max_value)
 
                     payed_actual_value = (
-                        QueryExecutor().simple_consult_brute_query(
-                            payed_actual_value_query
+                        QueryExecutor().simple_consult_query(
+                            payed_actual_value_query,
+                            (choosed_id,)
                         )
                     )
                     payed_actual_value = (
                         QueryExecutor().treat_simple_result(
-                            payed_actual_value,
-                            TO_REMOVE_LIST
+                            payed_actual_value, TO_REMOVE_LIST
                         )
                     )
                     payed_actual_value = float(payed_actual_value)
                     total_actual_value = (
-                        QueryExecutor().simple_consult_brute_query(
-                            total_actual_value_query
+                        QueryExecutor().simple_consult_query(
+                            total_actual_value_query,
+                            (choosed_id,)
                         )
                     )
                     total_actual_value = (
                         QueryExecutor().treat_simple_result(
-                            total_actual_value,
-                            TO_REMOVE_LIST
+                            total_actual_value, TO_REMOVE_LIST
                         )
                     )
                     total_actual_value = float(total_actual_value)
+
                     paying_value = st.number_input(
                         label="Valor",
                         min_value=0.00,
@@ -217,6 +209,7 @@ class PayLoan:
                         options=user_accounts
                     )
                     confirm_values = st.checkbox(label="Confirmar valores")
+
                 pay_button = st.button(
                     label=":floppy_disk: Pagar valor de empréstimo"
                 )
@@ -249,14 +242,18 @@ class PayLoan:
                                     body="""
                                     Valor pago atualizado:
                                      :heavy_dollar_sign: {}
-                                    """.format(str_to_pay_value))
+                                    """.format(str_to_pay_value)
+                                )
+
                                 remaining_to_pay_value = total_actual_value - \
                                     (paying_value + payed_actual_value)
+
                                 str_remaining_to_pay_value = (
                                     Variable().treat_complex_string(
                                         remaining_to_pay_value
                                     )
                                 )
+
                                 st.info(
                                     body="""
                                         Valor restante a pagar:
@@ -278,78 +275,54 @@ class PayLoan:
                                         """
                                     )
                 if confirm_values and pay_button:
+                    selected_account_id = QueryExecutor().simple_consult_query(
+                        unique_account_id_query,
+                        (selected_account, user_id, user_document)
+                    )
+                    selected_account_id = QueryExecutor().treat_simple_result(
+                        selected_account_id,
+                        TO_REMOVE_LIST
+                    )
+
                     actual_horary = GetActualTime().get_actual_time()
                     if paying_value > 0:
-                        expense_query = '''
-                        INSERT INTO
-                            despesas (
-                                descricao,
-                                valor,
-                                data,
-                                horario,
-                                categoria,
-                                conta,
-                                proprietario_despesa,
-                                documento_proprietario_despesa,
-                                pago
-                            )
-                        VALUES (
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s
-                        );
-                        '''
+
                         values = (
                             'Pagamento de empréstimo - {}'.format(debt),
                             paying_value,
                             today,
                             actual_horary,
                             'Pagamento de Empréstimo',
-                            selected_account,
-                            benefited_name,
-                            benefited_document,
+                            selected_account_id,
+                            user_id,
+                            user_document,
                             'S'
                         )
 
                         QueryExecutor().insert_query(
-                            expense_query,
+                            insert_expense_query,
                             values,
                             "Valor de empréstimo pago com sucesso!",
                             "Erro ao pagar valor do empréstimo:"
                         )
-                        update_loan_query = '''
-                        UPDATE
-                            emprestimos
-                        SET
-                            valor_pago = {},
-                            pago = "{}"
-                        WHERE
-                            descricao = "{}"
-                            AND pago = "{}"
-                            AND devedor = "{}"
-                            AND documento_devedor = {};
-                        '''.format(
+                        update_loan_values = (
                             to_pay_value,
                             loan_payed,
                             debt,
                             'N',
-                            benefited_name,
-                            benefited_document
+                            user_id,
+                            user_document
                         )
-                        QueryExecutor().update_table_unique_register(
-                            update_loan_query,
-                            "Empréstimo atualizado com sucesso!",
-                            "Erro ao atualizar valores do empréstimo:"
+                        QueryExecutor().update_unique_register(
+                            update_debt_query,
+                            update_loan_values,
+                            "Empréstimo pago.",
+                            "Erro ao pagar empréstimo:"
                         )
                         last_expense_id = (
-                            QueryExecutor().simple_consult_brute_query(
-                                last_expense_id_query
+                            QueryExecutor().simple_consult_query(
+                                last_expense_id_query,
+                                ()
                             )
                         )
                         last_expense_id = (
@@ -377,25 +350,15 @@ class PayLoan:
                                 category='Pagamento de Empréstimo',
                                 account=selected_account
                             )
-                            log_query = '''
-                            INSERT INTO
-                                financas.logs_atividades (
-                                    usuario_log,
-                                    tipo_log,
-                                    conteudo_log
-                                )
-                            VALUES ( %s, %s, %s);'''
+
                             log_values = (
-                                logged_user,
+                                user_id,
                                 "Registro",
                                 """Pagou R$ {} de um empréstimo
                                 tomado na conta {}.
-                                """.format(str_paying_value, account))
-                            QueryExecutor().insert_query(
-                                log_query,
+                                """.format(str_paying_value, selected_account))
+                            QueryExecutor().register_log_query(
                                 log_values,
-                                "Log gravado.",
-                                "Erro ao gravar log:"
                             )
         elif len(not_payed_loans[0]) == 0:
             col4, col5, col6 = st.columns(3)

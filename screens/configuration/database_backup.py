@@ -1,4 +1,4 @@
-from dictionary.vars import operational_system, today, ABSOLUTE_APP_PATH
+from dictionary.vars import ABSOLUTE_APP_PATH, operational_system, today
 from dictionary.db_config import db_user, db_password, db_database
 from functions.get_actual_time import GetActualTime
 from pathlib import Path
