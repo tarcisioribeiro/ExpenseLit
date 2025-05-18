@@ -126,8 +126,8 @@ FROM
     cartao_credito
 WHERE
     nome_cartao = %s
-    AND proprietario_cartao = %s
-    AND doc_prop_cartao = %s
+    AND id_prop_cartao = %s
+    AND doc_titular_cartao = %s
 '''
 
 new_limit_query = '''
@@ -137,9 +137,9 @@ SET
     limite_credito = %s,
     inativo = %s
 WHERE
-    id = %s
-    AND proprietario_cartao = %s
-    AND doc_prop_cartao = %s;
+    nome_cartao = %s
+    AND id_prop_cartao = %s
+    AND doc_titular_cartao = %s;
 '''
 
 new_credit_card_invoice_query = """

@@ -30,4 +30,4 @@ EXPOSE 8551
 
 COPY library/images/default.png /library/images/accounts/default.png
 
-CMD ["sh", "-c", "streamlit run main.py --server.port=8551 --server.address=0.0.0.0"]
+CMD ["streamlit", "run", "main.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port=8551", "--server.address=0.0.0.0"]

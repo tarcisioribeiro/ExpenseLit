@@ -21,6 +21,7 @@ WHERE
     AND r.categoria NOT IN('Pix', 'DOC', 'TED', 'Ajuste')
     AND r.data >= %s
     AND r.data <= %s
+    AND r.valor > 0
     AND c.nome_conta IN %s
     AND u.id = %s
     AND u.documento = %s;
@@ -136,12 +137,20 @@ INNER JOIN
     usuarios ON r.id_prop_receita = usuarios.id
         AND r.doc_prop_receita = usuarios.documento
 WHERE
-    r.categoria NOT IN ('Pix' , 'TED', 'DOC', 'Ajuste')
+    r.categoria NOT IN (
+        'Pix' ,
+        'TED',
+        'DOC',
+        'Ajuste'
+    )
     AND r.data <= %s
-        AND usuarios.id = %s
-        AND usuarios.documento = %s
-        AND r.recebido = 'S'
-ORDER BY r.data DESC , r.id DESC
+    AND usuarios.id = %s
+    AND usuarios.documento = %s
+    AND r.valor > 0
+    AND r.recebido = 'S'
+ORDER BY
+    r.data DESC,
+    r.id DESC
 LIMIT 5;
 """
 
@@ -254,10 +263,16 @@ INNER JOIN
     ON r.id_prop_receita = u.id
     AND r.doc_prop_receita = u.documento
 WHERE
-    r.categoria <> 'Ajuste'
+    r.categoria NOT IN (
+        'Ajuste',
+        'DOC',
+        'Pix',
+        'TED'
+    )
     AND r.data <= %s
     AND u.id = %s
     AND u.documento = %s
+    AND r.valor > 0
 ORDER BY
     r.valor DESC
 LIMIT 5;

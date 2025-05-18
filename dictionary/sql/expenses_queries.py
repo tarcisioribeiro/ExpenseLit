@@ -31,7 +31,12 @@ INNER JOIN
     usuarios ON d.id_prop_despesa = usuarios.id
     AND d.doc_prop_despesa = usuarios.documento
 WHERE
-    d.categoria <> 'Ajuste'
+    d.categoria NOT IN (
+        'Ajuste',
+        'Pix',
+        'DOC',
+        'TED'
+    )
     AND d.descricao NOT IN (
         'Aporte Inicial',
         'Placeholder',
@@ -157,10 +162,16 @@ INNER JOIN
     usuarios ON d.id_prop_despesa = usuarios.id
         AND d.doc_prop_despesa = usuarios.documento
 WHERE
-    d.categoria <> 'Ajuste'
-        AND usuarios.id = %s
-        AND usuarios.documento = %s
-ORDER BY d.valor DESC
+    d.categoria NOT IN (
+        'Ajuste',
+        'DOC',
+        'Pix',
+        'TED'
+    )
+    AND usuarios.id = %s
+    AND usuarios.documento = %s
+ORDER BY
+    d.valor DESC
 LIMIT 5;
 """
 

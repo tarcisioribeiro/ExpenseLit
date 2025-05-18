@@ -5,6 +5,7 @@ from dictionary.sql.account_queries import (
     insert_account_query,
     update_account_query
 )
+from dictionary.sql.user_queries import user_login_query
 from dictionary.sql.expenses_queries import insert_expense_query
 from dictionary.sql.revenues_queries import insert_revenue_query
 from dictionary.vars import (
@@ -25,6 +26,7 @@ import streamlit as st
 
 
 user_id, user_document = Login().get_user_data()
+actual_horary = GetActualTime().get_actual_time()
 
 
 class UpdateAccounts:
@@ -36,7 +38,66 @@ class UpdateAccounts:
         """
         Coleta os dados e cadastra uma nova conta.
         """
-        actual_horary = GetActualTime().get_actual_time()
+        def validate_image(image: any, account_name: str):
+            """
+            Realiza a validação da imagem, retornando o caminho real
+            e relativo do arquivo.
+
+            Parameters
+            ----------
+            image : any
+                A imagem obtida a partir do menu.
+            account_name : str
+                O nome da conta associada a imagem.
+
+            Returns
+            -------
+
+            """
+
+            user_login = QueryExecutor().simple_consult_query(
+                user_login_query,
+                (user_id, user_document)
+            )
+            user_login = QueryExecutor().treat_simple_result(
+                user_login,
+                TO_REMOVE_LIST
+            )
+            image_type = type(get_account_image).__name__
+            save_folder = SAVE_FOLDER + f"{user_login}/"
+            new_file_name = ""
+
+            if image_type != "NoneType":
+
+                image = Image.open(image)
+                width, height = image.size
+
+                if width == height and (width + height <= 200):
+                    account_name = account_name.lower()
+                    account_name = account_name.replace(
+                        " ", "_"
+                    )
+                    library_file_name = f"{account_name}.png"
+                    new_file_name = save_folder + library_file_name
+
+                else:
+                    st.error(
+                        body="""
+                        A imagem precisa ter as dimensões iguais,
+                        com no máximo 100.
+                        """
+                    )
+
+            elif image_type == "NoneType":
+                file_destination = SAVE_FOLDER + DEFAULT_ACCOUNT_IMAGE
+                library_file_name = DEFAULT_ACCOUNT_IMAGE
+                image = Image.open(file_destination)
+                new_file_name = DEFAULT_ACCOUNT_IMAGE
+
+            save_path = os.path.join(SAVE_FOLDER, new_file_name)
+            image.save(save_path)
+
+            return save_path, library_file_name
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -53,7 +114,7 @@ class UpdateAccounts:
                 get_account_first_value = st.number_input(
                     label=":heavy_dollar_sign: Valor inicial",
                     step=0.01,
-                    min_value=0.01,
+                    min_value=0.00,
                     help="Não é possível cadastrar sem um valor inicial."
                 )
                 get_account_image = st.file_uploader(
@@ -66,6 +127,7 @@ class UpdateAccounts:
             register_account = st.button(label=":floppy_disk: Registrar Conta")
 
             if confirm_values_ckecbox and register_account:
+
                 with col2:
                     with st.spinner(text="Aguarde..."):
                         sleep(2.5)
@@ -89,53 +151,31 @@ class UpdateAccounts:
                             )
                         )
 
-                    if type(get_account_image).__name__ != "NoneType":
-                        image = Image.open(get_account_image)
-                        name, ext = os.path.splitext(DEFAULT_ACCOUNT_IMAGE)
+                    save_path, library_file_name = validate_image(
+                        get_account_image,
+                        account_name
+                    )
 
-                        new_file_name = SAVE_FOLDER + name + ext
-                        library_file_name = name + ext
-
-                        save_path = os.path.join(SAVE_FOLDER, new_file_name)
-                        image.save(save_path)
-
-                        with data_expander:
-                            st.success(
-                                body="""
-                                A imagem foi salva em: {}
-                                """.format(save_path)
-                            )
-
-                        new_account_values = (
-                            account_name,
-                            account_models[account_name],
-                            user_id,
-                            user_document,
-                            library_file_name
-                        )
-                        QueryExecutor().insert_query(
-                            insert_account_query,
-                            new_account_values,
-                            "Conta cadastrada com sucesso!",
-                            "Erro ao cadastrar conta:"
+                    with data_expander:
+                        st.success(
+                            body="""
+                            A imagem foi salva em: {}
+                            """.format(save_path)
                         )
 
-                    elif type(get_account_image).__name__ == "NoneType":
-                        library_file_name = DEFAULT_ACCOUNT_IMAGE
-
-                        new_account_values = (
-                            account_name,
-                            account_models[account_name],
-                            user_id,
-                            user_document,
-                            library_file_name
-                        )
-                        QueryExecutor().insert_query(
-                            insert_account_query,
-                            new_account_values,
-                            "Conta cadastrada com sucesso!",
-                            "Erro ao cadastrar conta:"
-                        )
+                    new_account_values = (
+                        account_name,
+                        account_models[account_name],
+                        user_id,
+                        user_document,
+                        library_file_name
+                    )
+                    QueryExecutor().insert_query(
+                        insert_account_query,
+                        new_account_values,
+                        "Conta cadastrada com sucesso!",
+                        "Erro ao cadastrar conta:"
+                    )
 
                     log_values = (
                         user_id,

@@ -48,13 +48,13 @@ SELECT
 FROM
     emprestimos
 WHERE
-    credor = %s
-    AND documento_credor = %s;
+    id_credor = %s
+    AND doc_credor = %s;
 """
 
 is_entire_creditor_data_valid_query = """
 SELECT
-    COUNT(id_credor)
+    COUNT(id)
 FROM
     credores
 WHERE
@@ -65,43 +65,43 @@ WHERE
 
 is_new_creditor_phone_valid_query = """
 SELECT
-    COUNT(id_credor)
+    COUNT(id)
 FROM
     credores
 WHERE
     telefone = %s
-    AND id_credor <> %s;
+    AND id <> %s;
 """
 
 is_new_creditor_name_valid_query = """
 SELECT
-    COUNT(id_credor)
+    COUNT(id)
 FROM
     credores
 WHERE
     nome = %s
-    AND id_credor <> %s;
+    AND id <> %s;
 """
 
 is_new_creditor_document_valid_query = """
 SELECT
-    COUNT(id_credor)
+    COUNT(id)
 FROM
     credores
 WHERE
     documento = %s
-    AND id_credor <> %s;
+    AND id <> %s;
 """
 
 new_creditor_loans_data_query = """
 UPDATE
     emprestimos
 SET
-    credor = %s,
+    id_credor = %s,
     documento_credor = %s
-WHERE credor = %s
-    AND documento_credor = %s
-    AND id_emprestimo IN %s;
+WHERE id_credor = %s
+    AND doc_credor = %s
+    AND id IN %s;
 """
 
 new_creditor_data_query = """
@@ -111,7 +111,7 @@ SET
     nome = %s,
     documento = %s,
     telefone = %s
-    WHERE id_credor = %s;
+    WHERE id = %s;
 """
 
 insert_creditor_query = '''

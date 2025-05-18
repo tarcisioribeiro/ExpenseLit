@@ -2,14 +2,15 @@ import pandas as pd
 import streamlit as st
 from dictionary.sql.account_queries import (
     account_image_query,
-    user_all_current_accounts_query,
-    accounts_name_query
+    accounts_name_query,
+    user_all_current_accounts_query
 )
 from dictionary.sql.credit_card_expenses_queries import (
     card_associated_account_id_query,
     card_account_name_query
 )
 from dictionary.sql.user_queries import (
+    user_login_query,
     user_real_name_query
 )
 from dictionary.style import system_font
@@ -137,7 +138,24 @@ class Receipts:
                 AND dcc.doc_prop_cartao = u.documento
             WHERE
                 dcc.data = %s
-                AND dcc.cartao = %s
+                AND dcc.numero_cartao IN (
+                    SELECT
+                        cc.numero_cartao
+                    FROM
+                        cartao_credito AS cc
+                    INNER JOIN usuarios AS u
+                        ON cc.id_prop_cartao = u.id
+                        AND cc.doc_titular_cartao = u.documento
+                    INNER JOIN contas AS c
+                        ON c.id_prop_conta = cc.id_prop_cartao
+                        AND c.doc_prop_conta = cc.doc_titular_cartao
+                        AND c.id_prop_conta = u.id
+                        AND c.doc_prop_conta = u.documento
+                    WHERE
+                        c.nome_conta = %s
+                        AND u.id = %s
+                        AND u.documento = %s
+                )
                 AND dcc.valor = %s
                 AND u.id = %s
                 AND u.documento = %s;
@@ -191,12 +209,17 @@ class Receipts:
         )
 
         if len(id) >= 1:
-            return id, True
+            aux = None
+            aux_list = []
+            for i in range(0, len(id)):
+                aux = int(id[i])
+                aux_list.append(aux)
+            return tuple(aux_list), True
 
         elif len(id) == 0:
             return 0, False
 
-    def execute_query(self, table: str, id_list: list):
+    def execute_query(self, table: str, id_tuple: tuple):
         """
         Realiza a consulta informada.
 
@@ -207,7 +230,8 @@ class Receipts:
         id_list : list
             A lista com os ids da consulta.
         """
-        placeholders = ", ".join(["%s"] * len(id_list))
+
+        values_query = None
 
         if table == "despesas_cartao_credito":
             values_query = """
@@ -250,18 +274,31 @@ class Receipts:
                 id_conta
             FROM
                 despesas
-            WHERE id IN %s;
+            WHERE
+                id IN %s;
             """
-
-        values_query = values_query.replace(
-            "IN %s", f"IN ({placeholders})"
-        )
+        elif table == "emprestimos":
+            values_query = """
+            SELECT
+                descricao,
+                valor,
+                data,
+                horario,
+                categoria,
+                id_conta
+            FROM
+                emprestimos
+            WHERE
+                id IN %s;
+            """
 
         consult_values = QueryExecutor().complex_compund_query(
             values_query,
             6,
-            params=(*id_list,)
+            params=(*id_tuple,)
         )
+
+        st.info(consult_values)
 
         return consult_values
 
@@ -391,6 +428,14 @@ class Receipts:
             user_real_name,
             TO_REMOVE_LIST
         )
+        user_login = QueryExecutor().simple_consult_query(
+            user_login_query,
+            (user_id, user_document)
+        )
+        user_login = QueryExecutor().treat_simple_result(
+            user_login,
+            TO_REMOVE_LIST
+        )
 
         origin_account_image = QueryExecutor().simple_consult_query(
             query=account_image_query,
@@ -404,7 +449,9 @@ class Receipts:
             origin_account_image,
             TO_REMOVE_LIST
         )
-        origin_account_image_path = SAVE_FOLDER + origin_account_image
+        origin_account_image_path = str(
+            SAVE_FOLDER + f"{user_login}" + origin_account_image
+        )
         origin_pasted_image = Image.open(origin_account_image_path)
 
         destiny_account_image = QueryExecutor().simple_consult_query(
@@ -550,11 +597,19 @@ class Receipts:
                 user_document
             )
         )
-
         user_real_name = QueryExecutor().treat_simple_result(
             user_real_name,
             TO_REMOVE_LIST
         )
+        user_login = QueryExecutor().simple_consult_query(
+            user_login_query,
+            (user_id, user_document)
+        )
+        user_login = QueryExecutor().treat_simple_result(
+            user_login,
+            TO_REMOVE_LIST
+        )
+
         if table != 'despesas_cartao_credito':
             account_image = QueryExecutor().simple_consult_query(
                 query=account_image_query,
@@ -598,7 +653,7 @@ class Receipts:
                 TO_REMOVE_LIST
             )
 
-        account_image_path = SAVE_FOLDER + account_image
+        account_image_path = SAVE_FOLDER + f"{user_login}/" + account_image
 
         table_dictionary = {
             "receitas": "Receita",
@@ -800,6 +855,8 @@ class Receipts:
                                         ids_string
                                     )
                                 )
+                                st.info(table)
+                                st.info(query_data)
 
                                 query = self.execute_query(table, query_data)
                                 (
@@ -918,7 +975,7 @@ class Receipts:
                                 label="Resultados",
                                 expanded=True
                             ):
-                                st.info("Nenhum resultado Encontrado.")
+                                st.info("Nenhum resultado encontrado.")
 
         elif len(user_current_accounts) == 0:
             with col5:

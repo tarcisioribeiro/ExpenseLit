@@ -137,7 +137,7 @@ INNER JOIN
     ON c.id_prop_conta = cc.id_prop_cartao
     AND c.doc_prop_conta = cc.doc_titular_cartao
 WHERE
-    cc.nome_cartao = %s
+    cc.id = %s
     AND c.id_prop_conta = %s
     AND c.doc_prop_conta = %s;
 """
@@ -159,7 +159,14 @@ UPDATE
     contas
 SET
     inativa = %s,
-    tipo_conta = %s
+    id_tipo_conta = (
+        SELECT
+            id
+        FROM
+            tipos_conta
+        WHERE
+            nome = %s
+    )
 WHERE
     nome_conta = %s
     AND id_prop_conta = %s

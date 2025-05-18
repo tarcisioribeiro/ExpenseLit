@@ -8,6 +8,7 @@ from dictionary.sql.credit_card_expenses_queries import (
     credit_card_expense_query
 )
 from dictionary.sql.credit_card_queries import (
+    credit_card_id_query,
     owner_cards_query
 )
 from functions.credit_card import Credit_Card
@@ -110,8 +111,19 @@ class NewCreditCardExpense:
                         label=":credit_card: Cartão",
                         options=user_cards
                     )
+
+                    card_id = QueryExecutor().simple_consult_query(
+                        credit_card_id_query,
+                        (user_id, user_document, card)
+                    )
+                    card_id = QueryExecutor().treat_simple_result(
+                        card_id,
+                        TO_REMOVE_LIST
+                    )
+                    card_id = int(card_id)
+
                     remaining_limit = Credit_Card().card_remaining_limit(
-                        selected_card=card
+                        selected_card=card_id
                     )
                     remaining_limit = round(remaining_limit, 2)
 

@@ -61,7 +61,7 @@ WHERE
     u.documento = %s;
 """
 
-user_login_query = """
+user_doc_query = """
 SELECT
     u.id, u.documento
 FROM
@@ -70,6 +70,16 @@ INNER JOIN
     usuarios_logados AS ul
     ON u.id = ul.id_usuario
 WHERE ul.sessao_id = %s;
+"""
+
+user_login_query = """
+SELECT
+    login
+FROM
+    usuarios
+WHERE
+    id = %s
+    and documento = %s;
 """
 
 user_data_query = """

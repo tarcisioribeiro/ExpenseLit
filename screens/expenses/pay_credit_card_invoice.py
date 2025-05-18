@@ -1,6 +1,7 @@
 from dictionary.sql.credit_card_queries import (
     owner_cards_query,
-    card_invoices_query
+    card_invoices_query,
+    credit_card_id_query
 )
 from dictionary.sql.credit_card_expenses_queries import (
     update_invoice_query
@@ -32,7 +33,7 @@ class CreditCardInvoice:
     """
     def get_credit_card_expenses_data(
         self,
-        selected_card: str,
+        selected_card: int,
         selected_month: str,
     ):
         """
@@ -119,16 +120,28 @@ class CreditCardInvoice:
         selected_month : str
             O mês da fatura selecionado pelo usuário.
         """
+        selected_card_id = QueryExecutor().simple_consult_query(
+            credit_card_id_query,
+            (user_id, user_document, selected_card)
+        )
+        selected_card_id = QueryExecutor().treat_simple_result(
+            selected_card_id,
+            TO_REMOVE_LIST
+        )
+        selected_card_id = int(selected_card_id)
 
         (
             month_year,
             month_name,
             month_abbreviation,
             selected_card_linked_account
-        ) = self.get_credit_card_expenses_data(selected_card, selected_month)
+        ) = self.get_credit_card_expenses_data(
+            selected_card_id,
+            selected_month
+        )
 
         month_expenses = Credit_Card().month_expenses(
-            selected_card,
+            selected_card_id,
             month_year,
             month_name
         )

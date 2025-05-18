@@ -17,14 +17,18 @@ from dictionary.sql.user_queries import (
     insert_new_user_query,
     name_query,
     password_query,
-    user_login_query,
+    user_doc_query,
     user_data_query,
     sex_query,
 )
-
-from dictionary.vars import ABSOLUTE_APP_PATH, TO_REMOVE_LIST
+from dictionary.vars import (
+    ABSOLUTE_APP_PATH,
+    SAVE_FOLDER,
+    TO_REMOVE_LIST
+)
 from functions.validate_document import Documents
 from functions.query_executor import QueryExecutor
+from pathlib import Path
 from time import sleep
 
 
@@ -114,7 +118,6 @@ class CreateUser:
         """
 
         query_executor = QueryExecutor()
-        document = Documents()
 
         check_user_quantity = query_executor.simple_consult_query(
             check_user_query,
@@ -207,10 +210,19 @@ class CreateUser:
                 )
 
             insert_new_user_button = st.button(
-                label=":floppy_disk: Cadastrar novo usuário")
+                label=":floppy_disk: Cadastrar novo usuário"
+            )
 
             if insert_new_user_button:
                 user_sex = sex_options[user_sex]
+
+                user_accounts_path = Path(SAVE_FOLDER + f'{user_login}')
+
+                if not user_accounts_path.exists():
+                    user_accounts_path.mkdir(parents=True)
+                else:
+                    pass
+
                 if confirm_values is True:
                     with col6:
                         with st.spinner(text="Aguarde..."):
@@ -223,7 +235,7 @@ class CreateUser:
                             expanded=True
                         ):
                             is_document_valid = (
-                                document.validate_owner_document(
+                                Documents().validate_owner_document(
                                     user_document
                                 )
                             )
@@ -512,7 +524,7 @@ class Login:
 
         user_data = (
             QueryExecutor().complex_compund_query(
-                query=user_login_query,
+                query=user_doc_query,
                 list_quantity=2,
                 params=(st.session_state.sessao_id,)
             )

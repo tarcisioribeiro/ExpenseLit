@@ -1,5 +1,5 @@
 
-from dictionary.vars import today, TO_REMOVE_LIST
+from dictionary.vars import TO_REMOVE_LIST
 from dictionary.sql.benefited_queries import (
     benefited_quantity_query,
     beneficiaries_query,
@@ -13,7 +13,6 @@ from dictionary.sql.benefited_queries import (
     new_benefited_loans_data_query,
     get_loans_ids_query
 )
-from functions.get_actual_time import GetActualTime
 from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -173,7 +172,7 @@ class Benefited:
                 query=beneficiaries_query,
                 params=(user_id, user_document)
             )
-            beneficiaries = QueryExecutor().treat_numerous_simple_result(
+            beneficiaries = QueryExecutor().treat_simple_results(
                 beneficiaries,
                 TO_REMOVE_LIST
             )
@@ -301,23 +300,21 @@ class Benefited:
                                         "Erro ao atualizar registros:"
                                     )
 
-                                new_benefited_data_query.format(
+                                new_benefited_data = (
                                     new_name,
                                     new_document,
                                     new_phone,
                                     int(beneficiaries_complete_data[0])
                                 )
 
-                                QueryExecutor().update_table_unique_register(
+                                QueryExecutor().update_unique_register(
                                     new_benefited_data_query,
+                                    new_benefited_data,
                                     "Beneficiado atualizado com sucesso!",
                                     "Erro ao atualizar beneficiado:"
                                 )
-                                actual_time = GetActualTime().get_actual_time()
 
                                 log_values = (
-                                    today,
-                                    actual_time,
                                     user_id,
                                     "Atualização",
                                     """
@@ -398,10 +395,8 @@ class Benefited:
                                 "Beneficiado cadastrado com sucesso!",
                                 "Erro ao cadastrar beneficiado:"
                             )
-                            actual_time = GetActualTime().get_actual_time()
+
                             log_values = (
-                                today,
-                                actual_time,
                                 user_id,
                                 "Cadastro",
                                 """

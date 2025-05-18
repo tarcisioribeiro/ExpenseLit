@@ -12,7 +12,7 @@ INNER JOIN
         ON dcc.id_prop_despesa_cartao = u.id
         AND dcc.doc_prop_cartao = u.documento
 WHERE
-    dcc.numero_cartao = %s
+    dcc.id_cartao = %s
     AND dcc.pago = 'N'
     AND dcc.data > fc.data_fim_fatura
     AND fc.ano = %s
@@ -114,7 +114,7 @@ INNER JOIN
     ON dcc.id_prop_despesa_cartao = u.id
     AND dcc.doc_prop_cartao = u.documento
 WHERE
-    dcc.numero_cartao = %s
+    dcc.id_cartao = %s
     AND dcc.data <= fc.data_comeco_fatura
     AND dcc.pago = 'N'
     AND fc.ano <= %s
@@ -146,7 +146,7 @@ WHERE
             ON u.id = cc.id_prop_cartao
             AND u.documento = cc.doc_titular_cartao
         WHERE
-            cc.nome_cartao = %s
+            cc.id = %s
             AND u.id = %s
             AND u.documento = %s
     )
@@ -201,7 +201,7 @@ INNER JOIN
     ON cc.doc_titular_cartao = u.documento
     AND cc.id_prop_cartao = u.id
 WHERE
-    cc.nome_cartao = %s
+    cc.id = %s
     AND u.id = %s
     AND u.documento = %s;
 """

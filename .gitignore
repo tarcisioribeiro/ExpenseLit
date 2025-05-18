@@ -157,6 +157,7 @@ data/loans/*.png
 data/revenues/*.png
 data/transfers/*.png
 data/reports/*.png
+data/account_statements/*.pdf
 library/images/accounts/*.png
 data/cache/session_state.py
 library/fonts/sans_serif/RobotoRegular.cw127.pkl

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 9.3.0, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
 --
 -- Host: localhost    Database: financas
 -- ------------------------------------------------------
--- Server version	9.3.0
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -97,7 +97,6 @@ CREATE TABLE `cartao_credito` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `chave_cartao` (`numero_cartao`,`doc_titular_cartao`,`id_conta_associada`),
   UNIQUE KEY `unq_cartao_credito_nome_cartao` (`nome_cartao`,`numero_cartao`),
-  UNIQUE KEY `unq_cartao_credito_id_prop_cartao` (`id_prop_cartao`,`doc_titular_cartao`),
   UNIQUE KEY `unq_cartao_credito_id` (`id`,`numero_cartao`),
   KEY `fk_cartao_credito_conta` (`id_conta_associada`),
   CONSTRAINT `fk_cartao_credito_conta` FOREIGN KEY (`id_conta_associada`) REFERENCES `contas` (`id`) ON DELETE RESTRICT
@@ -300,8 +299,7 @@ CREATE TABLE `despesas_cartao_credito` (
   UNIQUE KEY `chave_despesa_cartao` (`valor`,`data`,`horario`,`categoria`,`parcela`),
   KEY `fk_prop_despesa_cartao` (`id_prop_despesa_cartao`,`doc_prop_cartao`),
   KEY `fk_cartao_despesa` (`id_cartao`),
-  CONSTRAINT `fk_cartao_despesa` FOREIGN KEY (`id_cartao`) REFERENCES `cartao_credito` (`id`),
-  CONSTRAINT `fk_prop_despesa_cartao` FOREIGN KEY (`id_prop_despesa_cartao`, `doc_prop_cartao`) REFERENCES `cartao_credito` (`id_prop_cartao`, `doc_titular_cartao`)
+  CONSTRAINT `fk_cartao_despesa` FOREIGN KEY (`id_cartao`) REFERENCES `cartao_credito` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -639,4 +637,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-13 21:20:08
+-- Dump completed on 2025-05-16 20:54:53

@@ -11,8 +11,7 @@ from dictionary.sql.creditor_queries import (
     new_creditor_data_query,
     new_creditor_loans_data_query
 )
-from dictionary.vars import today, TO_REMOVE_LIST
-from functions.get_actual_time import GetActualTime
+from dictionary.vars import TO_REMOVE_LIST
 from functions.login import Login
 from functions.query_executor import QueryExecutor
 from functions.validate_document import Documents
@@ -182,7 +181,7 @@ class Creditors:
                 query=creditors_names_query,
                 params=(user_id, user_document)
             )
-            creditors = QueryExecutor().treat_numerous_simple_result(
+            creditors = QueryExecutor().treat_simple_results(
                 creditors,
                 TO_REMOVE_LIST
             )
@@ -197,7 +196,7 @@ class Creditors:
 
             creditors_complete_data = QueryExecutor().complex_compund_query(
                 query=creditors_complete_data_query,
-                list_quantity=4,
+                list_quantity=3,
                 params=(user_id, user_document, selected_creditor)
             )
             creditors_complete_data = QueryExecutor().treat_complex_result(
@@ -212,11 +211,11 @@ class Creditors:
                     expanded=True
                 ):
                     st.write("**Nome**")
-                    st.info(creditors_complete_data[1])
+                    st.info(selected_creditor)
                     st.write("**Documento**")
-                    st.info(creditors_complete_data[2])
+                    st.info(creditors_complete_data[1])
                     st.write("**Telefone**")
-                    st.info(creditors_complete_data[3])
+                    st.info(creditors_complete_data[2])
                 confirm_selection = st.checkbox(label="Confirmar seleção")
 
             if confirm_selection:
@@ -235,7 +234,7 @@ class Creditors:
                             help="""
                             Novo nome do credor.
                             """,
-                            placeholder=creditors_complete_data[1]
+                            placeholder=selected_creditor
                         )
                         new_document = st.text_input(
                             label="**Novo documento**",
@@ -243,13 +242,13 @@ class Creditors:
                             Novo CPF/CNPJ do credor,
                             sem barras, pontos e hifens.
                             """,
-                            placeholder=creditors_complete_data[2]
+                            placeholder=creditors_complete_data[1]
                         )
                         new_phone = st.text_input(
                             label="**Novo telefone**",
                             max_chars=11,
                             help="Novo telefone do credor, apenas números.",
-                            placeholder=creditors_complete_data[3]
+                            placeholder=creditors_complete_data[2]
                         )
 
                     confirm_changes_button = st.button(
@@ -331,11 +330,7 @@ class Creditors:
                                     "Erro ao atualizar credor:"
                                 )
 
-                                actual_time = GetActualTime().get_actual_time()
-
                                 log_values = (
-                                    today,
-                                    actual_time,
                                     user_id,
                                     "Atualização",
                                     """

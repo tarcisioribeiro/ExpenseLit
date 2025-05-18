@@ -15,7 +15,6 @@ from dictionary.vars import (
 from dictionary.app_vars import string_actual_month
 from functions.login import Login
 from functions.query_executor import QueryExecutor
-import streamlit as st
 
 
 user_id, user_document = Login().get_user_data()
@@ -157,11 +156,6 @@ class Credit_Card:
         installment_list : list
             A lista com a parcela das despesas.
         """
-        st.info(selected_card)
-        st.info(year)
-        st.info(selected_month)
-        st.info(user_id)
-        st.info(user_document)
 
         (
             descrption_list,
@@ -369,6 +363,7 @@ class Credit_Card:
         remaining_limit : float
             0 valor do limite restante do cartão.
         """
+
         card_total_limit = self.card_limit(selected_card)
         not_payed_expenses = self.not_payed_expenses(selected_card)
         month_card_expenses = self.month_expenses(

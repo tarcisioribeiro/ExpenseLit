@@ -2,6 +2,7 @@ from datetime import datetime
 from dictionary.sql.account_queries import user_current_accounts_query
 from dictionary.sql.expenses_queries import expenses_statement_query
 from dictionary.sql.revenues_queries import revenues_statement_query
+from dictionary.sql.user_queries import user_real_name_query
 from dictionary.style import system_font
 from dictionary.vars import ABSOLUTE_APP_PATH, TO_REMOVE_LIST, today
 from fpdf import FPDF
@@ -406,6 +407,15 @@ class AccountStatement:
         pdf: O PDF gerado pela função.
         """
 
+        user_name = QueryExecutor().simple_consult_query(
+            user_real_name_query,
+            (user_id, user_document)
+        )
+        user_name = QueryExecutor().treat_simple_result(
+            user_name,
+            TO_REMOVE_LIST
+        )
+
         unformatted_today = datetime.strptime(today, '%Y-%m-%d')
         formatted_today = unformatted_today.strftime('%d/%m/%Y')
 
@@ -488,13 +498,33 @@ class AccountStatement:
         pdf.cell(
             0,
             10,
-            "Nome do usuário: {}.".format(user_id),
+            "Nome do usuário: {}.".format(user_name),
             align="R",
             ln=True
         )
         pdf.ln(5)
 
-        return pdf
+        document_folder = ABSOLUTE_APP_PATH + "/data/account_statements/"
+        document_type = "extrato_bancario"
+        time = GetActualTime().get_actual_time()
+        time = time.replace(":", "_")
+        initial_data = initial_data.replace("/", "")
+        final_data = final_data.replace("/", "")
+
+        pdf_file_name = """{}{}_{}_{}_a_{}_{}.pdf""".format(
+            document_folder,
+            document_type,
+            statement_type.replace(
+                " ", "_"
+            ).lower(),
+            initial_data,
+            final_data,
+            time
+        )
+
+        pdf.output(pdf_file_name)
+
+        return pdf_file_name
 
     def main_menu(self):
         """
@@ -634,8 +664,6 @@ class AccountStatement:
                                 log_values,
                             )
 
-                            time = GetActualTime().get_actual_time()
-
                             pdf = self.generate_pdf(
                                 dataframes,
                                 statement_option,
@@ -643,21 +671,14 @@ class AccountStatement:
                                 formatted_final_data,
                                 selected_accounts
                             )
-                            pdf_bytes = pdf.output(dest='S').encode('latin1')
+
+                            with open(pdf, "rb") as file:
+                                pdf_bytes = file.read()
 
                             st.download_button(
                                 label=":floppy_disk: Baixar PDF",
                                 data=pdf_bytes,
-                                file_name="""
-                                extrato_bancario_{}_{}_a_{}_{}.pdf
-                                """.format(
-                                    statement_option.replace(
-                                        " ", "_"
-                                    ).lower(),
-                                    initial_data,
-                                    final_data,
-                                    time
-                                ),
+                                file_name=pdf,
                                 mime="application/pdf",
                             )
 

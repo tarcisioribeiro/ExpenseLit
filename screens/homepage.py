@@ -638,11 +638,14 @@ class Home:
                     most_categories_revenues_query,
                     params=(user_id, user_document)
                 )
-                if len(accounts_revenue_graph) > 0:
-                    account_df = pd.DataFrame(accounts_revenue_graph, columns=[
-                        "Valor",
-                        "Categoria"]
-                    )
+
+                account_df = pd.DataFrame(accounts_revenue_graph, columns=[
+                    "Valor",
+                    "Categoria"]
+                )
+
+                if (account_df["Valor"].sum()) > 0:
+
                     fig, ax = plt.subplots()
                     wedges, texts, autotexts = ax.pie(
                         account_df["Valor"],
@@ -652,38 +655,41 @@ class Home:
                     )
                     ax.axis("equal")
 
-                    legend_labels = [
-                        "{} - {:.2f}%".format(
-                            category,
-                            (value / account_df["Valor"].sum()) * 100).replace(
-                                ".",
-                                ","
+                    if (account_df["Valor"].sum()) != 0:
+                        legend_labels = [
+                            "{} - {:.2f}%".format(
+                                category,
+                                (
+                                    value / account_df["Valor"].sum()
+                                ) * 100).replace(
+                                    ".",
+                                    ","
+                                )
+                            for category, value in zip(
+                                account_df["Categoria"],
+                                account_df["Valor"]
                             )
-                        for category, value in zip(
-                            account_df["Categoria"],
-                            account_df["Valor"]
+                        ]
+                        ax.legend(
+                            wedges,
+                            legend_labels,
+                            title="Legenda",
+                            loc="center left",
+                            bbox_to_anchor=(1, 0.5),
+                            title_fontsize=12,
+                            prop=custom_font,
                         )
-                    ]
-                    ax.legend(
-                        wedges,
-                        legend_labels,
-                        title="Legenda",
-                        loc="center left",
-                        bbox_to_anchor=(1, 0.5),
-                        title_fontsize=12,
-                        prop=custom_font,
-                    )
 
-                    ax.set_title(
-                        "Receitas por Categoria",
-                        fontsize=14,
-                        fontproperties=custom_font
-                    )
+                        ax.set_title(
+                            "Receitas por Categoria",
+                            fontsize=14,
+                            fontproperties=custom_font
+                        )
 
-                    for text in texts + autotexts:
-                        text.set_fontproperties(custom_font)
+                        for text in texts + autotexts:
+                            text.set_fontproperties(custom_font)
 
-                    st.pyplot(fig)
+                        st.pyplot(fig)
 
                 else:
                     st.warning(
