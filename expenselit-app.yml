@@ -15,7 +15,7 @@ services:
       - .:/app
 
   db:
-    image: mysql-ptbr
+    image: mysql-ptbr1
     environment:
       MYSQL_ROOT_PASSWORD: '123'
       MYSQL_DATABASE: 'financas'

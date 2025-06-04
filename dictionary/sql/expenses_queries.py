@@ -329,7 +329,7 @@ INNER JOIN
     AND d.doc_prop_despesa = u.documento
 WHERE
     d.pago = 'S'
-    AND d.categoria NOT IN('Pix', 'DOC', 'TED', 'Ajuste')
+    AND d.categoria <> 'Outros'
     AND d.data >= %s
     AND d.data <= %s
     AND c.nome_conta IN %s

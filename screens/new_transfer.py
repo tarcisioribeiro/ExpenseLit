@@ -140,7 +140,7 @@ class NewTransfer:
                     transfered = options[transfered]
                     with col5:
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de dados"
                         )
@@ -269,22 +269,22 @@ class NewTransfer:
                             transfered
                         )
                         expense_values = (
-                            description,
+                            'Transferência',
                             value,
                             date,
                             actual_horary,
-                            category,
+                            'Outros',
                             origin_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
                             transfered
                         )
                         revenue_values = (
-                            description,
+                            'Transferência',
                             value,
                             date,
                             actual_horary,
-                            category,
+                            'Transferência recebida',
                             destiny_account_id,
                             revenue_owner_name,
                             revenue_owner_document,
@@ -331,7 +331,7 @@ class NewTransfer:
                         )
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         Receipts().generate_transfer_receipt(
                             id,
@@ -379,7 +379,7 @@ class NewTransfer:
                 ):
                     with col5:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de Dados"
                         )
@@ -479,7 +479,7 @@ class NewTransfer:
                     transfered = options[transfered]
                     with col5:
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de dados"
                         )
@@ -673,7 +673,7 @@ class NewTransfer:
                         )
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         Receipts().generate_transfer_receipt(
                             id,
@@ -719,7 +719,7 @@ class NewTransfer:
                 ):
                     with col5:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de Dados"
                         )

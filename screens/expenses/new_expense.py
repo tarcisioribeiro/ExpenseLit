@@ -110,7 +110,7 @@ class NewCurrentExpense:
 
                     with col2:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         st.subheader(
                             body=":white_check_mark: Validação de Dados")
@@ -234,7 +234,7 @@ class NewCurrentExpense:
                         )
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         if payed == "S":
                             st.subheader(

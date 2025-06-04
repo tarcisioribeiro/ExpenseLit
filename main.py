@@ -27,7 +27,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 if not os.path.isfile(software_env_path):
     db_port = 20306
-    db_hostname = "db"
+    db_hostname = 'db'
     db_user = "root"
     db_password = '123'
 

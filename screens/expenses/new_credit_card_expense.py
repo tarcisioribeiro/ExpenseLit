@@ -195,7 +195,7 @@ class NewCreditCardExpense:
                         with col2:
 
                             with st.spinner("Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
 
                             st.subheader(
                                 body=":white_check_mark: Validação de Dados"
@@ -228,7 +228,7 @@ class NewCreditCardExpense:
                             st.subheader(
                                 body=":pencil: Comprovante de Despesa")
                             with st.spinner("Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
 
                             for i in range(0, parcel):
                                 if i >= 1:
@@ -301,7 +301,7 @@ class NewCreditCardExpense:
                     elif invoices_quantity == 0:
                         with col2:
                             with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":white_check_mark: Validação de Dados"
                                 )

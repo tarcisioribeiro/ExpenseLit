@@ -450,7 +450,7 @@ class Receipts:
             TO_REMOVE_LIST
         )
         origin_account_image_path = str(
-            SAVE_FOLDER + f"{user_login}" + origin_account_image
+            SAVE_FOLDER + f"{user_login}/" + origin_account_image
         )
         origin_pasted_image = Image.open(origin_account_image_path)
 
@@ -466,10 +466,12 @@ class Receipts:
             destiny_account_image,
             TO_REMOVE_LIST
         )
-        destiny_account_image_path = SAVE_FOLDER + destiny_account_image
+        destiny_account_image_path = str(
+            SAVE_FOLDER + f"{user_login}/" + destiny_account_image
+        )
         destiny_pasted_image = Image.open(destiny_account_image_path)
 
-        loaded_TRANSFER_IMAGE = Image.open(TRANSFER_IMAGE)
+        loaded_transfer_image = Image.open(TRANSFER_IMAGE)
 
         float_value = round(value, 2)
 
@@ -540,7 +542,7 @@ class Receipts:
         draw.text((20, height - 40), reference_number, fill="black", font=font)
 
         image.paste(origin_pasted_image, (20, 250))
-        image.paste(loaded_TRANSFER_IMAGE, (170, 250))
+        image.paste(loaded_transfer_image, (170, 250))
         image.paste(destiny_pasted_image, (320, 250))
 
         actual_horary = GetActualTime().get_actual_time()
@@ -826,7 +828,7 @@ class Receipts:
 
                     with col5:
                         with st.spinner(text="Aguarde..."):
-                            sleep(0.5)
+                            sleep(1.25)
                         st.subheader(body=":page_facing_up: Resultados")
 
                         query_data, is_query_valid = self.validate_query(
@@ -944,7 +946,7 @@ class Receipts:
                             if (confirm_register_selection and receipt_button):
                                 with col6:
                                     with st.spinner(text="Aguarde..."):
-                                        sleep(2.5)
+                                        sleep(1.25)
                                     st.subheader(body=":pencil: Comprovante")
                                     self.generate_receipt(
                                         table,

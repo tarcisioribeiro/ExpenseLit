@@ -219,7 +219,7 @@ class ReceiveLoan:
             with col5:
                 if confirm_values:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     st.subheader(
                         body=":white_check_mark: Validação de Dados"
                     )
@@ -278,7 +278,7 @@ class ReceiveLoan:
                             loan_payed = 'S'
                     elif receiving_value == 0:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         with col5:
                             with st.expander(label="Aviso", expanded=True):
                                 st.warning(
@@ -304,7 +304,7 @@ class ReceiveLoan:
                             receiving_value,
                             today,
                             actual_horary,
-                            'Recebimento de Empréstimo',
+                            'Devolução de empréstimo',
                             account_id,
                             user_id,
                             user_document,
@@ -345,7 +345,7 @@ class ReceiveLoan:
                         last_revenue_id = int(last_revenue_id)
                         with col6:
                             with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body="""
                                 :pencil: Comprovante de Recebimento

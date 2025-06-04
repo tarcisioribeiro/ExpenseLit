@@ -121,7 +121,7 @@ class NewFundRevenue:
                     with col5:
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         st.subheader(body="Validação de Dados")
 
@@ -187,7 +187,7 @@ class NewFundRevenue:
                         st.subheader(body=":pencil: Comprovante de Receita")
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         Receipts().generate_receipt(
                             'receitas',

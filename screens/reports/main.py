@@ -1,6 +1,6 @@
 import streamlit as st
-from screens.reports.receipts import Receipts
 from screens.reports.account_statement import AccountStatement
+from screens.reports.receipts import Receipts
 
 
 class Reports:

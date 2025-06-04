@@ -124,7 +124,7 @@ class NewCurrentRevenue:
 
                     with col5:
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         st.subheader(
                             body=":white_check_mark: Validação de Dados")
@@ -173,7 +173,7 @@ class NewCurrentRevenue:
                         )
 
                         with st.spinner("Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         if received == "S":
                             st.subheader(

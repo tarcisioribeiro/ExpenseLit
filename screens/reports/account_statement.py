@@ -572,7 +572,7 @@ class AccountStatement:
 
                 with col5:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
 
                     st.subheader(body=":bar_chart: Resultados")
 
@@ -592,7 +592,7 @@ class AccountStatement:
 
                         with col6:
                             with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":information_source: Informações"
                             )
@@ -616,30 +616,34 @@ class AccountStatement:
                             total_value = total_value.replace(".", ",")
 
                             with st.expander(label="Dados", expanded=True):
-                                st.info(
-                                    body="""
-                                    Quantidade de {}: {}.
-                                    """.format(
-                                        statement_option.lower(),
-                                        counter
+                                if statement_option in (
+                                    'Receitas',
+                                    'Despesas'
+                                ):
+                                    st.info(
+                                        body="""
+                                        Quantidade de {}: {}.
+                                        """.format(
+                                            statement_option.lower(),
+                                            counter
+                                        )
                                     )
-                                )
-                                st.info(
-                                    body="""
-                                    Valor total das {}: R$ {}.
-                                    """.format(
-                                        statement_option.lower(),
-                                        total_value
+                                    st.info(
+                                        body="""
+                                        Valor total das {}: R$ {}.
+                                        """.format(
+                                            statement_option.lower(),
+                                            total_value
+                                        )
                                     )
-                                )
-                                st.info(
-                                    body="""
-                                    Valor médio das {}: R$ {}.
-                                    """.format(
-                                        statement_option.lower(),
-                                        medium_value
+                                    st.info(
+                                        body="""
+                                        Valor médio das {}: R$ {}.
+                                        """.format(
+                                            statement_option.lower(),
+                                            medium_value
+                                        )
                                     )
-                                )
 
                             formatted_initial_data = initial_data.strftime(
                                 "%d/%m/%Y"

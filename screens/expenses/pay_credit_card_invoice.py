@@ -278,7 +278,7 @@ class CreditCardInvoice:
 
                 with column_disposition:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     st.subheader(
                         body=":pencil: Comprovante de Pagamento"
                     )

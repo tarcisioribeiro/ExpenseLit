@@ -250,7 +250,7 @@ class Benefited:
                             new_phone = beneficiaries_complete_data[3]
                         with col3:
                             with st.spinner(text="Aguarde..."):
-                                sleep(1.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":white_check_mark: Validação de Dados"
                             )
@@ -357,7 +357,7 @@ class Benefited:
                 with col2:
                     st.subheader(body=":white_check_mark: Validação de Dados")
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     with st.expander(
                         label="Validação dos dados",
                         expanded=True

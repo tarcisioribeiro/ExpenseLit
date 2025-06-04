@@ -35,7 +35,7 @@ CREATE TABLE `anos` (
   `ano` int NOT NULL,
   `bissexto` varchar(1) DEFAULT (_utf8mb4'N'),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `anos` (
 
 LOCK TABLES `anos` WRITE;
 /*!40000 ALTER TABLE `anos` DISABLE KEYS */;
-INSERT INTO `anos` VALUES (1,2024,'S'),(2,2025,'N'),(3,2026,'N'),(4,2027,'N'),(5,2028,'S');
+INSERT INTO `anos` VALUES (1,2025,'N'),(2,2026,'N'),(3,2027,'N'),(4,2028,'S');
 /*!40000 ALTER TABLE `anos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -123,7 +123,7 @@ CREATE TABLE `categorias_despesa` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,7 +132,7 @@ CREATE TABLE `categorias_despesa` (
 
 LOCK TABLES `categorias_despesa` WRITE;
 /*!40000 ALTER TABLE `categorias_despesa` DISABLE KEYS */;
-INSERT INTO `categorias_despesa` VALUES (1,'Casa'),(2,'Eletroeletrônicos'),(3,'Entretenimento'),(4,'Lazer'),(5,'Presente'),(6,'Restaurante'),(7,'Saúde'),(8,'Serviços'),(9,'Supermercado'),(10,'Transporte'),(11,'Vestuário');
+INSERT INTO `categorias_despesa` VALUES (1,'Comida e bebida'),(2,'Contas e serviços'),(3,'Eletrônicos'),(4,'Amizades e família'),(5,'Animais de estimação'),(6,'Assinaturas digitais'),(7,'Casa'),(8,'Compras'),(9,'Doações'),(10,'Educação'),(11,'Empréstimos'),(12,'Entretenimento'),(13,'Impostos'),(14,'Investimentos'),(15,'Outros'),(16,'Roupas'),(17,'Saúde e cuidados pessoais'),(18,'Serviços profissionais'),(19,'Supermercado'),(20,'Taxas'),(21,'Transporte'),(22,'Viagens');
 /*!40000 ALTER TABLE `categorias_despesa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -147,7 +147,7 @@ CREATE TABLE `categorias_receita` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +156,7 @@ CREATE TABLE `categorias_receita` (
 
 LOCK TABLES `categorias_receita` WRITE;
 /*!40000 ALTER TABLE `categorias_receita` DISABLE KEYS */;
-INSERT INTO `categorias_receita` VALUES (1,'Ajuste'),(2,'Depósito'),(3,'Entretenimento'),(4,'Prêmio'),(5,'Salário'),(6,'Vale'),(7,'Saúde'),(8,'Rendimentos');
+INSERT INTO `categorias_receita` VALUES (1,'Depósito'),(2,'Prêmio'),(3,'Salário'),(4,'Vale'),(5,'Rendimentos'),(6,'Reembolso'),(7,'Cashback'),(8,'Transferência recebida'),(9,'Empréstimo recebido'),(10,'Devolução de empréstimo');
 /*!40000 ALTER TABLE `categorias_receita` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -249,7 +249,7 @@ DROP TABLE IF EXISTS `despesas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `despesas` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(100) NOT NULL DEFAULT 'Despesa',
+  `descricao` varchar(25) NOT NULL DEFAULT 'Despesa',
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -284,7 +284,7 @@ DROP TABLE IF EXISTS `despesas_cartao_credito`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `despesas_cartao_credito` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(100) NOT NULL DEFAULT 'Despesa Cartão',
+  `descricao` varchar(25) NOT NULL DEFAULT 'Despesa Cartão',
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -321,7 +321,7 @@ DROP TABLE IF EXISTS `emprestimos`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `emprestimos` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(100) NOT NULL,
+  `descricao` varchar(25) NOT NULL,
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `valor_pago` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
@@ -479,7 +479,7 @@ DROP TABLE IF EXISTS `receitas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `receitas` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(100) NOT NULL DEFAULT 'Receita',
+  `descricao` varchar(25) NOT NULL DEFAULT 'Receita',
   `valor` decimal(10,2) DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -538,7 +538,7 @@ DROP TABLE IF EXISTS `transferencias`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `transferencias` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(100) NOT NULL DEFAULT 'Transferência',
+  `descricao` varchar(25) NOT NULL DEFAULT 'Transferência',
   `valor` decimal(10,2) NOT NULL,
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),

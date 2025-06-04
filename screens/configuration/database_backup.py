@@ -63,13 +63,13 @@ class Backup:
             with st.spinner(
                 text="Navegando ao diretório {}...".format(backup_path)
             ):
-                sleep(2.5)
+                sleep(1.25)
             with st.spinner(
                 text="""
                 Realizando o backup do arquivo {}...
                 """.format(backup_archive_name)
             ):
-                sleep(2.5)
+                sleep(1.25)
             try:
                 subprocess.run(["bash", backup_shell_script_name],
                                check=True, text=True, capture_output=True)
@@ -115,7 +115,7 @@ class Backup:
         if backup_confirm_button:
             with col5:
                 with st.spinner(text="Aguarde..."):
-                    sleep(2.5)
+                    sleep(1.25)
 
                 st.subheader(body=":white_check_mark: Validação de Dados")
 

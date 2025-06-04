@@ -18,7 +18,7 @@ INNER JOIN
     AND r.doc_prop_receita = u.documento
 WHERE
     r.recebido = 'S'
-    AND r.categoria NOT IN('Pix', 'DOC', 'TED', 'Ajuste')
+    AND r.categoria <> 'Transferência recebida'
     AND r.data >= %s
     AND r.data <= %s
     AND r.valor > 0

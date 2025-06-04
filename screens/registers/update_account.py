@@ -130,7 +130,7 @@ class UpdateAccounts:
 
                 with col2:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
 
                     st.subheader(body=":white_check_mark: Validação de Dados")
                     data_expander = st.expander(label="Dados", expanded=True)
@@ -273,7 +273,7 @@ class UpdateAccounts:
 
                 with cm_cl2:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     st.warning(
                         body="Revise e confirme os dados antes de prosseguir."
                     )

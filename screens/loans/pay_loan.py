@@ -216,7 +216,7 @@ class PayLoan:
             with col5:
                 if confirm_values:
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     st.subheader(body=":white_check_mark: Validação de Dados")
                     if paying_value > 0:
                         with col5:
@@ -265,7 +265,7 @@ class PayLoan:
                             loan_payed = 'S'
                     elif paying_value == 0:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         with col5:
                             with st.expander(label="Aviso", expanded=True):
                                 st.warning(
@@ -288,11 +288,11 @@ class PayLoan:
                     if paying_value > 0:
 
                         values = (
-                            'Pagamento de empréstimo - {}'.format(debt),
+                            debt,
                             paying_value,
                             today,
                             actual_horary,
-                            'Pagamento de Empréstimo',
+                            'Taxas',
                             selected_account_id,
                             user_id,
                             user_document,
@@ -334,7 +334,7 @@ class PayLoan:
                         last_expense_id = int(last_expense_id)
                         with col6:
                             with st.spinner(text="Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body="""
                                     :pencil: Comprovante de

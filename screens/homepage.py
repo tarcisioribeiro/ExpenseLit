@@ -310,7 +310,7 @@ class Home:
                 st.text(
                     body="Empréstimos não recebidos:",
                     help="""
-                    Valores de empréstimos realizados que ainda não recebidos.
+                    Valores de empréstimos realizados ainda não recebidos.
                     """
                 )
                 st.info(

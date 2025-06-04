@@ -188,7 +188,7 @@ class TakeNewLoan:
 
                         with col2:
                             with st.spinner("Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":white_check_mark: Validação de dados"
                             )
@@ -251,8 +251,6 @@ class TakeNewLoan:
                                 value >= 0.01
                             ) and (
                                 date
-                            ) and (
-                                category != "Selecione uma opção"
                         ) and account != "Selecione uma opção":
                             with col2:
                                 description = "Empréstimo - " + description
@@ -267,7 +265,7 @@ class TakeNewLoan:
                                 value,
                                 date,
                                 actual_horary,
-                                category,
+                                'Empréstimos',
                                 account_id,
                                 creditor_name,
                                 creditor_document,
@@ -285,7 +283,7 @@ class TakeNewLoan:
                                 value,
                                 date,
                                 actual_horary,
-                                category,
+                                'Empréstimo recebido',
                                 account_id,
                                 user_id,
                                 user_document,
@@ -335,7 +333,7 @@ class TakeNewLoan:
                             )
 
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(1.25)
 
                             Receipts().generate_receipt(
                                 'emprestimos',
@@ -353,8 +351,6 @@ class TakeNewLoan:
                             ):
                                 if description == "":
                                     st.error(body="A descrição está vazia.")
-                                if category == "Selecione uma opção":
-                                    st.error(body="Selecione uma categoria.")
                                 if value > account_available_value:
                                     st.error(
                                         body="""
@@ -503,7 +499,7 @@ class TakeNewLoan:
                         actual_horary = GetActualTime().get_actual_time()
                         with col2:
                             with st.spinner("Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":white_check_mark: Validação de dados"
                             )
@@ -563,11 +559,6 @@ class TakeNewLoan:
                             ) and (
                                 value <= account_available_value
                             ) and (
-                                date
-                            ) and (
-                                category != "Selecione uma opção"
-                            ) and (
-                                account != "Selecione uma opção"
                         ):
                             with col2:
                                 with st.expander(
@@ -581,7 +572,7 @@ class TakeNewLoan:
                                 value,
                                 date,
                                 actual_horary,
-                                category,
+                                'Empréstimos',
                                 account_id,
                                 creditor_name,
                                 creditor_document,
@@ -630,7 +621,7 @@ class TakeNewLoan:
                             st.subheader(
                                 body=":pencil: Comprovante de Empréstimo")
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(1.25)
                             Receipts().generate_receipt(
                                 'emprestimos',
                                 id,
@@ -650,10 +641,6 @@ class TakeNewLoan:
                                     if description == "":
                                         st.error(
                                             body="A descrição está vazia."
-                                        )
-                                    if category == "Selecione uma opção":
-                                        st.error(
-                                            body="Selecione uma categoria."
                                         )
                                     if value > account_available_value:
                                         account_available_value = str(
@@ -870,7 +857,7 @@ class MakeNewLoan:
                         with col2:
 
                             with st.spinner("Aguarde..."):
-                                sleep(2.5)
+                                sleep(1.25)
 
                             st.subheader(
                                 body=":white_check_mark: Validação de dados"
@@ -933,12 +920,7 @@ class MakeNewLoan:
                                 (value >= 0.01)
                             ) and (
                                 value <= account_available_value
-                            ) and (
-                                date
-                            ) and (
-                                category != "Selecione uma opção"
-                                ) and account != "Selecione uma opção":
-
+                        ) and date:
                             with col2:
                                 with st.expander(
                                     label="Informações",
@@ -951,7 +933,7 @@ class MakeNewLoan:
                                 value,
                                 date,
                                 actual_horary,
-                                category,
+                                'Empréstimos',
                                 account_id,
                                 user_id,
                                 creditor_document,
@@ -1002,7 +984,7 @@ class MakeNewLoan:
                                 body=":pencil: Comprovante de Empréstimo"
                             )
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(1.25)
 
                             Receipts().generate_receipt(
                                 'emprestimos',
@@ -1023,10 +1005,6 @@ class MakeNewLoan:
                                     if description == "":
                                         st.error(
                                             body="A descrição está vazia."
-                                        )
-                                    if category == "Selecione uma opção":
-                                        st.error(
-                                            body="Selecione uma categoria."
                                         )
                                     if value > account_available_value:
                                         account_available_value = str(

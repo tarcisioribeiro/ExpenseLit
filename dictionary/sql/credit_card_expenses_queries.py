@@ -115,7 +115,7 @@ INNER JOIN
     AND dcc.doc_prop_cartao = u.documento
 WHERE
     dcc.id_cartao = %s
-    AND dcc.data <= fc.data_comeco_fatura
+    AND dcc.data < fc.data_comeco_fatura
     AND dcc.pago = 'N'
     AND fc.ano <= %s
     AND fc.mes = %s
@@ -171,6 +171,7 @@ FROM
 INNER JOIN
     fechamentos_cartao AS fc
     ON dcc.numero_cartao = fc.numero_cartao
+    AND dcc.id_cartao = fc.id_cartao
     AND dcc.doc_prop_cartao = fc.doc_prop_cartao
 INNER JOIN
     usuarios AS u
@@ -179,6 +180,7 @@ INNER JOIN
 INNER JOIN
     cartao_credito AS cc
     ON cc.doc_titular_cartao = dcc.doc_prop_cartao
+    AND cc.id = dcc.id_cartao
     AND cc.id_prop_cartao = dcc.id_prop_despesa_cartao
 WHERE
     cc.nome_cartao = %s

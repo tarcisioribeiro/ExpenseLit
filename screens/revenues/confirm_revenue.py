@@ -199,7 +199,7 @@ class ConfirmRevenue:
                 if confirm_selection and update_button:
                     with col5:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         st.subheader(
                             body=":white_check_mark: Validação de Dados")
@@ -236,7 +236,7 @@ class ConfirmRevenue:
                     with col6:
                         st.subheader(body=":pencil: Comprovante")
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         final_id = self.get_not_received_revenue_id(
                             description=index_description["descrição"],
@@ -278,7 +278,7 @@ class ConfirmRevenue:
                     with col5:
                         st.subheader(body="")
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         with st.expander(label="Aviso", expanded=True):
                             st.warning(
                                 body="Confirme os dados antes de prosseguir.")

@@ -116,7 +116,7 @@ class ChangeTheme:
         if theme_confirm_option:
             with col5:
                 with st.spinner(text="Aguarde..."):
-                    sleep(1.5)
+                    sleep(1.25)
                 theme_image = self.search_theme_image(
                     selected_theme,
                     font_option
@@ -127,7 +127,7 @@ class ChangeTheme:
 
             with col6:
                 with st.spinner(text="Aguarde..."):
-                    sleep(1.5)
+                    sleep(1.25)
                 st.subheader(body=":white_check_mark: Confirmação")
                 with st.expander(label="Votação", expanded=True):
                     st.write("Confirmar a mudança de tema?")
@@ -143,9 +143,9 @@ class ChangeTheme:
                 if confirm_vote:
                     if selected_option == "Sim":
                         self.change_theme(selected_theme, font_option)
-                        sleep(1.5)
+                        sleep(1.25)
                         st.rerun()
-                        sleep(1.5)
+                        sleep(1.25)
                         Home().main_menu()
                     elif selected_option == "Não":
                         pass

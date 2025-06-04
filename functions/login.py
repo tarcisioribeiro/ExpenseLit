@@ -226,7 +226,7 @@ class CreateUser:
                 if confirm_values is True:
                     with col6:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de Dados"
                         )
@@ -340,10 +340,10 @@ class CreateUser:
                                     query_executor.register_log_query(
                                         log_values
                                     )
-                                    sleep(2.5)
+                                    sleep(1.25)
 
                                     with st.spinner(text="Recarregando..."):
-                                        sleep(2.5)
+                                        sleep(1.25)
                                         st.rerun()
 
                                 elif check_user_quantity >= 1:
@@ -380,7 +380,7 @@ class CreateUser:
                                                 "Novo usuário cadastrado.",
                                                 "Erro ao cadastrar usuário:"
                                             )
-                                            sleep(2.5)
+                                            sleep(1.25)
 
                                             log_values = (
                                                 1,
@@ -453,7 +453,7 @@ class CreateUser:
                                                 log_values
                                             )
 
-                                            sleep(2.5)
+                                            sleep(1.25)
 
                                         elif check_if_user_exists >= 1:
                                             st.error(
@@ -491,7 +491,7 @@ class CreateUser:
                 elif confirm_values is False:
                     with col6:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de Dados")
                         with st.expander(
@@ -718,7 +718,7 @@ class Login:
                     if login_button:
                         if is_login_valid:
                             with st.spinner("Aguarde..."):
-                                sleep(1)
+                                sleep(1.25)
                                 st.toast("Login bem-sucedido!")
 
                                 user_name_doc = (

@@ -264,7 +264,7 @@ class Creditors:
 
                         with col3:
                             with st.spinner(text="Aguarde..."):
-                                sleep(1.5)
+                                sleep(1.25)
                             st.subheader(
                                 body=":white_check_mark: Validação de Dados"
                             )
@@ -379,7 +379,7 @@ class Creditors:
                 with col2:
                     st.subheader(body=":white_check_mark: Validação de Dados")
                     with st.spinner(text="Aguarde..."):
-                        sleep(2.5)
+                        sleep(1.25)
                     with st.expander(label="Aviso", expanded=True):
 
                         is_document_valid = (

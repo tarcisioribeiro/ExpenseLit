@@ -127,7 +127,7 @@ class UpdateCreditCards:
 
                     with col3:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.subheader(
                             body=":white_check_mark: Validação de Dados"
                         )
@@ -267,7 +267,7 @@ class UpdateCreditCards:
                 elif send_form_button and confirm_credit_card_values is False:
                     with col3:
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         st.warning(
                             body="""
                             Revise e confirme os dados antes de prosseguir.
@@ -355,7 +355,7 @@ class UpdateCreditCards:
 
                 with col2:
                     with st.spinner(text='Aguarde...'):
-                        sleep(2.5)
+                        sleep(1.25)
 
                         formatted_limit = Variable().treat_complex_string(
                             new_limit
@@ -488,7 +488,7 @@ class UpdateCreditCards:
                     with col2:
 
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
 
                         st.subheader(
                             body=":white_check_mark: Validação dos Dados")
@@ -636,7 +636,7 @@ class UpdateCreditCards:
                     with col2:
                         st.subheader(body="")
                         with st.spinner(text="Aguarde..."):
-                            sleep(2.5)
+                            sleep(1.25)
                         with st.expander(label="Aviso", expanded=True):
                             st.warning(
                                 body="Confirme os dados antes de prosseguir."
