@@ -526,7 +526,7 @@ class Login:
             QueryExecutor().complex_compund_query(
                 query=user_doc_query,
                 list_quantity=2,
-                params=(st.session_state.sessao_id,)
+                params=(st.session_state.session_id,)
             )
         )
         user_data = QueryExecutor().treat_complex_result(
@@ -637,8 +637,8 @@ class Login:
 
         sleep(1.25)
 
-        st.session_state.id_usuario = logged_user_id
-        st.session_state.sessao_id = session_id
+        st.session_state.user_id = logged_user_id
+        st.session_state.session_id = session_id
 
     def check_user(self):
         """

@@ -12,7 +12,7 @@ months = QueryExecutor().complex_consult_query(
     months_query,
     ()
 )
-months = QueryExecutor().treat_simple_results(months, TO_REMOVE_LIST)
+months = QueryExecutor().treat_simple_results(months, TO_REMOVE_LIST)  # type: ignore
 
 account_models = QueryExecutor().complex_compund_query(
     account_models_query,
@@ -21,7 +21,7 @@ account_models = QueryExecutor().complex_compund_query(
 )
 
 account_models = QueryExecutor().treat_compund_result(
-    account_models,
+    account_models,  # type: ignore
     TO_REMOVE_LIST
 )
 
@@ -35,13 +35,13 @@ years = QueryExecutor().complex_consult_query(
     ()
 )
 
-years = QueryExecutor().treat_simple_results(years, TO_REMOVE_LIST)
+years = QueryExecutor().treat_simple_results(years, TO_REMOVE_LIST)  # type: ignore
 
 string_actual_month = QueryExecutor().simple_consult_query(
     get_actual_month_query,
     (actual_month,)
 )
 string_actual_month = QueryExecutor().treat_simple_result(
-    string_actual_month,
+    string_actual_month,  # type: ignore
     TO_REMOVE_LIST
 )

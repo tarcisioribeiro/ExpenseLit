@@ -1,6 +1,7 @@
 import streamlit as st
 from screens.reports.account_statement import AccountStatement
 from screens.reports.receipts import Receipts
+from screens.reports.ask import SQLChatBot
 
 
 class Reports:
@@ -16,6 +17,7 @@ class Reports:
         superior_menu_options = {
             "Consultar Comprovante": Receipts(),
             "Extrato Bancário": AccountStatement(),
+            "Assistente Financeiro": SQLChatBot()
         }
 
         col1, col2, col3 = st.columns(3)

@@ -42,6 +42,12 @@ class App:
             st.toast("Saindo do sistema...")
             sleep(1.25)
         st.session_state.is_logged_in = False
+        if 'history' in st.session_state:
+            del st.session_state['history']
+        if 'session_id' in st.session_state:
+            del st.session_state['session_id']
+        if 'user_id' in st.session_state:
+            del st.session_state['user_id']
         st.rerun()
 
     def main_menu(self):

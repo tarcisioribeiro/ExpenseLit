@@ -17,3 +17,5 @@ db_config = {
     "password": db_password,
     "database": db_database,
 }
+
+api_key = os.getenv("GROQ_API_KEY")
