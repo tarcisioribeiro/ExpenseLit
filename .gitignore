@@ -166,3 +166,4 @@ library/fonts/serif/CrimsonTextRegular.cw127.pkl
 library/fonts/serif/CrimsonTextRegular.pkl
 dictionary/style.py
 .flake8
+chroma/
