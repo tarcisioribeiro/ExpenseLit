@@ -166,7 +166,7 @@ class QueryExecutor:
             if connection.is_connected():
                 connection.close()
 
-    def treat_simple_result(self, value_to_treat: str, values_to_remove: list):
+    def treat_simple_result(self, value_to_treat, values_to_remove):
         """
         Realiza o tratamento de uma cadeia de caracteres,
         de acordo com os parametros informados.
@@ -194,8 +194,8 @@ class QueryExecutor:
 
     def treat_simple_results(
             self,
-            values_to_treat: list,
-            values_to_remove: list
+            values_to_treat,
+            values_to_remove
     ):
         """
         Realiza o tratamento de varias cadeias de caracteres,

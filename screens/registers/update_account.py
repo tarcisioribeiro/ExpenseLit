@@ -38,7 +38,7 @@ class UpdateAccounts:
         """
         Coleta os dados e cadastra uma nova conta.
         """
-        def validate_image(image: any, account_name: str):
+        def validate_image(image, account_name):
             """
             Realiza a validação da imagem, retornando o caminho real
             e relativo do arquivo.
@@ -94,7 +94,7 @@ class UpdateAccounts:
                 image = Image.open(file_destination)
                 new_file_name = DEFAULT_ACCOUNT_IMAGE
 
-            save_path = os.path.join(SAVE_FOLDER, new_file_name)
+            save_path = os.path.join(save_folder, new_file_name)
             image.save(save_path)
 
             return save_path, library_file_name

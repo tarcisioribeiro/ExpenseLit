@@ -46,7 +46,10 @@ class SQLChatBot:
                 temperature=0
             )
             sql = response.choices[0].message.content
-            return re.sub(r"```.*?\n", "", sql).strip().replace("```", "")  # type: ignore
+            return re.sub(
+                r"```.*?\n",
+                "",
+                sql).strip().replace("```", "")  # type: ignore
         except Exception as e:
             return f"ERRO_SQL_GENERATION: {e}"
 

@@ -19,6 +19,10 @@
 -- Current Database: `financas`
 --
 
+ALTER USER 'root'@'%' IDENTIFIED BY 'orrARDrdr27!';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `financas` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `financas`;
@@ -249,7 +253,7 @@ DROP TABLE IF EXISTS `despesas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `despesas` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(25) NOT NULL DEFAULT 'Despesa',
+  `descricao` varchar(50) NOT NULL DEFAULT 'Despesa',
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -284,7 +288,7 @@ DROP TABLE IF EXISTS `despesas_cartao_credito`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `despesas_cartao_credito` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(25) NOT NULL DEFAULT 'Despesa Cartão',
+  `descricao` varchar(50) NOT NULL DEFAULT 'Despesa Cartão',
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -321,7 +325,7 @@ DROP TABLE IF EXISTS `emprestimos`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `emprestimos` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(25) NOT NULL,
+  `descricao` varchar(50) NOT NULL,
   `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
   `valor_pago` decimal(10,2) NOT NULL DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
@@ -479,7 +483,7 @@ DROP TABLE IF EXISTS `receitas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `receitas` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(25) NOT NULL DEFAULT 'Receita',
+  `descricao` varchar(50) NOT NULL DEFAULT 'Receita',
   `valor` decimal(10,2) DEFAULT '0.00',
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
@@ -538,7 +542,7 @@ DROP TABLE IF EXISTS `transferencias`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `transferencias` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `descricao` varchar(25) NOT NULL DEFAULT 'Transferência',
+  `descricao` varchar(50) NOT NULL DEFAULT 'Transferência',
   `valor` decimal(10,2) NOT NULL,
   `data` date NOT NULL DEFAULT (curdate()),
   `horario` time NOT NULL DEFAULT (curtime()),
