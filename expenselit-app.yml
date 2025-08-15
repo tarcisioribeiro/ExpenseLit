@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   app:
     image: expenselit-app
@@ -18,12 +20,14 @@ services:
 
   db:
     image: mysql:8
-    env_file:
-      - .env
     ports:
       - "3307:3306"
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_RANDOM_ROOT_PASSWORD: "no"
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_HOST: '%'
     volumes:
