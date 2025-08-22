@@ -12,7 +12,7 @@ db_database = os.getenv("DB_NAME")
 
 db_config = {
     "host": db_host,
-    "port": int(db_port),
+    "port": db_port,
     "user": db_user,
     "password": db_password,
     "database": db_database,

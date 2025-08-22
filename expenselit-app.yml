@@ -5,14 +5,6 @@ services:
     image: expenselit-app
     ports:
       - "8551:8551"
-    env_file:
-      - .env
-    environment:
-      DATABASE_HOST: ${DB_HOSTNAME}
-      DATABASE_PORT: ${DB_PORT}
-      DATABASE_USER: ${DB_USER}
-      DATABASE_PASSWORD: ${DB_PASSWORD}
-      DATABASE_NAME: ${DB_NAME}
     depends_on:
       - db
     volumes:
@@ -25,10 +17,10 @@ services:
     env_file:
       - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: orrARDrdr27!
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
       MYSQL_RANDOM_ROOT_PASSWORD: "no"
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_DATABASE: financas
       MYSQL_ROOT_HOST: '%'
     volumes:
       - mysql_data:/var/lib/mysql

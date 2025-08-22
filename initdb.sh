@@ -20,7 +20,6 @@ echo ">> Script de inicialização concluído!"
 DEFAULT_SRC="library/images/default.png"
 DEFAULT_DEST="library/images/accounts/default.png"
 
-# Verifica se a imagem já existe, senão copia
 if [ ! -f "$DEFAULT_DEST" ]; then
   echo ">> default.png não encontrado em accounts/. Copiando..."
   cp "$DEFAULT_SRC" "$DEFAULT_DEST"

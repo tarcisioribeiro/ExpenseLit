@@ -83,11 +83,29 @@ Se encontrar algum bug ou problema, você pode informa-lo na aba **Issues** dest
 
 Para realizar a instalação, siga este passo a passo:
 
-   `git clone https://github.com/tarcisioribeiro/ExpenseLit.git`
+  * Clonagem do projeto:
+  
+      `git clone https://github.com/tarcisioribeiro/ExpenseLit.git`
 
-   `docker build . -t expenselit-app`
+  * Crie o arquivo de variáveis **.env** na raiz do projeto:
 
-   `docker stack deploy -c expenselit-app.yml expenselit`
+         DB_HOSTNAME=db
+         DB_PORT=3306
+         DB_USER=root
+         DB_PASSWORD='Senha do MySQL'
+         DB_NAME=financas
+
+         MYSQL_ROOT_PASSWORD='Senha root do MySQL (deve ser igual a senha utilizada para a variável DB_PASSWORD)'
+
+         GROQ_API_KEY='Sua chave da API do Groq.'
+
+   * Após criar o arquivo de variáveis, faça a compilação da imagem:
+
+      `docker build . -t expenselit-app`
+
+   * Adicione a stack da aplicação:
+
+      `docker stack deploy -c expenselit-app.yml expenselit`
 
 * Acesse o aplicativo em um navegador:
 
