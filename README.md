@@ -1,115 +1,153 @@
-# 🚀 ExpenseLit
+# ExpenseLit - Frontend Streamlit
 
-![ExpenseLit](reference/images/main.png)
+Sistema de controle financeiro pessoal desenvolvido em Streamlit, totalmente integrado com a [ExpenseLit API](../expenselit-api/).
 
-Um aplicativo de controle financeiro feito em **[Python](https://www.python.org/)**, através do framework **[Streamlit](https://streamlit.io/)**. Integrado ao banco de dados **[MySQL](https://www.mysql.com/)**, permite o controle de receitas e despesas, empréstimos e fundos de garantias.
+## 🚀 Funcionalidades
 
-## 🛠 Sobre o Projeto
+### ✅ Implementadas
+- **🔐 Sistema de Autenticação JWT** - Login seguro integrado com a API
+- **🤖 Assistente IA Financeira** - GPT-4 + PostgreSQL 16.9 com pg_vector
+  - Chat inteligente para consultas financeiras
+  - Busca semântica por transações
+  - Detecção automática de anomalias
+  - Análise de padrões de gastos
+  - Métricas avançadas com PostgreSQL analytics
+- **🏦 Gestão de Contas** - CRUD completo de contas bancárias
+- **💸 Gestão de Despesas** - Criação, edição e controle de despesas com filtros avançados
+- **💰 Gestão de Receitas** - Registro e acompanhamento de receitas
+- **💳 Cartões de Crédito** - Cadastro e gerenciamento de cartões
+- **📊 Dashboard Interativo** - Visão geral com gráficos e métricas
+- **👥 Membros** - Gestão de usuários e contatos
+- **🤝 Empréstimos** - Sistema completo de empréstimos
+- **🔄 Transferências** - Transferências entre contas
+- **📈 Relatórios** - Análises e visualizações
+- **🧭 Navegação Intuitiva** - Sidebar organizada por categorias
+- **📱 Interface Responsiva** - Design otimizado para diferentes telas
 
-Este projeto é software livre e está disponível para uso, modificação e distribuição, de acordo com os termos da licença [**MIT**](referenc/manuals/LICENSE). Ele é mantido unicamente por mim, e contribuições da comunidade são muito bem-vindas.
+## 📋 Pré-requisitos
 
-## ✨ Funcionalidades
+### Dependências do Sistema
+- Python 3.9+ 
+- [ExpenseLit API](../expenselit-api/) rodando na porta 8002
 
-- Cadastro de contas e cartões, assim como receitas e despesas;
-- Relatórios gráficos para análise financeira;
-- Filtros avançados por categoria, período e tipo de transação;
-- Exportação de relatórios em formato PDF e consulta de comprovantes;
-- Autenticação segura de usuários;
-- Ferramenta para backup de dados;
-- Customização do tema e fontes.
+### Dependências Python
+Listadas no arquivo `requirements.txt`:
+- streamlit>=1.28.0
+- requests>=2.31.0 
+- pandas>=2.0.0
+- plotly>=5.15.0
+- python-dotenv>=1.0.0
+- pillow>=10.0.0
 
-## 🚧 Limitações
+## 🛠️ Instalação
 
-- **Escalabilidade**: A solução foi projetada para uso em rede local.
-- **Autenticação**: Não há suporte ao login por email e autenticação de dois fatores no momento, o que pode representar uma limitação de segurança.
+### 1. Clone e Navegue até o Diretório
+```bash
+cd ExpenseLit
+```
 
+### 2. Instale as Dependências
+```bash
+pip install -r requirements.txt
+```
 
-## 📸 Demonstração
+### 3. Configure as Variáveis de Ambiente
+```bash
+# Copie o template de configuração
+cp .env.template .env
 
-<details>
-   <summary>Imagens</summary>
+# Edite o arquivo .env com suas configurações
+nano .env
+```
 
-   ---
+### 4. Execute a Aplicação
+```bash
+streamlit run main.py
+```
 
-   ![Login](reference/images/login.png)
-   *Tela de login.*
+A aplicação estará disponível em: `http://localhost:8501`
 
-   ---
+## ⚙️ Configuração
 
-   ![Tela Inicial](reference/images/home.png)
-   *Tela inicial mostrando o resumo financeiro.*
+### Arquivo .env
+```env
+# URL da API ExpenseLit
+API_BASE_URL=http://localhost:8002
 
-   ---
+# PostgreSQL Database (para IA)
+DB_HOSTNAME=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+DB_NAME=financas
 
-   ![Cadastro de Contas](reference/images/accounts.png)
-   *Tela de cadastro de contas.*
+# OpenAI API Key (para IA Financeira)
+OPENAI_API_KEY=sk-sua-chave-openai
 
-   ---
+# Debug (opcional)
+DEBUG=true
+```
 
-   ![Cadastro de Cartões](reference/images/credit_card.png)
-   *Tela de cadastro de cartões de crédito.*
+### Configurações da API
+Certifique-se de que a [ExpenseLit API](../expenselit-api/) está rodando e acessível na URL configurada.
 
-   ---
+## 🤖 IA Financeira - Recursos Avançados
 
-   ![Cadastro de faturas](reference/images/invoices.png)
-   *Tela de cadastro de faturas de cartão.*
+### 🧠 Tecnologias Utilizadas
+- **PostgreSQL 16.9** com extensão `pg_vector` para embeddings vetoriais
+- **OpenAI GPT-4** para processamento de linguagem natural
+- **text-embedding-3-small** para geração de embeddings semânticos
+- **Índices HNSW** para busca vetorial ultra-rápida
 
-   ---
+### 🔥 Funcionalidades IA
 
-</details>
+#### 💬 Chat Inteligente
+- Converse em linguagem natural sobre suas finanças
+- O assistente entende contexto e consulta dados em tempo real
+- Respostas personalizadas baseadas no seu perfil financeiro
 
----
+#### 🔍 Busca Semântica
+- Encontre transações por significado, não apenas palavras-chave
+- Exemplo: "comida japonesa" encontra "sushi", "ramen", etc.
+- Análise de similaridade vetorial com precisão avançada
 
-## 🛤️ Roadmap
+#### 🚨 Detecção de Anomalias
+- Identifica gastos anômalos automaticamente
+- Análise estatística com Z-score e desvio padrão
+- Alertas proativos sobre padrões suspeitos
 
-Melhorias planejadas para futuras versões:
+#### 📊 Análise de Padrões
+- Detecta tendências em categorias de gastos
+- Análise de regressão linear para projeções
+- Identificação de sazonalidades e ciclos
 
-- Desenvolvimento de uma API para o backend do aplicativo, através do framework **[Django](https://www.djangoproject.com/)**;
-- Suporte para múltiplas moedas;
-- Integração com APIs de bancos para sincronização automática de faturas de cartão;
-- Aplicativo móvel para Android e iOS, desenvolvido através do framework **[Flet](https://flet.dev/)**.
+#### 📈 Métricas Avançadas
+- Cálculos complexos usando PostgreSQL analytics
+- Window functions para análises temporais
+- Correlações entre diferentes tipos de transações
 
-## 🐞 Relatório de Bugs e Problemas
+### 🛠️ Configuração Adicional para IA
 
-Se encontrar algum bug ou problema, você pode informa-lo na aba **Issues** deste projeto. Por favor, inclua informações detalhadas, como:
+#### 1. Instalar PostgreSQL 16.9
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install postgresql-16 postgresql-contrib-16
 
-- Passos para reproduzir o problema;
-- Sistema operacional e ambiente;
-- Mensagens de erro relevantes.
+# Instalar extensão pg_vector
+sudo -u postgres psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
 
-⚠️ **Atenção:** Este projeto é desenvolvido e mantido em meu tempo livre e, por isso, os bugs reportados serão analisados e corrigidos conforme a minha disponibilidade. Agradeço pela paciência e compreensão.
+#### 2. Configurar OpenAI API
+1. Crie uma conta em [platform.openai.com](https://platform.openai.com)
+2. Gere uma API key
+3. Adicione ao arquivo `.env`
 
-## Instalação
-
-Para realizar a instalação, siga este passo a passo:
-
-  * Clonagem do projeto:
-  
-      `git clone https://github.com/tarcisioribeiro/ExpenseLit.git`
-
-  * Crie o arquivo de variáveis **.env** na raiz do projeto:
-
-         DB_HOSTNAME=db
-         DB_PORT=3306
-         DB_USER=root
-         DB_PASSWORD='Senha do MySQL'
-         DB_NAME=financas
-
-         MYSQL_ROOT_PASSWORD='Senha root do MySQL (deve ser igual a senha utilizada para a variável DB_PASSWORD)'
-
-         GROQ_API_KEY='Sua chave da API do Groq.'
-
-   * Após criar o arquivo de variáveis, faça a compilação da imagem:
-
-      `docker build . -t expenselit-app`
-
-   * Adicione a stack da aplicação:
-
-      `docker stack deploy -c expenselit-app.yml expenselit`
-
-* Acesse o aplicativo em um navegador:
-
-   http://'seu_ip_local':8551
+#### 3. Verificar Instalação IA
+A aplicação verifica automaticamente:
+- ✅ Conexão com PostgreSQL 16.9
+- ✅ Extensão pg_vector habilitada  
+- ✅ OpenAI API key válida
 
 ---
 

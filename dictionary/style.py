@@ -1,1 +1,0 @@
-system_font = "/library/fonts/serif/CrimsonTextRegular.ttf"

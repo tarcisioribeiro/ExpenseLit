@@ -1,0 +1,341 @@
+/* ExpenseLit - Estilos Customizados - Suporte a Temas */
+
+/* Tema Dracula (Escuro) - Padrão */
+:root,
+[data-theme="dark"] {
+    --bg-primary: #282a36;
+    --bg-secondary: #44475a;
+    --text-primary: #f8f8f2;
+    --text-comment: #6272a4;
+    --accent-cyan: #8be9fd;
+    --accent-green: #50fa7b;
+    --accent-orange: #ffb86c;
+    --accent-pink: #ff79c6;
+    --accent-purple: #bd93f9;
+    --accent-red: #ff5555;
+    --accent-yellow: #f1fa8c;
+}
+
+/* Tema Claro baseado no Dracula */
+[data-theme="light"] {
+    --bg-primary: #f8f8f2;
+    --bg-secondary: #f8f8f2;
+    --text-primary: #282a36;
+    --text-comment: #282a36;
+    --accent-cyan: #8be9fd;
+    --accent-green: #50fa7b;
+    --accent-orange: #ffb86c;
+    --accent-pink: #ff79c6;
+    --accent-purple: #bd93f9;
+    --accent-red: #ff5555;
+    --accent-yellow: #f1fa8c;
+}
+
+/* Ocultar elementos padrão do Streamlit */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+.stDeployButton {visibility: hidden;}
+
+/* Background global */
+.main .block-container {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Sidebar customizada */
+.css-1d391kg {
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+}
+
+/* Header da aplicação */
+.app-header {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.app-header h1 {
+    margin-bottom: 5px;
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.app-header p {
+    margin-top: 0;
+    font-size: 1.1em;
+    opacity: 0.9;
+    color: var(--text-primary);
+}
+
+/* Botões principais */
+.stButton > button {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--bg-secondary);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(189, 147, 249, 0.3);
+    border-color: var(--accent-purple);
+    background-color: var(--accent-purple);
+}
+
+/* Botões primários */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+    color: var(--text-primary);
+    border: none;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-purple) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 121, 198, 0.4);
+}
+
+/* Cards e containers */
+.metric-card {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border-left: 4px solid var(--accent-cyan);
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.info-card {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--text-comment);
+    margin: 1rem 0;
+    color: var(--text-primary);
+}
+
+/* Formulários */
+.stTextInput > div > div > input {
+    border-radius: 8px;
+    border: 1px solid var(--text-comment);
+    transition: all 0.2s ease;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(139, 233, 253, 0.2);
+}
+
+.stSelectbox > div > div > div {
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--text-comment);
+}
+
+/* Breadcrumb customizado */
+.breadcrumb {
+    background: var(--bg-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+    color: var(--text-comment);
+    border: 1px solid var(--text-comment);
+}
+
+.breadcrumb strong {
+    color: var(--text-primary);
+}
+
+/* Alertas e mensagens */
+.stAlert {
+    border-radius: 8px;
+}
+
+.stSuccess {
+    background-color: rgba(80, 250, 123, 0.1);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+}
+
+.stError {
+    background-color: rgba(255, 85, 85, 0.1);
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
+}
+
+.stWarning {
+    background-color: rgba(255, 184, 108, 0.1);
+    border: 1px solid var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.stInfo {
+    background-color: rgba(139, 233, 253, 0.1);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+/* Tabelas */
+.dataframe {
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Métricas customizadas */
+.custom-metric {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 1px solid var(--text-comment);
+}
+
+.custom-metric .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+}
+
+.custom-metric .label {
+    font-size: 0.9rem;
+    color: var(--text-comment);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Navegação lateral */
+.nav-section {
+    margin: 1rem 0;
+}
+
+.nav-section h4 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--accent-purple);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .app-header h1 {
+        font-size: 1.8em;
+    }
+    
+    .app-header p {
+        font-size: 1em;
+    }
+    
+    .metric-card {
+        padding: 1rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Status indicators */
+.status-online {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-green);
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-offline {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-red);
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-warning {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-yellow);
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    color: var(--text-comment);
+    font-size: 0.8em;
+    padding: 1rem;
+    border-top: 1px solid var(--text-comment);
+    margin-top: 2rem;
+}
+
+/* Expander customizado */
+.streamlit-expanderHeader {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--text-comment);
+}
+
+/* Sidebar específico */
+section[data-testid="stSidebar"] {
+    background-color: var(--bg-secondary);
+}
+
+section[data-testid="stSidebar"] .css-1d391kg {
+    background-color: var(--bg-secondary);
+}
+
+/* Text inputs e labels */
+.stTextInput label {
+    color: var(--text-primary);
+}
+
+.stSelectbox label {
+    color: var(--text-primary);
+}
+
+.stNumberInput label {
+    color: var(--text-primary);
+}
+
+.stDateInput label {
+    color: var(--text-primary);
+}
+
+/* Markdown customizado */
+.main .block-container .stMarkdown {
+    color: var(--text-primary);
+}
+
+/* Titles */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}

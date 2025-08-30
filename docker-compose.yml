@@ -1,0 +1,18 @@
+services:
+  # Aplicação Streamlit
+  app:
+    build: .
+    ports:
+      - "8551:8551"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - expenselit_network
+
+volumes: {}
+
+networks:
+  expenselit_network:
+    driver: bridge

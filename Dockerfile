@@ -31,4 +31,4 @@ RUN python3 -m pip install --no-cache-dir --timeout 180 --retries 10 -r requirem
 
 EXPOSE 8551
 
-CMD ["streamlit", "run", "main.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port=8551", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "app.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port=8551", "--server.address=0.0.0.0"]
