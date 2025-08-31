@@ -16,6 +16,8 @@ import streamlit as st
 from pages.router import BasePage
 from services.api_client import api_client, ApiClientError
 from services.accounts_service import accounts_service
+from services.pdf_generator import pdf_generator
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -49,7 +51,7 @@ class TransfersPage(BasePage):
     
     def render(self) -> None:
         """Renderiza o conteúdo da página de transferências."""
-        tab1, tab2, tab3 = st.tabs(["📋 Minhas Transferências", "➕ Nova Transferência", "📊 Resumo"])
+        tab1, tab2, tab3 = centered_tabs(["📋 Minhas Transferências", "➕ Nova Transferência", "📊 Resumo"])
         
         with tab1:
             self._render_transfers_list()
@@ -181,6 +183,13 @@ class TransfersPage(BasePage):
                         self._toggle_transfer_status(transfer_id, not transfer.get('transfered', False))
                     
                     if st.button(
+                        "📄 Gerar PDF",
+                        key=f"pdf_btn_transfer_{transfer_id}",
+                        width='stretch'
+                    ):
+                        self._generate_transfer_pdf(transfer)
+                    
+                    if st.button(
                         "🗑️ Excluir",
                         key=f"delete_transfer_{transfer_id}",
                         width='stretch'
@@ -307,14 +316,21 @@ class TransfersPage(BasePage):
                 try:
                     accounts = accounts_service.get_all_accounts()
                     if not accounts:
-                        st.error("❌ Nenhuma conta disponível. Cadastre contas primeiro.")
+                        self._show_no_accounts_dialog()
                         return
                     
-                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                    active_accounts = [acc for acc in accounts if acc.get('is_active', True)]
+                    if len(active_accounts) < 2:
+                        self._show_insufficient_accounts_dialog()
+                        return
                     
+                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in active_accounts]
+                    
+                    # Selecionar primeira conta como origem
                     selected_origin = st.selectbox(
                         "🏦 Conta de Origem",
                         options=account_options,
+                        index=0,
                         format_func=lambda x: x[1],
                         help="Conta de onde sairá o dinheiro"
                     )
@@ -337,9 +353,12 @@ class TransfersPage(BasePage):
                 
                 # Seleção de conta destino
                 try:
+                    # Selecionar última conta como destino (diferente da origem)
+                    default_destiny_index = len(account_options) - 1 if len(account_options) > 1 else 0
                     selected_destiny = st.selectbox(
                         "🏦 Conta de Destino",
                         options=account_options,
+                        index=default_destiny_index,
                         format_func=lambda x: x[1],
                         help="Conta para onde irá o dinheiro"
                     )
@@ -352,6 +371,9 @@ class TransfersPage(BasePage):
                     "✅ Transferência já foi realizada",
                     value=False
                 )
+            
+            # Checkbox de confirmação
+            confirm_data = st.checkbox("✅ Confirmo que os dados informados estão corretos")
             
             # Validação de contas diferentes e saldo
             validation_messages = []
@@ -393,6 +415,9 @@ class TransfersPage(BasePage):
             if st.form_submit_button("💾 Criar Transferência", type="primary"):
                 # Validações completas
                 errors = []
+                
+                if not confirm_data:
+                    errors.append("Confirme que os dados estão corretos antes de prosseguir")
                 
                 if not description:
                     errors.append("Descrição é obrigatória")
@@ -624,3 +649,104 @@ class TransfersPage(BasePage):
             ):
                 st.session_state.pop(confirm_key, None)
                 st.rerun()
+
+    def _generate_transfer_pdf(self, transfer: Dict[str, Any]) -> None:
+        """Gera e oferece download do PDF da transferência."""
+        if pdf_generator is None:
+            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            return
+        
+        try:
+            with st.spinner("📄 Gerando comprovante..."):
+                # Buscar dados das contas
+                origin_account_data = None
+                destination_account_data = None
+                
+                try:
+                    accounts = accounts_service.get_all_accounts()
+                    origin_account_data = next((acc for acc in accounts if acc['id'] == transfer.get('origin_account')), None)
+                    destination_account_data = next((acc for acc in accounts if acc['id'] == transfer.get('destiny_account')), None)
+                except Exception:
+                    pass
+                
+                # Gerar PDF
+                pdf_buffer = pdf_generator.generate_transfer_receipt(transfer, origin_account_data, destination_account_data)
+                
+                # Nome do arquivo
+                description = transfer.get('description', 'transferencia')
+                date_str = transfer.get('date', '').replace('-', '_')
+                filename = f"comprovante_transferencia_{description}_{date_str}.pdf"
+                
+                # Oferecer download
+                st.download_button(
+                    label="💾 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/pdf",
+                    key=f"download_transfer_{transfer.get('id')}"
+                )
+                
+                # Preview do PDF
+                st.success("✅ Comprovante gerado com sucesso!")
+                try:
+                    pdf_buffer.seek(0)
+                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
+                    if hasattr(st, 'pdf'):
+                        st.pdf(pdf_buffer.getvalue())
+                    else:
+                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                except Exception as e:
+                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
+                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao gerar comprovante: {e}")
+            logger.error(f"Erro ao gerar PDF da transferência {transfer.get('id')}: {e}")
+
+    def _show_no_accounts_dialog(self):
+        """Mostra dialog quando não há contas cadastradas."""
+        @st.dialog("🏦 Nenhuma Conta Encontrada")
+        def show_dialog():
+            st.error("❌ **Nenhuma conta disponível**")
+            st.markdown("""
+            Para criar transferências, você precisa ter pelo menos **2 contas** cadastradas.
+            
+            **O que fazer:**
+            1. Vá para a página **Contas**
+            2. Cadastre suas contas bancárias
+            3. Volte aqui para criar transferências
+            """)
+            
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("🏦 Ir para Contas", type="primary", use_container_width=True):
+                    st.switch_page("pages/accounts.py")
+            with col2:
+                if st.button("✅ Ok", use_container_width=True):
+                    st.rerun()
+        
+        show_dialog()
+
+    def _show_insufficient_accounts_dialog(self):
+        """Mostra dialog quando há menos de 2 contas."""
+        @st.dialog("🏦 Contas Insuficientes")
+        def show_dialog():
+            st.warning("⚠️ **Apenas 1 conta encontrada**")
+            st.markdown("""
+            Para fazer transferências, você precisa ter pelo menos **2 contas diferentes**.
+            
+            **O que fazer:**
+            1. Vá para a página **Contas**
+            2. Cadastre uma segunda conta bancária
+            3. Volte aqui para criar transferências
+            """)
+            
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("🏦 Ir para Contas", type="primary", use_container_width=True):
+                    st.switch_page("pages/accounts.py")
+            with col2:
+                if st.button("✅ Ok", use_container_width=True):
+                    st.rerun()
+        
+        show_dialog()

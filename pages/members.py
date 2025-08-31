@@ -13,9 +13,11 @@ from typing import Dict, Any
 import streamlit as st
 
 from pages.router import BasePage
-from services.api_client import api_client, ApiClientError
+from services.api_client import api_client
+from services.users_service import users_service
+from services.api_client import ApiClientError
 from services.permissions_service import permissions_service
-from utils.ui_utils import messages, ui_components, validation
+from utils.ui_utils import messages, ui_components, validation, centered_tabs
 from config.settings import db_categories
 
 
@@ -62,7 +64,7 @@ class MembersPage(BasePage):
         
         tabs.append("📊 Resumo")
         
-        tab_objects = st.tabs(tabs)
+        tab_objects = centered_tabs(tabs)
         
         # Tab Membros (sempre presente se tem permissão de read)
         with tab_objects[0]:
@@ -361,11 +363,7 @@ class MembersPage(BasePage):
                 
                 st.markdown("**Perfis do Membro:**")
                 
-                is_user = st.checkbox(
-                    "👤 É usuário do sistema",
-                    value=True,
-                    help="Pode fazer login no sistema"
-                )
+                # Campo de usuário removido - membros não são vinculados a usuários pelo cadastro manual
                 
                 is_creditor = st.checkbox(
                     "💼 Pode ser credor",
@@ -394,6 +392,8 @@ class MembersPage(BasePage):
                     st.error(required_error)
                     return
                 
+                # Validação removida - não há mais campo de usuário
+                
                 document_error = validation.validate_document(document)
                 if document_error:
                     st.error(document_error)
@@ -410,7 +410,7 @@ class MembersPage(BasePage):
                     'phone': phone,
                     'email': email if email else None,
                     'sex': sex[0],
-                    'is_user': is_user,
+                    'user': None,  # Membros não são vinculados a usuários pelo cadastro manual
                     'is_creditor': is_creditor,
                     'is_benefited': is_benefited,
                     'active': active

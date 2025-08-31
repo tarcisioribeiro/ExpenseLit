@@ -16,6 +16,8 @@ import streamlit as st
 from pages.router import BasePage
 from services.revenues_service import revenues_service
 from services.accounts_service import accounts_service
+from services.pdf_generator import pdf_generator
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -88,7 +90,7 @@ class RevenuesPage(BasePage):
 
     def render(self) -> None:
         """Renderiza o conteúdo da página de receitas."""
-        tab1, tab2 = st.tabs(["📋 Minhas Receitas", "➕ Nova Receita"])
+        tab1, tab2 = centered_tabs(["📋 Minhas Receitas", "➕ Nova Receita"])
 
         with tab1:
             self._render_revenues_list()
@@ -102,7 +104,7 @@ class RevenuesPage(BasePage):
 
         try:
             with st.spinner("🔄 Carregando receitas..."):
-                time.sleep(2)
+                time.sleep(1)
                 revenues = revenues_service.get_all_revenues()
                 accounts = accounts_service.get_all_accounts()
 
@@ -187,6 +189,13 @@ class RevenuesPage(BasePage):
                         )
 
                     if st.button(
+                        "📄 Gerar PDF",
+                        key=f"pdf_btn_revenue_{revenue_id}",
+                        width='stretch'
+                    ):
+                        self._generate_revenue_pdf(revenue)
+                    
+                    if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_revenue_{revenue_id}",
                         width='stretch'
@@ -229,29 +238,41 @@ class RevenuesPage(BasePage):
                 )
                 category = db_categories.TRANSLATED_REVENUE_CATEGORIES[category_display]
 
-            accounts = accounts_service.get_all_accounts()
-            account_options = [(
-                acc['id'],
-                db_categories.INSTITUTIONS.get(acc['name'], acc['name'])
-            ) for acc in accounts if acc.get('is_active', True)]
+            try:
+                accounts = accounts_service.get_all_accounts()
+                if not accounts:
+                    self._show_no_accounts_dialog()
+                    return
+                
+                account_options = [(
+                    acc['id'],
+                    db_categories.INSTITUTIONS.get(acc['name'], acc['name'])
+                ) for acc in accounts if acc.get('is_active', True)]
 
-            if account_options:
-                selected_account = st.selectbox(
-                    "🏦 Conta",
-                    options=account_options,
-                    format_func=lambda x: x[1]
-                )
-                account_id = selected_account[0]
-            else:
-                show_missing_resource_dialog(
-                    "Conta", "conta", "accounts"
-                )
-                account_id = None
+                if account_options:
+                    selected_account = st.selectbox(
+                        "🏦 Conta",
+                        options=account_options,
+                        format_func=lambda x: x[1]
+                    )
+                    account_id = selected_account[0]
+                else:
+                    self._show_no_accounts_dialog()
+                    return
+            except Exception as e:
+                st.error("❌ Erro ao carregar contas")
+                logger.error(f"Erro ao carregar contas: {e}")
+                return
 
             received = st.checkbox("✅ Receita já foi recebida")
+            
+            # Checkbox de confirmação
+            confirm_data = st.checkbox("✅ Confirmo que os dados informados estão corretos")
 
             if st.form_submit_button("💾 Criar Receita", type="primary"):
-                if description and value and account_id:
+                if not confirm_data:
+                    st.error("❌ Confirme que os dados estão corretos antes de prosseguir")
+                elif description and value and account_id:
                     revenue_data = {
                         'description': description,
                         'value': value,
@@ -269,11 +290,11 @@ class RevenuesPage(BasePage):
         """Cria uma nova receita."""
         try:
             with st.spinner("💾 Criando receita..."):
-                time.sleep(2)
+                time.sleep(1)
                 new_revenue = revenues_service.create_revenue(revenue_data)
 
             st.toast("✅ Receita criada com sucesso!")
-            time.sleep(2)
+            time.sleep(1)
             st.rerun()
 
         except Exception as e:
@@ -490,3 +511,55 @@ class RevenuesPage(BasePage):
                 # Limpa o estado de confirmação
                 st.session_state.pop(confirm_key, None)
                 st.rerun()
+
+    def _generate_revenue_pdf(self, revenue: Dict[str, Any]) -> None:
+        """Gera e oferece download do PDF da receita."""
+        if pdf_generator is None:
+            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            return
+        
+        try:
+            with st.spinner("📄 Gerando comprovante..."):
+                # Buscar dados da conta
+                account_data = None
+                account_id = revenue.get('account')
+                if account_id:
+                    try:
+                        accounts = accounts_service.get_all_accounts()
+                        account_data = next((acc for acc in accounts if acc['id'] == account_id), None)
+                    except Exception:
+                        pass
+                
+                # Gerar PDF
+                pdf_buffer = pdf_generator.generate_revenue_receipt(revenue, account_data)
+                
+                # Nome do arquivo
+                description = revenue.get('description', 'receita')
+                date_str = revenue.get('date', '').replace('-', '_')
+                filename = f"comprovante_receita_{description}_{date_str}.pdf"
+                
+                # Oferecer download
+                st.download_button(
+                    label="💾 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/pdf",
+                    key=f"download_revenue_{revenue.get('id')}"
+                )
+                
+                # Preview do PDF
+                st.success("✅ Comprovante gerado com sucesso!")
+                try:
+                    pdf_buffer.seek(0)
+                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
+                    if hasattr(st, 'pdf'):
+                        st.pdf(pdf_buffer.getvalue())
+                    else:
+                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                except Exception as e:
+                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
+                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao gerar comprovante: {e}")
+            logger.error(f"Erro ao gerar PDF da receita {revenue.get('id')}: {e}")

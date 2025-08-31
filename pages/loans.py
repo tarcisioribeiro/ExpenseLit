@@ -16,6 +16,8 @@ import streamlit as st
 from pages.router import BasePage
 from services.api_client import api_client, ApiClientError
 from services.accounts_service import accounts_service
+from services.pdf_generator import pdf_generator
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -49,15 +51,23 @@ class LoansPage(BasePage):
 
     def render(self) -> None:
         """Renderiza o conteúdo da página de empréstimos."""
-        tab1, tab2, tab3 = st.tabs(["📋 Meus Empréstimos", "➕ Novo Empréstimo", "📊 Resumo"])
+        tab1, tab2, tab3, tab4 = centered_tabs([
+            "📋 Meus Empréstimos", 
+            "💸 Realizar Empréstimo", 
+            "💰 Tomar Empréstimo", 
+            "📊 Resumo"
+        ])
         
         with tab1:
             self._render_loans_list()
         
         with tab2:
-            self._render_loan_form()
+            self._render_give_loan_form()
         
         with tab3:
+            self._render_receive_loan_form()
+        
+        with tab4:
             self._render_loans_summary()
 
     def _render_loans_list(self) -> None:
@@ -97,6 +107,8 @@ class LoansPage(BasePage):
 
     def _render_loan_card(self, loan: Dict[str, Any]) -> None:
         """Renderiza um card de empréstimo."""
+        loan_id = loan.get('id')
+        
         with st.container():
             col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
             
@@ -130,13 +142,14 @@ class LoansPage(BasePage):
                     st.warning("⏳ Pendente")
             
             with col4:
-                loan_id = loan.get('id')
                 with st.popover("⚙️ Ações"):
-                    edit_clicked = st.button(
+                    if st.button(
                         "✏️ Editar",
                         key=f"edit_loan_{loan_id}",
                         width='stretch'
-                    )
+                    ):
+                        st.session_state[f'edit_loan_data_{loan_id}'] = loan
+                        st.rerun()
                     
                     toggle_text = ("⏳ Marcar Pendente" if loan.get('payed', False) 
                                  else "✅ Marcar Quitado")
@@ -147,11 +160,20 @@ class LoansPage(BasePage):
                     ):
                         self._toggle_loan_payment(loan_id, not loan.get('payed', False))
                     
-                    payment_clicked = st.button(
+                    if st.button(
                         "💰 Pagamento",
                         key=f"payment_loan_{loan_id}",
                         width='stretch'
-                    )
+                    ):
+                        st.session_state[f'payment_loan_data_{loan_id}'] = loan
+                        st.rerun()
+                    
+                    if st.button(
+                        "📄 Gerar PDF",
+                        key=f"pdf_btn_loan_{loan_id}",
+                        width='stretch'
+                    ):
+                        self._generate_loan_pdf(loan)
                     
                     if st.button(
                         "🗑️ Excluir",
@@ -160,18 +182,13 @@ class LoansPage(BasePage):
                     ):
                         self._delete_loan(loan_id, description)
             
-            # Processa ações fora do contexto do widget
-            if edit_clicked:
-                st.session_state[f'edit_loan_{loan_id}'] = loan
-                st.rerun()
-            
-            if payment_clicked:
-                st.session_state[f'payment_loan_{loan_id}'] = loan
-                st.rerun()
-            
             # Formulário de pagamento inline se ativo
-            if st.session_state.get(f'payment_loan_{loan_id}'):
+            if st.session_state.get(f'payment_loan_data_{loan_id}'):
                 self._render_payment_form(loan)
+            
+            # Formulário de edição inline se ativo
+            if st.session_state.get(f'edit_loan_data_{loan_id}'):
+                self._render_edit_loan_form(loan)
             
             st.markdown("---")
 
@@ -217,175 +234,330 @@ class LoansPage(BasePage):
             
             with col_cancel:
                 if st.form_submit_button("❌ Cancelar"):
-                    st.session_state.pop(f'payment_loan_{loan_id}', None)
+                    st.session_state.pop(f'payment_loan_data_{loan_id}', None)
                     st.rerun()
 
-    def _render_loan_form(self) -> None:
-        """Renderiza formulário para criar empréstimo."""
-        st.markdown("### ➕ Criar Novo Empréstimo")
+    def _render_edit_loan_form(self, loan: Dict[str, Any]) -> None:
+        """Renderiza formulário para editar empréstimo."""
+        loan_id = loan.get('id')
         
-        with st.form("create_loan_form"):
+        st.markdown("#### ✏️ Editar Empréstimo")
+        
+        with st.form(f"edit_loan_form_{loan_id}"):
             col1, col2 = st.columns(2)
             
             with col1:
                 description = st.text_input(
                     "📝 Descrição",
+                    value=loan.get('description', ''),
                     placeholder="Ex: Empréstimo para compra de carro..."
                 )
                 
                 value = st.number_input(
                     "💰 Valor do Empréstimo",
                     min_value=0.01,
+                    value=float(loan.get('value', 0)),
                     step=0.01,
                     format="%.2f",
                     help="Valor total do empréstimo"
                 )
                 
+                # Categoria atual
+                current_category = loan.get('category', 'others')
+                category_display_options = list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys())
+                current_category_display = None
+                for display, code in db_categories.TRANSLATED_EXPENSE_CATEGORIES.items():
+                    if code == current_category:
+                        current_category_display = display
+                        break
+                
                 category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys())
+                    options=category_display_options,
+                    index=category_display_options.index(current_category_display) if current_category_display else 0
                 )
                 category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[category_display]
-                
-                # Tipo de empréstimo
-                loan_type = st.selectbox(
-                    "🤝 Tipo de Empréstimo",
-                    options=[
-                        ("given", "💸 Empréstimo Dado (Saindo da conta)"),
-                        ("received", "💰 Empréstimo Recebido (Entrando na conta)")
-                    ],
-                    format_func=lambda x: x[1],
-                    help="Selecione se você está emprestando ou recebendo dinheiro"
-                )
             
             with col2:
+                # Data e horário atuais
+                current_date = datetime.strptime(loan.get('date', ''), '%Y-%m-%d').date() if loan.get('date') else datetime.now().date()
+                current_time = datetime.strptime(loan.get('horary', '00:00:00'), '%H:%M:%S').time() if loan.get('horary') else datetime.now().time()
+                
                 loan_date = st.date_input(
                     "📅 Data do Empréstimo",
-                    value=datetime.now().date(),
+                    value=current_date,
                     format="DD/MM/YYYY"
                 )
                 
                 loan_time = st.time_input(
                     "🕐 Horário",
-                    value=datetime.now().time()
+                    value=current_time
                 )
                 
                 # Seleção de conta
                 try:
                     accounts = accounts_service.get_all_accounts()
-                    if not accounts:
-                        st.error("❌ Nenhuma conta disponível. Cadastre uma conta primeiro.")
-                        return
-                    
-                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
-                    selected_account = st.selectbox(
-                        "🏦 Conta",
-                        options=account_options,
-                        format_func=lambda x: x[1]
-                    )
-                    account_id = selected_account[0]
-                except ApiClientError:
-                    st.error("❌ Erro ao carregar contas")
-                    return
+                    if accounts:
+                        account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                        current_account_index = 0
+                        for i, (acc_id, _) in enumerate(account_options):
+                            if acc_id == loan.get('account'):
+                                current_account_index = i
+                                break
+                        
+                        selected_account = st.selectbox(
+                            "🏦 Conta",
+                            options=account_options,
+                            format_func=lambda x: x[1],
+                            index=current_account_index
+                        )
+                        account_id = selected_account[0] if selected_account else None
+                    else:
+                        st.error("❌ Nenhuma conta disponível.")
+                        account_id = None
+                except ApiClientError as e:
+                    st.error(f"❌ Erro ao carregar contas: {e}")
+                    account_id = None
                 
                 # Seleção de membros
                 try:
                     members = api_client.get("members/")
-                    if not members:
-                        st.error("❌ Nenhum membro disponível. Cadastre membros primeiro.")
-                        return
-                    
-                    member_options = [(member['id'], member['name']) for member in members if member.get('active', True)]
-                    
-                    selected_benefited = st.selectbox(
-                        "👤 Beneficiado",
-                        options=member_options,
-                        format_func=lambda x: x[1],
-                        help="Quem recebeu o empréstimo"
-                    )
-                    benefited_id = selected_benefited[0]
-                    
-                    selected_creditor = st.selectbox(
-                        "💼 Credor",
-                        options=member_options,
-                        format_func=lambda x: x[1],
-                        help="Quem emprestou o dinheiro"
-                    )
-                    creditor_id = selected_creditor[0]
-                except ApiClientError:
-                    st.error("❌ Erro ao carregar membros")
-                    return
-            
-            # Validação de saldo para empréstimos dados
-            if loan_type[0] == "given" and value and account_id:
-                try:
-                    account_balance = self._calculate_account_balance(account_id)
-                    
-                    if account_balance is not None:
-                        remaining_balance = account_balance - value
+                    if members:
+                        member_options = [(member['id'], member['name']) for member in members if member.get('active', True)]
                         
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("💰 Saldo Atual", format_currency_br(account_balance))
-                        with col2:
-                            st.metric("💸 Empréstimo", format_currency_br(value))
-                        with col3:
-                            if remaining_balance >= 0:
-                                st.metric("✅ Saldo Após", format_currency_br(remaining_balance), delta=f"-{format_currency_br(value)}")
-                            else:
-                                st.metric("❌ Saldo Após", format_currency_br(remaining_balance), delta=f"-{format_currency_br(value)}")
-                                st.error(f"⚠️ **Saldo insuficiente!** Faltam {format_currency_br(abs(remaining_balance))}")
+                        # Encontrar índices atuais
+                        current_benefited_index = 0
+                        current_creditor_index = 0
+                        for i, (member_id, _) in enumerate(member_options):
+                            if member_id == loan.get('benefited'):
+                                current_benefited_index = i
+                            if member_id == loan.get('creditor'):
+                                current_creditor_index = i
+                        
+                        selected_benefited = st.selectbox(
+                            "👤 Beneficiado",
+                            options=member_options,
+                            format_func=lambda x: x[1],
+                            index=current_benefited_index,
+                            help="Quem recebeu o empréstimo"
+                        )
+                        benefited_id = selected_benefited[0] if selected_benefited else None
+                        
+                        selected_creditor = st.selectbox(
+                            "💼 Credor",
+                            options=member_options,
+                            format_func=lambda x: x[1],
+                            index=current_creditor_index,
+                            help="Quem emprestou o dinheiro"
+                        )
+                        creditor_id = selected_creditor[0] if selected_creditor else None
                     else:
-                        st.warning("⚠️ Não foi possível verificar o saldo da conta")
-                        
-                except Exception as e:
-                    st.warning("⚠️ Erro ao verificar saldo da conta")
-                    logger.warning(f"Erro ao verificar saldo: {e}")
+                        st.error("❌ Nenhum membro disponível.")
+                        benefited_id = creditor_id = None
+                except ApiClientError as e:
+                    st.error(f"❌ Erro ao carregar membros: {e}")
+                    benefited_id = creditor_id = None
             
-            if st.form_submit_button("💾 Criar Empréstimo", type="primary"):
-                # Validações mais robustas
-                errors = []
-                
-                if not description:
-                    errors.append("Descrição é obrigatória")
-                
-                if not value or value <= 0:
-                    errors.append("Valor deve ser maior que zero")
-                
-                if not account_id:
-                    errors.append("Selecione uma conta")
-                
-                if not benefited_id or not creditor_id:
-                    errors.append("Selecione beneficiado e credor")
-                
-                # Validação de saldo para empréstimos dados
-                if loan_type[0] == "given" and value and account_id:
-                    try:
-                        balance = self._calculate_account_balance(account_id)
-                        if balance is not None and balance < value:
-                            errors.append(f"Saldo insuficiente na conta. Saldo: {format_currency_br(balance)}")
-                    except Exception:
-                        errors.append("Não foi possível verificar o saldo da conta")
-                
-                if errors:
-                    st.error("❌ **Erros encontrados:**")
-                    for error in errors:
-                        st.error(f"• {error}")
-                else:
-                    loan_data = {
+            col_submit, col_cancel = st.columns(2)
+            
+            with col_submit:
+                if st.form_submit_button("💾 Salvar Alterações", type="primary"):
+                    update_data = {
                         'description': description,
                         'value': value,
-                        'payed_value': 0.0,  # Sempre começa com 0
+                        'payed_value': loan.get('payed_value', 0),
                         'date': format_date_for_api(loan_date),
                         'horary': loan_time.strftime('%H:%M:%S'),
                         'category': category,
                         'account': account_id,
                         'benefited': benefited_id,
                         'creditor': creditor_id,
-                        'payed': False,  # Sempre começa como não pago
-                        'loan_type': loan_type[0]  # Adiciona o tipo
+                        'payed': loan.get('payed', False),
+                        'loan_type': loan.get('loan_type', 'given')
                     }
-                    self._create_loan(loan_data)
+                    self._update_loan_edit(loan_id, update_data)
+            
+            with col_cancel:
+                if st.form_submit_button("❌ Cancelar"):
+                    st.session_state.pop(f'edit_loan_data_{loan_id}', None)
+                    st.rerun()
+
+    def _render_give_loan_form(self) -> None:
+        """Renderiza formulário para realizar empréstimo (emprestar dinheiro)."""
+        st.markdown("### 💸 Realizar Empréstimo (Emprestar Dinheiro)")
+        st.info("👤 Você está emprestando dinheiro para alguém. O dinheiro sairá da sua conta.")
+        
+        with st.form("create_give_loan_form"):
+            loan_data = self._render_loan_form_fields("given")
+            self._process_loan_form_submit("given", loan_data)
+
+    def _render_receive_loan_form(self) -> None:
+        """Renderiza formulário para tomar empréstimo (receber dinheiro)."""
+        st.markdown("### 💰 Tomar Empréstimo (Receber Dinheiro)")
+        st.info("🏦 Você está tomando dinheiro emprestado. O dinheiro entrará na sua conta.")
+        
+        with st.form("create_receive_loan_form"):
+            loan_data = self._render_loan_form_fields("received")
+            self._process_loan_form_submit("received", loan_data)
+
+    def _render_loan_form_fields(self, loan_type: str) -> Dict[str, Any]:
+        """Renderiza os campos do formulário de empréstimo."""
+        is_giving = loan_type == "given"
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            description = st.text_input(
+                "📝 Descrição",
+                placeholder="Ex: Empréstimo para João...",
+                key=f"loan_desc_{loan_type}"
+            )
+            
+            value = st.number_input(
+                "💰 Valor do Empréstimo",
+                min_value=0.01,
+                step=0.01,
+                format="%.2f",
+                help="Valor total do empréstimo",
+                key=f"loan_value_{loan_type}"
+            )
+            
+            category_display = st.selectbox(
+                "📂 Categoria",
+                options=list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()),
+                key=f"loan_category_{loan_type}"
+            )
+            category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[category_display]
+        
+        with col2:
+            loan_date = st.date_input(
+                "📅 Data do Empréstimo",
+                value=datetime.now().date(),
+                format="DD/MM/YYYY",
+                key=f"loan_date_{loan_type}"
+            )
+            
+            loan_time = st.time_input(
+                "🕐 Horário",
+                value=datetime.now().time(),
+                key=f"loan_time_{loan_type}"
+            )
+        
+        # Seleção de membros
+        try:
+            members = api_client.get("members/")
+            if members:
+                member_options = [(m['id'], m['name']) for m in members]
+                
+                if is_giving:
+                    # Para empréstimo dado, selecionar beneficiado
+                    selected_benefited = st.selectbox(
+                        "👤 Para quem você está emprestando",
+                        options=member_options,
+                        format_func=lambda x: x[1],
+                        key=f"benefited_{loan_type}"
+                    )
+                    benefited_id = selected_benefited[0]
+                    creditor_id = None  # Você é o credor
+                else:
+                    # Para empréstimo recebido, selecionar credor
+                    selected_creditor = st.selectbox(
+                        "👤 De quem você está recebendo empréstimo",
+                        options=member_options,
+                        format_func=lambda x: x[1],
+                        key=f"creditor_{loan_type}"
+                    )
+                    creditor_id = selected_creditor[0]
+                    benefited_id = None  # Você é o beneficiado
+            else:
+                st.error("❌ Nenhum membro cadastrado. Cadastre membros primeiro.")
+                creditor_id = benefited_id = None
+        except Exception:
+            st.error("❌ Erro ao carregar membros.")
+            creditor_id = benefited_id = None
+            
+        # Seleção de conta
+        try:
+            accounts = accounts_service.get_all_accounts()
+            if accounts:
+                account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                selected_account = st.selectbox(
+                    "🏦 Conta",
+                    options=account_options,
+                    format_func=lambda x: x[1],
+                    key=f"account_{loan_type}"
+                )
+                account_id = selected_account[0]
+            else:
+                st.error("❌ Nenhuma conta ativa disponível.")
+                account_id = None
+        except Exception:
+            st.error("❌ Erro ao carregar contas.")
+            account_id = None
+            
+        # Checkbox de confirmação
+        confirm_data = st.checkbox(
+            "✅ Confirmo que os dados informados estão corretos",
+            key=f"confirm_{loan_type}"
+        )
+        
+        return {
+            'description': description,
+            'value': value,
+            'category': category,
+            'loan_date': loan_date,
+            'loan_time': loan_time,
+            'creditor_id': creditor_id,
+            'benefited_id': benefited_id,
+            'account_id': account_id,
+            'confirm_data': confirm_data,
+            'loan_type': loan_type
+        }
+    
+    def _process_loan_form_submit(self, loan_type: str, loan_data: Dict[str, Any]) -> None:
+        """Processa o envio do formulário de empréstimo."""
+        if st.form_submit_button("💾 Criar Empréstimo", type="primary"):
+            errors = []
+            
+            # Validações básicas
+            if not loan_data.get('confirm_data'):
+                errors.append("Confirme que os dados estão corretos antes de prosseguir")
+            if not loan_data.get('description'):
+                errors.append("Descrição é obrigatória")
+            if not loan_data.get('value') or loan_data['value'] <= 0:
+                errors.append("Valor deve ser maior que zero")
+            if not loan_data.get('account_id'):
+                errors.append("Conta é obrigatória")
+            if not loan_data.get('creditor_id') and not loan_data.get('benefited_id'):
+                errors.append("Membro é obrigatório")
+                
+            if errors:
+                st.error("❌ **Erros encontrados:**")
+                for error in errors:
+                    st.error(f"• {error}")
+            else:
+                # Preparar dados para a API
+                api_loan_data = {
+                    'description': loan_data['description'],
+                    'value': float(loan_data['value']),
+                    'payed_value': 0.0,
+                    'date': format_date_for_api(loan_data['loan_date']),
+                    'horary': loan_data['loan_time'].strftime('%H:%M:%S'),
+                    'category': loan_data['category'],
+                    'account': loan_data['account_id'],
+                    'payed': False,
+                    'loan_type': loan_type
+                }
+                
+                # Adicionar credor ou beneficiado dependendo do tipo
+                if loan_type == "given":
+                    api_loan_data['benefited'] = loan_data['benefited_id']
+                    api_loan_data['creditor'] = None  # Sistema assume que você é o credor
+                else:
+                    api_loan_data['creditor'] = loan_data['creditor_id'] 
+                    api_loan_data['benefited'] = None  # Sistema assume que você é o beneficiado
+                
+                self._create_loan(api_loan_data)
 
     def _calculate_account_balance(self, account_id: int) -> float:
         """
@@ -501,12 +673,27 @@ class LoansPage(BasePage):
                 updated_loan = api_client.put(f"loans/{loan_id}/", loan_data)
             
             st.success("✅ Empréstimo atualizado com sucesso!")
-            st.session_state.pop(f'payment_loan_{loan_id}', None)
+            st.session_state.pop(f'payment_loan_data_{loan_id}', None)
             st.rerun()
             
         except ApiClientError as e:
             st.error(f"❌ Erro ao atualizar empréstimo: {e}")
             logger.error(f"Erro ao atualizar empréstimo {loan_id}: {e}")
+
+    def _update_loan_edit(self, loan_id: int, loan_data: Dict[str, Any]) -> None:
+        """Atualiza um empréstimo (edição completa)."""
+        try:
+            with st.spinner("💾 Salvando alterações..."):
+                time.sleep(1)
+                updated_loan = api_client.put(f"loans/{loan_id}/", loan_data)
+            
+            st.success("✅ Empréstimo editado com sucesso!")
+            st.session_state.pop(f'edit_loan_data_{loan_id}', None)
+            st.rerun()
+            
+        except ApiClientError as e:
+            st.error(f"❌ Erro ao editar empréstimo: {e}")
+            logger.error(f"Erro ao editar empréstimo {loan_id}: {e}")
 
     def _toggle_loan_payment(self, loan_id: int, is_paid: bool) -> None:
         """Alterna o status de pagamento de um empréstimo."""
@@ -578,3 +765,56 @@ class LoansPage(BasePage):
             ):
                 st.session_state.pop(confirm_key, None)
                 st.rerun()
+    
+    def _generate_loan_pdf(self, loan: Dict[str, Any]) -> None:
+        """Gera e oferece download do PDF do contrato de empréstimo."""
+        if pdf_generator is None:
+            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            return
+        
+        try:
+            with st.spinner("📄 Gerando contrato..."):
+                # Buscar dados dos membros
+                creditor_data = None
+                benefited_data = None
+                
+                try:
+                    members = api_client.get("members/")
+                    creditor_data = next((m for m in members if m['id'] == loan.get('creditor')), None)
+                    benefited_data = next((m for m in members if m['id'] == loan.get('benefited')), None)
+                except ApiClientError:
+                    pass
+                
+                # Gerar PDF
+                pdf_buffer = pdf_generator.generate_loan_contract(loan, creditor_data, benefited_data)
+                
+                # Nome do arquivo
+                description = loan.get('description', 'emprestimo')
+                date_str = loan.get('date', '').replace('-', '_')
+                filename = f"contrato_emprestimo_{description}_{date_str}.pdf"
+                
+                # Oferecer download
+                st.download_button(
+                    label="💾 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/pdf",
+                    key=f"download_loan_{loan.get('id')}"
+                )
+                
+                # Preview do PDF
+                st.success("✅ Contrato gerado com sucesso!")
+                try:
+                    pdf_buffer.seek(0)
+                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
+                    if hasattr(st, 'pdf'):
+                        st.pdf(pdf_buffer.getvalue())
+                    else:
+                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                except Exception as e:
+                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
+                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao gerar contrato: {e}")
+            logger.error(f"Erro ao gerar PDF do empréstimo {loan.get('id')}: {e}")

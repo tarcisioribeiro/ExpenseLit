@@ -16,6 +16,7 @@ import streamlit as st
 from pages.router import BasePage
 from services.api_client import api_client, ApiClientError
 from services.accounts_service import accounts_service
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -56,15 +57,23 @@ class CreditCardsPage(BasePage):
     
     def render(self) -> None:
         """Renderiza o conteúdo da página de cartões."""
-        tab1, tab2, tab3 = st.tabs(["💳 Meus Cartões", "📄 Faturas", "➕ Novo Cartão"])
+        tab1, tab2 = centered_tabs(["💳 Cartões", "📄 Faturas"])
         
         with tab1:
-            self._render_cards_list()
+            self._render_cards_section()
         
         with tab2:
             self._render_bills_section()
+    
+    def _render_cards_section(self) -> None:
+        """Renderiza a seção de cartões com sub-tabs."""
+        # Sub-tabs para cartões
+        subtab1, subtab2 = centered_tabs(["📋 Meus Cartões", "➕ Novo Cartão"])
         
-        with tab3:
+        with subtab1:
+            self._render_cards_list()
+        
+        with subtab2:
             self._render_card_form()
     
     def _render_cards_list(self) -> None:
@@ -73,7 +82,7 @@ class CreditCardsPage(BasePage):
         
         try:
             with st.spinner("🔄 Carregando cartões..."):
-                time.sleep(2)
+                time.sleep(1)
                 cards = api_client.get("credit-cards/")
             
             if not cards:
@@ -160,30 +169,139 @@ class CreditCardsPage(BasePage):
                     step=100.00,
                     format="%.2f"
                 )
-            
-            # Seleção de conta associada
-            try:
-                accounts = accounts_service.get_all_accounts()
-                account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
                 
-                if account_options:
-                    selected_account = st.selectbox(
-                        "🏦 Conta Associada",
-                        options=account_options,
-                        format_func=lambda x: x[1],
-                        help="Conta bancária associada ao cartão"
-                    )
-                    associated_account = selected_account[0]
-                else:
-                    show_missing_resource_dialog(
-                        "Conta", "conta", "accounts"
-                    )
+            # Campos opcionais adicionais em nova seção
+            st.markdown("---")
+            st.markdown("**Configurações Avançadas (Opcional)**")
+            
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                card_number = st.text_input(
+                    "💳 Número do Cartão",
+                    max_chars=19,
+                    type="password",
+                    help="Número do cartão (será criptografado)"
+                )
+                
+                closing_day = st.number_input(
+                    "📅 Dia de Fechamento",
+                    min_value=1,
+                    max_value=31,
+                    value=5,
+                    help="Dia do fechamento da fatura"
+                )
+                
+                due_day = st.number_input(
+                    "💸 Dia de Vencimento", 
+                    min_value=1,
+                    max_value=31,
+                    value=15,
+                    help="Dia de vencimento da fatura"
+                )
+                
+            with col4:
+                interest_rate = st.number_input(
+                    "📊 Taxa de Juros (%)",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=2.5,
+                    step=0.1,
+                    format="%.2f",
+                    help="Taxa de juros mensal"
+                )
+                
+                annual_fee = st.number_input(
+                    "💳 Anuidade",
+                    min_value=0.0,
+                    value=0.0,
+                    step=10.00,
+                    format="%.2f",
+                    help="Valor da anuidade"
+                )
+                
+            notes = st.text_area(
+                "📝 Observações",
+                help="Observações sobre o cartão"
+            )
+            
+            # Seleção de conta associada e proprietário
+            col5, col6 = st.columns(2)
+            
+            with col5:
+                try:
+                    accounts = accounts_service.get_all_accounts()
+                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                    
+                    if account_options:
+                        selected_account = st.selectbox(
+                            "🏦 Conta Associada",
+                            options=account_options,
+                            format_func=lambda x: x[1],
+                            help="Conta bancária associada ao cartão"
+                        )
+                        associated_account = selected_account[0]
+                    else:
+                        show_missing_resource_dialog(
+                            "Conta", "conta", "accounts"
+                        )
+                        associated_account = None
+                except:
                     associated_account = None
-            except:
-                associated_account = None
+            
+            with col6:
+                # Seleção do proprietário do cartão
+                try:
+                    members = api_client.get("members/")
+                    if members:
+                        member_options = [(member['id'], member['name']) for member in members if member.get('active', True)]
+                        if member_options:
+                            selected_owner = st.selectbox(
+                                "👤 Proprietário",
+                                options=member_options,
+                                format_func=lambda x: x[1],
+                                help="Membro proprietário do cartão"
+                            )
+                            owner_id = selected_owner[0]
+                        else:
+                            st.error("❌ Nenhum membro disponível.")
+                            owner_id = None
+                    else:
+                        st.error("❌ Nenhum membro cadastrado.")
+                        owner_id = None
+                except ApiClientError:
+                    st.error("❌ Erro ao carregar membros.")
+                    owner_id = None
+            
+            # Checkbox de confirmação
+            confirm_data = st.checkbox("✅ Confirmo que os dados informados estão corretos")
             
             if st.form_submit_button("💾 Criar Cartão", type="primary"):
-                if name and on_card_name and security_code and associated_account:
+                # Validações
+                errors = []
+                if not confirm_data:
+                    errors.append("Confirme que os dados estão corretos antes de prosseguir")
+                if not name:
+                    errors.append("Nome do cartão é obrigatório")
+                if not on_card_name:
+                    errors.append("Nome no cartão é obrigatório")
+                if not security_code:
+                    errors.append("CVV é obrigatório")
+                elif not security_code.isdigit() or len(security_code) not in [3, 4]:
+                    errors.append("CVV deve conter apenas 3 ou 4 dígitos")
+                if not associated_account:
+                    errors.append("Conta associada é obrigatória")
+                if not owner_id:
+                    errors.append("Proprietário do cartão é obrigatório")
+                if credit_limit > max_limit:
+                    errors.append("Limite de crédito não pode ser maior que limite máximo")
+                if card_number and (not card_number.replace(" ", "").isdigit() or len(card_number.replace(" ", "")) < 13):
+                    errors.append("Número do cartão deve conter apenas dígitos e ter pelo menos 13 dígitos")
+                    
+                if errors:
+                    for error in errors:
+                        st.error(f"❌ {error}")
+                else:
                     card_data = {
                         'name': name,
                         'on_card_name': on_card_name.upper(),
@@ -192,21 +310,31 @@ class CreditCardsPage(BasePage):
                         'security_code': security_code,
                         'credit_limit': credit_limit,
                         'max_limit': max_limit,
-                        'associated_account': associated_account
+                        'associated_account': associated_account,
+                        'owner': owner_id,  # Campo obrigatório
+                        'is_active': True,  # Sempre ativo na criação
+                        'closing_day': closing_day,
+                        'due_day': due_day,
+                        'interest_rate': interest_rate,
+                        'annual_fee': annual_fee,
+                        'notes': notes if notes else ""
                     }
+                    
+                    # Adicionar número do cartão se fornecido
+                    if card_number:
+                        card_data['card_number'] = card_number.replace(" ", "")
+                    
                     self._create_card(card_data)
-                else:
-                    st.error("Preencha todos os campos obrigatórios")
     
     def _create_card(self, card_data: Dict[str, Any]) -> None:
         """Cria um novo cartão de crédito."""
         try:
             with st.spinner("💾 Criando cartão..."):
-                time.sleep(2)
+                time.sleep(1)
                 new_card = api_client.post("credit-cards/", card_data)
             
             st.toast("✅ Cartão criado com sucesso!")
-            time.sleep(2)
+            time.sleep(1)
             st.info("🔒 **Segurança:** O CVV foi criptografado e não será exibido.")
             st.rerun()
             
@@ -219,7 +347,7 @@ class CreditCardsPage(BasePage):
         st.markdown("### 📄 Faturas de Cartão de Crédito")
         
         # Sub-tabs para faturas
-        bill_tab1, bill_tab2 = st.tabs(["📋 Minhas Faturas", "➕ Nova Fatura"])
+        bill_tab1, bill_tab2 = centered_tabs(["📋 Minhas Faturas", "➕ Nova Fatura"])
         
         with bill_tab1:
             self._render_bills_list()
@@ -234,7 +362,7 @@ class CreditCardsPage(BasePage):
         try:
             with st.spinner("🔄 Carregando faturas..."):
                 time.sleep(1)
-                bills = api_client.get("credit-cards/bills/")
+                bills = api_client.get("credit-cards-bills/")
             
             if not bills:
                 st.info("📝 Nenhuma fatura cadastrada ainda.")
@@ -259,7 +387,9 @@ class CreditCardsPage(BasePage):
             col1, col2, col3 = st.columns([2, 2, 1])
             
             with col1:
-                card_name = bill.get('credit_card_name', 'Cartão')
+                # Obter nome do cartão através do ID
+                card_id = bill.get('credit_card', 0)
+                card_name = self._get_card_name_by_id(card_id)
                 month_year = f"{bill.get('month', '')}/{bill.get('year', '')}"
                 st.markdown(f"### 📄 {card_name}")
                 st.caption(f"🗓️ {month_year}")
@@ -282,30 +412,53 @@ class CreditCardsPage(BasePage):
         """Renderiza formulário para criar fatura com validações melhoradas."""
         st.markdown("#### ➕ Criar Nova Fatura")
         
+        # Inicializar variáveis
+        cards = []
+        card_options = []
+        credit_card_id = None
+        cards_error = None
+        
+        # Tentar carregar cartões
+        try:
+            cards = api_client.get("credit-cards/")
+            if cards:
+                card_options = [(card['id'], card['name']) for card in cards]
+        except ApiClientError as e:
+            cards_error = str(e)
+        
         with st.form("create_bill_form"):
             col1, col2 = st.columns(2)
             
             with col1:
-                # Seleção de cartão
-                try:
-                    cards = api_client.get("credit-cards/")
-                    if not cards:
-                        st.error("❌ **Nenhum cartão disponível**")
-                        st.info("💡 **Solução:** Cadastre um cartão de crédito primeiro na aba 'Novo Cartão'.")
-                        return
-                    
-                    card_options = [(card['id'], card['name']) for card in cards]
+                # Seleção de cartão com tratamento de erro melhorado
+                if cards_error:
+                    st.error(f"❌ **Erro ao carregar cartões:** {cards_error}")
+                    st.info("💡 **Solução:** Verifique sua conexão e tente novamente.")
+                    # Ainda assim, mostra o campo para o usuário tentar
+                    st.selectbox(
+                        "💳 Cartão",
+                        options=[],
+                        help="Erro ao carregar cartões - verifique sua conexão",
+                        disabled=True
+                    )
+                elif not cards:
+                    st.error("❌ **Nenhum cartão disponível**")
+                    st.info("💡 **Solução:** Cadastre um cartão de crédito primeiro na aba 'Novo Cartão'.")
+                    # Ainda assim, mostra o campo para o usuário ver
+                    st.selectbox(
+                        "💳 Cartão",
+                        options=[],
+                        help="Nenhum cartão disponível - cadastre um primeiro",
+                        disabled=True
+                    )
+                else:
                     selected_card = st.selectbox(
                         "💳 Cartão",
                         options=card_options,
                         format_func=lambda x: x[1],
                         help="Selecione o cartão para criar a fatura"
                     )
-                    credit_card_id = selected_card[0]
-                except ApiClientError as e:
-                    st.error(f"❌ **Erro ao carregar cartões:** {str(e)}")
-                    st.info("💡 **Solução:** Verifique sua conexão e tente novamente.")
-                    return
+                    credit_card_id = selected_card[0] if selected_card else None
                 
                 # Ano e mês com validação
                 current_year = datetime.now().year
@@ -353,11 +506,12 @@ class CreditCardsPage(BasePage):
                     help="Marque se a fatura já está fechada (não permite mais despesas)"
                 )
             
-            # Preview da fatura
-            if credit_card_id and year and month:
+            # Preview da fatura - sempre mostrar se tiver dados válidos
+            if credit_card_id and year and month and cards:
                 with st.expander("👁️ Preview da Fatura", expanded=True):
                     card_name = next((card['name'] for card in cards if card['id'] == credit_card_id), "N/A")
                     month_name = selected_month[1]
+                    card_data = next((card for card in cards if card['id'] == credit_card_id), {})
                     
                     st.info(f"""
                     **Cartão:** {card_name}
@@ -365,13 +519,29 @@ class CreditCardsPage(BasePage):
                     **Data Início:** {format_date_for_display(invoice_beginning_date)}
                     **Data Fim:** {format_date_for_display(invoice_ending_date)}
                     **Status:** {'Fechada' if closed else 'Aberta'}
+                    **Fechamento:** Dia {card_data.get('closing_day', 'N/A')} do mês
+                    **Vencimento:** Dia {card_data.get('due_day', 'N/A')} do mês
                     """)
+            elif not cards and not cards_error:
+                with st.expander("👁️ Preview da Fatura", expanded=False):
+                    st.warning("⚠️ Cadastre um cartão de crédito primeiro para visualizar o preview.")
+            elif cards_error:
+                with st.expander("👁️ Preview da Fatura", expanded=False):
+                    st.error("❌ Não é possível mostrar preview devido ao erro ao carregar cartões.")
             
-            if st.form_submit_button("💾 Criar Fatura", type="primary"):
+            # Botão de submit sempre visível
+            submit_clicked = st.form_submit_button("💾 Criar Fatura", type="primary")
+            
+            if submit_clicked:
                 # Validações específicas
                 validation_errors = []
                 
-                if not credit_card_id:
+                # Verificar se há erro de conectividade primeiro
+                if cards_error:
+                    validation_errors.append("Não foi possível carregar os cartões. Verifique sua conexão.")
+                elif not cards:
+                    validation_errors.append("Nenhum cartão disponível. Cadastre um cartão primeiro.")
+                elif not credit_card_id:
                     validation_errors.append("Selecione um cartão")
                     
                 if not year or not month:
@@ -380,21 +550,22 @@ class CreditCardsPage(BasePage):
                 if invoice_beginning_date >= invoice_ending_date:
                     validation_errors.append("Data de fim deve ser posterior à data de início")
                 
-                # Verificar se já existe fatura para o mesmo cartão/mês/ano
-                try:
-                    existing_bills = api_client.get("credit-cards/bills/")
-                    duplicate_bill = next((
-                        bill for bill in existing_bills 
-                        if (bill.get('credit_card') == credit_card_id and 
-                            bill.get('year') == year and 
-                            bill.get('month') == month)
-                    ), None)
-                    
-                    if duplicate_bill:
-                        validation_errors.append(f"Já existe uma fatura para {selected_month[1]}/{year} neste cartão")
+                # Só verificar duplicatas se temos um cartão válido
+                if credit_card_id and not cards_error:
+                    try:
+                        existing_bills = api_client.get("credit-cards-bills/")
+                        duplicate_bill = next((
+                            bill for bill in existing_bills 
+                            if (bill.get('credit_card') == credit_card_id and 
+                                bill.get('year') == year and 
+                                bill.get('month') == month)
+                        ), None)
                         
-                except ApiClientError:
-                    st.warning("⚠️ Não foi possível verificar faturas duplicadas")
+                        if duplicate_bill:
+                            validation_errors.append(f"Já existe uma fatura para {selected_month[1]}/{year} neste cartão")
+                            
+                    except ApiClientError:
+                        st.warning("⚠️ Não foi possível verificar faturas duplicadas")
                 
                 if validation_errors:
                     st.error("❌ **Erros encontrados:**")
@@ -411,12 +582,21 @@ class CreditCardsPage(BasePage):
                     }
                     self._create_bill(bill_data)
     
+    def _get_card_name_by_id(self, card_id: int) -> str:
+        """Obtém o nome do cartão pelo ID."""
+        try:
+            cards = api_client.get("credit-cards/")
+            card = next((c for c in cards if c['id'] == card_id), None)
+            return card['name'] if card else f"Cartão #{card_id}"
+        except ApiClientError:
+            return f"Cartão #{card_id}"
+    
     def _create_bill(self, bill_data: Dict[str, Any]) -> None:
         """Cria uma nova fatura com mensagens de erro melhoradas."""
         try:
             with st.spinner("💾 Criando fatura..."):
                 time.sleep(1)
-                new_bill = api_client.post("credit-cards/bills/", bill_data)
+                new_bill = api_client.post("credit-cards-bills/", bill_data)
             
             st.toast("✅ Fatura criada com sucesso!")
             time.sleep(1)

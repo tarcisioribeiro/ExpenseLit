@@ -15,10 +15,10 @@ def install_test_dependencies():
     print("📦 Instalando dependências de teste...")
     try:
         subprocess.check_call([
-            sys.executable, "-m", "pip", "install", "-r", "requirements_test.txt"
+            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
         ])
         print("✅ Dependências instaladas com sucesso")
-        
+
         # Instala browsers do Playwright
         print("🌐 Instalando browsers do Playwright...")
         subprocess.check_call([
@@ -47,7 +47,7 @@ def run_ui_tests():
 def generate_report(results):
     """Gera o relatório final em error.txt."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     report_content = f"""RELATÓRIO DE TESTES AUTOMATIZADOS - ExpenseLit
 Executado em: {timestamp}
 {"="*60}
@@ -75,7 +75,7 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
                     report_content += f"❌ {section}: ERRO ENCONTRADO\n"
                     for error in result["errors"]:
                         report_content += f"   🔸 {error}\n"
-        
+
         # Edição de despesas
         report_content += "\n2. TESTE DE EDIÇÃO DE DESPESAS:\n"
         report_content += "-" * 30 + "\n"
@@ -90,7 +90,7 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
             report_content += "⚠️ AVISO: Teste inconcluso\n"
             report_content += "   🔸 Nenhuma despesa encontrada para testar\n"
             report_content += "   🔸 Para testar completamente, adicione dados de teste\n"
-        
+
         # Edição de receitas
         report_content += "\n3. TESTE DE EDIÇÃO DE RECEITAS:\n"
         report_content += "-" * 30 + "\n"
@@ -115,21 +115,22 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
     if "error" in results:
         error_count += 1
         report_content += f"1. ERRO CRÍTICO: {results['error']}\n"
-    
+
     nav_errors = 0
     if "navigation" in results and "error" not in results["navigation"]:
         for section, result in results["navigation"].items():
             if result["status"] != "ok":
                 nav_errors += len(result["errors"])
-    
+
     if nav_errors > 0:
-        report_content += f"2. ERROS DE NAVEGAÇÃO: {nav_errors} problema(s) encontrado(s)\n"
+        report_content += f"2. ERROS DE NAVEGAÇÃO: {
+            nav_errors} problema(s) encontrado(s)\n"
         error_count += nav_errors
-    
+
     if results.get("expense_edit") is False:
         report_content += "3. ERRO CRÍTICO: Edição de despesas ainda com problema de session_state\n"
         error_count += 1
-    
+
     if results.get("revenue_edit") is False:
         report_content += "4. ERRO CRÍTICO: Edição de receitas ainda com problema de session_state\n"
         error_count += 1
@@ -143,7 +144,7 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
     # Salva o relatório
     with open("error.txt", "w", encoding="utf-8") as f:
         f.write(report_content)
-    
+
     print("📄 Relatório detalhado salvo em error.txt")
     print(f"📊 Total de erros encontrados: {error_count}")
 
@@ -152,27 +153,27 @@ def main():
     """Função principal."""
     print("🚀 INICIANDO TESTES AUTOMATIZADOS DO EXPENSELIT")
     print("="*50)
-    
+
     # Verifica se estamos no diretório correto
     if not os.path.exists("app.py"):
         print("❌ ERRO: Execute este script na raiz do projeto ExpenseLit")
         sys.exit(1)
-    
+
     # Instala dependências
     if not install_test_dependencies():
         print("❌ Falha ao instalar dependências. Abortando.")
         sys.exit(1)
-    
+
     # Executa os testes
     print("\n⏳ Aguardando aplicação estar disponível em http://localhost:8501")
     print("💡 Certifique-se de que a aplicação está rodando com: docker compose up -d")
     input("Pressione ENTER quando a aplicação estiver rodando...")
-    
+
     results = run_ui_tests()
-    
+
     # Gera relatório
     generate_report(results)
-    
+
     print("\n✅ Testes concluídos!")
     print("📋 Verifique o arquivo error.txt para detalhes completos")
 

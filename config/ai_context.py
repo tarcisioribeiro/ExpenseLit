@@ -110,7 +110,7 @@ Campos disponíveis:
 - created_at: Data de registro
 - updated_at: Última atualização
 
-Endpoint: /api/v1/credit-cards/bills/
+Endpoint: /api/v1/credit-card-bills/
 
 Gerencia faturas de cartões de crédito.
 

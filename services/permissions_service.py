@@ -107,9 +107,9 @@ class PermissionsService:
         List[str]
             Lista de permissões CRUD para a aplicação
         """
-        # Superusuários têm acesso total
+        # Superusuários são bloqueados nesta interface
         if PermissionsService.is_superuser():
-            return ['create', 'read', 'update', 'delete']
+            return []
         
         user_permissions = PermissionsService.get_user_permissions()
         if not user_permissions:
@@ -143,9 +143,9 @@ class PermissionsService:
         bool
             True se o usuário tem a permissão
         """
-        # Superusuários têm acesso total
+        # Superusuários são bloqueados nesta interface
         if PermissionsService.is_superuser():
-            return True
+            return False
         
         app_permissions = PermissionsService.get_app_permissions(app_name)
         return operation in app_permissions
@@ -243,7 +243,8 @@ class PermissionsService:
     def render_permissions_info():
         """Renderiza informações sobre as permissões do usuário atual."""
         if PermissionsService.is_superuser():
-            st.success("👑 **Superusuário** - Acesso total ao sistema")
+            st.error("🚫 **Superusuário** - Acesso bloqueado nesta interface")
+            st.warning("Use o painel administrativo do Django para gerenciar o sistema.")
             return
         
         user_permissions = PermissionsService.get_user_permissions()

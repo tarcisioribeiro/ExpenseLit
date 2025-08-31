@@ -13,6 +13,7 @@ from pages.router import BasePage
 from services.api_client import ApiClientError, ValidationError
 from services.accounts_service import accounts_service
 from services.permissions_service import permissions_service
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -56,7 +57,7 @@ class AccountsPage(BasePage):
         - Ações de gerenciamento
         """
         # Tabs para organizar funcionalidades
-        tab1, tab2 = st.tabs(["📋 Minhas Contas", "➕ Nova Conta"])
+        tab1, tab2 = centered_tabs(["📋 Minhas Contas", "➕ Nova Conta"])
 
         with tab1:
             self._render_accounts_list()
@@ -70,7 +71,7 @@ class AccountsPage(BasePage):
 
         try:
             with st.spinner("🔄 Carregando contas..."):
-                time.sleep(2)
+                time.sleep(1)
                 accounts = accounts_service.get_all_accounts(active_only=False)
 
             if not accounts:
@@ -322,11 +323,11 @@ class AccountsPage(BasePage):
         """
         try:
             with st.spinner("💾 Criando conta..."):
-                time.sleep(2)
+                time.sleep(1)
                 new_account = accounts_service.create_account(account_data)
 
             st.toast("✅ Conta criada com sucesso!")
-            time.sleep(2)
+            time.sleep(1)
 
             # Recarrega a página para mostrar a nova conta
             st.rerun()

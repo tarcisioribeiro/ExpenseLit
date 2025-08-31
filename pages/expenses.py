@@ -18,6 +18,8 @@ from pages.router import BasePage
 from services.api_client import ApiClientError, ValidationError, api_client
 from services.expenses_service import expenses_service
 from services.accounts_service import accounts_service
+from services.pdf_generator import pdf_generator
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -98,7 +100,7 @@ class ExpensesPage(BasePage):
         - Despesas de Cartão de Crédito (lista + criar nova)
         """
         # Tabs principais para tipos de despesa
-        tab1, tab2 = st.tabs([
+        tab1, tab2 = centered_tabs([
             "💰 Despesas em Conta Corrente", 
             "💳 Despesas de Cartão de Crédito"
         ])
@@ -112,7 +114,7 @@ class ExpensesPage(BasePage):
     def _render_checking_account_expenses(self) -> None:
         """Renderiza seção de despesas em conta corrente."""
         # Sub-tabs para lista e criação
-        subtab1, subtab2, subtab3 = st.tabs([
+        subtab1, subtab2, subtab3 = centered_tabs([
             "📋 Lista de Despesas", 
             "➕ Nova Despesa", 
             "📊 Resumo"
@@ -130,7 +132,7 @@ class ExpensesPage(BasePage):
     def _render_credit_card_expenses_section(self) -> None:
         """Renderiza seção completa de despesas de cartão."""
         # Sub-tabs para lista e criação
-        subtab1, subtab2, subtab3 = st.tabs([
+        subtab1, subtab2, subtab3 = centered_tabs([
             "📋 Lista de Despesas", 
             "➕ Nova Despesa", 
             "📊 Resumo"
@@ -157,7 +159,7 @@ class ExpensesPage(BasePage):
             filters = st.session_state.get('expense_filters', {})
 
             with st.spinner("🔄 Carregando despesas..."):
-                time.sleep(2)
+                time.sleep(1)
                 expenses = expenses_service.get_all_expenses(
                     category=filters.get('category'),
                     payed=filters.get('payed'),
@@ -382,6 +384,13 @@ class ExpensesPage(BasePage):
                             expense_id, not is_paid  # type: ignore
                         )
 
+                    if st.button(
+                        "📄 Gerar PDF",
+                        key=f"pdf_btn_expense_{expense_id}",
+                        width='stretch'
+                    ):
+                        self._generate_expense_pdf(expense)
+                    
                     if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_expense_{expense_id}",
@@ -668,11 +677,11 @@ class ExpensesPage(BasePage):
         """
         try:
             with st.spinner("💾 Criando despesa..."):
-                time.sleep(2)
+                time.sleep(1)
                 new_expense = expenses_service.create_expense(expense_data)
 
             st.toast("✅ Despesa criada com sucesso!")
-            time.sleep(2)
+            time.sleep(1)
             st.info(f"🆔 ID da despesa: {new_expense.get('id')}")
 
             # Limpa filtros para mostrar a nova despesa
@@ -899,7 +908,7 @@ class ExpensesPage(BasePage):
         
         try:
             with st.spinner("📊 Carregando estatísticas..."):
-                cc_expenses = api_client.get("credit-cards/expenses/")
+                cc_expenses = api_client.get("credit-cards-expenses/")
                 
             if not cc_expenses:
                 st.info("📝 Nenhuma despesa de cartão de crédito encontrada.")
@@ -965,9 +974,9 @@ class ExpensesPage(BasePage):
         try:
             with st.spinner("🔄 Carregando despesas de cartão..."):
                 time.sleep(1)
-                cc_expenses = api_client.get("credit-cards/expenses/")
+                cc_expenses = api_client.get("credit-cards-expenses/")
                 # Também carregamos faturas para verificar se existem
-                bills = api_client.get("credit-cards/bills/")
+                bills = api_client.get("credit-cards-bills/")
                 cards = api_client.get("credit-cards/")
             
             # Mensagens mais informativas quando não há despesas
@@ -1077,6 +1086,13 @@ class ExpensesPage(BasePage):
                         self._toggle_cc_expense_payment(expense_id, not cc_expense.get('payed', False))
                     
                     if st.button(
+                        "📄 Gerar PDF",
+                        key=f"pdf_btn_cc_expense_{expense_id}",
+                        width='stretch'
+                    ):
+                        self._generate_cc_expense_pdf(cc_expense)
+                    
+                    if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_cc_expense_{expense_id}",
                         width='stretch'
@@ -1150,20 +1166,76 @@ class ExpensesPage(BasePage):
                 )
                 
                 installment = st.number_input(
-                    "🔢 Parcelas",
+                    "🔢 Parcela Atual",
                     min_value=1,
                     max_value=48,
                     value=1,
-                    help="Número de parcelas"
+                    help="Número da parcela atual"
+                )
+                
+                total_installments = st.number_input(
+                    "📊 Total de Parcelas",
+                    min_value=installment,
+                    max_value=48,
+                    value=max(installment, 1),
+                    help="Total de parcelas"
                 )
                 
                 payed = st.checkbox("✅ Despesa já foi paga")
+            
+            # Campos opcionais adicionais
+            st.markdown("---")
+            st.markdown("**Informações Adicionais (Opcional)**")
+            
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                merchant = st.text_input(
+                    "🏪 Estabelecimento",
+                    help="Nome do estabelecimento"
+                )
+                
+                transaction_id = st.text_input(
+                    "🔢 ID da Transação",
+                    help="Identificador da transação"
+                )
+                
+                location = st.text_input(
+                    "📍 Local",
+                    help="Local da compra"
+                )
+                
+            with col4:
+                # Seleção de membro responsável (opcional)
+                try:
+                    members = api_client.get("members/")
+                    if members:
+                        member_options = [(None, "Não informar")] + [(member['id'], member['name']) for member in members if member.get('active', True)]
+                        selected_member = st.selectbox(
+                            "👤 Membro Responsável",
+                            options=member_options,
+                            format_func=lambda x: x[1],
+                            help="Membro responsável pela despesa"
+                        )
+                        member_id = selected_member[0] if selected_member[0] else None
+                    else:
+                        member_id = None
+                except ApiClientError:
+                    member_id = None
+                
+                # Informação sobre geração de comprovante
+                st.info("📄 O comprovante será gerado automaticamente após criar a despesa")
+                
+            notes = st.text_area(
+                "📝 Observações",
+                help="Observações sobre a despesa"
+            )
             
             # Validações em tempo real
             if value and card_id:
                 try:
                     # Verificar limite disponível
-                    existing_expenses = api_client.get("credit-cards/expenses/")
+                    existing_expenses = api_client.get("credit-cards-expenses/")
                     card_expenses = [exp for exp in existing_expenses if exp.get('card') == card_id and not exp.get('payed', False)]
                     used_limit = sum(float(exp.get('value', 0)) for exp in card_expenses)
                     available_limit = credit_limit - used_limit
@@ -1198,8 +1270,9 @@ class ExpensesPage(BasePage):
                     validation_errors.append("Selecione um cartão")
                 
                 # Verificar se existe fatura para o período da despesa
+                matching_bill = None
                 try:
-                    bills = api_client.get("credit-cards/bills/")
+                    bills = api_client.get("credit-cards-bills/")
                     expense_month = expense_date.strftime('%b')
                     expense_year = str(expense_date.year)
                     
@@ -1221,7 +1294,7 @@ class ExpensesPage(BasePage):
                 # Verificar limite se houver valor
                 if value and card_id:
                     try:
-                        existing_expenses = api_client.get("credit-cards/expenses/")
+                        existing_expenses = api_client.get("credit-cards-expenses/")
                         card_expenses = [exp for exp in existing_expenses if exp.get('card') == card_id and not exp.get('payed', False)]
                         used_limit = sum(float(exp.get('value', 0)) for exp in card_expenses)
                         
@@ -1243,8 +1316,28 @@ class ExpensesPage(BasePage):
                         'category': category,
                         'card': card_id,
                         'installment': installment,
+                        'total_installments': total_installments,
                         'payed': payed
                     }
+                    
+                    # Adicionar campos opcionais se preenchidos
+                    if merchant:
+                        cc_expense_data['merchant'] = merchant
+                    if transaction_id:
+                        cc_expense_data['transaction_id'] = transaction_id
+                    if location:
+                        cc_expense_data['location'] = location
+                    if member_id:
+                        cc_expense_data['member'] = member_id
+                    if notes:
+                        cc_expense_data['notes'] = notes
+                    
+                    # Relacionar com a fatura correspondente
+                    if matching_bill:
+                        cc_expense_data['bill'] = matching_bill['id']
+                    
+                    # Comprovante será gerado automaticamente
+                    
                     self._create_cc_expense(cc_expense_data)
 
     def _create_cc_expense(self, expense_data: Dict[str, Any]) -> None:
@@ -1252,7 +1345,7 @@ class ExpensesPage(BasePage):
         try:
             with st.spinner("💾 Criando despesa de cartão..."):
                 time.sleep(1)
-                new_expense = api_client.post("credit-cards/expenses/", expense_data)
+                new_expense = api_client.post("credit-cards-expenses/", expense_data)
             
             st.toast("✅ Despesa de cartão criada com sucesso!")
             time.sleep(1)
@@ -1267,7 +1360,7 @@ class ExpensesPage(BasePage):
         try:
             with st.spinner(f"{'Marcando como paga' if is_paid else 'Marcando como pendente'}..."):
                 # Obtém dados da despesa
-                expense_data = api_client.get(f"credit-cards/expenses/{expense_id}/")
+                expense_data = api_client.get(f"credit-cards-expenses/{expense_id}/")
                 
                 # Atualiza status
                 update_data = {
@@ -1281,7 +1374,7 @@ class ExpensesPage(BasePage):
                     'payed': is_paid
                 }
                 
-                api_client.put(f"credit-cards/expenses/{expense_id}/", update_data)
+                api_client.put(f"credit-cards-expenses/{expense_id}/", update_data)
             
             status_text = "paga" if is_paid else "pendente"
             st.success(f"✅ Despesa marcada como {status_text}!")
@@ -1313,7 +1406,7 @@ class ExpensesPage(BasePage):
             ):
                 try:
                     with st.spinner("🗑️ Excluindo despesa..."):
-                        api_client.delete(f"credit-cards/expenses/{expense_id}/")
+                        api_client.delete(f"credit-cards-expenses/{expense_id}/")
                     
                     st.success(f"✅ Despesa '{description}' excluída com sucesso!")
                     st.session_state.pop(confirm_key, None)
@@ -1332,3 +1425,112 @@ class ExpensesPage(BasePage):
             ):
                 st.session_state.pop(confirm_key, None)
                 st.rerun()
+    
+    def _generate_expense_pdf(self, expense: Dict[str, Any]) -> None:
+        """Gera e oferece download do PDF da despesa."""
+        if pdf_generator is None:
+            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            return
+        
+        try:
+            with st.spinner("📄 Gerando comprovante..."):
+                # Buscar dados da conta
+                account_data = None
+                account_id = expense.get('account')
+                if account_id:
+                    try:
+                        accounts = accounts_service.get_all_accounts()
+                        account_data = next((acc for acc in accounts if acc['id'] == account_id), None)
+                    except ApiClientError:
+                        pass
+                
+                # Gerar PDF
+                pdf_buffer = pdf_generator.generate_expense_receipt(expense, account_data)
+                
+                # Nome do arquivo
+                description = expense.get('description', 'despesa')
+                date_str = expense.get('date', '').replace('-', '_')
+                filename = f"comprovante_despesa_{description}_{date_str}.pdf"
+                
+                # Oferecer download
+                st.download_button(
+                    label="💾 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/pdf",
+                    key=f"download_expense_{expense.get('id')}"
+                )
+                
+                # Preview do PDF
+                st.success("✅ Comprovante gerado com sucesso!")
+                try:
+                    pdf_buffer.seek(0)
+                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
+                    if hasattr(st, 'pdf'):
+                        st.pdf(pdf_buffer.getvalue())
+                    else:
+                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                except Exception as e:
+                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
+                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao gerar comprovante: {e}")
+            logger.error(f"Erro ao gerar PDF da despesa {expense.get('id')}: {e}")
+    
+    def _generate_cc_expense_pdf(self, expense: Dict[str, Any]) -> None:
+        """Gera e oferece download do PDF da despesa de cartão."""
+        if pdf_generator is None:
+            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            return
+        
+        try:
+            with st.spinner("📄 Gerando comprovante..."):
+                # Buscar dados do cartão e fatura
+                card_data = None
+                bill_data = None
+                
+                try:
+                    # Dados do cartão
+                    cards = api_client.get("credit-cards/")
+                    card_data = next((card for card in cards if card['id'] == expense.get('card')), None)
+                    
+                    # Dados da fatura
+                    bills = api_client.get("credit-cards-bills/")
+                    bill_data = next((bill for bill in bills if bill['id'] == expense.get('bill')), None)
+                except ApiClientError:
+                    pass
+                
+                # Gerar PDF
+                pdf_buffer = pdf_generator.generate_credit_card_receipt(expense, card_data, bill_data)
+                
+                # Nome do arquivo
+                description = expense.get('description', 'despesa_cartao')
+                date_str = expense.get('date', '').replace('-', '_')
+                filename = f"comprovante_cartao_{description}_{date_str}.pdf"
+                
+                # Oferecer download
+                st.download_button(
+                    label="💾 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/pdf",
+                    key=f"download_cc_expense_{expense.get('id')}"
+                )
+                
+                # Preview do PDF
+                st.success("✅ Comprovante gerado com sucesso!")
+                try:
+                    pdf_buffer.seek(0)
+                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
+                    if hasattr(st, 'pdf'):
+                        st.pdf(pdf_buffer.getvalue())
+                    else:
+                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                except Exception as e:
+                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
+                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao gerar comprovante: {e}")
+            logger.error(f"Erro ao gerar PDF da despesa de cartão {expense.get('id')}: {e}")

@@ -16,7 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 from pages.router import BasePage
-from services.api_client import api_client, ApiClientError
+from services.api_client import api_client, ApiClientError, AuthenticationError
 from services.accounts_service import accounts_service
 from services.expenses_service import expenses_service
 from services.revenues_service import revenues_service
@@ -87,6 +87,18 @@ class DashboardPage(BasePage):
             # Transações recentes
             self._render_recent_transactions(dashboard_data)
 
+        except AuthenticationError as e:
+            st.error("🔐 **Sessão Expirada**")
+            st.warning("Sua sessão expirou. Por favor, faça login novamente para continuar.")
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                if st.button("🔄 Fazer Login", type="primary", use_container_width=True):
+                    # Limpa dados de autenticação
+                    for key in ['access_token', 'refresh_token', 'is_authenticated', 'username', 'token_expires_at']:
+                        if key in st.session_state:
+                            del st.session_state[key]
+                    st.rerun()
+            logger.error(f"Erro de autenticação no dashboard: {e}")
         except ApiClientError as e:
             st.error(f"❌ Erro ao carregar dashboard: {e}")
             logger.error(f"Erro no dashboard: {e}")
@@ -156,11 +168,24 @@ class DashboardPage(BasePage):
             date_from=filters.get('date_from'),
             date_to=filters.get('date_to')
         )
+        
+        # Carrega empréstimos
+        loans = []
+        try:
+            loans_data = api_client.get("loans/")
+            if isinstance(loans_data, list):
+                loans = loans_data
+            elif isinstance(loans_data, dict) and 'results' in loans_data:
+                loans = loans_data['results']
+        except Exception as e:
+            logger.warning(f"Erro ao carregar empréstimos: {e}")
+            loans = []
 
         return {
             'accounts': accounts,
             'expenses': expenses,
             'revenues': revenues,
+            'loans': loans,
             'filters': filters
         }
 
@@ -175,42 +200,59 @@ class DashboardPage(BasePage):
         """
         st.markdown("### 📈 Resumo Financeiro")
 
-        # Calcula métricas
+        # Calcula métricas considerando apenas transações pagas/recebidas
         total_expenses = sum(float(exp.get('value', 0))
-                             for exp in data['expenses'])
+                             for exp in data['expenses'] 
+                             if exp.get('payed', False))
+        
         total_revenues = sum(float(rev.get('value', 0))
-                             for rev in data['revenues'])
-        balance = total_revenues - total_expenses
+                             for rev in data['revenues']
+                             if rev.get('received', False))
+        
+        # Calcula empréstimos dados (saindo da conta) e recebidos (entrando na conta)
+        loans_given = sum(float(loan.get('value', 0)) - float(loan.get('payed_value', 0))
+                         for loan in data['loans'] 
+                         if loan.get('loan_type') == 'given' and not loan.get('payed', False))
+        
+        loans_received = sum(float(loan.get('value', 0)) - float(loan.get('payed_value', 0))
+                           for loan in data['loans']
+                           if loan.get('loan_type') == 'received' and not loan.get('payed', False))
+        
+        # Saldo real considerando empréstimos
+        # Empréstimos dados: dinheiro que saiu (negativo no saldo)
+        # Empréstimos recebidos: dinheiro que entrou (positivo no saldo)
+        balance = total_revenues - total_expenses - loans_given + loans_received
+        
         active_accounts = len(
             [acc for acc in data['accounts'] if acc.get('is_active', True)])
 
-        # Renderiza cards
+        # Renderiza cards - primeira linha
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             st.metric(
-                label="💰 Total de Receitas",
+                label="💰 Receitas Recebidas",
                 value=format_currency_br(total_revenues),
                 delta=None,
-                help="Total de receitas no período selecionado"
+                help="Total de receitas já recebidas no período"
             )
 
         with col2:
             st.metric(
-                label="💸 Total de Despesas",
+                label="💸 Despesas Pagas",
                 value=format_currency_br(total_expenses),
                 delta=None,
-                help="Total de despesas no período selecionado"
+                help="Total de despesas já pagas no período"
             )
 
         with col3:
             delta_color = "normal" if balance >= 0 else "inverse"
             st.metric(
-                label="⚖️ Saldo do Período",
+                label="⚖️ Saldo Real",
                 value=format_currency_br(balance),
                 delta=f"{'Positivo' if balance >= 0 else 'Negativo'}",
                 delta_color=delta_color,
-                help="Diferença entre receitas e despesas"
+                help="Saldo real considerando receitas, despesas e empréstimos"
             )
 
         with col4:
@@ -219,6 +261,47 @@ class DashboardPage(BasePage):
                 value=str(active_accounts),
                 help="Número de contas ativas"
             )
+        
+        # Segunda linha - métricas de empréstimos se houver
+        if data['loans']:
+            st.markdown("---")
+            col5, col6, col7, col8 = st.columns(4)
+            
+            with col5:
+                st.metric(
+                    label="💸 Empréstimos Dados",
+                    value=format_currency_br(loans_given),
+                    delta=None,
+                    help="Valor total emprestado a terceiros (pendente)"
+                )
+            
+            with col6:
+                st.metric(
+                    label="💰 Empréstimos Recebidos", 
+                    value=format_currency_br(loans_received),
+                    delta=None,
+                    help="Valor total recebido de empréstimos (pendente)"
+                )
+                
+            with col7:
+                total_loans_impact = loans_received - loans_given
+                impact_color = "normal" if total_loans_impact >= 0 else "inverse"
+                st.metric(
+                    label="🤝 Impacto dos Empréstimos",
+                    value=format_currency_br(total_loans_impact),
+                    delta=f"{'Positivo' if total_loans_impact >= 0 else 'Negativo'}",
+                    delta_color=impact_color,
+                    help="Impacto líquido dos empréstimos no saldo"
+                )
+            
+            with col8:
+                total_loans = len(data['loans'])
+                active_loans = len([l for l in data['loans'] if not l.get('payed', False)])
+                st.metric(
+                    label="📋 Empréstimos",
+                    value=f"{active_loans}/{total_loans}",
+                    help="Empréstimos ativos / Total de empréstimos"
+                )
 
         st.markdown("---")
 
@@ -277,22 +360,46 @@ class DashboardPage(BasePage):
         """
         st.markdown("#### 📈 Evolução Financeira")
 
-        # Combina receitas e despesas por data
+        # Combina receitas, despesas e empréstimos por data
         all_transactions = []
 
+        # Adiciona despesas (apenas pagas)
         for expense in data['expenses']:
-            all_transactions.append({
-                'date': expense.get('date'),
-                'value': -float(expense.get('value', 0)),
-                'type': 'Despesa'
-            })
+            if expense.get('payed', False):
+                all_transactions.append({
+                    'date': expense.get('date'),
+                    'value': -float(expense.get('value', 0)),
+                    'type': 'Despesa'
+                })
 
+        # Adiciona receitas (apenas recebidas)
         for revenue in data['revenues']:
-            all_transactions.append({
-                'date': revenue.get('date'),
-                'value': float(revenue.get('value', 0)),
-                'type': 'Receita'
-            })
+            if revenue.get('received', False):
+                all_transactions.append({
+                    'date': revenue.get('date'),
+                    'value': float(revenue.get('value', 0)),
+                    'type': 'Receita'
+                })
+        
+        # Adiciona empréstimos
+        for loan in data['loans']:
+            loan_date = loan.get('date')
+            loan_value = float(loan.get('value', 0))
+            
+            if loan.get('loan_type') == 'given':
+                # Empréstimo dado: dinheiro saiu da conta (negativo)
+                all_transactions.append({
+                    'date': loan_date,
+                    'value': -loan_value,
+                    'type': 'Empréstimo Dado'
+                })
+            elif loan.get('loan_type') == 'received':
+                # Empréstimo recebido: dinheiro entrou na conta (positivo)
+                all_transactions.append({
+                    'date': loan_date,
+                    'value': loan_value,
+                    'type': 'Empréstimo Recebido'
+                })
 
         if not all_transactions:
             st.info("📊 Nenhuma transação encontrada no período.")

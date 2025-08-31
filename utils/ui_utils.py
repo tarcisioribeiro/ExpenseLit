@@ -6,7 +6,7 @@ seguindo melhores práticas de UX/UI para o ExpenseLit.
 """
 
 import streamlit as st
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 
 class MessageStandards:
@@ -396,6 +396,110 @@ class ValidationMessages:
             return MessageStandards.error('invalid_format', field="email")
         
         return None
+
+
+def centered_tabs(tab_labels: List[str]) -> List[Any]:
+    """
+    Cria tabs centralizadas usando CSS customizado.
+    
+    Parameters
+    ----------
+    tab_labels : List[str]
+        Lista com os labels das tabs
+        
+    Returns
+    -------
+    List[Any]
+        Lista de objetos de tabs do Streamlit
+    """
+    # CSS para centralizar as tabs com suporte ao modo escuro
+    st.markdown("""
+    <style>
+    .stTabs [data-baseweb="tab-list"] {
+        justify-content: center !important;
+        gap: 20px !important;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 50px !important;
+        padding: 0 20px !important;
+        border-radius: 10px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 2px solid transparent !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Modo claro */
+    @media (prefers-color-scheme: light) {
+        .stTabs [data-baseweb="tab"] {
+            background: linear-gradient(45deg, #f0f2f6, #ffffff) !important;
+            color: #262730 !important;
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            background: linear-gradient(45deg, #e1e5ea, #f8f9fa) !important;
+            border-color: #bd93f9 !important;
+        }
+    }
+    
+    /* Modo escuro */
+    @media (prefers-color-scheme: dark) {
+        .stTabs [data-baseweb="tab"] {
+            background: linear-gradient(45deg, #44475a, #6272a4) !important;
+            color: #f8f8f2 !important;
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            background: linear-gradient(45deg, #6272a4, #bd93f9) !important;
+            border-color: #ff79c6 !important;
+        }
+    }
+    
+    /* Tab ativa - funciona em ambos os modos */
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(45deg, #bd93f9, #ff79c6) !important;
+        color: #282a36 !important;
+        border-color: #8be9fd !important;
+        box-shadow: 0 4px 15px rgba(189, 147, 249, 0.4) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .stTabs [aria-selected="true"]:hover {
+        background: linear-gradient(45deg, #ff79c6, #bd93f9) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 18px rgba(255, 121, 198, 0.5) !important;
+    }
+    
+    /* Forçar estilos para modo escuro se classe dark estiver presente */
+    [data-theme="dark"] .stTabs [data-baseweb="tab"] {
+        background: linear-gradient(45deg, #44475a, #6272a4) !important;
+        color: #f8f8f2 !important;
+    }
+    
+    [data-theme="dark"] .stTabs [data-baseweb="tab"]:hover {
+        background: linear-gradient(45deg, #6272a4, #bd93f9) !important;
+        border-color: #ff79c6 !important;
+    }
+    
+    /* Forçar estilos para modo claro se classe light estiver presente */
+    [data-theme="light"] .stTabs [data-baseweb="tab"] {
+        background: linear-gradient(45deg, #f0f2f6, #ffffff) !important;
+        color: #262730 !important;
+    }
+    
+    [data-theme="light"] .stTabs [data-baseweb="tab"]:hover {
+        background: linear-gradient(45deg, #e1e5ea, #f8f9fa) !important;
+        border-color: #bd93f9 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Criar as tabs com o CSS aplicado
+    return st.tabs(tab_labels)
 
 
 # Instâncias globais

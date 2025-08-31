@@ -126,8 +126,30 @@ class ApiClient:
                 raise ValidationError(f"Dados inválidos: {error_data}")
             elif response.status_code == 401:
                 error_data = response.json() if response.content else {}
+                
+                # Verifica se é um token expirado ou inválido
+                if isinstance(error_data, dict) and 'code' in error_data:
+                    if error_data.get('code') == 'token_not_valid':
+                        messages = error_data.get('messages', [])
+                        if any(msg.get('message') == 'Token is expired' for msg in messages):
+                            # Token expirado - tenta renovar automaticamente
+                            logger.info("Token expirado detectado, tentando renovar...")
+                            if hasattr(self, 'refresh_token') and self.refresh_token():
+                                logger.info("Token renovado com sucesso, reexecutando requisição...")
+                                # Não relança a exceção, deixa a requisição original tentar novamente
+                                return {}
+                            else:
+                                raise AuthenticationError(
+                                    "Sua sessão expirou. Por favor, faça login novamente para continuar."
+                                )
+                        else:
+                            raise AuthenticationError(
+                                "Token inválido. Por favor, faça login novamente para continuar."
+                            )
+                
+                # Erro de autenticação genérico
                 raise AuthenticationError(
-                    f"Erro de autenticação: {error_data}"
+                    "Erro de autenticação. Verifique suas credenciais e tente novamente."
                 )
             elif response.status_code == 403:
                 error_data = response.json() if response.content else {}

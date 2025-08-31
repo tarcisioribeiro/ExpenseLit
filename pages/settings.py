@@ -8,6 +8,7 @@ import time
 import json
 from pathlib import Path
 import configparser
+from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
 
@@ -36,16 +37,13 @@ class SettingsPage(BasePage):
         Renderiza as configurações da aplicação.
         """
         # Tabs para organizar as configurações
-        tab1, tab2, tab3 = st.tabs(["🎨 Aparência", "🔧 Sistema", "📊 Dados"])
+        tab1, tab2 = centered_tabs(["🎨 Aparência", "🔧 Sistema"])
         
         with tab1:
             self._render_theme_settings()
         
         with tab2:
             self._render_system_settings()
-            
-        with tab3:
-            self._render_data_settings()
     
     def _render_theme_settings(self) -> None:
         """
@@ -198,49 +196,8 @@ class SettingsPage(BasePage):
             })
             
             st.toast("⚙️ Configurações do sistema salvas com sucesso!")
-            time.sleep(2)
+            time.sleep(1)
     
-    def _render_data_settings(self) -> None:
-        """
-        Renderiza as configurações de dados.
-        """
-        st.markdown("### 📊 Configurações de Dados")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Exportação:**")
-            
-            if st.button("📤 Exportar Dados", help="Exportar todos os dados para JSON"):
-                st.info("🚧 Funcionalidade em desenvolvimento...")
-            
-            if st.button("📥 Importar Dados", help="Importar dados de um arquivo JSON"):
-                st.info("🚧 Funcionalidade em desenvolvimento...")
-                
-        with col2:
-            st.markdown("**Limpeza:**")
-            
-            if st.button(
-                "🧹 Limpar Cache", 
-                help="Limpar dados temporários da aplicação"
-            ):
-                # Limpar algumas chaves do session_state 
-                keys_to_clear = [
-                    'expense_filters', 'revenue_filters', 'account_filters'
-                ]
-                for key in keys_to_clear:
-                    st.session_state.pop(key, None)
-                
-                st.toast("🧹 Cache limpo com sucesso!")
-                time.sleep(2)
-            
-            if st.button(
-                "⚠️ Reset Completo",
-                help="Resetar todas as configurações (não afeta dados da API)",
-                type="secondary"
-            ):
-                st.warning("Esta ação irá resetar todas as configurações locais!")
-                
     def _apply_theme(self, theme: str) -> None:
         """
         Aplica o tema selecionado.
@@ -268,7 +225,7 @@ class SettingsPage(BasePage):
         # Feedback para o usuário
         theme_name = "Escuro (Dracula)" if theme == 'dark' else "Claro"
         st.toast(f"🎨 Tema {theme_name} aplicado com sucesso!")
-        time.sleep(2)
+        time.sleep(1)
         
         # Força uma atualização da página
         st.rerun()

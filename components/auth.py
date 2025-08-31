@@ -16,7 +16,7 @@ from services.api_client import (
     AuthenticationError,
     ApiClientError
 )
-# from config.settings import app_config
+from config.settings import api_config
 
 
 logger = logging.getLogger(__name__)
@@ -136,28 +136,45 @@ class AuthenticationComponent:
         bool
             True se autenticado com sucesso
         """
+        # Controle de tentativas de login
+        login_attempts_key = f'login_attempts_{username}'
+        failed_attempts = st.session_state.get(login_attempts_key, 0)
+        
+        if failed_attempts >= 10:
+            st.error("🚨 **Muitas tentativas de login falharam**")
+            st.warning("Aguarde alguns minutos antes de tentar novamente ou entre em contato com o administrador.")
+            return False
+        
         try:
             with st.spinner("🔄 Autenticando..."):
                 # Tenta fazer login na API
                 auth_data = api_client.authenticate(username, password)
-                st.write(auth_data)
+                
                 # Busca permissões do usuário
                 try:
                     user_permissions = api_client.get_user_permissions()
                     st.session_state['user_permissions'] = user_permissions
+                    
+                    # Verifica se é superusuário/admin e bloqueia
+                    if user_permissions.get('is_superuser', False):
+                        st.error("🚫 **Acesso Negado**")
+                        st.warning("Administradores não podem acessar esta interface. Use o painel administrativo do Django.")
+                        # Faz logout imediatamente
+                        api_client.logout()
+                        logger.warning(f"Tentativa de acesso bloqueada para superusuário: {username}")
+                        return False
+                        
                 except ApiClientError as e:
-                    # Se falhar ao buscar permissões,
-                    # assume superusuário para evitar bloqueios.
+                    # Se falhar ao buscar permissões, assume acesso limitado
                     st.session_state['user_permissions'] = {
-                        'is_superuser': True,
+                        'is_superuser': False,
                         'permissions': []
                     }
-                    logger.warning(
-                        f"""Falha ao buscar permissões do usuário: {e}.
-                        Assumindo acesso total.
-                        """
-                    )
+                    logger.warning(f"Falha ao buscar permissões do usuário: {e}")
 
+            # Reset contador de tentativas em caso de sucesso
+            st.session_state[login_attempts_key] = 0
+            
             st.success(f"🎉 Bem-vindo, {username}!")
             logger.info(f"Usuário {username} logado com sucesso")
 
@@ -166,7 +183,24 @@ class AuthenticationComponent:
             return True
 
         except AuthenticationError as e:
-            st.error(f"❌ **Erro de autenticação:** {e}")
+            # Incrementa contador de tentativas falhadas
+            st.session_state[login_attempts_key] = failed_attempts + 1
+            remaining_attempts = 10 - (failed_attempts + 1)
+            
+            # Verifica se o usuário existe
+            error_msg = str(e).lower()
+            if 'no active account found' in error_msg or 'credenciais' in error_msg:
+                st.error("❌ **Usuário não encontrado ou senha incorreta**")
+                if remaining_attempts > 0:
+                    st.warning(f"💡 Se você não possui uma conta, entre em contato com o administrador para criar uma.")
+                    st.info(f"🔢 Tentativas restantes: {remaining_attempts}")
+                else:
+                    st.error("🚨 Limite de tentativas excedido!")
+            else:
+                st.error(f"❌ **Erro de autenticação:** {e}")
+                if remaining_attempts > 0:
+                    st.info(f"🔢 Tentativas restantes: {remaining_attempts}")
+            
             logger.warning(f"Tentativa de login falhada para {username}: {e}")
             return False
         except ApiClientError as e:
@@ -254,9 +288,9 @@ class AuthenticationComponent:
         permissions = self.get_user_permissions()
         user_permissions = permissions.get('permissions', [])
 
-        # Superuser tem todas as permissões
+        # Superusuários são bloqueados nesta interface
         if permissions.get('is_superuser', False):
-            return True
+            return False
 
         return permission in user_permissions
 
@@ -381,8 +415,9 @@ class AuthLogin:
 
         st.divider()
 
-        # Abas para Login e Cadastro
-        tab1, tab2 = st.tabs(["🔐 Login", "👤 Novo Usuário"])
+        # Abas para Login e Cadastro - centralizadas
+        from utils.ui_utils import centered_tabs
+        tab1, tab2 = centered_tabs(["🔐 Login", "👤 Novo Usuário"])
         
         with tab1:
             # Formulário de login centralizado
@@ -440,9 +475,9 @@ class AuthLogin:
                     user_permissions = api_client.get_user_permissions()
                     st.session_state['user_permissions'] = user_permissions
                 except ApiClientError:
-                    # Assume superusuário se não conseguir buscar permissões
+                    # Assume acesso limitado se não conseguir buscar permissões
                     st.session_state['user_permissions'] = {
-                        'is_superuser': True,
+                        'is_superuser': False,
                         'permissions': []
                     }
 
@@ -587,57 +622,46 @@ class AuthLogin:
         
         try:
             with st.spinner("🔄 Criando usuário..."):
-                # Primeiro cria o membro
-                member_data = {
-                    'name': full_name,
-                    'document': document,
-                    'phone': phone,
-                    'email': email,
-                    'sex': sex,
-                    'is_user': True,
-                    'is_creditor': True,
-                    'is_benefited': True,
-                    'active': True
-                }
-                
-                # Cria membro via API
-                new_member = api_client.post("members/", member_data)
-                member_id = new_member.get('id')
-                
-                # Cria usuário via API (assumindo que existe endpoint para isso)
+                # Dados para criar usuário e membro em uma transação
                 user_data = {
                     'username': username,
                     'password': password,
-                    'member_id': member_id,
-                    'is_superuser': False,  # Usuário padrão, não superusuário
-                    'is_active': True
+                    'name': full_name,
+                    'document': document,
+                    'phone': phone,
+                    'email': email
                 }
                 
-                # Tenta criar usuário - se não existir endpoint específico, pode adaptar
-                try:
-                    new_user = api_client.post("users/", user_data)
-                    st.success(f"✅ Usuário '{username}' criado com sucesso!")
-                    st.info("🔑 Agora você pode fazer login com suas credenciais.")
-                    return True
+                # Cria usuário e membro usando o endpoint específico
+                new_user = api_client.session.post(
+                    api_config.get_full_url("users/register/"),
+                    json=user_data
+                )
+                new_user.raise_for_status()
+                response_data = new_user.json()
+                
+                st.success(f"✅ Usuário '{username}' criado com sucesso!")
+                st.info("🔑 Agora você pode fazer login com suas credenciais.")
+                return True
                     
-                except ApiClientError as e:
-                    # Se erro ao criar usuário, remove o membro criado
-                    try:
-                        api_client.delete(f"members/{member_id}/")
-                    except:
-                        pass
-                    raise e
-                    
-        except ApiClientError as e:
-            if "already exists" in str(e).lower() or "unique" in str(e).lower():
-                st.error("❌ Nome de usuário já existe. Escolha outro.")
-            else:
-                st.error(f"❌ Erro ao criar usuário: {e}")
-            logger.error(f"Erro ao criar usuário: {e}")
-            return False
         except Exception as e:
-            st.error(f"💥 Erro inesperado: {e}")
-            logger.error(f"Erro inesperado ao criar usuário: {e}")
+            error_msg = str(e)
+            
+            # Tenta extrair erro da resposta HTTP
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_data = e.response.json()
+                    error_message = error_data.get('error', 'Erro de validação')
+                    if "já existe" in error_message or "already exists" in error_message:
+                        st.error("❌ Nome de usuário ou documento já existe. Escolha outro.")
+                    else:
+                        st.error(f"❌ Erro ao criar usuário: {error_message}")
+                except:
+                    st.error(f"❌ Erro ao criar usuário: {error_msg}")
+            else:
+                st.error(f"❌ Erro ao criar usuário: {error_msg}")
+                
+            logger.error(f"Erro ao criar usuário: {e}")
             return False
 
 
