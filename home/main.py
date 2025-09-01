@@ -14,7 +14,6 @@ class HomePage:
     """
     Classe que representa o menu principal da aplicação.
     """
-
     def main_menu(self):
         """
         Menu principal da aplicação com navegação via selectbox.
@@ -29,7 +28,6 @@ class HomePage:
         from pages.transfers import TransfersPage
         from pages.members import MembersPage
         from pages.reports import ReportsPage
-        from pages.settings import SettingsPage
 
         # Obtém dados do usuário
         username = st.session_state.get('username', 'Usuário')
@@ -46,9 +44,8 @@ class HomePage:
             "↔️ Transferências": TransfersPage,
             "👥 Membros": MembersPage,
             "📈 Relatórios": ReportsPage,
-            "⚙️ Configurações": SettingsPage
         }
-        
+
         # Mapeamento para redirecionamentos
         redirect_map = {
             "accounts": "🏦 Contas",
@@ -75,7 +72,9 @@ class HomePage:
                 if redirect_page in redirect_map:
                     target_option = redirect_map[redirect_page]
                     if target_option in menu_options:
-                        default_index = list(menu_options.keys()).index(target_option)
+                        default_index = list(menu_options.keys()).index(
+                            target_option
+                        )
 
             # Selectbox para navegação (padrão CodexDB)
             selected_option = st.selectbox(

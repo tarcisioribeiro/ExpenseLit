@@ -2,17 +2,6 @@
 
 Este é um pedido de melhoria, vou detalha-lo para que possa entender mais precisamente o que preciso.
 
-## Base de conhecimento a seguir
-
-Documentação da API
-
-$HOME/Development/expenselit-api/docs/API/API_DOCUMENTATION.md
-$HOME/Development/expenselit-api/docs/API/ExpenseLit API - Complete Documentation.postman_collection.json
-
-Documentação da base de dados
-
-$HOME/Development/expenselit-api/docs/Database/database_documentation.pdf
-
 ## Melhoria
 
 Tendo como base as referências acima, preciso que faça o seguinte:

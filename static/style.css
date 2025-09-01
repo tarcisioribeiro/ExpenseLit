@@ -1,27 +1,11 @@
-/* ExpenseLit - Estilos Customizados - Suporte a Temas */
+/* ExpenseLit - Estilos Customizados - Tema Dracula */
 
-/* Tema Dracula (Escuro) - Padrão */
-:root,
-[data-theme="dark"] {
+/* Tema Dracula (Escuro) */
+:root {
     --bg-primary: #282a36;
     --bg-secondary: #44475a;
     --text-primary: #f8f8f2;
     --text-comment: #6272a4;
-    --accent-cyan: #8be9fd;
-    --accent-green: #50fa7b;
-    --accent-orange: #ffb86c;
-    --accent-pink: #ff79c6;
-    --accent-purple: #bd93f9;
-    --accent-red: #ff5555;
-    --accent-yellow: #f1fa8c;
-}
-
-/* Tema Claro baseado no Dracula */
-[data-theme="light"] {
-    --bg-primary: #f8f8f2;
-    --bg-secondary: #f8f8f2;
-    --text-primary: #282a36;
-    --text-comment: #282a36;
     --accent-cyan: #8be9fd;
     --accent-green: #50fa7b;
     --accent-orange: #ffb86c;
@@ -339,3 +323,4 @@ section[data-testid="stSidebar"] .css-1d391kg {
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
+

@@ -15,7 +15,6 @@ class BasePage(ABC):
 
     Mantida para compatibilidade com as páginas existentes.
     """
-
     def __init__(self, title: str, icon: str = "📄"):
         """
         Inicializa a página base.

@@ -12,7 +12,7 @@ import streamlit as st
 from pages.router import BasePage
 from services.api_client import ApiClientError, ValidationError
 from services.accounts_service import accounts_service
-from services.permissions_service import permissions_service
+#  from services.permissions_service import permissions_service
 from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
@@ -27,7 +27,6 @@ class AccountsPage(BasePage):
     Permite operações CRUD (Create, Read, Update, Delete) em contas,
     com integração completa à API ExpenseLit.
     """
-
     def __init__(self):
         """Inicializa a página de contas."""
         super().__init__("Gestão de Contas", "🏦")
@@ -57,7 +56,9 @@ class AccountsPage(BasePage):
         - Ações de gerenciamento
         """
         # Tabs para organizar funcionalidades
-        tab1, tab2 = centered_tabs(["📋 Minhas Contas", "➕ Nova Conta"])
+        tab1, tab2 = centered_tabs(
+            ["📋 Minhas Contas", "➕ Nova Conta"]
+        )
 
         with tab1:
             self._render_accounts_list()
@@ -78,8 +79,8 @@ class AccountsPage(BasePage):
                 st.info("📝 Nenhuma conta cadastrada ainda.")
                 st.markdown
                 ("""💡 **Dica:** Use a aba 'Nova Conta'
-                 para criar sua primeira conta.
-                 """)
+                para criar sua primeira conta.
+                """)
                 return
 
             # Filtros
@@ -173,7 +174,7 @@ class AccountsPage(BasePage):
                         self._delete_account(
                             account_id, account_display_name  # type: ignore
                         )
-                        
+
             # Processa ação de editar fora do contexto do widget
             if edit_clicked:
                 st.session_state[f'edit_account_{account_id}'] = account
@@ -203,29 +204,44 @@ class AccountsPage(BasePage):
 
             with col1:
                 current_institution = account.get('name', 'NUB')
-                current_institution_display = db_categories.INSTITUTIONS.get(current_institution, current_institution)
+                current_institution_display = db_categories.INSTITUTIONS.get(
+                    current_institution,
+                    current_institution
+                )
                 new_name_display = st.selectbox(
                     "🏦 Nome da Instituição",
                     options=list(db_categories.TRANSLATED_INSTITUTIONS.keys()),
                     index=list(
                         db_categories.TRANSLATED_INSTITUTIONS.keys()
-                    ).index(current_institution_display),
+                    ).index(
+                        current_institution_display  # type: ignore
+                    ),
                     help="Selecione a instituição bancária"
                 )
-                new_name = db_categories.TRANSLATED_INSTITUTIONS[new_name_display]
+                new_name = db_categories.TRANSLATED_INSTITUTIONS[
+                    new_name_display
+                ]
 
             with col2:
                 current_type = account.get('account_type', 'CC')
-                current_type_display = db_categories.ACCOUNT_TYPES.get(current_type, current_type)
+                current_type_display = db_categories.ACCOUNT_TYPES.get(
+                    current_type,
+                    current_type
+                )
                 new_type_display = st.selectbox(
                     "💳 Tipo da Conta",
-                    options=list(db_categories.TRANSLATED_ACCOUNT_TYPES.keys()),
-                    index=list(
+                    options=list(
                         db_categories.TRANSLATED_ACCOUNT_TYPES.keys()
-                    ).index(current_type_display),
+                    ),
+                    index=list(
+                        db_categories.TRANSLATED_ACCOUNT_TYPES.keys()).index(
+                            current_type_display  # type: ignore
+                        ),
                     help="Tipo de conta bancária"
                 )
-                new_type = db_categories.TRANSLATED_ACCOUNT_TYPES[new_type_display]
+                new_type = db_categories.TRANSLATED_ACCOUNT_TYPES[
+                    new_type_display
+                ]
 
             new_is_active = st.checkbox(
                 "✅ Conta Ativa",
@@ -271,16 +287,22 @@ class AccountsPage(BasePage):
                     help="Selecione a instituição bancária",
                     key="new_account_institution"
                 )
-                institution_name = db_categories.TRANSLATED_INSTITUTIONS[institution_name_display]
+                institution_name = db_categories.TRANSLATED_INSTITUTIONS[
+                    institution_name_display
+                ]
 
             with col2:
                 account_type_display = st.selectbox(
                     "💳 Tipo da Conta",
-                    options=list(db_categories.TRANSLATED_ACCOUNT_TYPES.keys()),
+                    options=list(
+                        db_categories.TRANSLATED_ACCOUNT_TYPES.keys()
+                    ),
                     help="Selecione o tipo de conta",
                     key="new_account_type"
                 )
-                account_type = db_categories.TRANSLATED_ACCOUNT_TYPES[account_type_display]
+                account_type = db_categories.TRANSLATED_ACCOUNT_TYPES[
+                    account_type_display
+                ]
 
             is_active = st.checkbox(
                 "✅ Conta Ativa",
@@ -325,6 +347,7 @@ class AccountsPage(BasePage):
             with st.spinner("💾 Criando conta..."):
                 time.sleep(1)
                 new_account = accounts_service.create_account(account_data)
+                print(new_account)
 
             st.toast("✅ Conta criada com sucesso!")
             time.sleep(1)

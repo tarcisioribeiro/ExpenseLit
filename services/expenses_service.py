@@ -26,6 +26,8 @@ class ExpensesService:
 
     ENDPOINT = "expenses/"
 
+
+
     def get_all_expenses(
         self,
         category: Optional[str] = None,
@@ -93,6 +95,8 @@ class ExpensesService:
             logger.error(f"Erro ao buscar despesas: {e}")
             raise
 
+
+
     def get_expense_by_id(self, expense_id: int) -> Dict[str, Any]:
         """
         Obtém uma despesa específica pelo ID.
@@ -118,6 +122,8 @@ class ExpensesService:
         except ApiClientError as e:
             logger.error(f"Erro ao buscar despesa {expense_id}: {e}")
             raise
+
+
 
     def create_expense(self, expense_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -162,6 +168,8 @@ class ExpensesService:
             logger.error(f"Erro ao criar despesa: {e}")
             raise
 
+
+
     def update_expense(
             self,
             expense_id: int,
@@ -194,6 +202,8 @@ class ExpensesService:
             logger.error(f"Erro ao atualizar despesa {expense_id}: {e}")
             raise
 
+
+
     def delete_expense(self, expense_id: int) -> None:
         """
         Exclui uma despesa.
@@ -216,6 +226,8 @@ class ExpensesService:
             logger.error(f"Erro ao excluir despesa {expense_id}: {e}")
             raise
 
+
+
     def get_expenses_by_category(self, category: str) -> List[Dict[str, Any]]:
         """
         Obtém despesas filtradas por categoria.
@@ -232,6 +244,8 @@ class ExpensesService:
         """
         return self.get_all_expenses(category=category)
 
+
+
     def get_unpaid_expenses(self) -> List[Dict[str, Any]]:
         """
         Obtém todas as despesas não pagas.
@@ -242,6 +256,8 @@ class ExpensesService:
             Lista de despesas não pagas
         """
         return self.get_all_expenses(payed=False)
+
+
 
     def get_expenses_by_date_range(
         self,
@@ -264,6 +280,8 @@ class ExpensesService:
             Lista de despesas no período
         """
         return self.get_all_expenses(date_from=start_date, date_to=end_date)
+
+
 
     def get_monthly_expenses(
             self,
@@ -293,6 +311,8 @@ class ExpensesService:
             end_date = date(year, month + 1, 1) - timedelta(days=1)
 
         return self.get_expenses_by_date_range(start_date, end_date)
+
+
 
     def calculate_total_expenses(
         self,
@@ -330,6 +350,8 @@ class ExpensesService:
 
         return total
 
+
+
     def _process_expense_data(
             self,
             expense_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -365,6 +387,8 @@ class ExpensesService:
             processed_data['payed'] = bool(processed_data['payed'])
 
         return processed_data
+
+
 
     def validate_expense_data(self, expense_data: Dict[str, Any]) -> List[str]:
         """

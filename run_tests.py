@@ -53,8 +53,10 @@ Executado em: {timestamp}
 {"="*60}
 
 OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
-- ❌ st.session_state.edit_expense_X cannot be modified after widget instantiation
-- ❌ st.session_state.edit_revenue_X cannot be modified after widget instantiation
+- ❌ st.session_state.edit_expense_X cann \
+    ot be modified after widget instantiation
+- ❌ st.session_state.edit_revenue_X cann \
+    ot be modified after widget instantiation
 
 """
 
@@ -81,30 +83,30 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
         report_content += "-" * 30 + "\n"
         expense_result = results.get("expense_edit")
         if expense_result is True:
-            report_content += "✅ SUCESSO: Edição de despesas funcionando corretamente\n"
+report_content += "✅ SUCESSO: Edição de despesas funcionando corretamente\n"
             report_content += "   🔹 Erro de session_state foi CORRIGIDO\n"
         elif expense_result is False:
-            report_content += "❌ ERRO: Ainda existe problema na edição de despesas\n"
+report_content += "❌ ERRO: Ainda existe problema na edição de despesas\n"
             report_content += "   🔸 Erro de session_state ainda presente\n"
         elif expense_result is None:
             report_content += "⚠️ AVISO: Teste inconcluso\n"
             report_content += "   🔸 Nenhuma despesa encontrada para testar\n"
-            report_content += "   🔸 Para testar completamente, adicione dados de teste\n"
+report_content += "   🔸 Para testar completamente, adicione dados de teste\n"
 
         # Edição de receitas
         report_content += "\n3. TESTE DE EDIÇÃO DE RECEITAS:\n"
         report_content += "-" * 30 + "\n"
         revenue_result = results.get("revenue_edit")
         if revenue_result is True:
-            report_content += "✅ SUCESSO: Edição de receitas funcionando corretamente\n"
+report_content += "✅ SUCESSO: Edição de receitas funcionando corretamente\n"
             report_content += "   🔹 Erro de session_state foi CORRIGIDO\n"
         elif revenue_result is False:
-            report_content += "❌ ERRO: Ainda existe problema na edição de receitas\n"
+report_content += "❌ ERRO: Ainda existe problema na edição de receitas\n"
             report_content += "   🔸 Erro de session_state ainda presente\n"
         elif revenue_result is None:
             report_content += "⚠️ AVISO: Teste inconcluso\n"
             report_content += "   🔸 Nenhuma receita encontrada para testar\n"
-            report_content += "   🔸 Para testar completamente, adicione dados de teste\n"
+report_content += "   🔸 Para testar completamente, adicione dados de teste\n"
 
     report_content += "\n" + "="*60 + "\n"
     report_content += "RESUMO DOS PROBLEMAS ENCONTRADOS:\n"
@@ -128,16 +130,16 @@ OBJETIVO: Verificar se os erros críticos de edição foram corrigidos:
         error_count += nav_errors
 
     if results.get("expense_edit") is False:
-        report_content += "3. ERRO CRÍTICO: Edição de despesas ainda com problema de session_state\n"
+report_content += "3. ERRO CRÍTICO: Edição de despesas ainda com problema de session_state\n"
         error_count += 1
 
     if results.get("revenue_edit") is False:
-        report_content += "4. ERRO CRÍTICO: Edição de receitas ainda com problema de session_state\n"
+report_content += "4. ERRO CRÍTICO: Edição de receitas ainda com problema de session_state\n"
         error_count += 1
 
     if error_count == 0:
         report_content += "🎉 NENHUM ERRO CRÍTICO ENCONTRADO!\n"
-        report_content += "✅ Os problemas de session_state foram corrigidos com sucesso.\n"
+report_content += "✅ Os problemas de session_state foram corrigidos com sucesso.\n"
     else:
         report_content += f"⚠️ TOTAL DE ERROS ENCONTRADOS: {error_count}\n"
 
@@ -166,7 +168,8 @@ def main():
 
     # Executa os testes
     print("\n⏳ Aguardando aplicação estar disponível em http://localhost:8501")
-    print("💡 Certifique-se de que a aplicação está rodando com: docker compose up -d")
+print(
+    "💡 Certifique-se de que a aplicação está rodando com: docker compose up -d")
     input("Pressione ENTER quando a aplicação estiver rodando...")
 
     results = run_ui_tests()

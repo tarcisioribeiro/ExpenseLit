@@ -9,7 +9,11 @@ import logging
 import time
 from datetime import datetime
 from typing import Dict, Any
-from utils.date_utils import format_date_for_display, format_date_for_api, format_currency_br
+from utils.date_utils import (
+    format_date_for_display,
+    format_date_for_api,
+    format_currency_br
+)
 
 import streamlit as st
 
@@ -17,6 +21,7 @@ from pages.router import BasePage
 from services.revenues_service import revenues_service
 from services.accounts_service import accounts_service
 from services.pdf_generator import pdf_generator
+from services.api_client import api_client
 from utils.ui_utils import centered_tabs
 from config.settings import db_categories
 
@@ -25,15 +30,19 @@ logger = logging.getLogger(__name__)
 
 
 @st.dialog("⚠️ Recurso Não Encontrado")
-def show_missing_resource_dialog(resource_name: str, resource_type: str, redirect_page: str = None):
+def show_missing_resource_dialog(
+    resource_name: str,
+    resource_type: str,
+    redirect_page: str = None  # type: ignore
+):
     """
     Dialog para avisar sobre recursos ausentes.
-    
+
     Parameters
     ----------
     resource_name : str
         Nome do recurso ausente
-    resource_type : str  
+    resource_type : str
         Tipo do recurso (conta, cartão, etc.)
     redirect_page : str, optional
         Página para redirecionamento
@@ -41,22 +50,23 @@ def show_missing_resource_dialog(resource_name: str, resource_type: str, redirec
     st.error(f"🚨 {resource_name} não encontrada!")
     st.markdown(f"""
     **Problema:** Nenhuma {resource_type} ativa foi encontrada no sistema.
-    
-    **Ação necessária:** Você precisa criar uma {resource_type} antes de continuar.
+
+**Ação necessária:** Você precisa criar \
+     uma {resource_type} antes de continuar.
     """)
-    
+
     col1, col2 = st.columns([1, 1])
-    
+
     with col1:
         if st.button(
-            f"➕ Cadastrar {resource_type.title()}", 
-            type="primary", 
+            f"➕ Cadastrar {resource_type.title()}",
+            type="primary",
             width='stretch'
         ):
             if redirect_page:
                 st.session_state['redirect_to'] = redirect_page
             st.rerun()
-    
+
     with col2:
         if st.button("❌ Fechar", width='stretch'):
             st.rerun()
@@ -68,7 +78,6 @@ class RevenuesPage(BasePage):
 
     Permite operações CRUD em receitas com integração à API.
     """
-
     def __init__(self):
         """Inicializa a página de receitas."""
         super().__init__("Gestão de Receitas", "💰")
@@ -122,12 +131,22 @@ class RevenuesPage(BasePage):
             st.error(f"❌ Erro ao carregar receitas: {e}")
             logger.error(f"Erro ao listar receitas: {e}")
 
-    def _render_revenue_card(self, revenue: Dict[str, Any], accounts_map: Dict[int, str]) -> None:
+    def _render_revenue_card(
+        self,
+        revenue: Dict[
+            str,
+            Any
+        ],
+        accounts_map: Dict[
+            int,
+            str
+        ]
+    ) -> None:
         """Renderiza um card de receita."""
         revenue_id = revenue.get('id')
         description = revenue.get('description', 'Receita')
         is_received = revenue.get('received', False)
-        
+
         with st.container():
             col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
 
@@ -141,20 +160,21 @@ class RevenuesPage(BasePage):
                     category,
                     revenue.get('category', 'Depósito')
                 )
-                
-                # Traduz o nome da conta usando os dicionários
-                account_name_code = accounts_map.get(
-                    revenue.get('account'), 'Não informado'
+                account_name_code = accounts_map.get(  # type: ignore
+                    revenue.get('account'),  # type: ignore
+                    'Não informado'
                 )
                 account_name = db_categories.INSTITUTIONS.get(
                     account_name_code, account_name_code
                 )
-                
+
                 st.caption(f"📂 {category_name} | 🏦 {account_name}")
 
             with col2:
-                st.markdown(f"**{format_currency_br(revenue.get('value', 0))}**")
-                st.caption(f"📅 {format_date_for_display(revenue.get('date', ''))}")
+                st.markdown(
+                    f"**{format_currency_br(revenue.get('value', 0))}**")
+                st.caption(
+                    f"📅 {format_date_for_display(revenue.get('date', ''))}")
 
             with col3:
                 if is_received:
@@ -177,7 +197,9 @@ class RevenuesPage(BasePage):
 
                     # Toggle recebido/pendente
                     toggle_text = (
-                        "⏳ Marcar Pendente" if is_received else "✅ Confirmar Recebimento"
+                        "⏳ Marcar Pendente" if is_received else (
+                            "✅ Confirmar Recebimento"
+                        )
                     )
                     if st.button(
                         toggle_text,
@@ -185,7 +207,8 @@ class RevenuesPage(BasePage):
                         width='stretch'
                     ):
                         self._toggle_revenue_received(
-                            revenue_id, not is_received
+                            revenue_id,  # type: ignore
+                            not is_received
                         )
 
                     if st.button(
@@ -194,14 +217,15 @@ class RevenuesPage(BasePage):
                         width='stretch'
                     ):
                         self._generate_revenue_pdf(revenue)
-                    
+
                     if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_revenue_{revenue_id}",
                         width='stretch'
                     ):
                         self._delete_revenue(
-                            revenue_id, description
+                            revenue_id,  # type: ignore
+                            description
                         )
 
             # Formulário de edição inline se ativo
@@ -234,16 +258,20 @@ class RevenuesPage(BasePage):
                 )
                 category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_REVENUE_CATEGORIES.keys())
+                    options=list(
+                        db_categories.TRANSLATED_REVENUE_CATEGORIES.keys()
+                    )
                 )
-                category = db_categories.TRANSLATED_REVENUE_CATEGORIES[category_display]
+                category = db_categories.TRANSLATED_REVENUE_CATEGORIES[
+                    category_display
+                ]
 
             try:
                 accounts = accounts_service.get_all_accounts()
                 if not accounts:
                     self._show_no_accounts_dialog()
                     return
-                
+
                 account_options = [(
                     acc['id'],
                     db_categories.INSTITUTIONS.get(acc['name'], acc['name'])
@@ -265,14 +293,91 @@ class RevenuesPage(BasePage):
                 return
 
             received = st.checkbox("✅ Receita já foi recebida")
+
+            # Campos adicionais
+            col3, col4 = st.columns(2)
             
+            with col3:
+                source = st.text_input(
+                    "📍 Fonte/Origem",
+                    help="Fonte ou origem da receita"
+                )
+                
+                tax_amount = st.number_input(
+                    "💸 Taxa/Desconto",
+                    min_value=0.00,
+                    step=0.01,
+                    format="%.2f",
+                    help="Valor de taxa ou desconto aplicado"
+                )
+
+            with col4:
+                # Membro responsável
+                try:
+                    members = api_client.get("members/")
+                    if members:
+                        member_options = [(None, "Não informar")] + [
+                            (member['id'], member['name'])
+                            for member in members if member.get('active', True)
+                        ]
+                        selected_member = st.selectbox(
+                            "👤 Membro Responsável",
+                            options=member_options,
+                            format_func=lambda x: x[1],
+                            help="Membro responsável pela receita"
+                        )
+                        member_id = selected_member[0]
+                    else:
+                        member_id = None
+                except Exception:
+                    member_id = None
+
+                # Receita recorrente
+                recurring = st.checkbox(
+                    "🔄 Receita Recorrente",
+                    help="Marque se é uma receita recorrente"
+                )
+
+            # Frequência (só aparece se for recorrente)
+            if recurring:
+                frequency_options = [
+                    ('monthly', 'Mensal'),
+                    ('quarterly', 'Trimestral'),
+                    ('semiannually', 'Semestral'),
+                    ('annually', 'Anual')
+                ]
+                selected_frequency = st.selectbox(
+                    "📅 Frequência",
+                    options=frequency_options,
+                    format_func=lambda x: x[1],
+                    help="Frequência da receita recorrente"
+                )
+                frequency = selected_frequency[0]
+            else:
+                frequency = None
+
+            notes = st.text_area(
+                "📝 Observações",
+                help="Observações sobre a receita"
+            )
+
             # Checkbox de confirmação
-            confirm_data = st.checkbox("✅ Confirmo que os dados informados estão corretos")
+            confirm_data = st.checkbox(
+                "✅ Confirmo que os dados informados estão corretos"
+            )
 
             if st.form_submit_button("💾 Criar Receita", type="primary"):
                 if not confirm_data:
-                    st.error("❌ Confirme que os dados estão corretos antes de prosseguir")
+                    st.error(
+                        """
+                        Confirme que os dados estão corretos
+                        antes de prosseguir.
+                        """
+                    )
                 elif description and value and account_id:
+                    # Calcular valor líquido
+                    net_amount = value - tax_amount
+                    
                     revenue_data = {
                         'description': description,
                         'value': value,
@@ -280,7 +385,14 @@ class RevenuesPage(BasePage):
                         'horary': datetime.now().strftime('%H:%M:%S'),
                         'category': category,
                         'account': account_id,
-                        'received': received
+                        'received': received,
+                        'source': source,
+                        'tax_amount': tax_amount,
+                        'net_amount': net_amount,
+                        'member': member_id,
+                        'recurring': recurring,
+                        'frequency': frequency if recurring else None,
+                        'notes': notes
                     }
                     self._create_revenue(revenue_data)
                 else:
@@ -292,6 +404,7 @@ class RevenuesPage(BasePage):
             with st.spinner("💾 Criando receita..."):
                 time.sleep(1)
                 new_revenue = revenues_service.create_revenue(revenue_data)
+                print(new_revenue)
 
             st.toast("✅ Receita criada com sucesso!")
             time.sleep(1)
@@ -300,8 +413,11 @@ class RevenuesPage(BasePage):
         except Exception as e:
             st.error(f"❌ Erro ao criar receita: {e}")
             logger.error(f"Erro ao criar receita: {e}")
-            
-    def _render_inline_edit_form_revenue(self, revenue: Dict[str, Any]) -> None:
+
+    def _render_inline_edit_form_revenue(
+            self,
+            revenue: Dict[str, Any]
+    ) -> None:
         """
         Renderiza formulário de edição inline para uma receita.
         """
@@ -329,39 +445,59 @@ class RevenuesPage(BasePage):
                 )
 
                 current_category = revenue.get('category', 'deposit')
-                current_category_display = db_categories.REVENUE_CATEGORIES.get(current_category, current_category)
+                current_category_display = (
+                    db_categories.REVENUE_CATEGORIES.get(  # type: ignore
+                        current_category,
+                        current_category
+                    )
+                )
                 new_category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_REVENUE_CATEGORIES.keys()),
+                    options=list(
+                        db_categories.TRANSLATED_REVENUE_CATEGORIES.keys()
+                    ),
                     index=list(
                         db_categories.TRANSLATED_REVENUE_CATEGORIES.keys()
-                    ).index(current_category_display),
+                    ).index(
+                        current_category_display  # type: ignore
+                    ),
                     help="Categoria da receita"
                 )
-                new_category = db_categories.TRANSLATED_REVENUE_CATEGORIES[new_category_display]
+                new_category = db_categories.TRANSLATED_REVENUE_CATEGORIES[
+                    new_category_display
+                ]
 
             with col2:
                 # Parse da data atual da receita
                 date_value = revenue.get('date', '')
                 try:
-                    current_date = datetime.strptime(date_value, '%Y-%m-%d').date()
+                    current_date = datetime.strptime(
+                        date_value, '%Y-%m-%d'
+                    ).date()
                 except ValueError:
                     try:
-                        current_date = datetime.strptime(date_value, '%d/%m/%Y').date()
+                        current_date = datetime.strptime(
+                            date_value,
+                            '%d/%m/%Y'
+                        ).date()
                     except ValueError:
                         current_date = datetime.now().date()
-
-                new_date = st.date_input(
-                    "📅 Data",
-                    value=current_date,
-                    help="Data da receita",
-                    format="DD/MM/YYYY"
-                )
+                        new_date = st.date_input(
+                            "📅 Data",
+                            value=current_date,
+                            help="Data da receita",
+                            format="DD/MM/YYYY"
+                        )
 
                 # Conta
                 try:
                     accounts = accounts_service.get_all_accounts()
-                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                    account_options = [(
+                        acc['id'],
+                        db_categories.INSTITUTIONS.get(
+                            acc['name'], acc['name']
+                        )
+                    ) for acc in accounts if acc.get('is_active', True)]
                     current_account_index = (
                         next((i for i, (acc_id, _) in enumerate(
                             account_options
@@ -380,6 +516,86 @@ class RevenuesPage(BasePage):
                     st.error("Erro ao carregar contas")
                     new_account = revenue.get('account')
 
+            # Campos adicionais
+            new_source = st.text_input(
+                "📍 Fonte/Origem",
+                value=revenue.get('source', ''),
+                help="Fonte ou origem da receita"
+            )
+
+            new_tax_amount = st.number_input(
+                "💸 Taxa/Desconto",
+                min_value=0.00,
+                value=float(revenue.get('tax_amount', 0)),
+                step=0.01,
+                format="%.2f",
+                help="Valor de taxa ou desconto aplicado"
+            )
+
+            # Membro responsável
+            try:
+                members = api_client.get("members/")
+                if members:
+                    member_options = [(None, "Não informar")] + [
+                        (member['id'], member['name'])
+                        for member in members if member.get('active', True)
+                    ]
+                    current_member_index = (
+                        next((i for i, (member_id, _) in enumerate(
+                            member_options
+                        ) if member_id == revenue.get('member')), 0)
+                    )
+                    selected_member = st.selectbox(
+                        "👤 Membro Responsável",
+                        options=member_options,
+                        index=current_member_index,
+                        format_func=lambda x: x[1],
+                        help="Membro responsável pela receita"
+                    )
+                    new_member = selected_member[0]
+                else:
+                    new_member = revenue.get('member')
+            except Exception:
+                new_member = revenue.get('member')
+
+            # Receita recorrente
+            new_recurring = st.checkbox(
+                "🔄 Receita Recorrente",
+                value=revenue.get('recurring', False),
+                help="Marque se é uma receita recorrente"
+            )
+
+            # Frequência (só aparece se for recorrente)
+            frequency_options = [
+                ('monthly', 'Mensal'),
+                ('quarterly', 'Trimestral'),
+                ('semiannually', 'Semestral'),
+                ('annually', 'Anual')
+            ]
+            current_frequency = revenue.get('frequency', 'monthly')
+            current_frequency_index = next(
+                (i for i, (freq, _) in enumerate(frequency_options)
+                 if freq == current_frequency), 0
+            )
+
+            if new_recurring:
+                selected_frequency = st.selectbox(
+                    "📅 Frequência",
+                    options=frequency_options,
+                    index=current_frequency_index,
+                    format_func=lambda x: x[1],
+                    help="Frequência da receita recorrente"
+                )
+                new_frequency = selected_frequency[0]
+            else:
+                new_frequency = None
+
+            new_notes = st.text_area(
+                "📝 Observações",
+                value=revenue.get('notes', ''),
+                help="Observações sobre a receita"
+            )
+
             new_is_received = st.checkbox(
                 "✅ Receita Recebida",
                 value=revenue.get('received', False),
@@ -394,16 +610,31 @@ class RevenuesPage(BasePage):
                     type="primary",
                     width='stretch'
                 ):
+                    # Calcular valor líquido
+                    net_amount = new_value - new_tax_amount
+                    
                     updated_data = {
                         'description': new_description,
                         'value': new_value,
                         'date': format_date_for_api(new_date),
-                        'horary': revenue.get('horary', datetime.now().strftime('%H:%M:%S')),
+                        'horary': revenue.get(
+                            'horary', datetime.now().strftime('%H:%M:%S')
+                        ),
                         'category': new_category,
                         'account': new_account,
-                        'received': new_is_received
+                        'received': new_is_received,
+                        'source': new_source,
+                        'tax_amount': new_tax_amount,
+                        'net_amount': net_amount,
+                        'member': new_member,
+                        'recurring': new_recurring,
+                        'frequency': new_frequency if new_recurring else None,
+                        'notes': new_notes
                     }
-                    self._update_revenue(revenue_id, updated_data)
+                    self._update_revenue(
+                        revenue_id,  # type: ignore
+                        updated_data
+                    )
 
             with col_cancel:
                 if st.form_submit_button(
@@ -413,13 +644,21 @@ class RevenuesPage(BasePage):
                     st.session_state.pop(f'edit_revenue_{revenue_id}', None)
                     st.rerun()
 
-    def _update_revenue(self, revenue_id: int, revenue_data: Dict[str, Any]) -> None:
+    def _update_revenue(
+        self,
+        revenue_id: int,
+        revenue_data: Dict[
+            str,
+            Any
+        ]
+    ) -> None:
         """Atualiza uma receita existente."""
         try:
             with st.spinner("💾 Salvando alterações..."):
                 updated_revenue = revenues_service.update_revenue(
                     revenue_id, revenue_data
                 )
+                print(updated_revenue)
 
             st.success("✅ Receita atualizada com sucesso!")
 
@@ -431,16 +670,20 @@ class RevenuesPage(BasePage):
             st.error(f"🔧 Erro ao atualizar receita: {e}")
             logger.error(f"Erro ao atualizar receita {revenue_id}: {e}")
 
-    def _toggle_revenue_received(self, revenue_id: int, is_received: bool) -> None:
+    def _toggle_revenue_received(
+        self,
+        revenue_id: int,
+        is_received: bool
+    ) -> None:
         """Alterna o status de recebimento de uma receita."""
         try:
             with st.spinner(
-                f"""{"Confirmando recebimento" if is_received else "Marcando como pendente"}..."""
-            ):
-                # Primeiro obtém os dados completos da receita
+                 f"""{
+                    "Confirmando recebimento" if is_received else (
+                        "Marcando como pendente"
+                    )
+                    }..."""):
                 revenue_data = revenues_service.get_revenue_by_id(revenue_id)
-                
-                # Atualiza apenas o status de recebimento mantendo os outros campos
                 update_data = {
                     'description': revenue_data.get('description'),
                     'value': revenue_data.get('value'),
@@ -450,7 +693,7 @@ class RevenuesPage(BasePage):
                     'account': revenue_data.get('account'),
                     'received': is_received
                 }
-                
+
                 revenues_service.update_revenue(revenue_id, update_data)
 
             status_text = "recebida" if is_received else "pendente"
@@ -459,21 +702,25 @@ class RevenuesPage(BasePage):
 
         except Exception as e:
             st.error(f"🔧 Erro ao alterar status da receita: {e}")
-            logger.error(f"Erro ao alterar status da receita {revenue_id}: {e}")
+            logger.error(
+                f"Erro ao alterar status da receita {revenue_id}: {e}"
+            )
 
     def _delete_revenue(self, revenue_id: int, description: str) -> None:
         """Exclui uma receita após confirmação."""
         # Define estado da confirmação de exclusão
         confirm_key = f"confirm_delete_revenue_{revenue_id}"
-        
+
         # Se não está no modo de confirmação, marca para confirmar
         if not st.session_state.get(confirm_key, False):
             st.session_state[confirm_key] = True
             st.rerun()
-        
+
         # Mostra modal de confirmação
         st.warning(
-            f"""⚠️ **Tem certeza que deseja excluir a receita '{description}'?**"""
+            f"""
+            ⚠️ **Tem certeza que deseja excluir a receita '{description}'?**
+            """
         )
         st.error("🚨 **ATENÇÃO:** Esta ação não pode ser desfeita!")
 
@@ -490,9 +737,10 @@ class RevenuesPage(BasePage):
                     with st.spinner("🗑️ Excluindo receita..."):
                         revenues_service.delete_revenue(revenue_id)
 
-                    st.success(f"✅ Receita '{description}' excluída com sucesso!")
-                    
-                    # Limpa o estado de confirmação
+                        st.success(
+                            f"✅ Receita '{description}' excluída com sucesso!"
+                        )
+
                     st.session_state.pop(confirm_key, None)
                     st.rerun()
 
@@ -515,9 +763,14 @@ class RevenuesPage(BasePage):
     def _generate_revenue_pdf(self, revenue: Dict[str, Any]) -> None:
         """Gera e oferece download do PDF da receita."""
         if pdf_generator is None:
-            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            st.error(
+                """
+                Gerador de PDF não disponível.
+                Instale o ReportLab: pip install reportlab
+                """
+            )
             return
-        
+
         try:
             with st.spinner("📄 Gerando comprovante..."):
                 # Buscar dados da conta
@@ -526,40 +779,49 @@ class RevenuesPage(BasePage):
                 if account_id:
                     try:
                         accounts = accounts_service.get_all_accounts()
-                        account_data = next((acc for acc in accounts if acc['id'] == account_id), None)
+                        account_data = next(
+                              (
+                                    acc for acc in accounts if acc[
+                                        'id'
+                                    ] == account_id), None)
                     except Exception:
                         pass
-                
-                # Gerar PDF
-                pdf_buffer = pdf_generator.generate_revenue_receipt(revenue, account_data)
-                
-                # Nome do arquivo
-                description = revenue.get('description', 'receita')
-                date_str = revenue.get('date', '').replace('-', '_')
-                filename = f"comprovante_receita_{description}_{date_str}.pdf"
-                
-                # Oferecer download
-                st.download_button(
-                    label="💾 Download PDF",
-                    data=pdf_buffer.getvalue(),
-                    file_name=filename,
-                    mime="application/pdf",
-                    key=f"download_revenue_{revenue.get('id')}"
-                )
-                
-                # Preview do PDF
-                st.success("✅ Comprovante gerado com sucesso!")
-                try:
-                    pdf_buffer.seek(0)
-                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
-                    if hasattr(st, 'pdf'):
-                        st.pdf(pdf_buffer.getvalue())
-                    else:
-                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
-                except Exception as e:
-                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
-                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
-                
+
+            pdf_buffer = pdf_generator.generate_revenue_receipt(
+                revenue,
+                account_data
+            )
+            description = revenue.get('description', 'receita')
+            date_str = revenue.get('date', '').replace('-', '_')
+            filename = f"comprovante_receita_{description}_{date_str}.pdf"
+
+            # Oferecer download
+            st.download_button(
+                label="💾 Download PDF",
+                data=pdf_buffer.getvalue(),
+                file_name=filename,
+                mime="application/pdf",
+                key=f"download_revenue_{revenue.get('id')}"
+            )
+
+            # Preview do PDF
+            st.success("✅ Comprovante gerado com sucesso!")
+            try:
+                pdf_buffer.seek(0)
+                if hasattr(st, 'pdf'):
+                    st.pdf(pdf_buffer.getvalue())
+                else:
+                    st.info(
+                        """
+                        📄 PDF gerado.
+                        Use o botão de download para visualizar.
+                        """
+                    )
+            except Exception as e:
+                logger.warning(f"Erro ao exibir preview do PDF: {e}")
+            st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+
         except Exception as e:
             st.error(f"❌ Erro ao gerar comprovante: {e}")
-            logger.error(f"Erro ao gerar PDF da receita {revenue.get('id')}: {e}")
+            logger.error(
+                f"Erro ao gerar PDF da receita {revenue.get('id')}: {e}")

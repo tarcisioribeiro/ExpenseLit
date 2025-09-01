@@ -4,7 +4,6 @@ Componentes de autenticação.
 Este módulo implementa todos os componentes relacionados à
 autenticação de usuários na aplicação.
 """
-
 import logging
 from typing import Optional
 # , Tuple
@@ -29,7 +28,6 @@ class AuthenticationComponent:
     Esta classe implementa toda a lógica de interface para
     login, logout e gerenciamento de sessão de usuário.
     """
-
     def __init__(self):
         """Inicializa o componente de autenticação."""
         self.session_keys = [
@@ -139,42 +137,52 @@ class AuthenticationComponent:
         # Controle de tentativas de login
         login_attempts_key = f'login_attempts_{username}'
         failed_attempts = st.session_state.get(login_attempts_key, 0)
-        
+
         if failed_attempts >= 10:
             st.error("🚨 **Muitas tentativas de login falharam**")
-            st.warning("Aguarde alguns minutos antes de tentar novamente ou entre em contato com o administrador.")
+            st.warning("Aguarde alguns minutos antes de tentar novamente.")
             return False
-        
+
         try:
             with st.spinner("🔄 Autenticando..."):
                 # Tenta fazer login na API
                 auth_data = api_client.authenticate(username, password)
-                
+                print(auth_data)
                 # Busca permissões do usuário
                 try:
                     user_permissions = api_client.get_user_permissions()
                     st.session_state['user_permissions'] = user_permissions
-                    
+
                     # Verifica se é superusuário/admin e bloqueia
                     if user_permissions.get('is_superuser', False):
                         st.error("🚫 **Acesso Negado**")
-                        st.warning("Administradores não podem acessar esta interface. Use o painel administrativo do Django.")
+                        st.warning(
+                            """
+                            Administradores não podem acessar esta interface.
+                            Use o painel administrativo do Django.
+                            """
+                        )
                         # Faz logout imediatamente
-                        api_client.logout()
-                        logger.warning(f"Tentativa de acesso bloqueada para superusuário: {username}")
+                        logger.warning(
+                            f"""
+                            Tentativa de acesso bloqueada para: {username}
+                            """
+                        )
                         return False
-                        
+
                 except ApiClientError as e:
                     # Se falhar ao buscar permissões, assume acesso limitado
                     st.session_state['user_permissions'] = {
                         'is_superuser': False,
                         'permissions': []
                     }
-                    logger.warning(f"Falha ao buscar permissões do usuário: {e}")
+                    logger.warning(
+                        f"Falha ao buscar permissões do usuário: {e}"
+                    )
 
             # Reset contador de tentativas em caso de sucesso
             st.session_state[login_attempts_key] = 0
-            
+
             st.success(f"🎉 Bem-vindo, {username}!")
             logger.info(f"Usuário {username} logado com sucesso")
 
@@ -186,13 +194,20 @@ class AuthenticationComponent:
             # Incrementa contador de tentativas falhadas
             st.session_state[login_attempts_key] = failed_attempts + 1
             remaining_attempts = 10 - (failed_attempts + 1)
-            
+
             # Verifica se o usuário existe
             error_msg = str(e).lower()
-            if 'no active account found' in error_msg or 'credenciais' in error_msg:
+            if 'no active account found' in error_msg or (
+                'credenciais' in error_msg
+            ):
                 st.error("❌ **Usuário não encontrado ou senha incorreta**")
                 if remaining_attempts > 0:
-                    st.warning(f"💡 Se você não possui uma conta, entre em contato com o administrador para criar uma.")
+                    st.warning(
+                        """
+                        💡 Se você não possui uma conta,
+                        entre em contato com o administrador para criar uma.
+                        """
+                    )
                     st.info(f"🔢 Tentativas restantes: {remaining_attempts}")
                 else:
                     st.error("🚨 Limite de tentativas excedido!")
@@ -200,7 +215,7 @@ class AuthenticationComponent:
                 st.error(f"❌ **Erro de autenticação:** {e}")
                 if remaining_attempts > 0:
                     st.info(f"🔢 Tentativas restantes: {remaining_attempts}")
-            
+
             logger.warning(f"Tentativa de login falhada para {username}: {e}")
             return False
         except ApiClientError as e:
@@ -299,7 +314,8 @@ class AuthenticationComponent:
         Garante que o usuário está autenticado.
 
         Se não estiver autenticado, tenta carregar do cookie.
-        Se falhar, exibe o formulário de login e interrompe a execução da página.
+        Se falhar,
+        exibe o formulário de login e interrompe a execução da página.
 
         Returns
         -------
@@ -309,16 +325,15 @@ class AuthenticationComponent:
         # Primeiro verifica se já está autenticado na sessão
         if self.is_authenticated():
             return True
-            
+
         # Tenta restaurar sessão se não estiver autenticado
         if api_client.restore_session_if_available():
             return True
-            
+
         # Se falhar, mostra login
         st.warning("🔒 **Acesso restrito.** Faça login para continuar.")
         self.render_login_form()
         st.stop()
-        return True
 
     def render_session_info(self) -> None:
         """Renderiza informações da sessão no sidebar."""
@@ -361,7 +376,6 @@ class AuthLogin:
     Esta classe gerencia o fluxo completo de autenticação e navegação
     da aplicação ExpenseLit.
     """
-
     def __init__(self):
         """Inicializa o componente de login."""
         self.auth_component = AuthenticationComponent()
@@ -417,8 +431,10 @@ class AuthLogin:
 
         # Abas para Login e Cadastro - centralizadas
         from utils.ui_utils import centered_tabs
-        tab1, tab2 = centered_tabs(["🔐 Login", "👤 Novo Usuário"])
-        
+        tab1, tab2 = centered_tabs(
+            ["🔐 Login", "👤 Novo Usuário"]
+        )
+
         with tab1:
             # Formulário de login centralizado
             col4, col5, col6 = st.columns(3)
@@ -446,7 +462,7 @@ class AuthLogin:
                             st.rerun()
                     else:
                         st.error("Preencha todos os campos.")
-        
+
         with tab2:
             self._render_register_form()
 
@@ -470,6 +486,7 @@ class AuthLogin:
             with st.spinner("🔄 Autenticando..."):
                 # Usa o componente de autenticação existente
                 auth_data = api_client.authenticate(username, password)
+                print(auth_data)
                 # Busca permissões do usuário
                 try:
                     user_permissions = api_client.get_user_permissions()
@@ -497,85 +514,93 @@ class AuthLogin:
     def _render_register_form(self) -> None:
         """Renderiza formulário de cadastro de novo usuário."""
         st.markdown("### 👤 Criar Nova Conta")
-        st.info("ℹ️ Usuários criados aqui terão acesso a todas as funcionalidades do sistema.")
-        
+
         col1, col2, col3 = st.columns([1, 2, 1])
-        
+
         with col2:
             with st.form("register_form"):
                 # Dados básicos
                 st.markdown("**Dados de Acesso:**")
-                
+
                 new_username = st.text_input(
                     "👤 Nome de Usuário",
                     placeholder="Ex: joao_silva",
                     help="Nome único para login no sistema"
                 )
-                
+
                 new_password = st.text_input(
                     "🔒 Senha",
                     type="password",
                     placeholder="Senha segura",
                     help="Mínimo de 8 caracteres"
                 )
-                
+
                 confirm_password = st.text_input(
                     "🔒 Confirmar Senha",
                     type="password",
                     placeholder="Digite a senha novamente"
                 )
-                
+
                 st.markdown("**Dados Pessoais:**")
-                
+
                 full_name = st.text_input(
                     "📝 Nome Completo",
                     placeholder="Ex: João Silva Santos"
                 )
-                
+
                 email = st.text_input(
                     "📧 Email",
                     placeholder="joao@email.com"
                 )
-                
+
                 phone = st.text_input(
                     "📞 Telefone",
                     placeholder="(11) 99999-9999"
                 )
-                
+
                 document = st.text_input(
                     "📄 CPF",
                     placeholder="000.000.000-00"
                 )
-                
+
                 sex = st.selectbox(
                     "🚻 Sexo",
                     options=[('M', 'Masculino'), ('F', 'Feminino')],
                     format_func=lambda x: x[1]
                 )
-                
+
                 # Botão de cadastro
                 col_submit, col_info = st.columns([1, 2])
-                
+
                 with col_submit:
                     submitted = st.form_submit_button(
                         "✅ Criar Conta",
                         type="primary"
                     )
-                
+
                 with col_info:
                     st.caption("🔐 Usuário criado com permissões padrão")
-                
+
                 if submitted:
                     self._process_register(
                         new_username, new_password, confirm_password,
                         full_name, email, phone, document, sex[0]
                     )
 
-    def _process_register(self, username: str, password: str, confirm_password: str,
-                         full_name: str, email: str, phone: str, document: str, sex: str) -> bool:
+    def _process_register(
+        self,
+        username: str,
+        password: str,
+        confirm_password: str,
+        full_name: str,
+        email: str,
+        phone: str,
+        document: str,
+        sex: str
+    ) -> bool:
         """
         Processa o cadastro de novo usuário.
-        
+
         Parameters
         ----------
         username : str
@@ -594,7 +619,7 @@ class AuthLogin:
             CPF/documento
         sex : str
             Sexo (M/F)
-            
+
         Returns
         -------
         bool
@@ -604,22 +629,22 @@ class AuthLogin:
         if not all([username, password, full_name, email, phone, document]):
             st.error("❌ Por favor, preencha todos os campos obrigatórios.")
             return False
-            
+
         if password != confirm_password:
             st.error("❌ As senhas não coincidem.")
             return False
-            
+
         if len(password) < 8:
             st.error("❌ A senha deve ter pelo menos 8 caracteres.")
             return False
-        
+
         # Valida CPF (formato básico)
         import re
         doc_clean = re.sub(r'[^0-9]', '', document)
         if len(doc_clean) != 11:
             st.error("❌ CPF deve ter 11 dígitos.")
             return False
-        
+
         try:
             with st.spinner("🔄 Criando usuário..."):
                 # Dados para criar usuário e membro em uma transação
@@ -631,36 +656,45 @@ class AuthLogin:
                     'phone': phone,
                     'email': email
                 }
-                
+
                 # Cria usuário e membro usando o endpoint específico
                 new_user = api_client.session.post(
                     api_config.get_full_url("users/register/"),
                     json=user_data
                 )
                 new_user.raise_for_status()
-                response_data = new_user.json()
-                
+
                 st.success(f"✅ Usuário '{username}' criado com sucesso!")
                 st.info("🔑 Agora você pode fazer login com suas credenciais.")
                 return True
-                    
+
         except Exception as e:
             error_msg = str(e)
-            
+
             # Tenta extrair erro da resposta HTTP
-            if hasattr(e, 'response') and e.response is not None:
+            if hasattr(e, 'response') and (
+                e.response is not None  # type: ignore
+            ):
                 try:
-                    error_data = e.response.json()
-                    error_message = error_data.get('error', 'Erro de validação')
-                    if "já existe" in error_message or "already exists" in error_message:
-                        st.error("❌ Nome de usuário ou documento já existe. Escolha outro.")
+                    error_data = e.response.json()  # type: ignore
+                    error_message = error_data.get(
+                        'error', 'Erro de validação'
+                    )
+                    if "já existe" in error_message or (
+                        "already exists" in error_message
+                    ):
+                        st.error(
+                            """
+                            Nome de usuário ou documento já existe.
+                            """
+                        )
                     else:
                         st.error(f"❌ Erro ao criar usuário: {error_message}")
                 except:
                     st.error(f"❌ Erro ao criar usuário: {error_msg}")
             else:
                 st.error(f"❌ Erro ao criar usuário: {error_msg}")
-                
+
             logger.error(f"Erro ao criar usuário: {e}")
             return False
 

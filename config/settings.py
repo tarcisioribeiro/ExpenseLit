@@ -277,21 +277,6 @@ class DatabaseCategories:
         "Feminino": "F"
     }
 
-    DARK_THEME = '''[theme]
-primaryColor="#bd93f9"
-backgroundColor="#282a36"
-secondaryBackgroundColor="#44475a"
-textColor="#f8f8f2"
-showWidgetBorder=true
-'''
-
-    LIGHT_THEME = """[theme]
-primaryColor = "#61afef"
-backgroundColor = "#fefefe"
-secondaryBackgroundColor = "#e6e6e6"
-textColor = "#3c4048"
-showWidgetBorder=true
-"""
 
 
 # Instâncias globais das configurações

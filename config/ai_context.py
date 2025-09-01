@@ -186,13 +186,13 @@ para os endpoints apropriados da API ExpenseLit.
 - Todos os endpoints requerem autenticação via token JWT
 - Use filtros de query parameters para dados específicos do usuário
 - Endpoints disponíveis:
-  - /accounts/ - Gerenciamento de contas
-  - /expenses/ - Despesas pessoais
-  - /revenues/ - Receitas e ganhos
-  - /transfers/ - Transferências entre contas
-  - /credit-cards/ - Cartões de crédito
-  - /loans/ - Empréstimos
-  - /members/ - Membros do sistema
+    - /accounts/ - Gerenciamento de contas
+    - /expenses/ - Despesas pessoais
+    - /revenues/ - Receitas e ganhos
+    - /transfers/ - Transferências entre contas
+    - /credit-cards/ - Cartões de crédito
+    - /loans/ - Empréstimos
+    - /members/ - Membros do sistema
 
 ## Filtros e parâmetros suportados:
 

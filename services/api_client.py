@@ -10,8 +10,6 @@ import json
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
-import base64
-
 import requests
 import streamlit as st
 
@@ -126,30 +124,53 @@ class ApiClient:
                 raise ValidationError(f"Dados inválidos: {error_data}")
             elif response.status_code == 401:
                 error_data = response.json() if response.content else {}
-                
+
                 # Verifica se é um token expirado ou inválido
                 if isinstance(error_data, dict) and 'code' in error_data:
                     if error_data.get('code') == 'token_not_valid':
                         messages = error_data.get('messages', [])
-                        if any(msg.get('message') == 'Token is expired' for msg in messages):
+                        if any(msg.get(
+                            'message'
+                        ) == 'Token is expired' for msg in messages):
                             # Token expirado - tenta renovar automaticamente
-                            logger.info("Token expirado detectado, tentando renovar...")
-                            if hasattr(self, 'refresh_token') and self.refresh_token():
-                                logger.info("Token renovado com sucesso, reexecutando requisição...")
-                                # Não relança a exceção, deixa a requisição original tentar novamente
+                            logger.info(
+                                """
+                                Token expirado detectado,
+                                tentando renovar...
+                                """
+                            )
+                            if hasattr(
+                                self,
+                                'refresh_token'
+                            ) and self.refresh_token():
+                                logger.info(
+                                    """Token renovado com sucesso,
+                                    reexecutando requisição...
+                                    """
+                                )
+                                # Não relança a exceção,
+                                # deixa a requisição original tentar novamente
                                 return {}
                             else:
                                 raise AuthenticationError(
-                                    "Sua sessão expirou. Por favor, faça login novamente para continuar."
+                                    """Sua sessão expirou.
+                                    Por favor,
+                                    faça login novamente para continuar.
+                                    """
                                 )
                         else:
                             raise AuthenticationError(
-                                "Token inválido. Por favor, faça login novamente para continuar."
+                                """Token inválido.
+                                Por favor, faça login novamente para continuar.
+                                """
                             )
-                
+
                 # Erro de autenticação genérico
                 raise AuthenticationError(
-                    "Erro de autenticação. Verifique suas credenciais e tente novamente."
+                    """
+                    Erro de autenticação.
+                    Verifique suas credenciais e tente novamente.
+                    """
                 )
             elif response.status_code == 403:
                 error_data = response.json() if response.content else {}
@@ -213,7 +234,11 @@ class ApiClient:
             st.session_state['username'] = username
 
             # Salva token usando sistema de cookies
-            cookie_auth.save_auth_data(username, auth_data['access'], auth_data['refresh'])
+            cookie_auth.save_auth_data(
+                username,
+                auth_data['access'],
+                auth_data['refresh']
+            )
 
             logger.info(f"Usuário {username} autenticado com sucesso")
             return auth_data
@@ -419,7 +444,7 @@ class ApiClient:
     def restore_session_if_available(self) -> bool:
         """
         Restaura sessão de autenticação se dados válidos estiverem disponíveis.
-        
+
         Returns
         -------
         bool

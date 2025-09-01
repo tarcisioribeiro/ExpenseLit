@@ -13,7 +13,7 @@ class ReportsPage(BasePage):
     def main_menu(self, token=None, permissions=None):
         """
         Método principal seguindo padrão CodexDB.
-        
+
         Parameters
         ----------
         token : str, optional

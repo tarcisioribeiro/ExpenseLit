@@ -8,8 +8,11 @@ import logging
 import time
 from datetime import datetime, timedelta
 from utils.date_utils import (
-    format_date_for_display, format_date_for_api,
-    format_datetime_for_display, get_today_for_display, format_currency_br
+    format_date_for_display,
+    format_date_for_api,
+    # format_datetime_for_display,
+    # get_today_for_display,
+    format_currency_br
 )
 from typing import Dict, Any
 import streamlit as st
@@ -27,15 +30,19 @@ logger = logging.getLogger(__name__)
 
 
 @st.dialog("⚠️ Recurso Não Encontrado")
-def show_missing_resource_dialog(resource_name: str, resource_type: str, redirect_page: str = None):
+def show_missing_resource_dialog(
+    resource_name: str,
+    resource_type: str,
+    redirect_page: str = None  # type: ignore
+):
     """
     Dialog para avisar sobre recursos ausentes.
-    
+
     Parameters
     ----------
     resource_name : str
         Nome do recurso ausente
-    resource_type : str  
+    resource_type : str
         Tipo do recurso (conta, cartão, etc.)
     redirect_page : str, optional
         Página para redirecionamento
@@ -43,22 +50,23 @@ def show_missing_resource_dialog(resource_name: str, resource_type: str, redirec
     st.error(f"🚨 {resource_name} não encontrada!")
     st.markdown(f"""
     **Problema:** Nenhuma {resource_type} ativa foi encontrada no sistema.
-    
-    **Ação necessária:** Você precisa criar uma {resource_type} antes de continuar.
+
+**Ação necessária:** Você precisa criar \
+     uma {resource_type} antes de continuar.
     """)
-    
+
     col1, col2 = st.columns([1, 1])
-    
+
     with col1:
         if st.button(
-            f"➕ Cadastrar {resource_type.title()}", 
-            type="primary", 
+            f"➕ Cadastrar {resource_type.title()}",
+            type="primary",
             width='stretch'
         ):
             if redirect_page:
                 st.session_state['redirect_to'] = redirect_page
             st.rerun()
-    
+
     with col2:
         if st.button("❌ Fechar", width='stretch'):
             st.rerun()
@@ -101,7 +109,7 @@ class ExpensesPage(BasePage):
         """
         # Tabs principais para tipos de despesa
         tab1, tab2 = centered_tabs([
-            "💰 Despesas em Conta Corrente", 
+            "💰 Despesas em Conta Corrente",
             "💳 Despesas de Cartão de Crédito"
         ])
 
@@ -115,17 +123,17 @@ class ExpensesPage(BasePage):
         """Renderiza seção de despesas em conta corrente."""
         # Sub-tabs para lista e criação
         subtab1, subtab2, subtab3 = centered_tabs([
-            "📋 Lista de Despesas", 
-            "➕ Nova Despesa", 
+            "📋 Lista de Despesas",
+            "➕ Nova Despesa",
             "📊 Resumo"
         ])
-        
+
         with subtab1:
             self._render_expenses_list()
-        
+
         with subtab2:
             self._render_expense_form()
-            
+
         with subtab3:
             self._render_checking_expenses_summary()
 
@@ -133,17 +141,17 @@ class ExpensesPage(BasePage):
         """Renderiza seção completa de despesas de cartão."""
         # Sub-tabs para lista e criação
         subtab1, subtab2, subtab3 = centered_tabs([
-            "📋 Lista de Despesas", 
-            "➕ Nova Despesa", 
+            "📋 Lista de Despesas",
+            "➕ Nova Despesa",
             "📊 Resumo"
         ])
-        
+
         with subtab1:
             self._render_cc_expenses_list()
-        
+
         with subtab2:
             self._render_cc_expense_form()
-            
+
         with subtab3:
             self._render_cc_expenses_summary()
 
@@ -225,8 +233,9 @@ class ExpensesPage(BasePage):
                     key="filter_category"
                 )
                 selected_category = (
-                    db_categories.TRANSLATED_EXPENSE_CATEGORIES.get(selected_category_display) 
-                    if selected_category_display != 'Todas' else None
+                        db_categories.TRANSLATED_EXPENSE_CATEGORIES.get(
+                            selected_category_display
+                        ) if selected_category_display != 'Todas' else None
                 )
             with col2:
                 # Filtro por status de pagamento
@@ -242,10 +251,16 @@ class ExpensesPage(BasePage):
                     accounts = accounts_service.get_all_accounts()
                     # Cria lista de tuplas (id, nome) para facilitar a exibição
                     account_tuples = [(None, 'Todas')] + [
-                        (acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) 
+                        (
+                            acc['id'],
+                            db_categories.INSTITUTIONS.get(acc['name'], acc[
+                                'name'
+                            ]
+                            )
+                        )
                         for acc in accounts if acc.get('is_active', True)
                     ]
-                    
+
                     selected_account_tuple = st.selectbox(
                         "🏦 Conta",
                         options=account_tuples,
@@ -390,7 +405,7 @@ class ExpensesPage(BasePage):
                         width='stretch'
                     ):
                         self._generate_expense_pdf(expense)
-                    
+
                     if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_expense_{expense_id}",
@@ -439,29 +454,44 @@ class ExpensesPage(BasePage):
                 )
 
                 current_category = expense.get('category', 'others')
-                current_category_display = db_categories.EXPENSE_CATEGORIES.get(current_category, current_category)
+                current_category_display = (
+                    db_categories.EXPENSE_CATEGORIES.get(
+                        current_category,
+                        current_category
+                    )
+                )
                 new_category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()),
+                    options=list(
+                        db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()
+                    ),
                     index=list(
                         db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()
-                    ).index(current_category_display),
+                    ).index(
+                        current_category_display  # type: ignore
+                    ),
                     help="Categoria da despesa"
                 )
-                new_category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[new_category_display]
+                new_category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[
+                       new_category_display
+                ]
 
             with col2:
                 # Data e horário atuais da despesa
                 # Parse da data atual da despesa
                 date_value = expense.get('date', '')
                 try:
-                    current_date = datetime.strptime(date_value, '%Y-%m-%d').date()
+                    current_date = datetime.strptime(
+                        date_value, '%Y-%m-%d'
+                    ).date()
                 except ValueError:
                     try:
-                        current_date = datetime.strptime(date_value, '%d/%m/%Y').date()
+                        current_date = datetime.strptime(
+                            date_value, '%d/%m/%Y'
+                        ).date()
                     except ValueError:
                         current_date = datetime.now().date()
-                
+
                 current_time = datetime.strptime(
                     expense.get('horary', '00:00:00'), '%H:%M:%S'
                 ).time()
@@ -482,7 +512,14 @@ class ExpensesPage(BasePage):
                 # Conta
                 try:
                     accounts = accounts_service.get_all_accounts()
-                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                    account_options = [
+                        (
+                            acc['id'],
+                            db_categories.INSTITUTIONS.get(acc['name'], acc[
+                                'name'
+                            ]
+                            )
+                        ) for acc in accounts if acc.get('is_active', True)]
                     current_account_index = (
                         next((i for i, (acc_id, _) in enumerate(
                             account_options
@@ -500,6 +537,115 @@ class ExpensesPage(BasePage):
                 except ApiClientError:
                     st.error("Erro ao carregar contas")
                     new_account = expense.get('account')
+
+            # Campos adicionais
+            new_merchant = st.text_input(
+                "🏦 Estabelecimento",
+                value=expense.get('merchant', ''),
+                help="Nome do estabelecimento"
+            )
+
+            new_location = st.text_input(
+                "📍 Local",
+                value=expense.get('location', ''),
+                help="Local da despesa"
+            )
+
+            payment_method_options = [
+                ('cash', 'Dinheiro'),
+                ('debit_card', 'Cartão de Débito'),
+                ('credit_card', 'Cartão de Crédito'),
+                ('bank_transfer', 'Transferência Bancária'),
+                ('pix', 'PIX'),
+                ('check', 'Cheque'),
+                ('voucher', 'Vale')
+            ]
+            current_payment_method = expense.get(
+                'payment_method',
+                'debit_card'
+            )
+            current_payment_method_index = next(
+                (i for i, (method, _) in enumerate(payment_method_options)
+                 if method == current_payment_method), 1
+            )
+            selected_payment_method = st.selectbox(
+                "💳 Método de Pagamento",
+                options=payment_method_options,
+                index=current_payment_method_index,
+                format_func=lambda x: x[1],
+                help="Método utilizado para pagamento"
+            )
+            new_payment_method = selected_payment_method[0]
+
+            # Membro responsável
+            try:
+                members = api_client.get("members/")
+                if members:
+                    member_options = [(None, "Não informar")] + [
+                        (
+                            member['id'],  # type: ignore
+                            member['name']  # type: ignore
+                        )
+                        for member in members if member.get(  # type: ignore
+                            'active',
+                            True
+                        )
+                    ]
+                    current_member_index = (
+                        next((i for i, (member_id, _) in enumerate(
+                            member_options
+                        ) if member_id == expense.get('member')), 0)
+                    )
+                    selected_member = st.selectbox(
+                        "👤 Membro Responsável",
+                        options=member_options,
+                        index=current_member_index,
+                        format_func=lambda x: x[1],
+                        help="Membro responsável pela despesa"
+                    )
+                    new_member = selected_member[0]
+                else:
+                    new_member = expense.get('member')
+            except Exception:
+                new_member = expense.get('member')
+
+            # Despesa recorrente
+            new_recurring = st.checkbox(
+                "🔄 Despesa Recorrente",
+                value=expense.get('recurring', False),
+                help="Marque se é uma despesa recorrente"
+            )
+
+            # Frequência (só aparece se for recorrente)
+            frequency_options = [
+                ('monthly', 'Mensal'),
+                ('quarterly', 'Trimestral'),
+                ('semiannually', 'Semestral'),
+                ('annually', 'Anual')
+            ]
+            current_frequency = expense.get('frequency', 'monthly')
+            current_frequency_index = next(
+                (i for i, (freq, _) in enumerate(frequency_options)
+                 if freq == current_frequency), 0
+            )
+
+            if new_recurring:
+                selected_frequency = st.selectbox(
+                    "📅 Frequência",
+                    options=frequency_options,
+                    index=current_frequency_index,
+                    format_func=lambda x: x[1],
+                    help="Frequência da despesa recorrente"
+                )
+                new_frequency = selected_frequency[0]
+            else:
+                new_frequency = None
+
+            new_notes = st.text_area(
+                "📝 Observações",
+                value=expense.get('notes', ''),
+                help="Observações sobre a despesa"
+            )
 
             new_is_paid = st.checkbox(
                 "✅ Despesa Paga",
@@ -522,7 +668,14 @@ class ExpensesPage(BasePage):
                         'horary': new_time.strftime('%H:%M:%S'),
                         'category': new_category,
                         'account': new_account,
-                        'payed': new_is_paid
+                        'payed': new_is_paid,
+                        'merchant': new_merchant,
+                        'location': new_location,
+                        'payment_method': new_payment_method,
+                        'member': new_member,
+                        'recurring': new_recurring,
+                        'frequency': new_frequency if new_recurring else None,
+                        'notes': new_notes
                     }
                     self._update_expense(
                         expense_id, updated_data  # type: ignore
@@ -562,10 +715,14 @@ class ExpensesPage(BasePage):
 
                 category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()),
+                    options=list(
+                        db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()
+                    ),
                     help="Categoria da despesa"
                 )
-                category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[category_display]
+                category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[
+                       category_display
+                ]
 
             with col2:
                 expense_date = st.date_input(
@@ -584,7 +741,14 @@ class ExpensesPage(BasePage):
                 # Conta
                 try:
                     accounts = accounts_service.get_all_accounts()
-                    account_options = [(acc['id'], db_categories.INSTITUTIONS.get(acc['name'], acc['name'])) for acc in accounts if acc.get('is_active', True)]
+                    account_options = [
+                        (
+                            acc['id'],
+                            db_categories.INSTITUTIONS.get(acc['name'], acc[
+                                'name'
+                                ]
+                            )
+                        ) for acc in accounts if acc.get('is_active', True)]
 
                     if account_options:
                         selected_account = st.selectbox(
@@ -609,6 +773,96 @@ class ExpensesPage(BasePage):
                 help="Marque se a despesa já foi paga"
             )
 
+            # Campos adicionais
+            col3, col4 = st.columns(2)
+
+            with col3:
+                merchant = st.text_input(
+                    "🏦 Estabelecimento",
+                    help="Nome do estabelecimento"
+                )
+
+                location = st.text_input(
+                    "📍 Local",
+                    help="Local da despesa"
+                )
+
+                payment_method_options = [
+                    ('cash', 'Dinheiro'),
+                    ('debit_card', 'Cartão de Débito'),
+                    ('credit_card', 'Cartão de Crédito'),
+                    ('bank_transfer', 'Transferência Bancária'),
+                    ('pix', 'PIX'),
+                    ('check', 'Cheque'),
+                    ('voucher', 'Vale')
+                ]
+                selected_payment_method = st.selectbox(
+                    "💳 Método de Pagamento",
+                    options=payment_method_options,
+                    index=1,  # debit_card como padrão
+                    format_func=lambda x: x[1],
+                    help="Método utilizado para pagamento"
+                )
+                payment_method = selected_payment_method[0]
+
+            with col4:
+                # Membro responsável
+                try:
+                    members = api_client.get("members/")
+                    if members:
+                        member_options = [(None, "Não informar")] + [
+                            (
+                                member['id'],  # type: ignore
+                                member['name']  # type: ignore
+                            )
+                            for member in members if (
+                                member.get(  # type: ignore
+                                    'active',
+                                    True
+                                )
+                            )
+                        ]
+                        selected_member = st.selectbox(
+                            "👤 Membro Responsável",
+                            options=member_options,
+                            format_func=lambda x: x[1],
+                            help="Membro responsável pela despesa"
+                        )
+                        member_id = selected_member[0]
+                    else:
+                        member_id = None
+                except Exception:
+                    member_id = None
+
+                # Despesa recorrente
+                recurring = st.checkbox(
+                    "🔄 Despesa Recorrente",
+                    help="Marque se é uma despesa recorrente"
+                )
+
+            # Frequência (só aparece se for recorrente)
+            if recurring:
+                frequency_options = [
+                    ('monthly', 'Mensal'),
+                    ('quarterly', 'Trimestral'),
+                    ('semiannually', 'Semestral'),
+                    ('annually', 'Anual')
+                ]
+                selected_frequency = st.selectbox(
+                    "📅 Frequência",
+                    options=frequency_options,
+                    format_func=lambda x: x[1],
+                    help="Frequência da despesa recorrente"
+                )
+                frequency = selected_frequency[0]
+            else:
+                frequency = None
+
+            notes = st.text_area(
+                "📝 Observações",
+                help="Observações sobre a despesa"
+            )
+
             # Preview da despesa
             if description and value and account_id:
                 with st.expander("👁️ Preview da Despesa", expanded=True):
@@ -622,8 +876,9 @@ class ExpensesPage(BasePage):
                     )
                     # Traduz o código da conta para nome completo
                     account_name = db_categories.INSTITUTIONS.get(
-                        account_name_code, account_name_code
-                    )
+                        account_name_code,  # type: ignore
+                        account_name_code
+                    )  # type: ignore
 
                     st.info(f"""
                     **Descrição:** {description}
@@ -658,10 +913,16 @@ class ExpensesPage(BasePage):
                             'horary': expense_time.strftime('%H:%M:%S'),
                             'category': category,
                             'account': account_id,
-                            'payed': is_paid
+                            'payed': is_paid,
+                            'merchant': merchant,
+                            'location': location,
+                            'payment_method': payment_method,
+                            'member': member_id,
+                            'recurring': recurring,
+                            'frequency': frequency if recurring else None,
+                            'notes': notes
                         }
                         self._create_expense(expense_data)
-
 
     def _create_expense(
             self,
@@ -753,8 +1014,6 @@ class ExpensesPage(BasePage):
             ):
                 # Primeiro obtém os dados completos da despesa
                 expense_data = expenses_service.get_expense_by_id(expense_id)
-                
-                # Atualiza apenas o status de pagamento mantendo os outros campos
                 update_data = {
                     'description': expense_data.get('description'),
                     'value': expense_data.get('value'),
@@ -764,7 +1023,7 @@ class ExpensesPage(BasePage):
                     'account': expense_data.get('account'),
                     'payed': is_paid
                 }
-                
+
                 expenses_service.update_expense(expense_id, update_data)
 
             status_text = "paga" if is_paid else "pendente"
@@ -790,12 +1049,12 @@ class ExpensesPage(BasePage):
         """
         # Define estado da confirmação de exclusão
         confirm_key = f"confirm_delete_{expense_id}"
-        
+
         # Se não está no modo de confirmação, marca para confirmar
         if not st.session_state.get(confirm_key, False):
             st.session_state[confirm_key] = True
             st.rerun()
-        
+
         # Mostra modal de confirmação
         st.warning(
             f"""⚠️ **Tem certeza que deseja excluir a despesa '{
@@ -820,7 +1079,7 @@ class ExpensesPage(BasePage):
                     st.success(
                         f"✅ Despesa '{description}' excluída com sucesso!"
                     )
-                    
+
                     # Limpa o estado de confirmação
                     st.session_state.pop(confirm_key, None)
                     st.rerun()
@@ -857,14 +1116,23 @@ class ExpensesPage(BasePage):
                 )
 
             if not expenses:
-                st.info("📝 Nenhuma despesa de conta corrente encontrada nos últimos 30 dias.")
+                st.info(
+                    """
+                    📝 Nenhuma despesa de conta corrente encontrada
+                    nos últimos 30 dias.
+                    """
+                )
                 return
 
             # Estatísticas específicas para despesas de conta corrente
             total_value = sum(float(exp.get('value', 0)) for exp in expenses)
             paid_value = sum(
-                float(exp.get('value', 0)) for exp in expenses if exp.get('payed', False)
-            )
+                   float(
+                          exp.get(
+                              'value',
+                              0
+                            )) for exp in expenses if exp.get('payed', False)
+                        )
             pending_value = total_value - paid_value
 
             col1, col2, col3, col4 = st.columns(4)
@@ -875,7 +1143,9 @@ class ExpensesPage(BasePage):
             with col3:
                 st.metric("✅ Valor Pago", format_currency_br(paid_value))
             with col4:
-                st.metric("⏳ Valor Pendente", format_currency_br(pending_value))
+                st.metric("⏳ Valor Pendente", format_currency_br(
+                    pending_value)
+                )
 
             # Gráfico por categoria específico para conta corrente
             st.markdown("#### 📂 Despesas por Categoria (Conta Corrente)")
@@ -900,77 +1170,106 @@ class ExpensesPage(BasePage):
 
         except ApiClientError as e:
             st.error(f"❌ Erro ao carregar estatísticas: {e}")
-            logger.error(f"Erro ao carregar resumo de despesas de conta corrente: {e}")
+            logger.error(
+                f"""
+                Erro ao carregar resumo de despesas de conta corrente: {e}
+                """
+            )
 
     def _render_cc_expenses_summary(self) -> None:
         """Renderiza resumo específico das despesas de cartão de crédito."""
         st.markdown("#### 📊 Resumo - Cartão de Crédito")
-        
+
         try:
             with st.spinner("📊 Carregando estatísticas..."):
                 cc_expenses = api_client.get("credit-cards-expenses/")
-                
+
             if not cc_expenses:
                 st.info("📝 Nenhuma despesa de cartão de crédito encontrada.")
                 return
-                
+
             # Estatísticas específicas para cartão de crédito
-            total_cc_expenses = sum(float(exp.get('value', 0)) for exp in cc_expenses)
+            total_cc_expenses = sum(
+                   float(
+                        exp.get(  # type: ignore
+                            'value', 0
+                        )
+                    ) for exp in cc_expenses
+                    )
             paid_cc_expenses = sum(
-                float(exp.get('value', 0)) for exp in cc_expenses if exp.get('payed', False)
+                   float(
+                        exp.get('value', 0)  # type: ignore
+                    ) for exp in cc_expenses if exp.get(  # type: ignore
+                        'payed', False
+                    )
             )
             pending_cc_expenses = total_cc_expenses - paid_cc_expenses
-            
+
             col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("📊 Total de Despesas", len(cc_expenses))
             with col2:
-                st.metric("💰 Valor Total", format_currency_br(total_cc_expenses))
+                st.metric(
+                    "💰 Valor Total",
+                    format_currency_br(total_cc_expenses)
+                )
             with col3:
                 st.metric("✅ Valor Pago", format_currency_br(paid_cc_expenses))
             with col4:
-                st.metric("⏳ Valor Pendente", format_currency_br(pending_cc_expenses))
-            
+                st.metric(
+                    "⏳ Valor Pendente",
+                    format_currency_br(pending_cc_expenses)
+                )
+
             # Análise por cartão
             st.markdown("#### 💳 Despesas por Cartão")
             card_data = {}
             for expense in cc_expenses:
-                card_name = expense.get('card_name', 'Cartão Desconhecido')
-                value = float(expense.get('value', 0))
+                card_name = expense.get(  # type: ignore
+                    'card_name',
+                    'Cartão Desconhecido'
+                )
+                value = float(expense.get('value', 0))  # type: ignore
                 card_data[card_name] = card_data.get(card_name, 0) + value
-                
+
             if card_data:
                 df_cards = pd.DataFrame(
                     list(card_data.items()),
                     columns=['Cartão', 'Valor']
                 ).sort_values('Valor', ascending=True)
-                
+
                 st.bar_chart(df_cards.set_index('Cartão'))
-            
+
             # Análise por parcelamento
             st.markdown("#### 🔢 Análise de Parcelamento")
             installment_data = {}
             for expense in cc_expenses:
-                installment = expense.get('installment', 1)
-                installment_key = f"{installment}x" if installment > 1 else "À vista"
-                value = float(expense.get('value', 0))
-                installment_data[installment_key] = installment_data.get(installment_key, 0) + value
-                
+                installment = expense.get('installment', 1)  # type: ignore
+                installment_key = f"{installment}x" if installment > 1 else (
+                    "À vista"
+                )
+                value = float(expense.get('value', 0))  # type: ignore
+                installment_data[installment_key] = installment_data.get(
+                    installment_key,
+                    0
+                ) + value
+
             if installment_data:
                 col1, col2 = st.columns(2)
-                
+
                 with col1:
                     for key, value in installment_data.items():
                         st.metric(key, format_currency_br(value))
-                        
+
         except ApiClientError as e:
             st.error(f"❌ Erro ao carregar estatísticas de cartão: {e}")
             logger.error(f"Erro ao carregar resumo de despesas de cartão: {e}")
 
     def _render_cc_expenses_list(self) -> None:
-        """Renderiza a lista de despesas de cartão de crédito com mensagens melhoradas."""
+        """Renderiza a lista de despesas de cartão de crédito
+        com mensagens melhoradas."""
         st.markdown("#### 💳 Despesas de Cartão de Crédito")
-        
+
         try:
             with st.spinner("🔄 Carregando despesas de cartão..."):
                 time.sleep(1)
@@ -978,7 +1277,7 @@ class ExpensesPage(BasePage):
                 # Também carregamos faturas para verificar se existem
                 bills = api_client.get("credit-cards-bills/")
                 cards = api_client.get("credit-cards/")
-            
+
             # Mensagens mais informativas quando não há despesas
             if not cc_expenses:
                 if not cards:
@@ -1000,71 +1299,91 @@ class ExpensesPage(BasePage):
                 else:
                     st.info("📝 **Nenhuma despesa de cartão registrada ainda**")
                     st.success("""
-                    ✅ **Tudo pronto!** Você já tem cartões e faturas cadastrados.
-                    
+                    ✅ **Tudo pronto!** Você já tem \
+                    cartões e faturas cadastrados.
+
                     🛍️ **Registre sua primeira despesa:**
                     - Use a aba 'Nova Despesa' ao lado
                     - Suas compras aparecerão aqui automaticamente
                     """)
                 return
-            
+
             # Estatísticas rápidas
-            total_cc_expenses = sum(float(exp.get('value', 0)) for exp in cc_expenses)
+            total_cc_expenses = sum(
+                   float(
+                       exp.get(  # type: ignore
+                           'value', 0
+                        )) for exp in cc_expenses)
             paid_cc_expenses = sum(
-                float(exp.get('value', 0)) for exp in cc_expenses if exp.get('payed', False)
+                   float(
+                          exp.get(  # type: ignore
+                              'value', 0
+                            )
+                    ) for exp in cc_expenses if exp.get(  # type: ignore
+                        'payed', False
+                    )
             )
             pending_cc_expenses = total_cc_expenses - paid_cc_expenses
-            
+
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("💰 Total", format_currency_br(total_cc_expenses))
             with col2:
                 st.metric("✅ Pagas", format_currency_br(paid_cc_expenses))
             with col3:
-                st.metric("⏳ Pendentes", format_currency_br(pending_cc_expenses))
-            
+                st.metric(
+                    "⏳ Pendentes",
+                    format_currency_br(pending_cc_expenses)
+                )
+
             st.markdown("---")
-            
+
             for cc_expense in cc_expenses:
-                self._render_cc_expense_card(cc_expense)
-                
+                self._render_cc_expense_card(cc_expense)  # type: ignore
+
         except ApiClientError as e:
             st.error(f"❌ **Erro ao carregar despesas de cartão:** {str(e)}")
-            st.info("💡 **Solução:** Verifique sua conexão e tente recarregar a página.")
+            st.info(
+                "💡 **Solução:** Verifique sua conexão e recarregue a página."
+            )
             logger.error(f"Erro ao listar despesas de cartão: {e}")
 
     def _render_cc_expense_card(self, cc_expense: Dict[str, Any]) -> None:
         """Renderiza um card de despesa de cartão de crédito."""
         with st.container():
             col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
-            
+
             with col1:
                 description = cc_expense.get('description', 'Despesa')
                 category = cc_expense.get('category', 'others')
-                category_emoji = db_categories.EXPENSE_CATEGORY_EMOJIS.get(category, "💳")
-                category_name = db_categories.EXPENSE_CATEGORIES.get(category, category)
+                category_emoji = db_categories.EXPENSE_CATEGORY_EMOJIS.get(
+                    category, "💳")
+                category_name = db_categories.EXPENSE_CATEGORIES.get(
+                    category,
+                    category
+                )
                 card_name = cc_expense.get('card_name', 'Cartão')
-                
+
                 st.markdown(f"### {category_emoji} {description}")
                 st.caption(f"📂 {category_name} | 💳 {card_name}")
-            
+
             with col2:
                 value = float(cc_expense.get('value', 0))
                 date_str = format_date_for_display(cc_expense.get('date', ''))
                 time_str = cc_expense.get('horary', '00:00:00')
                 installment = cc_expense.get('installment', 1)
-                
+
                 st.markdown(f"**{format_currency_br(value)}**")
                 st.caption(f"📅 {date_str} às {time_str}")
                 if installment > 1:
                     st.caption(f"🔢 {installment}x")
-            
+
             with col3:
                 if cc_expense.get('payed', False):
                     st.success("✅ Paga")
                 else:
                     st.warning("⏳ Pendente")
-            
+
             with col4:
                 expense_id = cc_expense.get('id')
                 with st.popover("⚙️ Ações"):
@@ -1073,69 +1392,91 @@ class ExpensesPage(BasePage):
                         key=f"edit_btn_cc_expense_{expense_id}",
                         width='stretch'
                     ):
-                        st.session_state[f'edit_cc_expense_{expense_id}'] = cc_expense
+                        st.session_state[
+                            f'edit_cc_expense_{expense_id}'] = cc_expense
                         st.rerun()
-                    
-                    toggle_text = ("⏳ Marcar Pendente" if cc_expense.get('payed', False) 
-                                 else "✅ Marcar Paga")
-                    if st.button(
+
+                toggle_text = (
+                    "⏳ Marcar Pendente" if cc_expense.get('payed', False)
+                    else "✅ Marcar Paga")
+                if st.button(
                         toggle_text,
                         key=f"toggle_btn_cc_expense_{expense_id}",
                         width='stretch'
-                    ):
-                        self._toggle_cc_expense_payment(expense_id, not cc_expense.get('payed', False))
-                    
+                ):
+                    self._toggle_cc_expense_payment(
+                        expense_id,  # type: ignore
+                        not cc_expense.get('payed', False)
+                    )
+
                     if st.button(
                         "📄 Gerar PDF",
                         key=f"pdf_btn_cc_expense_{expense_id}",
                         width='stretch'
                     ):
                         self._generate_cc_expense_pdf(cc_expense)
-                    
+
                     if st.button(
                         "🗑️ Excluir",
                         key=f"delete_btn_cc_expense_{expense_id}",
                         width='stretch'
                     ):
-                        self._delete_cc_expense(expense_id, description)
-            
+                        self._delete_cc_expense(
+                            expense_id, description  # type: ignore
+                        )
+
             st.markdown("---")
 
     def _render_cc_expense_form(self) -> None:
         """Renderiza formulário para criar despesa de cartão com validações."""
         st.markdown("#### ➕ Nova Despesa de Cartão")
-        
+
         with st.form("create_cc_expense_form"):
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 description = st.text_input(
                     "📝 Descrição",
                     placeholder="Ex: Compra no supermercado..."
                 )
-                
+
                 value = st.number_input(
                     "💰 Valor",
                     min_value=0.01,
                     step=0.01,
                     format="%.2f"
                 )
-                
+
                 category_display = st.selectbox(
                     "📂 Categoria",
-                    options=list(db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys())
+                    options=list(
+                        db_categories.TRANSLATED_EXPENSE_CATEGORIES.keys()
+                    )
                 )
-                category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[category_display]
-                
+                category = db_categories.TRANSLATED_EXPENSE_CATEGORIES[
+                    category_display
+                ]
+
                 # Seleção de cartão com validações
                 try:
                     cards = api_client.get("credit-cards/")
                     if not cards:
                         st.error("❌ **Nenhum cartão disponível**")
-                        st.info("💡 **Solução:** Cadastre um cartão primeiro na página de Cartões de Crédito.")
+                        st.info(
+                            """
+                            💡 **Solução:**
+                            Cadastre um cartão primeiro na página
+                            de Cartões de Crédito.
+                            """
+                        )
                         return
-                    
-                    card_options = [(card['id'], card['name'], card) for card in cards]
+                    card_options = [
+                        (
+                            card['id'],  # type: ignore
+                            card['name'],  # type: ignore
+                            card
+                        ) for card in cards
+                    ]
                     selected_card = st.selectbox(
                         "💳 Cartão",
                         options=card_options,
@@ -1144,27 +1485,30 @@ class ExpensesPage(BasePage):
                     )
                     card_id = selected_card[0]
                     selected_card_data = selected_card[2]
-                    
-                    # Mostrar informações do limite
-                    credit_limit = float(selected_card_data.get('credit_limit', 0))
-                    st.caption(f"💳 **Limite:** {format_currency_br(credit_limit)}")
-                    
+                    credit_limit = float(
+                        selected_card_data.get(  # type: ignore
+                            'credit_limit', 0
+                        )
+                    )
+                    st.caption(
+                        f"💳 **Limite:** {format_currency_br(credit_limit)}")
+
                 except ApiClientError:
                     st.error("❌ Erro ao carregar cartões")
                     return
-            
+
             with col2:
                 expense_date = st.date_input(
                     "📅 Data da Compra",
                     value=datetime.now().date(),
                     format="DD/MM/YYYY"
                 )
-                
+
                 expense_time = st.time_input(
                     "🕐 Horário",
                     value=datetime.now().time()
                 )
-                
+
                 installment = st.number_input(
                     "🔢 Parcela Atual",
                     min_value=1,
@@ -1172,7 +1516,7 @@ class ExpensesPage(BasePage):
                     value=1,
                     help="Número da parcela atual"
                 )
-                
+
                 total_installments = st.number_input(
                     "📊 Total de Parcelas",
                     min_value=installment,
@@ -1180,129 +1524,205 @@ class ExpensesPage(BasePage):
                     value=max(installment, 1),
                     help="Total de parcelas"
                 )
-                
+
                 payed = st.checkbox("✅ Despesa já foi paga")
-            
+
             # Campos opcionais adicionais
             st.markdown("---")
             st.markdown("**Informações Adicionais (Opcional)**")
-            
+
             col3, col4 = st.columns(2)
-            
+
             with col3:
                 merchant = st.text_input(
                     "🏪 Estabelecimento",
                     help="Nome do estabelecimento"
                 )
-                
+
                 transaction_id = st.text_input(
                     "🔢 ID da Transação",
                     help="Identificador da transação"
                 )
-                
+
                 location = st.text_input(
                     "📍 Local",
                     help="Local da compra"
                 )
-                
+
             with col4:
                 # Seleção de membro responsável (opcional)
                 try:
                     members = api_client.get("members/")
                     if members:
-                        member_options = [(None, "Não informar")] + [(member['id'], member['name']) for member in members if member.get('active', True)]
+                        member_options = [
+                            (
+                                None, "Não informar"
+                            )] + [
+                                (
+                                    member['id'],  # type: ignore
+                                    member['name']  # type: ignore
+                                ) for member in members if (
+                                    member.get('active', True)  # type: ignore
+                                )
+                            ]
                         selected_member = st.selectbox(
                             "👤 Membro Responsável",
                             options=member_options,
                             format_func=lambda x: x[1],
                             help="Membro responsável pela despesa"
                         )
-                        member_id = selected_member[0] if selected_member[0] else None
+                        member_id = selected_member[0] if (
+                            selected_member[0]
+                        ) else None
                     else:
                         member_id = None
                 except ApiClientError:
                     member_id = None
-                
-                # Informação sobre geração de comprovante
-                st.info("📄 O comprovante será gerado automaticamente após criar a despesa")
-                
+
             notes = st.text_area(
                 "📝 Observações",
                 help="Observações sobre a despesa"
             )
-            
+
             # Validações em tempo real
             if value and card_id:
                 try:
                     # Verificar limite disponível
-                    existing_expenses = api_client.get("credit-cards-expenses/")
-                    card_expenses = [exp for exp in existing_expenses if exp.get('card') == card_id and not exp.get('payed', False)]
-                    used_limit = sum(float(exp.get('value', 0)) for exp in card_expenses)
+                    existing_expenses = api_client.get(
+                        "credit-cards-expenses/"
+                    )
+                    card_expenses = [
+                        exp for exp in existing_expenses if (
+                            exp.get(  # type: ignore
+                                'card'
+                            ) == card_id
+                        ) and not exp.get('payed', False)  # type: ignore
+                    ]
+                    used_limit = sum(
+                        float(
+                            exp.get('value', 0)  # type: ignore
+                        ) for exp in card_expenses)
                     available_limit = credit_limit - used_limit
                     remaining_after = available_limit - value
-                    
+
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.metric("💰 Limite Usado", format_currency_br(used_limit))
+                        st.metric(
+                            "💰 Limite Usado",
+                            format_currency_br(used_limit)
+                        )
                     with col2:
-                        st.metric("🔓 Disponível", format_currency_br(available_limit))
+                        st.metric(
+                            "🔓 Disponível",
+                            format_currency_br(available_limit)
+                        )
                     with col3:
                         if remaining_after >= 0:
-                            st.metric("✅ Após Compra", format_currency_br(remaining_after), delta=f"-{format_currency_br(value)}")
+                            st.metric(
+                                "✅ Após Compra",
+                                format_currency_br(remaining_after),
+                                delta=f"-{format_currency_br(value)}"
+                            )
                         else:
-                            st.metric("⚠️ Após Compra", format_currency_br(remaining_after), delta=f"-{format_currency_br(value)}")
-                            st.warning("⚠️ **Atenção:** Esta despesa excederá o limite do cartão!")
-                    
+                            st.metric(
+                                "⚠️ Após Compra",
+                                format_currency_br(remaining_after),
+                                delta=f"-{format_currency_br(value)}"
+                            )
+                            st.warning(
+                                """
+                                ⚠️ **Atenção:**
+                                Esta despesa excederá o limite do cartão!
+                                """
+                            )
+
                 except Exception:
                     st.info("ℹ️ Não foi possível calcular o limite disponível")
-            
+
             if st.form_submit_button("💾 Criar Despesa", type="primary"):
                 # Validações mais robustas
                 validation_errors = []
-                
+
                 if not description:
                     validation_errors.append("Descrição é obrigatória")
-                    
+
                 if not value or value <= 0:
                     validation_errors.append("Valor deve ser maior que zero")
-                    
+
                 if not card_id:
                     validation_errors.append("Selecione um cartão")
-                
+
                 # Verificar se existe fatura para o período da despesa
                 matching_bill = None
                 try:
                     bills = api_client.get("credit-cards-bills/")
                     expense_month = expense_date.strftime('%b')
                     expense_year = str(expense_date.year)
-                    
+
                     matching_bill = next((
-                        bill for bill in bills 
-                        if (bill.get('credit_card') == card_id and 
-                            bill.get('month') == expense_month and 
-                            bill.get('year') == expense_year)
+                        bill for bill in bills
+                        if (
+                            bill.get(  # type: ignore
+                                'credit_card'
+                            ) == card_id and
+                            bill.get(  # type: ignore
+                                'month'
+                            ) == expense_month and  # type: ignore
+                            bill.get('year') == expense_year)  # type: ignore
                     ), None)
-                    
+
                     if not matching_bill:
-                        validation_errors.append(f"Não há fatura cadastrada para {expense_date.strftime('%B/%Y')} neste cartão")
-                    elif matching_bill.get('closed', False):
-                        validation_errors.append(f"A fatura de {expense_date.strftime('%B/%Y')} já está fechada")
-                        
+                        validation_errors.append(
+                            f"""
+                            Não há fatura cadastrada para {
+                                expense_date.strftime('%B/%Y')
+                            } neste cartão"""
+                            )
+                    elif matching_bill.get('closed', False):  # type: ignore
+                        validation_errors.append(
+                            f"""
+                            A fatura de {
+                                expense_date.strftime('%B/%Y')
+                            } já está fechada
+                            """
+                        )
+
                 except ApiClientError:
-                    validation_errors.append("Não foi possível verificar as faturas")
-                
+                    validation_errors.append(
+                        "Não foi possível verificar as faturas")
+
                 # Verificar limite se houver valor
                 if value and card_id:
                     try:
-                        existing_expenses = api_client.get("credit-cards-expenses/")
-                        card_expenses = [exp for exp in existing_expenses if exp.get('card') == card_id and not exp.get('payed', False)]
-                        used_limit = sum(float(exp.get('value', 0)) for exp in card_expenses)
-                        
+                        existing_expenses = api_client.get(
+                            "credit-cards-expenses/"
+                        )
+                        card_expenses = [
+                            exp for exp in existing_expenses if (
+                                exp.get('card')  # type: ignore
+                            ) == card_id and not (
+                                exp.get('payed', False)  # type: ignore
+                            )
+                        ]
+                        used_limit = sum(
+                            float(
+                                exp.get('value', 0)  # type: ignore
+                            ) for exp in card_expenses
+                        )
+
                         if (used_limit + value) > credit_limit:
-                            validation_errors.append(f"Despesa excede o limite do cartão em {format_currency_br((used_limit + value) - credit_limit)}")
+                            validation_errors.append(
+                                f"""
+                                Despesa excede o limite do cartão em {
+                                    format_currency_br(
+                                        (used_limit + value) - credit_limit
+                                        )
+                                    }
+                                    """
+                                )
                     except ApiClientError:
                         pass  # Não bloqueia se não conseguir verificar
-                
+
                 if validation_errors:
                     st.error("❌ **Erros encontrados:**")
                     for error in validation_errors:
@@ -1319,7 +1739,7 @@ class ExpensesPage(BasePage):
                         'total_installments': total_installments,
                         'payed': payed
                     }
-                    
+
                     # Adicionar campos opcionais se preenchidos
                     if merchant:
                         cc_expense_data['merchant'] = merchant
@@ -1331,13 +1751,15 @@ class ExpensesPage(BasePage):
                         cc_expense_data['member'] = member_id
                     if notes:
                         cc_expense_data['notes'] = notes
-                    
+
                     # Relacionar com a fatura correspondente
                     if matching_bill:
-                        cc_expense_data['bill'] = matching_bill['id']
-                    
+                        cc_expense_data['bill'] = (
+                            matching_bill['id']
+                        )  # type: ignore
+
                     # Comprovante será gerado automaticamente
-                    
+
                     self._create_cc_expense(cc_expense_data)
 
     def _create_cc_expense(self, expense_data: Dict[str, Any]) -> None:
@@ -1345,24 +1767,34 @@ class ExpensesPage(BasePage):
         try:
             with st.spinner("💾 Criando despesa de cartão..."):
                 time.sleep(1)
-                new_expense = api_client.post("credit-cards-expenses/", expense_data)
-            
+                new_expense = api_client.post(
+                    "credit-cards-expenses/",
+                    expense_data
+                )
+                print(new_expense)
+
             st.toast("✅ Despesa de cartão criada com sucesso!")
             time.sleep(1)
             st.rerun()
-            
+
         except ApiClientError as e:
             st.error(f"❌ Erro ao criar despesa de cartão: {e}")
             logger.error(f"Erro ao criar despesa de cartão: {e}")
 
-    def _toggle_cc_expense_payment(self, expense_id: int, is_paid: bool) -> None:
+    def _toggle_cc_expense_payment(
+        self,
+        expense_id: int,
+        is_paid: bool
+    ) -> None:
         """Alterna o status de pagamento de uma despesa de cartão."""
         try:
-            with st.spinner(f"{'Marcando como paga' if is_paid else 'Marcando como pendente'}..."):
-                # Obtém dados da despesa
-                expense_data = api_client.get(f"credit-cards-expenses/{expense_id}/")
-                
-                # Atualiza status
+            with st.spinner(
+                f"""{'Marcando como paga' if is_paid else (
+                    'Marcando como pendente'
+                    )}..."""):
+                expense_data = api_client.get(
+                    f"credit-cards-expenses/{expense_id}/"
+                )
                 update_data = {
                     'description': expense_data.get('description'),
                     'value': expense_data.get('value'),
@@ -1373,30 +1805,36 @@ class ExpensesPage(BasePage):
                     'installment': expense_data.get('installment'),
                     'payed': is_paid
                 }
-                
-                api_client.put(f"credit-cards-expenses/{expense_id}/", update_data)
-            
-            status_text = "paga" if is_paid else "pendente"
-            st.success(f"✅ Despesa marcada como {status_text}!")
-            st.rerun()
-            
+                api_client.put(
+                    f"credit-cards-expenses/{expense_id}/", update_data
+                )
+                status_text = "paga" if is_paid else "pendente"
+                st.success(f"✅ Despesa marcada como {status_text}!")
+                st.rerun()
+
         except ApiClientError as e:
             st.error(f"❌ Erro ao alterar status: {e}")
-            logger.error(f"Erro ao alterar status da despesa de cartão {expense_id}: {e}")
+            logger.error(
+                f"""
+                Erro ao alterar status da despesa de cartão {expense_id}: {e}
+                """
+            )
 
     def _delete_cc_expense(self, expense_id: int, description: str) -> None:
         """Exclui uma despesa de cartão após confirmação."""
         confirm_key = f"confirm_delete_cc_{expense_id}"
-        
+
         if not st.session_state.get(confirm_key, False):
             st.session_state[confirm_key] = True
             st.rerun()
-        
-        st.warning(f"⚠️ **Tem certeza que deseja excluir a despesa '{description}'?**")
+
+        st.warning(
+            f"⚠️ **Tem certeza que deseja excluir a despesa '{description}'?**"
+        )
         st.error("🚨 **ATENÇÃO:** Esta ação não pode ser desfeita!")
-        
+
         col1, col2 = st.columns(2)
-        
+
         with col1:
             if st.button(
                 "🗑️ Sim, Excluir",
@@ -1406,32 +1844,41 @@ class ExpensesPage(BasePage):
             ):
                 try:
                     with st.spinner("🗑️ Excluindo despesa..."):
-                        api_client.delete(f"credit-cards-expenses/{expense_id}/")
-                    
-                    st.success(f"✅ Despesa '{description}' excluída com sucesso!")
-                    st.session_state.pop(confirm_key, None)
-                    st.rerun()
-                    
+                        api_client.delete(
+                            f"credit-cards-expenses/{expense_id}/"
+                        )
+                        st.success(
+                            f"✅ Despesa '{description}' excluída com sucesso!"
+                        )
+                        st.session_state.pop(confirm_key, None)
+                        st.rerun()
+
                 except ApiClientError as e:
                     st.error(f"❌ Erro ao excluir despesa: {e}")
-                    logger.error(f"Erro ao excluir despesa de cartão {expense_id}: {e}")
+                    logger.error(
+                        f"Erro ao excluir despesa de cartão {expense_id}: {e}"
+                    )
                     st.session_state.pop(confirm_key, None)
-        
-        with col2:
-            if st.button(
-                "❌ Cancelar",
-                key=f"cancel_delete_cc_expense_{expense_id}",
-                width='stretch'
-            ):
-                st.session_state.pop(confirm_key, None)
-                st.rerun()
-    
+
+            with col2:
+                if st.button(
+                    "❌ Cancelar",
+                    key=f"cancel_delete_cc_expense_{expense_id}",
+                    width='stretch'
+                ):
+                    st.session_state.pop(confirm_key, None)
+                    st.rerun()
+
     def _generate_expense_pdf(self, expense: Dict[str, Any]) -> None:
         """Gera e oferece download do PDF da despesa."""
         if pdf_generator is None:
-            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            st.error(
+                """
+                Gerador de PDF não disponível.
+                Instale o ReportLab: pip install reportlab
+                """
+            )
             return
-        
         try:
             with st.spinner("📄 Gerando comprovante..."):
                 # Buscar dados da conta
@@ -1440,18 +1887,29 @@ class ExpensesPage(BasePage):
                 if account_id:
                     try:
                         accounts = accounts_service.get_all_accounts()
-                        account_data = next((acc for acc in accounts if acc['id'] == account_id), None)
+                        account_data = next(
+                            (
+                                acc for acc in accounts if acc[
+                                    'id'
+                                ] == account_id
+                            ),
+                            None
+                        )
                     except ApiClientError:
                         pass
-                
+
                 # Gerar PDF
-                pdf_buffer = pdf_generator.generate_expense_receipt(expense, account_data)
-                
+                pdf_buffer = pdf_generator.generate_expense_receipt(
+                    expense,
+                    account_data
+                )
                 # Nome do arquivo
                 description = expense.get('description', 'despesa')
                 date_str = expense.get('date', '').replace('-', '_')
-                filename = f"comprovante_despesa_{description}_{date_str}.pdf"
-                
+                filename = (
+                    f"comprovante_despesa_{description}_{date_str}.pdf"
+                )
+
                 # Oferecer download
                 st.download_button(
                     label="💾 Download PDF",
@@ -1460,55 +1918,86 @@ class ExpensesPage(BasePage):
                     mime="application/pdf",
                     key=f"download_expense_{expense.get('id')}"
                 )
-                
+
                 # Preview do PDF
                 st.success("✅ Comprovante gerado com sucesso!")
                 try:
                     pdf_buffer.seek(0)
-                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
                     if hasattr(st, 'pdf'):
                         st.pdf(pdf_buffer.getvalue())
                     else:
-                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                        st.info(
+                            """
+                            📄 PDF gerado.
+                            Use o botão de download para visualizar.
+                            """
+                        )
                 except Exception as e:
                     logger.warning(f"Erro ao exibir preview do PDF: {e}")
-                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
-                
+                    st.info(
+                        """
+                        📄 PDF gerado.
+                        Use o botão de download para visualizar.
+                        """
+                    )
+
         except Exception as e:
             st.error(f"❌ Erro ao gerar comprovante: {e}")
-            logger.error(f"Erro ao gerar PDF da despesa {expense.get('id')}: {e}")
-    
+            logger.error(
+                f"Erro ao gerar PDF da despesa {expense.get('id')}: {e}"
+            )
+
     def _generate_cc_expense_pdf(self, expense: Dict[str, Any]) -> None:
         """Gera e oferece download do PDF da despesa de cartão."""
         if pdf_generator is None:
-            st.error("❌ Gerador de PDF não disponível. Instale o ReportLab: pip install reportlab")
+            st.error(
+                """
+                Gerador de PDF não disponível.
+                Instale o ReportLab: pip install reportlab
+                """
+            )
             return
-        
+
         try:
             with st.spinner("📄 Gerando comprovante..."):
                 # Buscar dados do cartão e fatura
                 card_data = None
                 bill_data = None
-                
+
                 try:
-                    # Dados do cartão
                     cards = api_client.get("credit-cards/")
-                    card_data = next((card for card in cards if card['id'] == expense.get('card')), None)
-                    
-                    # Dados da fatura
+                    card_data = next(
+                        (
+                            card for card in cards if card[
+                                'id'  # type: ignore
+                            ] == expense.get('card')), None)
+
                     bills = api_client.get("credit-cards-bills/")
-                    bill_data = next((bill for bill in bills if bill['id'] == expense.get('bill')), None)
+                    bill_data = next(
+                        (
+                            bill for bill in bills if (
+                                bill[
+                                    'id'
+                                ] == expense.get('bill'))  # type: ignore
+                            ), None
+                    )
                 except ApiClientError:
                     pass
-                
+
                 # Gerar PDF
-                pdf_buffer = pdf_generator.generate_credit_card_receipt(expense, card_data, bill_data)
-                
+                pdf_buffer = pdf_generator.generate_credit_card_receipt(
+                    expense,
+                    card_data,  # type: ignore
+                    bill_data  # type: ignore
+                )
+
                 # Nome do arquivo
                 description = expense.get('description', 'despesa_cartao')
                 date_str = expense.get('date', '').replace('-', '_')
-                filename = f"comprovante_cartao_{description}_{date_str}.pdf"
-                
+                filename = f"""
+                comprovante_cartao_{description}_{date_str}.pdf
+                """
+
                 # Oferecer download
                 st.download_button(
                     label="💾 Download PDF",
@@ -1517,20 +2006,35 @@ class ExpensesPage(BasePage):
                     mime="application/pdf",
                     key=f"download_cc_expense_{expense.get('id')}"
                 )
-                
+
                 # Preview do PDF
                 st.success("✅ Comprovante gerado com sucesso!")
                 try:
                     pdf_buffer.seek(0)
-                    # Usar st.pdf se disponível (versões mais recentes do Streamlit)
                     if hasattr(st, 'pdf'):
                         st.pdf(pdf_buffer.getvalue())
                     else:
-                        st.info("📄 PDF gerado. Use o botão de download para visualizar.")
+                        st.info(
+                            """
+                            📄 PDF gerado.
+                            Use o botão de download para visualizar.
+                            """
+                        )
                 except Exception as e:
                     logger.warning(f"Erro ao exibir preview do PDF: {e}")
-                    st.info("📄 PDF gerado. Use o botão de download para visualizar.")
-                
+                    st.info(
+                        """
+                        📄 PDF gerado.
+                        Use o botão de download para visualizar.
+                        """
+                    )
+
         except Exception as e:
             st.error(f"❌ Erro ao gerar comprovante: {e}")
-            logger.error(f"Erro ao gerar PDF da despesa de cartão {expense.get('id')}: {e}")
+            logger.error(
+                f"""
+                Erro ao gerar PDF da despesa de cartão {
+                    expense.get('id')
+                }: {e}
+                """
+            )

@@ -20,6 +20,8 @@ st.set_page_config(
 
 
 # Carrega estilos customizados
+
+
 def load_css():
     """Carrega arquivo CSS customizado."""
     import logging
@@ -40,29 +42,32 @@ def load_css():
 
 
 # Aplicar tema inicial
+
+
 def apply_initial_theme():
     """Aplica o tema inicial baseado no session_state."""
     theme = st.session_state.get('theme', 'dark')
-    
+
     # Aplica o tema via JavaScript
     theme_js = f"""
     <script>
     document.documentElement.setAttribute('data-theme', '{theme}');
     </script>
     """
-    
+
     st.markdown(theme_js, unsafe_allow_html=True)
 
 
 load_css()
 apply_initial_theme()
 
+
 def main():
     """Função principal da aplicação com validação de token automática."""
     # Tenta restaurar sessão do cookie automaticamente
     if not st.session_state.get('is_authenticated', False):
         api_client.restore_session_if_available()
-    
+
     # Se está autenticado, vai direto para o dashboard
     if st.session_state.get('is_authenticated', False):
         from home.main import HomePage
