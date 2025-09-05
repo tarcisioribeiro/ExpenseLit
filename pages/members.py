@@ -1,632 +1,855 @@
 """
-Página de gestão de membros.
+Módulo de gerenciamento de membros.
 
-Esta página permite ao usuário visualizar, criar, editar e excluir
-membros integrados com a API ExpenseLit.
+Este módulo implementa o CRUD completo para membros,
+seguindo o padrão visual padronizado com tabs centralizadas
+e layout de 3 colunas para listagem.
 """
 
 import logging
-import time
-import re
-from typing import Dict, Any
+from datetime import date, datetime
+from typing import Dict, List
 
 import streamlit as st
 
-from pages.router import BasePage
-from services.api_client import api_client
-from services.api_client import ApiClientError
-from services.permissions_service import permissions_service
-from utils.ui_utils import messages, validation, centered_tabs
+from components.auth import require_auth
+from services.api_client import api_client, ApiClientError, ValidationError
+from utils.ui_utils import ui_components, centered_tabs
+from config.settings import db_categories
 
 
 logger = logging.getLogger(__name__)
 
 
-class MembersPage(BasePage):
-    """
-    Página de gestão de membros.
+class MembersPage:
+    """Página de gerenciamento de membros com padrão visual padronizado."""
 
-    Permite operações CRUD em membros com integração à API.
-    """
     def __init__(self):
-        super().__init__("Membros", "👥")
-        self.required_permissions = ['members.view_member']
+        """Inicializa a página de membros."""
+        self.auth = require_auth()
 
-    def main_menu(self, token=None, permissions=None):
+    def render(self):
         """
-        Método principal seguindo padrão CodexDB.
+        Renderiza a página principal de membros com padrão padronizado.
+
+        Segue o padrão visual estabelecido:
+        - Duas tabs centralizadas (listagem + novo registro)
+        - Layout de 3 colunas para listagem
+        - Popup de ações com CRUD
+        """
+        ui_components.render_page_header(
+            "👥 Membros",
+            subtitle="Gerenciamento de pessoas e contatos"
+        )
+
+        # Tabs principais - padrão estabelecido: 2 tabs centralizadas
+        tab_list, tab_add = centered_tabs([
+            "📋 Listagem de Membros",
+            "➕ Novo Membro"
+        ])
+
+        with tab_list:
+            self._render_members_list_standardized()
+
+        with tab_add:
+            self._render_add_member_form_standardized()
+
+    def _render_members_list_standardized(self):
+        """
+        Renderiza a lista de membros seguindo padrão padronizado.
+
+        Padrão estabelecido:
+        - Layout de 3 colunas por registro
+        - Primeira coluna: nome + emoji do tipo
+        - Segunda coluna (central): dados como documento, telefone, email
+        - Terceira coluna (direita): botão de engrenagem com popup de ações
+        """
+        st.markdown("### 📋 Listagem de Membros")
+
+        # Filtros simplificados em uma linha
+        col_filter1, col_filter2 = st.columns(2)
+
+        with col_filter1:
+            status_filter = st.selectbox(
+                "🔍 Status",
+                options=['Todos', 'Ativos', 'Inativos'],
+                index=0
+            )
+
+        with col_filter2:
+            type_filter = st.selectbox(
+                "👤 Tipo",
+                options=['Todos', 'Usuários', 'Credores', 'Beneficiários'],
+                index=0,
+                help="Filtrar por tipo de membro"
+            )
+
+        # Busca membros
+        try:
+            with st.spinner("🔄 Carregando membros..."):
+                members = self._fetch_members(status_filter, type_filter)
+
+            if not members:
+                st.info("📋 Nenhum membro encontrado com os filtros aplicados.")
+                return
+
+            st.markdown("---")
+
+            # Renderiza membros no padrão de 3 colunas
+            self._render_members_three_column_layout(members)
+
+        except Exception as e:
+            ui_components.show_persistent_error(
+                error_message=f"Erro ao carregar membros: {str(e)}",
+                error_type="carregar_membros",
+                details=f"Detalhes técnicos: {type(e).__name__}: {str(e)}",
+                suggestions=[
+                    "Verifique se a API está funcionando",
+                    "Confirme sua conexão com a internet",
+                    "Tente recarregar a página (F5)"
+                ])
+            logger.error(f"Erro ao carregar membros: {e}")
+
+    def _render_members_three_column_layout(self, members: List[Dict]):
+        """
+        Renderiza membros no layout padronizado de 3 colunas.
 
         Parameters
         ----------
-        token : str, optional
-            Token de autenticação (mantido para compatibilidade)
-        permissions : dict, optional
-            Permissões do usuário (mantido para compatibilidade)
+        members : List[Dict]
+            Lista de membros para exibir
         """
-        st.subheader("👥 Membros")
-        self.render()
+        for member in members:
+            # Container para cada membro
+            with st.container():
+                col1, col2, col3 = st.columns([3, 3, 1])
 
-    def render(self) -> None:
-        """Renderiza o conteúdo da página de membros."""
-        # Verifica permissão de leitura
-        if not permissions_service.has_permission('members', 'read'):
-            permissions_service.check_permission('members', 'read')
-            return
+                with col1:
+                    # Primeira coluna: nome + emoji do tipo
+                    emoji = self._get_member_type_emoji(member)
+                    member_type = self._get_member_type_display(member)
 
-        tabs = ["📋 Membros"]
+                    st.markdown(f"""
+                    **{emoji} {member.get('name', 'N/A')}**
 
-        # Adiciona aba de criação se tiver permissão
-        if permissions_service.has_permission('members', 'create'):
-            tabs.append("➕ Novo Membro")
+                    📂 {member_type}
 
-        tabs.append("📊 Resumo")
+                    🆔 {member.get('document', 'N/A')}
+                    """)
 
-        tab_objects = centered_tabs(tabs)
+                with col2:
+                    # Segunda coluna (central): dados principais
+                    phone = member.get('phone', '')
+                    email = member.get('email', '')
+                    status = "✅ Ativo" if member.get(
+                        'active', True
+                    ) else "⏸️ Inativo"
 
-        # Tab Membros (sempre presente se tem permissão de read)
-        with tab_objects[0]:
-            self._render_members_list()
+                    # Idade se disponível
+                    birth_date = member.get('birth_date')
+                    age_display = ""
+                    if birth_date:
+                        try:
+                            birth = datetime.fromisoformat(birth_date).date()
+                            today = date.today()
+                            age = today.year - birth.year - (
+                                (today.month, today.day) < (
+                                    birth.month, birth.day)
+                            )
+                            age_display = f"🎂 {age} anos"
+                        except BaseException:
+                            age_display = ""
 
-        # Tab Novo Membro (apenas se tem permissão de create)
-        tab_index = 1
-        if permissions_service.has_permission('members', 'create'):
-            with tab_objects[tab_index]:
-                self._render_member_form()
-            tab_index += 1
+                    st.markdown(f"""
+                    **📞 {phone or 'N/A'}**
 
-        # Tab Resumo
-        with tab_objects[tab_index]:
-            self._render_members_summary()
+                    **📧 {email or 'N/A'}**
 
-    def _render_members_list(self) -> None:
-        """Renderiza a lista de membros."""
-        st.markdown("### 👥 Lista de Membros")
+                    {age_display}
 
-        try:
-            with st.spinner("🔄 Carregando membros..."):
-                time.sleep(1)
-                members = api_client.get("members/")
+                    {status}
+                    """)
 
-            if not members:
-                st.info(messages.info('empty_list', item='membro'))
-                return
+                with col3:
+                    # Terceira coluna (direita): botão de ações
+                    if st.button(
+                        "⚙️",
+                        key=f"actions_{member['id']}",
+                        help="Opções de ações",
+                        use_container_width=True
+                    ):
+                        st.session_state[f'show_actions_{member["id"]}'] = True
+                        st.rerun()
 
-            # Filtros
-            col1, col2, col3 = st.columns(3)
+                # Popup de ações para este membro
+                self._render_member_action_popup(member)
 
-            with col1:
-                filter_status = st.selectbox(
-                    "📊 Status",
-                    options=["Todos", "Ativos", "Inativos"]
-                )
+                st.markdown("---")
 
-            with col2:
-                filter_user = st.selectbox(
-                    "👤 Tipo de Usuário",
-                    options=["Todos", "Usuários", "Não Usuários"]
-                )
+    def _render_member_action_popup(self, member: Dict):
+        """
+        Renderiza popup de ações para um membro específico.
 
-            with col3:
-                filter_sex = st.selectbox(
-                    "🚻 Sexo",
-                    options=["Todos", "Masculino", "Feminino"]
-                )
+        Parameters
+        ----------
+        member : Dict
+            Dados do membro
+        """
+        popup_key = f'show_actions_{member["id"]}'
 
-            # Aplica filtros
-            filtered_members = members
+        if st.session_state.get(popup_key, False):
+            with st.expander(
+                f"⚙️ Ações para: {member.get('name', 'N/A')}",
+                expanded=True
+            ):
+                col1, col2, col3 = st.columns(3)
 
-            if filter_status == "Ativos":
-                filtered_members = [
-                    m for m in filtered_members if m.get(  # type: ignore
-                        'active', True)
-                ]
-            elif filter_status == "Inativos":
-                filtered_members = [
-                    m for m in filtered_members if not m.get(  # type: ignore
-                        'active', True)]
+                with col1:
+                    if st.button(
+                        "📝 Editar",
+                        key=f"edit_{member['id']}",
+                        type="secondary",
+                        use_container_width=True
+                    ):
+                        st.session_state[f'edit_member_{member["id"]}'] = (
+                            member
+                        )
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
-            if filter_user == "Usuários":
-                filtered_members = [
-                    m for m in filtered_members if m.get(  # type: ignore
-                        'is_user', False)]
-            elif filter_user == "Não Usuários":
-                filtered_members = [
-                    m for m in filtered_members if not m.get(  # type: ignore
-                        'is_user', False)]
+                with col2:
+                    action_text = "⏸️ Desativar" if member.get(
+                        'active', True
+                    ) else "✅ Ativar"
+                    if st.button(
+                        action_text,
+                        key=f"toggle_{member['id']}",
+                        type="secondary",
+                        use_container_width=True
+                    ):
+                        self._handle_toggle_member_status(member)
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
-            if filter_sex == "Masculino":
-                filtered_members = [
-                    m for m in filtered_members if m.get(  # type: ignore
-                        'sex') == 'M']
-            elif filter_sex == "Feminino":
-                filtered_members = [
-                    m for m in filtered_members if m.get(  # type: ignore
-                        'sex') == 'F']
+                with col3:
+                    if st.button(
+                        "❌ Fechar",
+                        key=f"close_{member['id']}",
+                        use_container_width=True
+                    ):
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
-            # Estatísticas rápidas
-            total_members = len(filtered_members)
-            active_members = sum(
-                1 for m in filtered_members if m.get(  # type: ignore
-                    'active', True)
-                )
-            users = sum(1 for m in filtered_members if m.get(  # type: ignore
-                'is_user', False)
-            )
-            creditors = sum(
-                1 for m in filtered_members if m.get(  # type: ignore
-                    'is_creditor', False)
-                )
+        # Renderiza modal de edição
+        self._render_edit_member_modal(member)
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("📊 Total", total_members)
-            with col2:
-                st.metric("✅ Ativos", active_members)
-            with col3:
-                st.metric("👤 Usuários", users)
-            with col4:
-                st.metric("💼 Credores", creditors)
+    def _render_edit_member_modal(self, member: Dict):
+        """
+        Renderiza modal de edição para um membro.
 
-            st.markdown("---")
+        Parameters
+        ----------
+        member : Dict
+            Dados do membro para editar
+        """
+        edit_key = f'edit_member_{member["id"]}'
 
-            for member in filtered_members:
-                self._render_member_card(member)  # type: ignore
+        if st.session_state.get(edit_key):
+            st.markdown("### ✏️ Editar Membro")
 
-        except ApiClientError as e:
-            st.error(
-                messages.error(
-                    'api_error',
-                    action='carregar membros', details=str(e))  # type: ignore
-                )
-            logger.error(f"Erro ao listar membros: {e}")
+            with st.form(f"edit_form_{member['id']}", clear_on_submit=False):
+                col1, col2 = st.columns(2)
 
-    def _render_member_card(self, member: Dict[str, Any]) -> None:
-        """Renderiza um card de membro."""
-        member_id = member.get('id')
+                with col1:
+                    name = st.text_input(
+                        "👤 Nome *",
+                        value=member.get('name', ''),
+                        help="Nome completo do membro"
+                    )
 
-        with st.container():
-            col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
+                    document = st.text_input(
+                        "🆔 Documento *",
+                        value=member.get('document', ''),
+                        help="CPF ou CNPJ"
+                    )
 
-            with col1:
-                name = member.get('name', 'Membro')
-                document = member.get('document', 'N/A')
-                phone = member.get('phone', 'N/A')
-                email = member.get('email', 'N/A')
-                sex_display = "👨 Masculino" if member.get(
-                    'sex') == 'M' else "👩 Feminino"
+                    phone = st.text_input(
+                        "📞 Telefone",
+                        value=member.get('phone', ''),
+                        help="Número de telefone ou celular"
+                    )
 
-                st.markdown(f"### 👤 {name}")
-                st.caption(f"📄 {document} | 📞 {phone}")
-                if email and email != 'N/A':
-                    st.caption(f"📧 {email}")
-                st.caption(sex_display)
+                with col2:
+                    email = st.text_input(
+                        "📧 Email",
+                        value=member.get('email', ''),
+                        help="Endereço de email"
+                    )
 
-            with col2:
-                roles = []
-                if member.get('is_user', False):
-                    roles.append("👤 Usuário")
-                if member.get('is_creditor', False):
-                    roles.append("💼 Credor")
-                if member.get('is_benefited', False):
-                    roles.append("🎯 Beneficiário")
+                    # Sexo
+                    current_sex = member.get('sex', 'M')
+                    sex_options = list(db_categories.SEX_CHOICES.values())
+                    sex_index = 0
 
-                st.markdown("**Perfis:**")
-                for role in roles if roles else ["Nenhum perfil"]:
-                    st.caption(role)
+                    for idx, (key, value) in enumerate(
+                            db_categories.SEX_CHOICES.items()):
+                        if key == current_sex:
+                            sex_index = idx
+                            break
 
-            with col3:
-                if member.get('active', True):
-                    st.success("✅ Ativo")
-                else:
-                    st.error("❌ Inativo")
+                    sex = st.selectbox(
+                        "⚧️ Sexo",
+                        options=sex_options,
+                        index=sex_index,
+                        format_func=lambda x: f"⚧️ {x}"
+                    )
 
-            with col4:
-                member_id = member.get('id')
-                with st.popover("⚙️ Ações"):
-                    # Botão de Editar - requer permissão de update
-                    if permissions_service.has_permission('members', 'update'):
-                        if st.button(
-                            "✏️ Editar",
-                            key=f"edit_member_{member_id}",
-                            width='stretch'
-                        ):
-                            if f'edit_member_{member_id}' not in (
-                                st.session_state
-                            ):
-                                st.session_state[
-                                    f'edit_member_{member_id}'
-                                ] = member
-                            st.rerun()
+                    # Data de nascimento
+                    birth_date = None
+                    birth_date_str = member.get('birth_date')
+                    if birth_date_str:
+                        try:
+                            birth_date = datetime.fromisoformat(
+                                birth_date_str
+                            ).date()
+                        except BaseException:
+                            birth_date = None
 
-                    # Botão de Ativar/Desativar - requer permissão de update
-                    if permissions_service.has_permission('members', 'update'):
-                        toggle_text = (
-                            "❌ Desativar" if member.get('active', True)
-                            else "✅ Ativar")
-                        if st.button(
-                            toggle_text,
-                            key=f"toggle_member_{member_id}",
-                            width='stretch'
-                        ):
-                            self._toggle_member_status(
-                                member_id, not member.get('active', True))
+                    birth_date = st.date_input(
+                        "🎂 Data de Nascimento",
+                        value=birth_date or date.today(),
+                        max_value=date.today()
+                    )
 
-                    # Botão de Excluir - requer permissão de delete
-                    if permissions_service.has_permission('members', 'delete'):
-                        if st.button(
-                            "🗑️ Excluir",
-                            key=f"delete_member_{member_id}",
-                            width='stretch'
-                        ):
-                            self._delete_member(member_id, name)
+                # Campos adicionais
+                with st.expander("📋 Informações Adicionais"):
+                    col_add1, col_add2 = st.columns(2)
 
-                    has_actions = (
-                        permissions_service.has_permission('members', 'update') or
-                    permissions_service.has_permission(
-                        'members', 'delete'))
-                    if not has_actions:
-                        st.caption("⚠️ Sem permissões para ações")
+                    with col_add1:
+                        occupation = st.text_input(
+                            "💼 Profissão",
+                            value=member.get('occupation', ''),
+                            help="Profissão ou ocupação"
+                        )
 
-            # Formulário de edição inline se ativo
-            edit_state_key = f'edit_member_{member_id}'
-            if edit_state_key in st.session_state and st.session_state[edit_state_key]:
-                self._render_edit_form(member)
+                        monthly_income = st.number_input(
+                            "💰 Renda Mensal (R$)",
+                            value=float(member.get('monthly_income', 0)),
+                            min_value=0.00,
+                            step=0.01,
+                            format="%.2f"
+                        )
 
-            st.markdown("---")
+                    with col_add2:
+                        emergency_contact = st.text_input(
+                            "🚨 Contato de Emergência",
+                            value=member.get('emergency_contact', ''),
+                            help="Nome e telefone para emergências"
+                        )
 
-    def _render_edit_form(self, member: Dict[str, Any]) -> None:
-        """Renderiza formulário de edição inline."""
-        member_id = member.get('id')
+                        # Checkboxes para tipos
+                        is_creditor = st.checkbox(
+                            "💸 É Credor",
+                            value=member.get('is_creditor', False),
+                            help="Marca se a pessoa pode emprestar dinheiro"
+                        )
 
-        st.markdown("#### ✏️ Editando Membro")
+                        is_benefited = st.checkbox(
+                            "💰 É Beneficiário",
+                            value=member.get('is_benefited', False),
+                            help="Marca se a pessoa pode receber empréstimos"
+                        )
 
-        with st.form(f"edit_member_form_{member_id}"):
-            col1, col2 = st.columns(2)
+                    address = st.text_area(
+                        "📍 Endereço",
+                        value=member.get('address', ''),
+                        help="Endereço completo"
+                    )
 
-            with col1:
-                new_name = st.text_input(
-                    "👤 Nome",
-                    value=member.get('name', '')
-                )
+                    notes = st.text_area(
+                        "📝 Observações",
+                        value=member.get('notes', ''),
+                        help="Informações adicionais"
+                    )
 
-                new_document = st.text_input(
-                    "📄 Documento (CPF/CNPJ)",
-                    value=member.get('document', '')
-                )
+                # Botões de ação
+                col_save, col_cancel = st.columns(2)
 
-                new_phone = st.text_input(
-                    "📞 Telefone",
-                    value=member.get('phone', '')
-                )
+                with col_save:
+                    submitted = st.form_submit_button(
+                        "💾 Salvar Alterações",
+                        type="primary",
+                        use_container_width=True
+                    )
 
-                new_email = st.text_input(
-                    "📧 Email",
-                    value=member.get('email', '') or ''
-                )
+                with col_cancel:
+                    cancelled = st.form_submit_button(
+                        "❌ Cancelar",
+                        use_container_width=True
+                    )
 
-            with col2:
-                new_sex = st.selectbox(
-                    "🚻 Sexo",
-                    options=[('M', 'Masculino'), ('F', 'Feminino')],
-                    index=0 if member.get('sex') == 'M' else 1,
-                    format_func=lambda x: x[1]
-                )
+                if submitted:
+                    self._handle_edit_member_submission(
+                        member['id'], name, document, phone, email,
+                        sex, birth_date, occupation, monthly_income,
+                        emergency_contact, is_creditor, is_benefited,
+                        address, notes, edit_key
+                    )
 
-                new_is_user = st.checkbox(
-                    "👤 É usuário do sistema",
-                    value=member.get('is_user', False)
-                )
-
-                new_is_creditor = st.checkbox(
-                    "💼 Pode ser credor",
-                    value=member.get('is_creditor', False)
-                )
-
-                new_is_benefited = st.checkbox(
-                    "🎯 Pode ser beneficiário",
-                    value=member.get('is_benefited', False)
-                )
-
-                new_active = st.checkbox(
-                    "✅ Ativo",
-                    value=member.get('active', True)
-                )
-
-            col_submit, col_cancel = st.columns(2)
-
-            with col_submit:
-                if st.form_submit_button("💾 Salvar Alterações", type="primary"):
-                    if self._validate_document(new_document):
-                        update_data = {
-                            'name': new_name,
-                            'document': new_document,
-                            'phone': new_phone,
-                            'email': new_email if new_email else None,
-                            'sex': new_sex[0],
-                            'is_user': new_is_user,
-                            'is_creditor': new_is_creditor,
-                            'is_benefited': new_is_benefited,
-                            'active': new_active
-                        }
-                        self._update_member(member_id, update_data)
-                    else:
-                        st.error("❌ Documento inválido")
-
-            with col_cancel:
-                if st.form_submit_button("❌ Cancelar"):
-                    st.session_state.pop(f'edit_member_{member_id}', None)
+                if cancelled:
+                    st.session_state.pop(edit_key, None)
                     st.rerun()
 
-    def _render_member_form(self) -> None:
-        """Renderiza formulário para criar membro."""
-        st.markdown("### ➕ Criar Novo Membro")
+    def _render_add_member_form_standardized(self):
+        """Renderiza formulário padronizado de adição de membro."""
+        ui_components.render_enhanced_form_container(
+            "Cadastrar Novo Membro", "➕"
+        )
 
-        with st.form("create_member_form"):
+        with st.form("add_member_form_standardized", clear_on_submit=True):
+            # Seção de dados principais
+            st.markdown("#### 👤 Dados Pessoais")
+
             col1, col2 = st.columns(2)
 
             with col1:
                 name = st.text_input(
-                    "👤 Nome Completo",
-                    placeholder="Ex: João Silva Santos"
+                    "👤 Nome *",
+                    help="Nome completo da pessoa"
                 )
 
                 document = st.text_input(
-                    "📄 Documento (CPF/CNPJ)",
-                    placeholder="000.000.000-00",
-                    help="CPF ou CNPJ do membro"
+                    "🆔 Documento *",
+                    help="CPF ou CNPJ (apenas números)"
                 )
 
                 phone = st.text_input(
                     "📞 Telefone",
-                    placeholder="(11) 99999-9999"
-                )
-
-                email = st.text_input(
-                    "📧 Email (opcional)",
-                    placeholder="joao@email.com"
+                    help="Número de telefone ou celular"
                 )
 
             with col2:
+                email = st.text_input(
+                    "📧 Email",
+                    help="Endereço de email válido"
+                )
+
+                # Sexo
+                sex_options = list(db_categories.SEX_CHOICES.values())
                 sex = st.selectbox(
-                    "🚻 Sexo",
-                    options=[('M', 'Masculino'), ('F', 'Feminino')],
-                    format_func=lambda x: x[1]
+                    "⚧️ Sexo",
+                    options=sex_options,
+                    format_func=lambda x: f"⚧️ {x}"
                 )
 
-                st.markdown("**Perfis do Membro:**")
-
-                is_creditor = st.checkbox(
-                    "💼 Pode ser credor",
-                    value=True,
-                    help="Pode emprestar dinheiro"
+                birth_date = st.date_input(
+                    "🎂 Data de Nascimento",
+                    value=None,
+                    max_value=date.today(),
+                    help="Data de nascimento"
                 )
 
-                is_benefited = st.checkbox(
-                    "🎯 Pode ser beneficiário",
-                    value=True,
-                    help="Pode receber empréstimos"
+            # Campos opcionais
+            with st.expander("📋 Informações Adicionais (Opcional)"):
+                col_opt1, col_opt2 = st.columns(2)
+
+                with col_opt1:
+                    occupation = st.text_input(
+                        "💼 Profissão",
+                        help="Profissão ou ocupação atual"
+                    )
+
+                    monthly_income = st.number_input(
+                        "💰 Renda Mensal (R$)",
+                        min_value=0.00,
+                        step=0.01,
+                        format="%.2f",
+                        help="Renda mensal aproximada"
+                    )
+
+                with col_opt2:
+                    emergency_contact = st.text_input(
+                        "🚨 Contato de Emergência",
+                        help="Nome e telefone para emergências"
+                    )
+
+                    # Checkboxes para tipos
+                    st.markdown("**Tipos de Membro:**")
+                    is_creditor = st.checkbox(
+                        "💸 É Credor",
+                        help="Marca se a pessoa pode emprestar dinheiro"
+                    )
+
+                    is_benefited = st.checkbox(
+                        "💰 É Beneficiário",
+                        help="Marca se a pessoa pode receber empréstimos"
+                    )
+
+                address = st.text_area(
+                    "📍 Endereço",
+                    help="Endereço completo"
                 )
 
-                active = st.checkbox(
-                    "✅ Ativo",
-                    value=True,
-                    help="Membro ativo no sistema"
+                notes = st.text_area(
+                    "📝 Observações",
+                    help="Informações adicionais sobre o membro"
                 )
 
-            if st.form_submit_button("💾 Criar Membro", type="primary"):
-                # Validação usando utilitários padronizados
-                required_data = {'name': name, 'document': document, 'phone': phone}
-                required_error = validation.validate_required_fields(
-                required_data, ['name', 'document', 'phone'])
+            # Botão de submissão
+            submitted = st.form_submit_button(
+                "💾 Salvar Membro",
+                type="primary",
+                use_container_width=True
+            )
 
-                if required_error:
-                    st.error(required_error)
-                    return
+            if submitted:
+                self._handle_add_member_submission(
+                    name, document, phone, email, sex, birth_date,
+                    occupation, monthly_income, emergency_contact,
+                    is_creditor, is_benefited, address, notes
+                )
 
-                # Validação removida - não há mais campo de usuário
+    def _get_member_type_emoji(self, member: Dict) -> str:
+        """
+        Obtém emoji para o tipo de membro.
 
-                document_error = validation.validate_document(document)
-                if document_error:
-                    st.error(document_error)
-                    return
+        Parameters
+        ----------
+        member : Dict
+            Dados do membro
 
-                email_error = validation.validate_email(email)
-                if email_error:
-                    st.error(email_error)
-                    return
+        Returns
+        -------
+        str
+            Emoji correspondente ao tipo
+        """
+        if member.get('user_id'):
+            return "👨‍💻"  # Usuário do sistema
+        elif member.get('is_creditor') and member.get('is_benefited'):
+            return "🤝"  # Credor e beneficiário
+        elif member.get('is_creditor'):
+            return "💸"  # Credor
+        elif member.get('is_benefited'):
+            return "💰"  # Beneficiário
+        else:
+            return "👤"  # Membro comum
 
-                member_data = {
-                    'name': name,
-                    'document': document,
-                    'phone': phone,
-                    'email': email if email else None,
-                    'sex': sex[0],
-                    'user': None,  # Membros não são vinculados a usuários pelo cadastro manual
-                    'is_creditor': is_creditor,
-                    'is_benefited': is_benefited,
-                    'active': active
-                }
-                self._create_member(member_data)
+    def _get_member_type_display(self, member: Dict) -> str:
+        """
+        Obtém descrição do tipo de membro.
 
-    def _render_members_summary(self) -> None:
-        """Renderiza resumo dos membros."""
-        st.markdown("### 📊 Resumo de Membros")
+        Parameters
+        ----------
+        member : Dict
+            Dados do membro
 
+        Returns
+        -------
+        str
+            Descrição do tipo
+        """
+        types = []
+
+        if member.get('user_id'):
+            types.append("Usuário")
+        if member.get('is_creditor'):
+            types.append("Credor")
+        if member.get('is_benefited'):
+            types.append("Beneficiário")
+
+        return ", ".join(types) if types else "Membro"
+
+    def _fetch_members(
+            self,
+            status_filter: str,
+            type_filter: str) -> List[Dict]:
+        """
+        Busca membros com filtros aplicados.
+
+        Parameters
+        ----------
+        status_filter : str
+            Filtro de status
+        type_filter : str
+            Filtro de tipo
+
+        Returns
+        -------
+        List[Dict]
+            Lista de membros filtrados
+        """
         try:
-            with st.spinner("📊 Carregando estatísticas..."):
-                time.sleep(1)
-                members = api_client.get("members/")
+            members_response = api_client.get("members/")
+            members = (
+                members_response.get('results', members_response)
+                if isinstance(members_response, dict)
+                else members_response
+            )
 
             if not members:
-                st.info("📝 Nenhum membro encontrado.")
-                return
+                return []
 
-            total_members = len(members)
-            active_members = sum(1 for m in members if m.get('active', True))
-            inactive_members = total_members - active_members
-            male_members = sum(1 for m in members if m.get('sex') == 'M')
-            female_members = sum(1 for m in members if m.get('sex') == 'F')
-            users = sum(1 for m in members if m.get('is_user', False))
-            creditors = sum(1 for m in members if m.get('is_creditor', False))
-            beneficiaries = sum(
-                1 for m in members if m.get('is_benefited', False))
+            # Aplica filtros
+            filtered_members = members
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("📊 Total de Membros", total_members)
-            with col2:
-                st.metric("✅ Membros Ativos", active_members)
-            with col3:
-                st.metric("❌ Membros Inativos", inactive_members)
-            with col4:
-                st.metric("👤 Usuários", users)
+            # Filtro por status
+            if status_filter == 'Ativos':
+                filtered_members = [
+                    m for m in filtered_members
+                    if m.get('active', True)
+                ]
+            elif status_filter == 'Inativos':
+                filtered_members = [
+                    m for m in filtered_members
+                    if not m.get('active', True)
+                ]
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("👨 Masculino", male_members)
-            with col2:
-                st.metric("👩 Feminino", female_members)
-            with col3:
-                st.metric("💼 Credores", creditors)
-            with col4:
-                st.metric("🎯 Beneficiários", beneficiaries)
+            # Filtro por tipo
+            if type_filter == 'Usuários':
+                filtered_members = [
+                    m for m in filtered_members
+                    if m.get('user_id')
+                ]
+            elif type_filter == 'Credores':
+                filtered_members = [
+                    m for m in filtered_members
+                    if m.get('is_creditor', False)
+                ]
+            elif type_filter == 'Beneficiários':
+                filtered_members = [
+                    m for m in filtered_members
+                    if m.get('is_benefited', False)
+                ]
 
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao carregar estatísticas: {e}")
-            logger.error(f"Erro ao carregar resumo de membros: {e}")
+            return filtered_members
 
-    def _validate_document(self, document: str) -> bool:
-        """Valida se o documento está no formato correto (CPF ou CNPJ)."""
-        if not document:
-            return False
+        except Exception as e:
+            logger.error(f"Erro ao buscar membros: {e}")
+            raise
 
-        # Remove caracteres não numéricos
-        doc = re.sub(r'[^0-9]', '', document)
+    def _handle_add_member_submission(
+        self, name: str, document: str, phone: str, email: str,
+        sex: str, birth_date: date, occupation: str,
+        monthly_income: float, emergency_contact: str,
+        is_creditor: bool, is_benefited: bool, address: str,
+        notes: str
+    ):
+        """
+        Processa submissão do formulário de novo membro.
 
-        # Verifica se é CPF (11 dígitos) ou CNPJ (14 dígitos)
-        return len(doc) == 11 or len(doc) == 14
-
-    def _create_member(self, member_data: Dict[str, Any]) -> None:
-        """Cria um novo membro."""
-        # Verifica permissão de criação
-        if not permissions_service.check_permission('members', 'create'):
+        Parameters
+        ----------
+        name : str
+            Nome do membro
+        document : str
+            Documento
+        phone : str
+            Telefone
+        email : str
+            Email
+        sex : str
+            Sexo
+        birth_date : date
+            Data de nascimento
+        occupation : str
+            Profissão
+        monthly_income : float
+            Renda mensal
+        emergency_contact : str
+            Contato de emergência
+        is_creditor : bool
+            Se é credor
+        is_benefited : bool
+            Se é beneficiário
+        address : str
+            Endereço
+        notes : str
+            Observações
+        """
+        if not name or not document:
+            st.error("❌ Por favor, preencha todos os campos obrigatórios!")
             return
 
         try:
-            with st.spinner("💾 Criando membro..."):
-                time.sleep(1)
-            new_member = api_client.post("members/", member_data)
+            # Converte sexo para código da API
+            sex_code = None
+            for key, val in db_categories.SEX_CHOICES.items():
+                if val == sex:
+                    sex_code = key
+                    break
 
-            st.toast(messages.success('created', item='Membro'))
-            time.sleep(1)
-            st.rerun()
+            member_data = {
+                'name': name,
+                'document': document,
+                'phone': phone or '',
+                'email': email or '',
+                'sex': sex_code or 'M',
+                'birth_date': birth_date.isoformat() if birth_date else None,
+                'occupation': occupation or '',
+                'monthly_income': (
+                    str(monthly_income) if monthly_income else '0.00'
+                ),
+                'emergency_contact': emergency_contact or '',
+                'is_creditor': is_creditor,
+                'is_benefited': is_benefited,
+                'address': address or '',
+                'notes': notes or '',
+                'active': True}
+
+            with st.spinner("💾 Salvando membro..."):
+                result = api_client.post("members/", data=member_data)
+
+            if result:
+                st.success(f"✅ Membro '{name}' cadastrado com sucesso!")
+                st.rerun()
+            else:
+                st.error("❌ Erro ao cadastrar membro!")
+
+        except ValidationError as e:
+            error_details = getattr(e, 'details', {})
+            st.error(f"❌ Dados inválidos: {str(e)}")
+
+            if error_details:
+                with st.expander("📋 Detalhes dos Erros"):
+                    for field, errors in error_details.items():
+                        st.write(f"**{field}:** {', '.join(errors)}")
 
         except ApiClientError as e:
-            st.error(
-                messages.error('api_error', action='criar membro', details=str(e)))
+            st.error(f"❌ Erro de comunicação: {str(e)}")
+
+        except Exception as e:
+            st.error(f"❌ Erro inesperado: {str(e)}")
             logger.error(f"Erro ao criar membro: {e}")
 
-    def _update_member(
-        self,
-        member_id: int,
-        member_data: Dict[str,
-        Any]
-    ) -> None:
-            """Atualiza um membro."""
-            # Verifica permissão de atualização
-            if not permissions_service.check_permission('members', 'update'):
-                return
+    def _handle_edit_member_submission(
+        self, member_id: int, name: str, document: str, phone: str,
+        email: str, sex: str, birth_date: date, occupation: str,
+        monthly_income: float, emergency_contact: str,
+        is_creditor: bool, is_benefited: bool, address: str,
+        notes: str, edit_key: str
+    ):
+        """
+        Processa submissão da edição de membro.
 
-            try:
-                with st.spinner("💾 Atualizando membro..."):
-                    time.sleep(1)
-                updated_member = api_client.put(
-                    f"members/{member_id}/", member_data
-                )
-                print(updated_member)
-
-                st.success("✅ Membro atualizado com sucesso!")
-                st.session_state.pop(f'edit_member_{member_id}', None)
-                st.rerun()
-
-            except ApiClientError as e:
-                st.error(f"❌ Erro ao atualizar membro: {e}")
-                logger.error(f"Erro ao atualizar membro {member_id}: {e}")
-
-    def _toggle_member_status(self, member_id: int, is_active: bool) -> None:
-        """Alterna o status de ativo/inativo de um membro."""
-        # Verifica permissão de atualização
-        if not permissions_service.check_permission('members', 'update'):
+        Parameters
+        ----------
+        member_id : int
+            ID do membro
+        name : str
+            Novo nome
+        document : str
+            Novo documento
+        phone : str
+            Novo telefone
+        email : str
+            Novo email
+        sex : str
+            Novo sexo
+        birth_date : date
+            Nova data nascimento
+        occupation : str
+            Nova profissão
+        monthly_income : float
+            Nova renda
+        emergency_contact : str
+            Novo contato emergência
+        is_creditor : bool
+            Novo status credor
+        is_benefited : bool
+            Novo status beneficiário
+        address : str
+            Novo endereço
+        notes : str
+            Novas observações
+        edit_key : str
+            Chave da sessão
+        """
+        if not name or not document:
+            st.error("❌ Por favor, preencha todos os campos obrigatórios!")
             return
 
         try:
-            with st.spinner(f"{'Ativando' if is_active else 'Desativando'} membro..."):
-                member_data = api_client.get(f"members/{member_id}/")
+            # Converte sexo para código da API
+            sex_code = None
+            for key, val in db_categories.SEX_CHOICES.items():
+                if val == sex:
+                    sex_code = key
+                    break
 
-                update_data = {
-                    'name': member_data.get('name'),
-                    'document': member_data.get('document'),
-                    'phone': member_data.get('phone'),
-                    'email': member_data.get('email'),
-                    'sex': member_data.get('sex'),
-                    'is_user': member_data.get('is_user'),
-                    'is_creditor': member_data.get('is_creditor'),
-                    'is_benefited': member_data.get('is_benefited'),
-                    'active': is_active
-                }
+            update_data = {
+                'name': name,
+                'document': document,
+                'phone': phone or '',
+                'email': email or '',
+                'sex': sex_code or 'M',
+                'birth_date': birth_date.isoformat() if birth_date else None,
+                'occupation': occupation or '',
+                'monthly_income': str(monthly_income),
+                'emergency_contact': emergency_contact or '',
+                'is_creditor': is_creditor,
+                'is_benefited': is_benefited,
+                'address': address or '',
+                'notes': notes or ''
+            }
 
-                api_client.put(f"members/{member_id}/", update_data)
+            with st.spinner("💾 Salvando alterações..."):
+                result = api_client.put(
+                    f"members/{member_id}/", data=update_data)
 
-            status_text = "ativado" if is_active else "desativado"
-            st.success(f"✅ Membro {status_text} com sucesso!")
-            st.rerun()
-
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao alterar status: {e}")
-            logger.error(f"Erro ao alterar status do membro {member_id}: {e}")
-
-    def _delete_member(self, member_id: int, name: str) -> None:
-        """Exclui um membro após confirmação."""
-        # Verifica permissão de exclusão
-        if not permissions_service.check_permission('members', 'delete'):
-            return
-
-        confirm_key = f"confirm_delete_member_{member_id}"
-
-        if not st.session_state.get(confirm_key, False):
-            st.session_state[confirm_key] = True
-            st.rerun()
-
-        st.warning(f"⚠️ **Tem certeza que deseja excluir o membro '{name}'?**")
-        st.error("🚨 **ATENÇÃO:** Esta ação não pode ser desfeita!")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button(
-                "🗑️ Sim, Excluir",
-                key=f"final_confirm_delete_member_{member_id}",
-                type="primary",
-                width='stretch'
-            ):
-                try:
-                    with st.spinner("🗑️ Excluindo membro..."):
-                        api_client.delete(f"members/{member_id}/")
-
-                    st.success(f"✅ Membro '{name}' excluído com sucesso!")
-                    st.session_state.pop(confirm_key, None)
-                    st.rerun()
-
-                except ApiClientError as e:
-                    st.error(f"❌ Erro ao excluir membro: {e}")
-                    logger.error(f"Erro ao excluir membro {member_id}: {e}")
-                    st.session_state.pop(confirm_key, None)
-
-        with col2:
-            if st.button(
-                "❌ Cancelar",
-                key=f"cancel_delete_member_{member_id}",
-                width='stretch'
-            ):
-                st.session_state.pop(confirm_key, None)
+            if result:
+                st.success("✅ Membro atualizado com sucesso!")
+                st.session_state.pop(edit_key, None)
                 st.rerun()
+            else:
+                st.error("❌ Erro ao atualizar membro!")
+
+        except Exception as e:
+            st.error(f"❌ Erro ao atualizar: {str(e)}")
+            logger.error(f"Erro ao atualizar membro {member_id}: {e}")
+
+    def _handle_toggle_member_status(self, member: Dict):
+        """
+        Alterna status ativo/inativo do membro.
+
+        Parameters
+        ----------
+        member : Dict
+            Dados do membro
+        """
+        try:
+            new_status = not member.get('active', True)
+            status_text = "ativado" if new_status else "desativado"
+
+            action = 'Ativando' if new_status else 'Desativando'
+            with st.spinner(f"⚙️ {action} membro..."):
+                result = api_client.put(
+                    f"members/{member['id']}/",
+                    data={'active': new_status}
+                )
+
+            if result:
+                st.success(
+                    f"✅ Membro {status_text} com sucesso!"
+                )
+                st.rerun()
+            else:
+                st.error(
+                    f"❌ Erro ao {'ativar' if new_status else 'desativar'} "
+                    "membro!"
+                )
+
+        except Exception as e:
+            st.error(f"❌ Erro ao alterar status: {str(e)}")
+            logger.error(
+                f"Erro ao alterar status do membro {member['id']}: {e}")
+
+
+# Função de entrada principal
+def show():
+    """Função de entrada para a página de membros."""
+    page = MembersPage()
+    page.render()
+
+
+# Compatibilidade com estrutura existente
+members_page = MembersPage()

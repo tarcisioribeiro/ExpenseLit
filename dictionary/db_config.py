@@ -1,5 +1,4 @@
 import os
-import streamlit as st
 from dotenv import load_dotenv
 
 
@@ -18,7 +17,5 @@ db_config = {
     "password": db_password,
     "database": db_database,
 }
-
-st.write(db_config)
 
 api_key = os.getenv("OPENAI_API_KEY")

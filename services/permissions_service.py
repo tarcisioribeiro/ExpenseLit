@@ -93,9 +93,46 @@ class PermissionsService:
         return user_permissions.get('is_superuser', False)
 
     @staticmethod
+    def is_member_group() -> bool:
+        """
+        Verifica se o usuário pertence ao grupo 'members'.
+
+        Returns
+        -------
+        bool
+            True se o usuário pertence ao grupo 'members'
+        """
+        user_permissions = PermissionsService.get_user_permissions()
+        if not user_permissions:
+            return False
+
+        # Verifica diferentes formatos possíveis de grupos na resposta da API
+        user_groups = user_permissions.get('groups', [])
+
+        # Verifica se o grupo 'members' está presente
+        # Suporta tanto strings quanto dicionários com 'name'
+        for group in user_groups:
+            if isinstance(group, str):
+                if group.lower() in ['members', 'members']:
+                    return True
+            elif isinstance(group, dict):
+                group_name = group.get('name', '')
+                if group_name.lower() in ['members', 'members']:
+                    return True
+
+        # Fallback: se não encontrou grupos mas tem permissões,
+        # assume que está no grupo members (para compatibilidade)
+        if user_permissions.get('permissions') and not user_groups:
+            return True
+
+        return False
+
+    @staticmethod
     def get_app_permissions(app_name: str) -> List[str]:
         """
         Obtém as permissões do usuário para uma aplicação específica.
+
+        Agora inclui verificação de pertencimento ao grupo 'members'.
 
         Parameters
         ----------
@@ -107,22 +144,41 @@ class PermissionsService:
         List[str]
             Lista de permissões CRUD para a aplicação
         """
-        # Superusuários são bloqueados nesta interface
-        if PermissionsService.is_superuser():
-            return []
-
         user_permissions = PermissionsService.get_user_permissions()
         if not user_permissions:
             return []
 
+        # Superusuários têm acesso total
+        if PermissionsService.is_superuser():
+            return ['create', 'read', 'update', 'delete']
+
+        # Verifica se o usuário pertence ao grupo 'members'
+        if not PermissionsService.is_member_group():
+            logger.warning(
+                "Usuário não pertence ao grupo 'members'. "
+                "Acesso negado às funcionalidades."
+            )
+            return []
+
         user_perms_list = user_permissions.get('permissions', [])
         app_permissions = []
+
+        # Se não há permissões específicas mas está no grupo members,
+        # concede permissões básicas
+        if not user_perms_list:
+            # Usuários do grupo members têm permissões básicas
+            return ['read', 'create']
 
         for perm in user_perms_list:
             if perm.startswith(f"{app_name}."):
                 crud_operation = PermissionsService.PERMISSIONS_MAP.get(perm)
                 if crud_operation and crud_operation not in app_permissions:
                     app_permissions.append(crud_operation)
+
+        # Se não encontrou permissões específicas para esta app mas está no
+        # grupo members, concede básicas
+        if not app_permissions:
+            app_permissions = ['read', 'create']
 
         return app_permissions
 
@@ -143,10 +199,6 @@ class PermissionsService:
         bool
             True se o usuário tem a permissão
         """
-        # Superusuários são bloqueados nesta interface
-        if PermissionsService.is_superuser():
-            return False
-
         app_permissions = PermissionsService.get_app_permissions(app_name)
         return operation in app_permissions
 
@@ -243,20 +295,59 @@ class PermissionsService:
         return summary
 
     @staticmethod
+    def has_system_access() -> bool:
+        """
+        Verifica se o usuário tem acesso ao sistema.
+
+        Returns
+        -------
+        bool
+            True se o usuário tem acesso (é superusuário ou está no grupo
+            members)
+        """
+        user_permissions = PermissionsService.get_user_permissions()
+        if not user_permissions:
+            return False
+
+        # Superusuários sempre têm acesso total
+        if PermissionsService.is_superuser():
+            return True
+
+        # Verifica se está no grupo members
+        if PermissionsService.is_member_group():
+            return True
+
+        # Fallback: se tem qualquer permissão específica, assume acesso
+        if user_permissions.get('permissions'):
+            return True
+
+        return False
+
+    @staticmethod
     def render_permissions_info():
         """Renderiza informações sobre as permissões do usuário atual."""
-        if PermissionsService.is_superuser():
-            st.error("🚫 **Superusuário** - Acesso bloqueado nesta interface")
-            st.warning(
-                """Use o painel administrativo do Django
-                para gerenciar o sistema."""
-            )
-            return
-
         user_permissions = PermissionsService.get_user_permissions()
         if not user_permissions:
             st.error("❌ Nenhuma permissão encontrada")
             return
+
+        if not PermissionsService.has_system_access():
+            st.error("❌ **Acesso Negado**")
+            st.warning(
+                "🔒 Você não possui permissões para acessar este sistema. "
+                "Entre em contato com o administrador."
+            )
+            return
+
+        if PermissionsService.is_superuser():
+            st.success("🔑 **Superusuário** - Acesso total ao sistema")
+            st.info(
+                "Você tem permissões completas para todas as funcionalidades."
+            )
+            return
+
+        if PermissionsService.is_member_group():
+            st.success("👥 **Membro** - Acesso às funcionalidades do sistema")
 
         st.markdown("### 🔐 Suas Permissões")
 

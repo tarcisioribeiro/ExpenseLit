@@ -8,43 +8,74 @@ seguindo o padrão do projeto CodexDB.
 import streamlit as st
 from time import sleep
 from components.auth import auth_component
+from services.permissions_service import PermissionsService
+from utils.ui_utils import ui_components
 
 
 class HomePage:
     """
     Classe que representa o menu principal da aplicação.
     """
+
     def main_menu(self):
         """
         Menu principal da aplicação com navegação via selectbox.
         """
+        # Verifica se o usuário tem acesso ao sistema
+        if not PermissionsService.has_system_access():
+            st.error("🚫 **Acesso Negado**")
+            st.warning(
+                "Você não possui as permissões necessárias para acessar "
+                "este sistema."
+            )
+            st.info(
+                "💡 **Entre em contato com o administrador** para ser "
+                "adicionado ao grupo 'Membros'."
+            )
+
+            # Mostra botão de logout
+            if st.button("🔓 Sair", type="primary"):
+                self._handle_logout()
+
+            st.stop()
+
         # Importações locais para evitar dependências circulares
         from pages.dashboard import DashboardPage
         from pages.accounts import AccountsPage
         from pages.expenses import ExpensesPage
         from pages.revenues import RevenuesPage
         from pages.credit_cards import CreditCardsPage
-        from pages.loans import LoansPage
+        # from pages.loans import LoansPage
         from pages.transfers import TransfersPage
         from pages.members import MembersPage
-        from pages.reports import ReportsPage
+        # from pages.reports import ReportsPage
 
         # Obtém dados do usuário
         username = st.session_state.get('username', 'Usuário')
         user_permissions = st.session_state.get('user_permissions', {})
 
         # Opções do menu organizadas por categoria
-        menu_options = {
-            "📊 Dashboard": DashboardPage,
-            "🏦 Contas": AccountsPage,
-            "💸 Despesas": ExpensesPage,
-            "💰 Receitas": RevenuesPage,
-            "💳 Cartões de Crédito": CreditCardsPage,
-            "🏠 Empréstimos": LoansPage,
-            "↔️ Transferências": TransfersPage,
-            "👥 Membros": MembersPage,
-            "📈 Relatórios": ReportsPage,
+        all_menu_options = {
+            "📊 Dashboard": (DashboardPage, None),  # Sempre disponível
+            "🏦 Contas": (AccountsPage, "accounts"),
+            "💸 Despesas": (ExpensesPage, "expenses"),
+            "💰 Receitas": (RevenuesPage, "revenues"),
+            "💳 Cartões de Crédito": (CreditCardsPage, "credit_cards"),
+            # "🏠 Empréstimos": (LoansPage, "loans"),
+            "↔️ Transferências": (TransfersPage, "transfers"),
+            "👥 Membros": (MembersPage, "members"),
+            # "📈 Relatórios": (ReportsPage, None),  # Sempre disponível
         }
+
+        # Filtra opções do menu baseado nas permissões
+        menu_options = {}
+        for label, (page_class, app_name) in all_menu_options.items():
+            if app_name is None:
+                # Páginas sempre disponíveis
+                menu_options[label] = page_class
+            elif PermissionsService.has_permission(app_name, "read"):
+                # Páginas que precisam de permissão de leitura
+                menu_options[label] = page_class
 
         # Mapeamento para redirecionamentos
         redirect_map = {
@@ -55,13 +86,27 @@ class HomePage:
         }
 
         with st.sidebar:
-            # Header com logo/nome da aplicação
+            # Header com logo/nome da aplicação aprimorado
             st.markdown("""
-            <div style="text-align: center; padding: 20px;">
-                <h1>💰 ExpenseLit</h1>
-                <p>Controle Financeiro</p>
+            <div style="
+                text-align: center;
+                padding: 20px;
+                background: linear-gradient(135deg, #bd93f9, #ff79c6);
+                border-radius: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 15px rgba(189, 147, 249, 0.3);
+            ">
+                <h1 style="color: #282a36; margin: 0; font-size: 2.2em;">
+                    💰 ExpenseLit
+                </h1>
+                <p style="color: #44475a; margin: 5px 0; font-weight: 500;">
+                    ✨ Controle Financeiro Inteligente
+                </p>
             </div>
             """, unsafe_allow_html=True)
+
+            # Timer da sessão
+            ui_components.render_session_timer()
 
             st.divider()
 
@@ -85,12 +130,30 @@ class HomePage:
 
             st.divider()
 
-            # Informações do usuário
-            st.markdown("### 👤 Sessão")
-            st.markdown(f"**Usuário:** {username}")
+            # Informações do usuário aprimoradas
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #44475a, #6272a4);
+                border-radius: 10px;
+                padding: 15px;
+                margin: 10px 0;
+                border-left: 4px solid #8be9fd;
+            ">
+                <div style="color: #8be9fd; font-size: 14px; font-weight: bold;
+                             margin-bottom: 8px;">
+                    👤 Informações da Sessão
+                </div>
+                <div style="color: #f8f8f2; font-weight: 500;">
+                    🧑‍💼 <strong>Usuário:</strong> """ + username + """
+                </div>
+                <div style="color: #50fa7b; font-size: 12px; margin-top: 8px;">
+                    🟢 Conectado
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-            # Botão de logout
-            if st.button("🔓 Sair", width='stretch'):
+            # Botão de logout aprimorado
+            if st.button("🔓 Sair", type="secondary", width='stretch'):
                 self._handle_logout()
 
         # Renderiza a página selecionada
@@ -112,7 +175,9 @@ class HomePage:
         # Realiza logout
         auth_component.logout()
 
-        st.toast("👋 Logout realizado com sucesso!")
+        ui_components.show_success_toast(
+            "👋 Logout realizado com sucesso!", 2.0
+        )
 
         # Limpa session_state
         for key in list(st.session_state.keys()):

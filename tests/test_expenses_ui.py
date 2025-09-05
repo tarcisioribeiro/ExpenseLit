@@ -22,7 +22,8 @@ class TestExpensesUI:
     async def test_expense_edit_functionality(self, page: Page):
         """
         Testa a funcionalidade de edição de despesas.
-Verifica se o erro 'st.session_state.edit_expense_X cannot be modified' foi corrigido.
+        Verifica se o erro 'st.session_state.edit_expense_X cannot be
+        modified' foi corrigido.
         """
         try:
             # Navega para a aplicação
@@ -64,12 +65,15 @@ Verifica se o erro 'st.session_state.edit_expense_X cannot be modified' foi corr
                         await asyncio.sleep(2)
 
                         # Verifica se não há erros de session_state
-error_elements = await page.query_selector_all(
-    ".stException")
+                        error_elements = await page.query_selector_all(
+                            ".stException")
                         errors = []
                         for error_elem in error_elements:
                             error_text = await error_elem.inner_text()
-if "cannot be modified after the widget" in error_text:
+                            if (
+                                "cannot be modified after the widget" in
+                                error_text
+                            ):
                                 errors.append(error_text)
 
                         if errors:
@@ -97,7 +101,8 @@ if "cannot be modified after the widget" in error_text:
     async def test_revenue_edit_functionality(self, page: Page):
         """
         Testa a funcionalidade de edição de receitas.
-Verifica se o erro 'st.session_state.edit_revenue_X cannot be modified' foi corrigido.
+        Verifica se o erro 'st.session_state.edit_revenue_X cannot be
+        modified' foi corrigido.
         """
         try:
             # Navega para a aplicação
@@ -132,12 +137,15 @@ Verifica se o erro 'st.session_state.edit_revenue_X cannot be modified' foi corr
                         await asyncio.sleep(2)
 
                         # Verifica se não há erros de session_state
-error_elements = await page.query_selector_all(
-    ".stException")
+                        error_elements = await page.query_selector_all(
+                            ".stException")
                         errors = []
                         for error_elem in error_elements:
                             error_text = await error_elem.inner_text()
-if "cannot be modified after the widget" in error_text:
+                            if (
+                                "cannot be modified after the widget" in
+                                error_text
+                            ):
                                 errors.append(error_text)
 
                         if errors:
@@ -185,8 +193,8 @@ if "cannot be modified after the widget" in error_text:
                     await asyncio.sleep(2)
 
                     # Verifica se há erros de exceção
-error_elements = await page.query_selector_all(
-    ".stException")
+                    error_elements = await page.query_selector_all(
+                        ".stException")
                     if error_elements:
                         errors = []
                         for elem in error_elements:
@@ -222,13 +230,15 @@ async def run_tests():
 
         # Teste 2: Edição de despesas
         print("\n2. Testando edição de despesas...")
-expense_result = await test_instance. \
-    test_expense_edit_functionality(page)
+        expense_result = await (
+            test_instance.test_expense_edit_functionality(page)
+        )
 
         # Teste 3: Edição de receitas
         print("\n3. Testando edição de receitas...")
-revenue_result = await test_instance. \
-    test_revenue_edit_functionality(page)
+        revenue_result = await (
+            test_instance.test_revenue_edit_functionality(page)
+        )
 
         await browser.close()
 
@@ -271,8 +281,10 @@ if __name__ == "__main__":
         elif results["expense_edit"] is False:
             f.write("❌ ERRO: Problema na edição de despesas\n")
         elif results["expense_edit"] is None:
-f.write(
-    "⚠️ AVISO: Não foi possível testar - nenhuma despesa encontrada\n")
+            f.write(
+                "⚠️ AVISO: Não foi possível testar - nenhuma despesa "
+                "encontrada\n"
+            )
 
         f.write("\n3. TESTE DE EDIÇÃO DE RECEITAS:\n")
         if results["revenue_edit"] is True:
@@ -280,8 +292,10 @@ f.write(
         elif results["revenue_edit"] is False:
             f.write("❌ ERRO: Problema na edição de receitas\n")
         elif results["revenue_edit"] is None:
-f.write(
-    "⚠️ AVISO: Não foi possível testar - nenhuma receita encontrada\n")
+            f.write(
+                "⚠️ AVISO: Não foi possível testar - nenhuma receita "
+                "encontrada\n"
+            )
 
         f.write(f"\nTeste executado em: {asyncio.get_event_loop().time()}\n")
 

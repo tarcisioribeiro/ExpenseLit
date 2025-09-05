@@ -19,8 +19,6 @@ class UsersService:
     Serviço para operações com usuários Django.
     """
 
-
-
     def get_available_users(self) -> List[Dict[str, Any]]:
         """
         Obtém usuários disponíveis para vinculação com membros.
@@ -36,7 +34,12 @@ class UsersService:
             Se houver erro na comunicação com a API
         """
         try:
-            response = api_client.get("users/available/")
+            api_response = api_client.get("users/available/")
+            # Verifica se é uma lista de usuários
+            if isinstance(api_response, list):
+                response: List[Dict[str, Any]] = api_response
+            else:
+                response = api_response.get('results', [])
 
             # Formata dados para exibição
             formatted_users = []
@@ -56,8 +59,6 @@ class UsersService:
         except ApiClientError as e:
             logger.error(f"Erro ao buscar usuários disponíveis: {e}")
             raise
-
-
 
     def _format_user_display_name(self, user: Dict[str, Any]) -> str:
         """

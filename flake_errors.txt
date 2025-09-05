@@ -1,0 +1,3 @@
+./pages/credit_cards.py:143:80: E501 line too long (85 > 79 characters)
+./pages/credit_cards.py:541:80: E501 line too long (82 > 79 characters)
+./pages/credit_cards.py:609:80: E501 line too long (84 > 79 characters)

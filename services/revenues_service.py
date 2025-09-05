@@ -71,13 +71,13 @@ class RevenuesService:
             if received is not None:
                 params['received'] = str(received).lower()
             if account_id:
-                params['account'] = account_id
+                params['account'] = str(account_id)
             if date_from:
                 params['date_from'] = format_date_for_api(date_from)
             if date_to:
                 params['date_to'] = format_date_for_api(date_to)
             if limit:
-                params['limit'] = limit
+                params['limit'] = str(limit)
 
             response = api_client.get(self.ENDPOINT, params=params)
 

@@ -61,7 +61,7 @@ class AuthConfig:
 
     TOKEN_ENDPOINT: str = "authentication/token/"
     REFRESH_ENDPOINT: str = "authentication/token/refresh/"
-    USER_PERMISSIONS_ENDPOINT: str = "authentication/user-permissions/"
+    USER_PERMISSIONS_ENDPOINT: str = "user/permissions/"
 
     # Timeouts em minutos
     ACCESS_TOKEN_LIFETIME: int = 15
@@ -277,6 +277,26 @@ class DatabaseCategories:
         "Feminino": "F"
     }
 
+    # Categorias de Transferências
+    TRANSFER_CATEGORIES: Dict[str, str] = {
+        "doc": "DOC",
+        "ted": "TED",
+        "pix": "PIX"
+    }
+
+    # Emojis para categorias de transferências
+    TRANSFER_CATEGORY_EMOJIS: Dict[str, str] = {
+        "doc": "📄",
+        "ted": "🏦",
+        "pix": "⚡"
+    }
+
+    # Dicionário traduzido para transferências
+    TRANSLATED_TRANSFER_CATEGORIES: Dict[str, str] = {
+        "DOC": "doc",
+        "TED": "ted",
+        "PIX": "pix"
+    }
 
 
 # Instâncias globais das configurações

@@ -4,28 +4,46 @@ Este é um pedido de melhoria, vou detalha-lo para que possa entender mais preci
 
 ## Melhoria
 
-Tendo como base as referências acima, preciso que faça o seguinte:
+---
 
-* Percorrer o código e verificar se a lógica de resposta/erro/request está condizente com o que diz a documentação.
+* Preciso que recrie a tela de transferências.
 
-* Caso haja campos faltantes ou verificações a serem implementadas, faça.
+* A tela de cadastro e listagem devem seguir o mesmo padrão visual, que é o seguinte:
 
-## Recriação
+* Duas tabs centralizadas, contendo as opções de listagens de registros do módulo, e outra contendo a opção novo(a) {data módulo}.
 
-Depois de implementar, faça o seguinte:
+### Tela de listagem:
 
-Derrube a aplicação e volumes:
+    A listagem deve conter ter os dados legíveis, em 3 st.columns. A primeira com a descrição do registro e emoji das categoria, dados do registro como valor, data ao centro, e a direita, um botão de engrenagem que mostrará um popup com as opções do crud que estejam liberadas para o usuário.
 
-cd $HOME/Development/ExpenseLit/
-docker compose down -v
-sleep 5
+### Tela de registro:
+    
+    Campos obrigatórios sendo realçados, com valores das listas traduzidos e com emojis nas  categorias
+    mantendo os valores de categorias originais.
 
-Remova a imagem:
+    Siga os modelos da API para ver como os dados devem ser exibidos de forma legível e como devem ser enviados.
 
-docker image rm expenselit-app:latest
-sleep 5
+    Use todas as variavéis do arquivo config/settings.py para isso.
 
-Compile novamente:
+### Exemplos
 
-docker compose up -d
-sleep 5
+    As telas de contas, despesas e receitas já seguem o padrão que mencionei.
+
+---
+
+## Instruções
+
+    Sempre ative o ambiente virtual.
+    Sempre documente em formato NumPy e de forma clara,
+    o código que escreveu.
+    Se atente a tipagem,
+    módulos faltantes e imports não usados,
+    usando o MyPy.
+    Execute o flake8 para verificar problemas de sintaxe.
+    Siga a risca a PEP8, usando o autopep8 quando possível.
+
+## Rebuild
+
+    Refaça o container, com o seguinte comando:
+
+        docker compose up --build -d

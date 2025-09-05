@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class SimplePersistentAuth:
     """Sistema de autenticação com persistência simples."""
+
     def __init__(self):
         self.persistence_key = '_auth_persistent_token'
         self.token_expiry_days = 7
@@ -47,10 +48,10 @@ class SimplePersistentAuth:
                 'access_token': access_token,
                 'refresh_token': refresh_token,
                 'expires_at': (
-                       datetime.now() + timedelta(
-                              days=self.token_expiry_days
-                        )
-                    ).isoformat(),
+                    datetime.now() + timedelta(
+                        days=self.token_expiry_days
+                    )
+                ).isoformat(),
                 'saved_at': datetime.now().isoformat()
             }
 
@@ -98,7 +99,7 @@ class SimplePersistentAuth:
                 return None
 
             logger.info(
-                 f"""
+                f"""
                  Dados de autenticação carregados para usuário {
                      auth_data.get('username')
                     }
@@ -144,7 +145,7 @@ class SimplePersistentAuth:
             st.session_state['username'] = auth_data.get('username')
             st.session_state['is_authenticated'] = True
             st.session_state['token_expires_at'] = (
-                 datetime.now() + timedelta(minutes=30)
+                datetime.now() + timedelta(minutes=30)
             )  # Configurar conforme necessário
 
             logger.info(

@@ -1,997 +1,841 @@
 """
-Página de gestão de transferências.
+Módulo de gerenciamento de transferências.
 
-Esta página permite ao usuário visualizar, criar, editar e excluir
-transferências integradas com a API ExpenseLit.
+Este módulo implementa o CRUD completo para transferências entre contas,
+seguindo o padrão visual padronizado com tabs centralizadas
+e layout de 3 colunas para listagem.
 """
 
 import logging
-import time
-from datetime import datetime
-from typing import Dict, Any
-from utils.date_utils import (
-    format_date_for_display,
-    format_date_for_api,
-    format_currency_br
-)
+from datetime import date, time
+from typing import Dict, Any, List
+from time import sleep
 
 import streamlit as st
 
-from pages.router import BasePage
-from services.api_client import api_client, ApiClientError
-from services.accounts_service import accounts_service
-from services.pdf_generator import pdf_generator
-from utils.ui_utils import centered_tabs
+from components.auth import require_auth
+from services.transfers_service import transfers_service
+from services.api_client import api_client, ApiClientError, ValidationError
+from utils.ui_utils import ui_components, centered_tabs
+from utils.date_utils import format_currency_br
 from config.settings import db_categories
-
 
 logger = logging.getLogger(__name__)
 
 
-class TransfersPage(BasePage):
-    """
-    Página de gestão de transferências.
+class TransfersPage:
+    """Página de gerenciamento de transferências."""
 
-    Permite operações CRUD em transferências com integração à API.
-    """
     def __init__(self):
-        super().__init__("Transferências", "🔄")
-        self.required_permissions = ['transfers.view_transfer']
+        """Inicializa a página de transferências."""
+        self.auth = require_auth()
 
-    def main_menu(self, token=None, permissions=None):
+    def main_menu(
+            self,
+            token: str = None,  # type: ignore
+            permissions: Dict[str, Any] = None  # type: ignore
+    ):
+        """Renderiza o menu principal da página de transferências."""
+        self.render()
+
+    def render(self):
         """
-        Método principal seguindo padrão CodexDB.
+        Renderiza a página principal de transferências com padrão padronizado.
+
+        Segue o padrão visual estabelecido:
+        - Duas tabs centralizadas (listagem + novo registro)
+        - Layout de 3 colunas para listagem
+        - Popup de ações com CRUD
+        """
+        # Verifica e exibe erros armazenados de diálogos
+        self._check_and_show_stored_errors()
+
+        ui_components.render_page_header(
+            "💸 Transferências",
+            subtitle="Controle de transferências entre contas"
+        )
+
+        # Tabs principais - padrão estabelecido: 2 tabs centralizadas
+        tab_list, tab_add = centered_tabs([
+            "📋 Listagem de Transferências",
+            "➕ Nova Transferência"
+        ])
+
+        with tab_list:
+            self._render_transfers_list_standardized()
+
+        with tab_add:
+            self._render_add_transfer_form_standardized()
+
+    def _check_and_show_stored_errors(self):
+        """Verifica e exibe erros armazenados de diálogos."""
+        if 'validation_error' in st.session_state:
+            error_data = st.session_state.pop('validation_error')
+            ui_components.show_persistent_error(
+                error_message=error_data['message'],
+                error_type="validacao_transferencia",
+                details=error_data.get('details'),
+                suggestions=error_data.get('suggestions', []),
+                auto_show=False
+            )
+
+    def _render_transfers_list_standardized(self):
+        """
+        Renderiza a lista de transferências seguindo padrão padronizado.
+
+        Padrão estabelecido:
+        - Layout de 3 colunas por registro
+        - Primeira coluna: descrição + emoji da categoria
+        - Segunda coluna (central): dados como valor, contas, data
+        - Terceira coluna (direita): botão de engrenagem com popup de ações
+        """
+        st.markdown("### 📋 Listagem de Transferências")
+
+        # Filtros simplificados em uma linha
+        col_filter1, col_filter2, col_filter3 = st.columns(3)
+
+        with col_filter1:
+            status_filter = st.selectbox(
+                "🔍 Status",
+                options=['Todas', 'Transferidas', 'Pendentes'],
+                index=0
+            )
+
+        with col_filter2:
+            category_filter = st.selectbox(
+                "📂 Categoria",
+                options=['Todas'] +
+                list(
+                    db_categories.TRANSFER_CATEGORIES.values()),
+                index=0)
+
+        with col_filter3:
+            limit = st.number_input(
+                "📊 Limite",
+                min_value=1,
+                max_value=1000,
+                value=50,
+                step=10
+            )
+
+        # Buscar transferências com filtros
+        try:
+            filters = {}
+            if status_filter == 'Transferidas':
+                filters['transfered'] = True
+            elif status_filter == 'Pendentes':
+                filters['transfered'] = False
+
+            if category_filter != 'Todas':
+                category_code = (
+                    db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                        category_filter
+                    )
+                )
+                if category_code:
+                    filters['category'] = category_code
+
+            filters['limit'] = int(limit)
+
+            transfers = transfers_service.get_all_transfers(**filters)
+
+            if transfers:
+                st.markdown(
+                    f"**{len(transfers)} transferência(s) encontrada(s)**")
+                st.markdown("---")
+                self._render_transfers_three_column_layout(transfers)
+            else:
+                st.info(
+                    "🔍 Nenhuma transferência encontrada " +
+                    "com os filtros selecionados"
+                )
+
+        except ApiClientError as e:
+            st.error(f"❌ Erro ao carregar transferências: {str(e)}")
+        except Exception as e:
+            logger.error(f"Erro inesperado ao carregar transferências: {e}")
+            st.error("❌ Erro inesperado. Tente novamente.")
+            st.error(e)
+
+    def _render_transfers_three_column_layout(self, transfers: List[Dict]):
+        """
+        Renderiza transferências no layout de três colunas.
 
         Parameters
         ----------
-        token : str, optional
-            Token de autenticação (mantido para compatibilidade)
-        permissions : dict, optional
-            Permissões do usuário (mantido para compatibilidade)
+        transfers : List[Dict]
+            Lista de transferências para exibir
         """
-        st.subheader("🔄 Transferências")
-        self.render()
+        for transfer in transfers:
+            # Container para cada transferência
+            with st.container():
+                col1, col2, col3 = st.columns([3, 4, 1])
 
-    def render(self) -> None:
-        """Renderiza o conteúdo da página de transferências."""
-        tab1, tab2, tab3 = centered_tabs(
-            [
-                "📋 Minhas Transferências",
-                "➕ Nova Transferência",
-                "📊 Resumo"
-            ]
-        )
-
-        with tab1:
-            self._render_transfers_list()
-
-        with tab2:
-            self._render_transfer_form()
-
-        with tab3:
-            self._render_transfers_summary()
-
-    def _render_transfers_list(self) -> None:
-        """Renderiza a lista de transferências."""
-        st.markdown("### 🔄 Lista de Transferências")
-        try:
-            with st.spinner("🔄 Carregando transferências..."):
-                time.sleep(1)
-                transfers = api_client.get("transfers/")
-
-            if not transfers:
-                st.info("📝 Nenhuma transferência cadastrada ainda.")
-                return
-
-            # Filtros
-            col1, col2 = st.columns(2)
-
-            with col1:
-                transfer_categories = {
-                    'doc': 'DOC',
-                    'ted': 'TED',
-                    'pix': 'PIX'
-                }
-                filter_category = st.selectbox(
-                    "📂 Tipo",
-                    options=["Todos"] + list(transfer_categories.values())
-                )
-
-            with col2:
-                filter_status = st.selectbox(
-                    "📊 Status",
-                    options=["Todos", "Transferidas", "Pendentes"]
-                )
-
-            # Aplica filtros
-            filtered_transfers = transfers
-
-            if filter_category != "Todos":
-                category_key = next(
-                    k for k,
-                    v in transfer_categories.items() if v == filter_category
-                )
-                filtered_transfers = [
-                    t for t in filtered_transfers if t.get(  # type: ignore
-                        'category'
-                    ) == category_key
-                ]
-
-            if filter_status == "Transferidas":
-                filtered_transfers = [
-                    t for t in filtered_transfers if t.get(  # type: ignore
-                        'transfered', False
+                with col1:
+                    # Primeira coluna: descrição + emoji da categoria
+                    category = transfer.get('category', '')
+                    category_display = db_categories.TRANSFER_CATEGORIES.get(
+                        category, category or 'N/A'
                     )
-                ]
-            elif filter_status == "Pendentes":
-                filtered_transfers = [
-                    t for t in filtered_transfers if not t.get(  # type: ignore
+                    emoji = self._get_transfer_category_emoji(category)
+
+                    # Status da transferência
+                    status = "✅ Transferida" if transfer.get(
                         'transfered', False
+                    ) else "⏳ Pendente"
+
+                    st.markdown(f"""
+                    **{emoji} Descrição: {transfer.get('description', 'N/A')}**
+
+                    📂 Tipo: {category_display}
+
+                    {status}
+                    """)
+
+                with col2:
+                    # Segunda coluna: dados financeiros e contas
+                    value = format_currency_br(transfer.get('value', 0))
+                    transfer_date = transfer.get('date', 'N/A')
+                    horary = transfer.get('horary', 'N/A')
+
+                    # Informações das contas
+                    origin_account = transfer.get('origin_account_name', 'N/A')
+                    destiny_account = transfer.get(
+                        'destiny_account_name', 'N/A')
+
+                    # Taxa se houver
+                    fee = transfer.get('fee', 0)
+                    fee_display = (
+                        f" (Taxa: {format_currency_br(fee)})"
+                        if fee and fee > 0 else ""
                     )
-                ]
 
-            # Estatísticas rápidas
-            total_transfers = sum(
-                float(
-                    t.get('value', 0)  # type: ignore
-                ) for t in filtered_transfers
-            )
-            completed_transfers = sum(
-                float(
-                    t.get('value', 0)  # type: ignore
-                ) for t in filtered_transfers if (
-                    t.get('transfered', False)  # type: ignore
-                )
-            )
-            pending_transfers = total_transfers - completed_transfers
+                    st.markdown(f"""
+                    **💰 Valor: {value}{fee_display}**
 
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("💰 Total", format_currency_br(total_transfers))
-            with col2:
-                st.metric(
-                    "✅ Transferidas", format_currency_br(completed_transfers))
-            with col3:
-                st.metric("⏳ Pendentes", format_currency_br(pending_transfers))
+                    🏦 De: {origin_account}
 
-            st.markdown("---")
+                    🎯 Para: {destiny_account}
 
-            for transfer in filtered_transfers:
-                self._render_transfer_card(transfer)  # type: ignore
+                    📅 Data: {transfer_date} às {horary}
+                    """)
 
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao carregar transferências: {e}")
-            logger.error(f"Erro ao listar transferências: {e}")
-
-    def _render_transfer_card(self, transfer: Dict[str, Any]) -> None:
-        """Renderiza um card de transferência."""
-        with st.container():
-            col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
-
-            with col1:
-                description = transfer.get('description', 'Transferência')
-                category = transfer.get('category', 'pix')
-                category_emoji = {"doc": "📄", "ted": "🏦", "pix": "⚡"}.get(
-                    category, "🔄")
-                category_name = {"doc": "DOC", "ted": "TED", "pix": "PIX"}.get(
-                    category, category.upper())
-                origin_account = transfer.get(
-                    'origin_account_name', 'Conta Origem')
-                destiny_account = transfer.get(
-                    'destiny_account_name', 'Conta Destino')
-
-                st.markdown(f"### {category_emoji} {description}")
-                st.caption(f"📂 {category_name}")
-                st.caption(
-                    f"""🏦 {db_categories.INSTITUTIONS.get(
-                        origin_account, origin_account)
-                    } → {db_categories.INSTITUTIONS.get(
-                        destiny_account, destiny_account)
-                    }"""
-                )
-
-            with col2:
-                value = float(transfer.get('value', 0))
-                date_str = format_date_for_display(transfer.get('date', ''))
-                time_str = transfer.get('horary', '00:00:00')
-
-                st.markdown(f"**{format_currency_br(value)}**")
-                st.caption(f"📅 {date_str} às {time_str}")
-
-            with col3:
-                if transfer.get('transfered', False):
-                    st.success("✅ Transferida")
-                else:
-                    st.warning("⏳ Pendente")
-
-            with col4:
-                transfer_id = transfer.get('id')
-                with st.popover("⚙️ Ações"):
+                with col3:
+                    # Terceira coluna: botão de ações
                     if st.button(
-                        "✏️ Editar",
-                        key=f"edit_transfer_{transfer_id}",
-                        width='stretch'
+                        "⚙️",
+                        key=f"actions_{transfer['id']}",
+                        help="Opções de ações",
+                        use_container_width=True
                     ):
                         st.session_state[
-                            f'edit_transfer_{transfer_id}'
-                        ] = transfer
+                            f'show_actions_{transfer["id"]}'
+                        ] = True
                         st.rerun()
 
-                        toggle_text = (
-                            "⏳ Marcar Pendente" if transfer.get(
-                                    'transfered',
-                                    False
-                                ) else "✅ Marcar Transferida"
-                            )
-                        if st.button(
-                            toggle_text,
-                            key=f"toggle_transfer_{transfer_id}",
-                            width='stretch'
-                        ):
-                            self._toggle_transfer_status(
-                                transfer_id, not transfer.get(
-                                    'transfered',
-                                    False
-                                )
-                            )
+                # Popup de ações para esta transferência
+                self._render_transfer_action_popup(transfer)
+                st.markdown("---")
 
+    def _render_transfer_action_popup(self, transfer: Dict):
+        """
+        Renderiza popup de ações para uma transferência específica.
+
+        Parameters
+        ----------
+        transfer : Dict
+            Dados da transferência
+        """
+        popup_key = f'show_actions_{transfer["id"]}'
+        if st.session_state.get(popup_key, False):
+            with st.expander(
+                f"⚙️ Ações para: {transfer.get('description', 'N/A')}",
+                expanded=True
+            ):
+                col1, col2, col3 = st.columns(3)
+
+                with col1:
                     if st.button(
-                        "📄 Gerar PDF",
-                        key=f"pdf_btn_transfer_{transfer_id}",
-                        width='stretch'
+                        "📝 Editar",
+                        key=f"edit_{transfer['id']}",
+                        type="secondary",
+                        use_container_width=True
                     ):
-                        self._generate_transfer_pdf(transfer)
+                        st.session_state[
+                            f'edit_transfer_{transfer["id"]}'
+                        ] = transfer
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
+                with col2:
+                    action_text = "✅ Confirmar" if not transfer.get(
+                        'transfered', False
+                    ) else "⏳ Pendente"
                     if st.button(
-                        "🗑️ Excluir",
-                        key=f"delete_transfer_{transfer_id}",
-                        width='stretch'
+                        action_text,
+                        key=f"toggle_{transfer['id']}",
+                        type="secondary",
+                        use_container_width=True
                     ):
-                        self._delete_transfer(
-                            transfer_id, description  # type: ignore
-                        )
+                        self._handle_toggle_transfer_status(transfer)
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
-            # Formulário de edição inline se ativo
-            if st.session_state.get(f'edit_transfer_{transfer_id}'):
-                self._render_edit_form(transfer)
+                with col3:
+                    if st.button(
+                        "❌ Fechar",
+                        key=f"close_{transfer['id']}",
+                        use_container_width=True
+                    ):
+                        st.session_state[popup_key] = False
+                        st.rerun()
 
-            st.markdown("---")
+        # Renderiza modal de edição
+        self._render_edit_transfer_modal(transfer)
 
-    def _render_edit_form(self, transfer: Dict[str, Any]) -> None:
-        """Renderiza formulário de edição inline."""
-        transfer_id = transfer.get('id')
+    def _handle_toggle_transfer_status(self, transfer: Dict[str, Any]):
+        """
+        Alterna o status transferido/pendente de uma transferência.
 
-        st.markdown("#### ✏️ Editando Transferência")
+        Parameters
+        ----------
+        transfer : Dict[str, Any]
+            Dados da transferência
+        """
+        try:
+            new_status = not transfer.get('transfered', False)
+            transfer_data = {'transfered': new_status}
 
-        with st.form(f"edit_transfer_form_{transfer_id}"):
-            col1, col2 = st.columns(2)
+            with st.spinner("🔄 Atualizando status..."):
+                transfers_service.update_transfer(
+                    transfer['id'], transfer_data)
 
-            with col1:
-                new_description = st.text_input(
-                    "📝 Descrição",
-                    value=transfer.get('description', '')
-                )
+            status_text = (
+                "confirmada" if new_status else "marcada como pendente"
+            )
+            st.success(f"✅ Transferência {status_text} com sucesso!")
+            sleep(2)
+            st.rerun()
 
-                new_value = st.number_input(
-                    "💰 Valor",
-                    min_value=0.01,
-                    value=float(transfer.get('value', 0)),
-                    step=0.01,
-                    format="%.2f"
-                )
+        except ApiClientError as e:
+            st.error(f"❌ Erro ao atualizar transferência: {str(e)}")
+            sleep(3)
+        except Exception as e:
+            logger.error(f"Erro inesperado ao atualizar transferência: {e}")
+            st.error("❌ Erro inesperado. Tente novamente.")
+            st.error(e)
+            sleep(3)
 
-                categories = [('doc', 'DOC'), ('ted', 'TED'), ('pix', 'PIX')]
-                current_category = transfer.get('category', 'pix')
-                current_index = next(
-                    i for i,
-                    (
-                        k,
-                        v
-                    ) in enumerate(categories) if k == current_category
-                )
+    def _render_edit_transfer_modal(self, transfer: Dict[str, Any]):
+        """
+        Renderiza modal de edição para uma transferência.
 
-                new_category = st.selectbox(
-                    "📂 Tipo de Transferência",
-                    options=categories,
-                    index=current_index,
-                    format_func=lambda x: x[1]
-                )
+        Parameters
+        ----------
+        transfer : Dict[str, Any]
+            Dados da transferência para editar
+        """
+        edit_key = f'edit_transfer_{transfer["id"]}'
 
-            with col2:
-                date_value = transfer.get('date', '')
-                try:
-                    current_date = datetime.strptime(
-                        date_value,  # type: ignore
-                        '%Y-%m-%d'
-                    ).date()
-                except ValueError:
-                    current_date = datetime.now().date()
+        if st.session_state.get(edit_key):
+            st.markdown("### ✏️ Editar Transferência")
 
-                new_date = st.date_input(
-                    "📅 Data",
-                    value=current_date,
-                    format="DD/MM/YYYY"
-                )
+            with st.form(f"edit_form_{transfer['id']}", clear_on_submit=False):
+                col1, col2 = st.columns(2)
 
-                current_time = datetime.strptime(
-                    transfer.get('horary', '00:00:00'), '%H:%M:%S'
-                ).time()
-
-                new_time = st.time_input(
-                    "🕐 Horário",
-                    value=current_time
-                )
-
-                new_transfered = st.checkbox(
-                    "✅ Transferência realizada",
-                    value=transfer.get('transfered', False)
-                )
-
-                col_submit, col_cancel = st.columns(2)
-
-            with col_submit:
-                if st.form_submit_button(
-                    "💾 Salvar Alterações",
-                    type="primary"
-                ):
-                    update_data = {
-                        'description': new_description,
-                        'value': new_value,
-                        'date': format_date_for_api(new_date),
-                        'horary': new_time.strftime('%H:%M:%S'),
-                        'category': new_category[0],
-                        'origin_account': transfer.get('origin_account'),
-                        'destiny_account': transfer.get('destiny_account'),
-                        'transfered': new_transfered
-                    }
-                    self._update_transfer(
-                        transfer_id, update_data  # type: ignore
+                with col1:
+                    description = st.text_input(
+                        "📝 Descrição *",
+                        value=transfer.get('description', ''),
+                        help="Descrição da transferência"
                     )
 
-            with col_cancel:
-                if st.form_submit_button("❌ Cancelar"):
-                    st.session_state.pop(f'edit_transfer_{transfer_id}', None)
+                    value = st.number_input(
+                        "💰 Valor *",
+                        min_value=0.01,
+                        value=float(transfer.get('value', 0)),
+                        step=0.01,
+                        format="%.2f"
+                    )
+
+                with col2:
+                    # Categoria atual
+                    current_category = transfer.get('category', 'pix')
+                    categories = list(
+                        db_categories.TRANSFER_CATEGORIES.values())
+                    category_index = 0
+
+                    for idx, cat in enumerate(categories):
+                        if db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                                cat) == current_category:
+                            category_index = idx
+                            break
+
+                    category_display = st.selectbox(
+                        "📂 Categoria *",
+                        options=categories,
+                        index=category_index,
+                        format_func=(
+                            lambda x: f"""{
+                                self._get_transfer_category_emoji(
+                                    db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                                        x, ''
+                                    )
+                                )
+                            } {x}"""
+                        )
+                    )
+
+                    transfered = st.checkbox(
+                        "✅ Transferida",
+                        value=transfer.get('transfered', False)
+                    )
+
+                # Botões do formulário
+                col_submit, col_cancel = st.columns(2)
+
+                with col_submit:
+                    submitted = st.form_submit_button(
+                        "💾 Salvar Alterações",
+                        type="primary",
+                        use_container_width=True
+                    )
+
+                with col_cancel:
+                    canceled = st.form_submit_button(
+                        "❌ Cancelar",
+                        use_container_width=True
+                    )
+
+                if submitted:
+                    self._process_transfer_edit(
+                        transfer['id'],
+                        description=description or '',
+                        value=value,
+                        category_display=category_display,
+                        transfered=transfered
+                    )
+                    st.session_state[edit_key] = None
                     st.rerun()
 
-    def _render_transfer_form(self) -> None:
-        """Renderiza formulário para criar transferência."""
-        st.markdown("### ➕ Criar Nova Transferência")
+                if canceled:
+                    st.session_state[edit_key] = None
+                    st.rerun()
 
-        with st.form("create_transfer_form"):
+    def _process_transfer_edit(
+        self,
+        transfer_id: int,
+        description: str,
+        value: float,
+        category_display: str,
+        transfered: bool
+    ):
+        """
+        Processa a edição de uma transferência.
+
+        Parameters
+        ----------
+        transfer_id : int
+            ID da transferência a ser editada
+        description : str
+            Descrição da transferência
+        value : float
+            Valor da transferência
+        category_display : str
+            Categoria exibida
+        transfered : bool
+            Status da transferência
+        """
+        # Validações básicas
+        validation_errors = []
+
+        if not description.strip():
+            validation_errors.append("Descrição é obrigatória")
+
+        if value <= 0:
+            validation_errors.append("Valor deve ser maior que zero")
+
+        if validation_errors:
+            for error in validation_errors:
+                st.error(f"❌ {error}")
+            return
+
+        try:
+            # Converte categoria para código da API
+            category_code = db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                category_display
+            )
+            if not category_code:
+                st.error("❌ Categoria selecionada inválida")
+                return
+
+            # Prepara dados para API
+            transfer_data = {
+                "description": description.strip(),
+                "value": str(value),
+                "category": category_code,
+                "transfered": transfered
+            }
+
+            with st.spinner("💾 Salvando alterações..."):
+                result = transfers_service.update_transfer(
+                    transfer_id, transfer_data)
+
+            if result:
+                st.success("✅ Transferência atualizada com sucesso!")
+                st.balloons()
+                sleep(3)
+                st.rerun()
+            else:
+                st.error("❌ Erro ao atualizar transferência")
+
+        except ValidationError as e:
+            st.error(f"❌ Erro de validação: {str(e)}")
+            sleep(3)
+
+        except ApiClientError as e:
+            st.error(f"❌ Erro na API: {str(e)}")
+            sleep(3)
+
+        except Exception as e:
+            logger.error(f"Erro inesperado ao editar transferência: {e}")
+            st.error("❌ Erro inesperado. Tente novamente.")
+            st.error(e)
+            sleep(3)
+
+    def _get_transfer_category_emoji(self, category: str) -> str:
+        """
+        Retorna o emoji correspondente à categoria da transferência.
+
+        Parameters
+        ----------
+        category : str
+            Código da categoria
+
+        Returns
+        -------
+        str
+            Emoji correspondente
+        """
+        return db_categories.TRANSFER_CATEGORY_EMOJIS.get(category, "💰")
+
+    def _render_add_transfer_form_standardized(self):
+        """
+        Renderiza formulário de adição de transferência.
+
+        Padrão estabelecido:
+        - Campos obrigatórios realçados
+        - Valores traduzidos com emojis
+        - Validação em tempo real
+        """
+        st.markdown("### ➕ Nova Transferência")
+
+        with st.form("add_transfer_form", clear_on_submit=True):
+            # Layout em duas colunas
             col1, col2 = st.columns(2)
 
             with col1:
                 description = st.text_input(
-                    "📝 Descrição",
-                    placeholder="Ex: Transferência para conta poupança..."
+                    "📝 Descrição *",
+                    placeholder="Ex: Transferência para conta poupança",
+                    help="Descrição da transferência"
                 )
 
                 value = st.number_input(
-                    "💰 Valor",
+                    "💰 Valor *",
                     min_value=0.01,
                     step=0.01,
-                    format="%.2f"
+                    format="%.2f",
+                    help="Valor a ser transferido"
                 )
 
-                categories = [('doc', 'DOC'), ('ted', 'TED'), ('pix', 'PIX')]
-                selected_category = st.selectbox(
-                    "📂 Tipo de Transferência",
+                # Categoria
+                categories = list(db_categories.TRANSFER_CATEGORIES.values())
+                category = st.selectbox(
+                    "📂 Categoria *",
                     options=categories,
-                    format_func=lambda x: x[1]
-                )
-                category = selected_category[0]
-
-                # Seleção de conta origem
-                try:
-                    accounts = accounts_service.get_all_accounts()
-                    if not accounts:
-                        self._show_no_accounts_dialog()
-                        return
-
-                    active_accounts = [acc for acc in accounts if acc.get(
-                            'is_active',
-                            True
-                        )
-                    ]
-                    if len(active_accounts) < 2:
-                        self._show_insufficient_accounts_dialog()
-                        return
-
-                    account_options = [
-                        (
-                            acc['id'],
-                            db_categories.INSTITUTIONS.get(
-                                acc['name'],
-                                acc['name']
+                    format_func=lambda x: (
+                        f"""{self._get_transfer_category_emoji(
+                            db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                                x, ''
                             )
-                        ) for acc in active_accounts
-                    ]
-
-                    # Selecionar primeira conta como origem
-                    selected_origin = st.selectbox(
-                        "🏦 Conta de Origem",
-                        options=account_options,
-                        index=0,
-                        format_func=lambda x: x[1],
-                        help="Conta de onde sairá o dinheiro"
-                    )
-                    origin_account_id = selected_origin[0]
-                except ApiClientError:
-                    st.error("❌ Erro ao carregar contas")
-                    return
-
-            with col2:
-                transfer_date = st.date_input(
-                    "📅 Data da Transferência",
-                    value=datetime.now().date(),
-                    format="DD/MM/YYYY"
-                )
-
-                transfer_time = st.time_input(
-                    "🕐 Horário",
-                    value=datetime.now().time()
-                )
-
-                # Seleção de conta destino
-                try:
-                    default_destiny_index = len(account_options) - 1 if len(
-                        account_options
-                    ) > 1 else 0
-                    selected_destiny = st.selectbox(
-                        "🏦 Conta de Destino",
-                        options=account_options,
-                        index=default_destiny_index,
-                        format_func=lambda x: x[1],
-                        help="Conta para onde irá o dinheiro"
-                    )
-                    destiny_account_id = selected_destiny[0]
-                except ApiClientError:
-                    st.error("❌ Erro ao carregar contas")
-                    return
+                        )} {x}"""
+                    ),
+                    help="Tipo de transferência")
 
                 transfered = st.checkbox(
-                    "✅ Transferência já foi realizada",
-                    value=False
-                )
-
-            # Checkbox de confirmação
-                confirm_data = st.checkbox(
-                    "✅ Confirmo que os dados informados estão corretos"
-                )
-
-            # Validação de contas diferentes e saldo
-                validation_messages = []
-
-            if origin_account_id == destiny_account_id:
-                validation_messages.append(
-                    "A conta de origem deve ser diferente da conta de destino!"
-                )
-
-            # Verificação de saldo em tempo real
-            if value and origin_account_id and origin_account_id != (
-                destiny_account_id
-            ):
-                try:
-                    # Calcular saldo da conta de origem
-                    origin_account_balance = self._calculate_account_balance(
-                        origin_account_id
+                        "✅ Marcar como transferida",
+                        value=False,
+                        help="Marque se a transferência já foi realizada"
                     )
 
-                    if origin_account_balance is not None:
-                        remaining_balance = origin_account_balance - value
+            with col2:
+                # Data e horário
+                transfer_date = st.date_input(
+                    "📅 Data *",
+                    value=date.today(),
+                    help="Data da transferência"
+                )
 
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric(
-                                "💰 Saldo Atual",
-                                format_currency_br(origin_account_balance)
+                horary = st.time_input(
+                    "🕐 Horário *",
+                    value=time(12, 0),
+                    help="Horário da transferência"
+                )
+
+                # Contas - buscar via API
+                try:
+                    accounts_response = api_client.get(
+                        "accounts/", params={"is_active": "true"})
+
+                    if accounts_response:
+                        account_options = {
+                            account.get(  # type: ignore
+                                'account_name',
+                                ''
+                            ): account.get(  # type: ignore
+                                'id',
+                                0
                             )
-                        with col2:
-                            st.metric(
-                                "📤 Valor Transferência",
-                                format_currency_br(value)
-                            )
-                        with col3:
-                            if remaining_balance >= 0:
-                                st.metric(
-                                    "✅ Saldo Após",
-                                    format_currency_br(remaining_balance),
-                                    delta=f"-{format_currency_br(value)}"
-                                )
-                            else:
-                                st.metric(
-                                    "❌ Saldo Após",
-                                    format_currency_br(remaining_balance),
-                                    delta=f"-{format_currency_br(value)}"
-                                )
-                                validation_messages.append(
-                                    f"""⚠️ Saldo insuficiente! Faltam {
-                                        format_currency_br(
-                                            abs(remaining_balance)
-                                        )
-                                    }"""
-                                    )
+                            for account in accounts_response
+                        }
+                        account_names = list(account_options.keys())
+
+                        origin_account_name = st.selectbox(
+                            "🏦 Conta de Origem *",
+                            options=account_names,
+                            help="Conta que enviará o dinheiro"
+                        )
+
+                        destiny_account_name = st.selectbox(
+                            "🎯 Conta de Destino *",
+                            options=account_names,
+                            help="Conta que receberá o dinheiro"
+                        )
                     else:
-                        st.warning(
-                            "⚠️ Não foi possível verificar o saldo"
-                            +
-                            "da conta de origem"
-                        )
+                        st.error("❌ Nenhuma conta ativa encontrada")
+                        account_options = {}
+                        origin_account_name = None
+                        destiny_account_name = None
 
-                except Exception as e:
-                    st.warning("⚠️ Erro ao verificar saldo da conta")
-                    logger.warning(f"Erro ao verificar saldo: {e}")
+                except ApiClientError as e:
+                    st.error(f"❌ Erro ao carregar contas: {str(e)}")
+                    account_options = {}
+                    origin_account_name = None
+                    destiny_account_name = None
 
-            # Mostrar mensagens de validação
-            for msg in validation_messages:
-                st.error(msg)
+            # Campos opcionais
+            with st.expander("📋 Informações Adicionais (Opcionais)"):
+                col_opt1, col_opt2 = st.columns(2)
 
-            if st.form_submit_button("💾 Criar Transferência", type="primary"):
-                # Validações completas
-                errors = []
+                with col_opt1:
+                    fee = st.number_input(
+                        "💸 Taxa",
+                        min_value=0.0,
+                        step=0.01,
+                        format="%.2f",
+                        help="Taxa cobrada pela transferência"
+                    )
 
-                if not confirm_data:
-                    errors.append(
-                        "Antes, confirme que os dados estão corretos.")
+                    transaction_id = st.text_input(
+                        "🔗 ID da Transação",
+                        placeholder="Ex: PIX123456789",
+                        help="Identificador único da transação"
+                    )
 
-                if not description:
-                    errors.append("Descrição é obrigatória")
+                with col_opt2:
+                    confirmation_code = st.text_input(
+                        "✅ Código de Confirmação",
+                        placeholder="Ex: ABC123",
+                        help="Código de confirmação da transferência"
+                    )
 
-                if not value or value <= 0:
-                    errors.append("Valor deve ser maior que zero")
+                notes = st.text_area(
+                    "📝 Observações",
+                    placeholder="Informações adicionais sobre a transferência",
+                    help="Observações sobre a transferência")
 
-                if origin_account_id == destiny_account_id:
-                    errors.append(
-                        "Contas de origem e destino devem ser diferentes")
+            # Botão de submit
+            submitted = st.form_submit_button(
+                "💾 Cadastrar Transferência",
+                type="primary",
+                use_container_width=True
+            )
 
-                # Validação de saldo antes de criar
-                if value and origin_account_id:
-                    try:
-                        balance = self._calculate_account_balance(
-                            origin_account_id
-                        )
-                        if balance is not None and balance < value:
-                            errors.append(
-                                f"""Saldo insuficiente na conta de origem: {
-                                    format_currency_br(balance)
-                                }""")
-                    except Exception:
-                        errors.append(
-                            "Não foi possível verificar o saldo da conta")
-
-                if errors:
-                    st.error("❌ **Erros encontrados:**")
-                    for error in errors:
-                        st.error(f"• {error}")
+            if submitted:
+                if origin_account_name and destiny_account_name:
+                    self._process_transfer_creation(
+                        description=description,
+                        value=value,
+                        transfer_date=transfer_date,
+                        horary=horary,
+                        category=category,
+                        origin_account_name=origin_account_name,
+                        destiny_account_name=destiny_account_name,
+                        account_options=account_options,
+                        fee=fee,
+                        transaction_id=transaction_id,
+                        confirmation_code=confirmation_code,
+                        transfered=transfered,
+                        notes=notes
+                    )
                 else:
-                    transfer_data = {
-                        'description': description,
-                        'value': value,
-                        'date': format_date_for_api(transfer_date),
-                        'horary': transfer_time.strftime('%H:%M:%S'),
-                        'category': category,
-                        'origin_account': origin_account_id,
-                        'destiny_account': destiny_account_id,
-                        'transfered': transfered
-                    }
-                    self._create_transfer(transfer_data)
+                    st.error("❌ Selecione as contas de origem e destino")
 
-    def _calculate_account_balance(self, account_id: int) -> float:
+    def _process_transfer_creation(
+        self,
+        description: str,
+        value: float,
+        transfer_date: date,
+        horary: time,
+        category: str,
+        origin_account_name: str,
+        destiny_account_name: str,
+        account_options: Dict[str, int],
+        fee: float,
+        transaction_id: str,
+        confirmation_code: str,
+        transfered: bool,
+        notes: str
+    ):
         """
-        Calcula o saldo de uma conta baseado em receitas,
-        despesas e transferências.
+        Processa a criação de uma nova transferência.
 
         Parameters
         ----------
-        account_id : int
-            ID da conta
-
-        Returns
-        -------
-        float
-            Saldo da conta ou None se erro
+        description : str
+            Descrição da transferência
+        value : float
+            Valor da transferência
+        transfer_date : date
+            Data da transferência
+        horary : time
+            Horário da transferência
+        category : str
+            Categoria da transferência
+        origin_account_name : str
+            Nome da conta de origem
+        destiny_account_name : str
+            Nome da conta de destino
+        account_options : Dict[str, int]
+            Mapeamento de nomes para IDs de contas
+        fee : float
+            Taxa da transferência
+        transaction_id : str
+            ID da transação
+        confirmation_code : str
+            Código de confirmação
+        transfered : bool
+            Status de transferência
+        notes : str
+            Observações
         """
-        try:
-            balance = 0.0
-
-            # Somar receitas da conta
-            revenues = api_client.get("revenues/")
-            account_revenues = [r for r in revenues if r.get(  # type: ignore
-                'account') == account_id
-            ]
-            balance += sum(
-                float(
-                    r.get('value', 0)  # type: ignore
-                ) for r in account_revenues
+        # Validação local primeiro
+        validation_errors = transfers_service.validate_transfer_data({
+            'description': description,
+            'value': value,
+            'date': transfer_date,
+            'horary': horary,
+            'category': db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                category
+            ),
+            'origin_account': (
+                account_options.get(origin_account_name) if (
+                    origin_account_name
+                ) else None
+            ),
+            'destiny_account': (
+                account_options.get(destiny_account_name) if (
+                    destiny_account_name
+                ) else None
             )
+        })
 
-            # Subtrair despesas da conta
-            expenses = api_client.get("expenses/")
-            account_expenses = [e for e in expenses if e.get(  # type: ignore
-                'account') == account_id]
-            balance -= sum(float(
-                e.get('value', 0)  # type: ignore
-            ) for e in account_expenses)
-
-            # Transferências onde a conta é origem (subtrai)
-            transfers = api_client.get("transfers/")
-            outgoing_transfers = [
-                t for t in transfers if t.get(  # type: ignore
-                    'origin_account'
-                ) == account_id and t.get(  # type: ignore
-                    'transfered',
-                    False
-                )
-            ]
-            balance -= sum(
-                float(
-                    t.get('value', 0)  # type: ignore
-                ) for t in outgoing_transfers
-            )
-
-            # Transferências onde a conta é destino (soma)
-            incoming_transfers = [
-                t for t in transfers if t.get(  # type: ignore
-                    'destiny_account'
-                ) == account_id and t.get('transfered', False)]  # type: ignore
-            balance += sum(float(
-                    t.get('value', 0)  # type: ignore
-                ) for t in incoming_transfers
-            )
-
-            return balance
-
-        except Exception as e:
-            logger.error(f"Erro ao calcular saldo da conta {account_id}: {e}")
-            return None  # type: ignore
-
-    def _render_transfers_summary(self) -> None:
-        """Renderiza resumo das transferências."""
-        st.markdown("### 📊 Resumo de Transferências")
-
-        try:
-            with st.spinner("📊 Carregando estatísticas..."):
-                time.sleep(1)
-                transfers = api_client.get("transfers/")
-
-            if not transfers:
-                st.info("📝 Nenhuma transferência encontrada.")
-                return
-
-            total_transfers = len(transfers)
-            total_value = sum(
-                float(
-                    t.get(  # type: ignore
-                        'value',
-                        0
-                    )
-                ) for t in transfers
-            )
-            completed_value = sum(
-                float(
-                    t.get('value', 0)  # type: ignore
-                ) for t in transfers if (
-                    t.get('transfered', False)  # type: ignore
-                )
-            )
-            pending_value = total_value - completed_value
-            completed_transfers = sum(
-                1 for t in transfers if (
-                    t.get('transfered', False)  # type: ignore
-                )
-            )
-            pending_transfers = total_transfers - completed_transfers
-
-            # Estatísticas por categoria
-            pix_count = sum(
-                1 for t in transfers if t.get(  # type: ignore
-                    'category'
-                ) == 'pix'
-            )
-            ted_count = sum(
-                1 for t in transfers if t.get(  # type: ignore
-                    'category'
-                ) == 'ted'
-            )
-            doc_count = sum(
-                1 for t in transfers if t.get(  # type: ignore
-                    'category'
-                ) == 'doc'
-            )
-
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("📊 Total de Transferências", total_transfers)
-            with col2:
-                st.metric("💰 Valor Total", format_currency_br(total_value))
-            with col3:
-                st.metric(
-                    "✅ Valor Transferido", format_currency_br(completed_value))
-            with col4:
-                st.metric(
-                    "⏳ Valor Pendente", format_currency_br(pending_value)
-                )
-
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("✅ Transferências Realizadas", completed_transfers)
-            with col2:
-                st.metric("⏳ Transferências Pendentes", pending_transfers)
-            with col3:
-                st.metric("⚡ PIX", pix_count)
-            with col4:
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.metric("🏦 TED", ted_count)
-                with col_b:
-                    st.metric("📄 DOC", doc_count)
-
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao carregar estatísticas: {e}")
-            logger.error(f"Erro ao carregar resumo de transferências: {e}")
-
-    def _create_transfer(self, transfer_data: Dict[str, Any]) -> None:
-        """Cria uma nova transferência."""
-        try:
-            with st.spinner("💾 Criando transferência..."):
-                time.sleep(1)
-                new_transfer = api_client.post("transfers/", transfer_data)
-                print(new_transfer)
-
-            st.toast("✅ Transferência criada com sucesso!")
-            time.sleep(1)
-            st.rerun()
-
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao criar transferência: {e}")
-            logger.error(f"Erro ao criar transferência: {e}")
-
-    def _update_transfer(
-        self,
-        transfer_id: int,
-        transfer_data: Dict[
-            str,
-            Any
-        ]
-    ) -> None:
-        """Atualiza uma transferência."""
-        try:
-            with st.spinner("💾 Atualizando transferência..."):
-                time.sleep(1)
-                updated_transfer = api_client.put(
-                    f"transfers/{transfer_id}/", transfer_data
-                )
-                print(updated_transfer)
-
-            st.success("✅ Transferência atualizada com sucesso!")
-            st.session_state.pop(f'edit_transfer_{transfer_id}', None)
-            st.rerun()
-
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao atualizar transferência: {e}")
-            logger.error(f"Erro ao atualizar transferência {transfer_id}: {e}")
-
-    def _toggle_transfer_status(
-        self,
-        transfer_id: int,
-        is_transfered: bool
-    ) -> None:
-        """Alterna o status de uma transferência."""
-        try:
-            with st.spinner(
-                f"""{
-                    'Marcando como transferida' if is_transfered else (
-                        'Marcando como pendente'
-                        )
-                    }..."""
-            ):
-                transfer_data = api_client.get(f"transfers/{transfer_id}/")
-
-                update_data = {
-                    'description': transfer_data.get('description'),
-                    'value': transfer_data.get('value'),
-                    'date': transfer_data.get('date'),
-                    'horary': transfer_data.get('horary'),
-                    'category': transfer_data.get('category'),
-                    'origin_account': transfer_data.get('origin_account'),
-                    'destiny_account': transfer_data.get('destiny_account'),
-                    'transfered': is_transfered
-                }
-
-                api_client.put(f"transfers/{transfer_id}/", update_data)
-
-            status_text = "transferida" if is_transfered else "pendente"
-            st.success(f"✅ Transferência marcada como {status_text}!")
-            st.rerun()
-
-        except ApiClientError as e:
-            st.error(f"❌ Erro ao alterar status: {e}")
-            logger.error(
-                f"Erro ao alterar status da transferência {transfer_id}: {e}"
-            )
-
-    def _delete_transfer(self, transfer_id: int, description: str) -> None:
-        """Exclui uma transferência após confirmação."""
-        confirm_key = f"confirm_delete_transfer_{transfer_id}"
-
-        if not st.session_state.get(confirm_key, False):
-            st.session_state[confirm_key] = True
-            st.rerun()
-
-            st.warning(
-                f"""⚠️ **Tem certeza que deseja excluir a transferência '{
-                    description
-                }'?**"""
-            )
-            st.error("🚨 **ATENÇÃO:** Esta ação não pode ser desfeita!")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button(
-                "🗑️ Sim, Excluir",
-                key=f"final_confirm_delete_transfer_{transfer_id}",
-                type="primary",
-                width='stretch'
-            ):
-                try:
-                    with st.spinner("🗑️ Excluindo transferência..."):
-                        api_client.delete(f"transfers/{transfer_id}/")
-                        st.success(
-                            f"""✅ Transferência '{
-                                description
-                            }' excluída com sucesso!"""
-                        )
-                        st.session_state.pop(confirm_key, None)
-                        st.rerun()
-                except ApiClientError as e:
-                    st.error(f"❌ Erro ao excluir transferência: {e}")
-                    logger.error(
-                        f"Erro ao excluir transferência {transfer_id}: {e}"
-                    )
-                    st.session_state.pop(confirm_key, None)
-
-        with col2:
-            if st.button(
-                "❌ Cancelar",
-                key=f"cancel_delete_transfer_{transfer_id}",
-                width='stretch'
-            ):
-                st.session_state.pop(confirm_key, None)
-                st.rerun()
-
-    def _generate_transfer_pdf(self, transfer: Dict[str, Any]) -> None:
-        """Gera e oferece download do PDF da transferência."""
-        if pdf_generator is None:
-            st.error(
-                "❌ Gerador de PDF não disponível."
-                +
-                "Instale o ReportLab: pip install reportlab"
-            )
+        if validation_errors:
+            for error in validation_errors:
+                st.error(f"❌ {error}")
+            sleep(10)
             return
+
         try:
-            with st.spinner("📄 Gerando comprovante..."):
-                # Buscar dados das contas
-                origin_account_data = None
-                destination_account_data = None
-                try:
-                    accounts = accounts_service.get_all_accounts()
-                    origin_account_data = next(
-                        (
-                            acc for acc in accounts if acc[
-                                'id'
-                            ] == transfer.get(
-                                'origin_account'
-                            )
-                        ), None
-                    )
-                    destination_account_data = next(
-                        (
-                            acc for acc in accounts if acc[
-                                'id'
-                            ] == transfer.get('destiny_account')), None
-                    )
-                except Exception:
-                    pass
+            # Prepara dados para API
+            transfer_data = {
+                "description": description.strip(),
+                "value": str(value),
+                "date": transfer_date.strftime('%Y-%m-%d'),
+                "horary": horary.strftime('%H:%M:%S'),
+                "category": db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                    category
+                ),
+                "origin_account": account_options.get(origin_account_name),
+                "destiny_account": account_options.get(destiny_account_name),
+                "transfered": transfered}
 
-                # Gerar PDF
-                pdf_buffer = pdf_generator.generate_transfer_receipt(
-                    transfer,
-                    origin_account_data,
-                    destination_account_data
+            # Adiciona campos opcionais se preenchidos
+            if fee > 0:
+                transfer_data["fee"] = str(fee)
+            if transaction_id.strip():
+                transfer_data["transaction_id"] = transaction_id.strip()
+            if confirmation_code.strip():
+                transfer_data["confirmation_code"] = confirmation_code.strip()
+            if notes.strip():
+                transfer_data["notes"] = notes.strip()
+
+            with st.spinner("💾 Cadastrando transferência..."):
+                result = transfers_service.create_transfer(transfer_data)
+
+            if result:
+                st.success("✅ Transferência cadastrada com sucesso!")
+                st.balloons()
+                sleep(3)
+                st.rerun()
+            else:
+                st.error("❌ Erro ao cadastrar transferência")
+                sleep(2.5)
+
+        except ValidationError as e:
+            # Extrai detalhes específicos do erro da API
+            error_message = str(e)
+            validation_details = []
+
+            # Tenta extrair detalhes específicos da ValidationError
+            if "origin_account" in error_message:
+                validation_details.append(
+                    "🏦 Conta de origem é obrigatória"
+                )
+            if "destiny_account" in error_message:
+                validation_details.append(
+                    "🎯 Conta de destino é obrigatória"
+                )
+            if "value" in error_message:
+                validation_details.append(
+                    "💰 Verifique o valor da transferência"
+                )
+            if "date" in error_message:
+                validation_details.append(
+                    "📅 Verifique a data da transferência"
                 )
 
-                # Nome do arquivo
-                description = transfer.get('description', 'transferencia')
-                date_str = transfer.get('date', '').replace('-', '_')
-                filename = f"""comprovante_transferencia_{
-                    description
-                    }_{date_str}.pdf"""
+            # Se não encontrou detalhes específicos, usa mensagem genérica
+            if not validation_details:
+                validation_details = [
+                    'Verifique se todos os campos obrigatórios' +
+                    ' estão preenchidos',
+                    'Confirme se os valores estão no formato correto']
 
-                # Oferecer download
-                st.download_button(
-                    label="💾 Download PDF",
-                    data=pdf_buffer.getvalue(),
-                    file_name=filename,
-                    mime="application/pdf",
-                    key=f"download_transfer_{transfer.get('id')}"
-                )
+            # Exibe erros imediatamente
+            st.error("❌ Erro de validação no cadastro:")
+            for detail in validation_details:
+                st.error(f"  • {detail}")
 
-                # Preview do PDF
-                st.success("✅ Comprovante gerado com sucesso!")
-                try:
-                    pdf_buffer.seek(0)
-                    if hasattr(st, 'pdf'):
-                        st.pdf(pdf_buffer.getvalue())
-                    else:
-                        st.info(
-                            "📄 PDF gerado."
-                            +
-                            "Use o botão de download para visualizar."
-                        )
-                except Exception as e:
-                    logger.warning(f"Erro ao exibir preview do PDF: {e}")
-            st.info(
-                "📄 PDF gerado. Use o botão de download para visualizar.")
+            sleep(2)  # Mantém para garantir que o usuário veja o erro
+
+        except ApiClientError as e:
+            st.error(f"❌ Erro na API: {str(e)}")
+            sleep(5)
+
         except Exception as e:
-            st.error(f"❌ Erro ao gerar comprovante: {e}")
-            logger.error(
-                f"Erro ao gerar PDF da transferência {transfer.get('id')}: {e}"
-            )
-
-    def _show_no_accounts_dialog(self):
-        """Mostra dialog quando não há contas cadastradas."""
-        @st.dialog("🏦 Nenhuma Conta Encontrada")
-        def show_dialog():
-            st.error("❌ **Nenhuma conta disponível**")
-            st.markdown("""
-Para criar transferências, você precisa  \
-    ter pelo menos **2 contas** cadastradas.
-
-            **O que fazer:**
-            1. Vá para a página **Contas**
-            2. Cadastre suas contas bancárias
-            3. Volte aqui para criar transferências
-            """)
-
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button(
-                    "🏦 Ir para Contas",
-                    type="primary",
-                    use_container_width=True
-                ):
-                    st.switch_page("pages/accounts.py")
-            with col2:
-                if st.button("✅ Ok", use_container_width=True):
-                    st.rerun()
-                    show_dialog()
-
-    def _show_insufficient_accounts_dialog(self):
-        """Mostra dialog quando há menos de 2 contas."""
-        @st.dialog("🏦 Contas Insuficientes")
-        def show_dialog():
-            st.warning("⚠️ **Apenas 1 conta encontrada**")
-            st.markdown("""
-Para fazer transferências, você precisa \
-     ter pelo menos **2 contas diferentes**.
-
-            **O que fazer:**
-            1. Vá para a página **Contas**
-            2. Cadastre uma segunda conta bancária
-            3. Volte aqui para criar transferências
-            """)
-
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button(
-                    "🏦 Ir para Contas",
-                    type="primary",
-                    use_container_width=True
-                ):
-                    st.switch_page("pages/accounts.py")
-            with col2:
-                if st.button("✅ Ok", use_container_width=True):
-                    st.rerun()
-
-        show_dialog()
+            logger.error(f"Erro inesperado ao criar transferência: {e}")
+            st.error("❌ Erro inesperado. Tente novamente.")
+            st.error(e)
+            sleep(5)

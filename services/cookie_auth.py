@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class CookieAuth:
     """Sistema de autenticação com cookies reais."""
+
     def __init__(self):
         self.cookie_controller = CookieController()
         self.cookie_name = 'expenselit_auth_token'
@@ -48,10 +49,10 @@ class CookieAuth:
                 'access_token': access_token,
                 'refresh_token': refresh_token,
                 'expires_at': (
-                       datetime.now() + timedelta(
-                              days=self.token_expiry_days
-                            )
-                        ).isoformat(),
+                    datetime.now() + timedelta(
+                        days=self.token_expiry_days
+                    )
+                ).isoformat(),
                 'saved_at': datetime.now().isoformat()
             }
 
@@ -68,7 +69,8 @@ class CookieAuth:
             )
 
             logger.info(
-                f"Dados de autenticação salvos em cookie para usuário {username}"
+                f"Dados de autenticação salvos em cookie para "
+                f"usuário {username}"
             )
 
         except Exception as e:
@@ -103,7 +105,8 @@ class CookieAuth:
                 return None
 
             logger.info(
-                f"Dados de autenticação carregados do cookie para usuário {auth_data.get('username')}"
+                f"Dados de autenticação carregados do cookie para "
+                f"usuário {auth_data.get('username')}"
             )
             return auth_data
 
@@ -146,10 +149,11 @@ class CookieAuth:
             st.session_state['username'] = auth_data.get('username')
             st.session_state['is_authenticated'] = True
             st.session_state['token_expires_at'] = (
-                 datetime.now() + timedelta(minutes=30)
+                datetime.now() + timedelta(minutes=30)
             )  # Configurar conforme necessário
             logger.info(
-                f"Sessão restaurada do cookie para usuário {auth_data.get('username')}"
+                f"Sessão restaurada do cookie para usuário "
+                f"{auth_data.get('username')}"
             )
             return True
 

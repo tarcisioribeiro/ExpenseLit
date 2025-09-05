@@ -25,6 +25,7 @@ from services.accounts_service import accounts_service
 from services.expenses_service import expenses_service
 from services.revenues_service import revenues_service
 from config.settings import db_categories
+from utils.ui_utils import ui_components
 
 
 logger = logging.getLogger(__name__)
@@ -102,9 +103,9 @@ class DashboardPage(BasePage):
             col1, col2, col3 = st.columns([1, 1, 1])
             with col2:
                 if st.button(
-                 "🔄 Fazer Login",
-                 type="primary",
-                 use_container_width=True
+                    "🔄 Fazer Login",
+                    type="primary",
+                    use_container_width=True
                 ):
                     # Limpa dados de autenticação
                     for key in [
@@ -136,7 +137,7 @@ class DashboardPage(BasePage):
                 "📅 Data Inicial",
                 value=datetime.now().replace(day=1),
                 key="dashboard_date_from",
-                help="Data inicial para análise",
+                help="Data inicial para análise (formato: dd/mm/aaaa)",
                 format="DD/MM/YYYY"
             )
 
@@ -145,7 +146,7 @@ class DashboardPage(BasePage):
                 "📅 Data Final",
                 value=datetime.now(),
                 key="dashboard_date_to",
-                help="Data final para análise",
+                help="Data final para análise (formato: dd/mm/aaaa)",
                 format="DD/MM/YYYY"
             )
 
@@ -224,8 +225,8 @@ class DashboardPage(BasePage):
             float(
                 exp.get('value', 0)) for exp in data[
                     'expenses'
-                ] if exp.get('payed', False)
-            )
+            ] if exp.get('payed', False)
+        )
         total_revenues = sum(float(
             rev.get('value', 0)
         ) for rev in data['revenues'] if rev.get('received', False))
@@ -255,40 +256,42 @@ class DashboardPage(BasePage):
         active_accounts = len(
             [acc for acc in data['accounts'] if acc.get('is_active', True)])
 
-        # Renderiza cards - primeira linha
+        # Renderiza cards aprimorados - primeira linha
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            st.metric(
-                label="💰 Receitas Recebidas",
+            ui_components.render_enhanced_metric_card(
+                title="Receitas Recebidas",
                 value=format_currency_br(total_revenues),
-                delta=None,
-                help="Total de receitas já recebidas no período"
+                icon="💰",
+                color="green"
             )
 
         with col2:
-            st.metric(
-                label="💸 Despesas Pagas",
+            ui_components.render_enhanced_metric_card(
+                title="Despesas Pagas",
                 value=format_currency_br(total_expenses),
-                delta=None,
-                help="Total de despesas já pagas no período"
+                icon="💸",
+                color="red"
             )
 
         with col3:
-            delta_color = "normal" if balance >= 0 else "inverse"
-            st.metric(
-                label="⚖️ Saldo Real",
+            balance_color = "green" if balance >= 0 else "red"
+            delta_text = f"{'✅ Positivo' if balance >= 0 else '❌ Negativo'}"
+            ui_components.render_enhanced_metric_card(
+                title="Saldo Real",
                 value=format_currency_br(balance),
-                delta=f"{'Positivo' if balance >= 0 else 'Negativo'}",
-                delta_color=delta_color,
-                help="Saldo real considerando receitas, despesas e empréstimos"
+                delta=delta_text,
+                icon="⚖️",
+                color=balance_color
             )
 
         with col4:
-            st.metric(
-                label="🏦 Contas Ativas",
+            ui_components.render_enhanced_metric_card(
+                title="Contas Ativas",
                 value=str(active_accounts),
-                help="Número de contas ativas"
+                icon="🏦",
+                color="blue"
             )
 
         # Segunda linha - métricas de empréstimos se houver
@@ -314,21 +317,24 @@ class DashboardPage(BasePage):
 
             with col7:
                 total_loans_impact = loans_received - loans_given
-                impact_color = "normal" if (
-                    total_loans_impact >= 0
-                ) else "inverse"
                 st.metric(
                     label="🤝 Impacto dos Empréstimos",
                     value=format_currency_br(total_loans_impact),
-                    delta=f"{'Positivo' if total_loans_impact >= 0 else 'Negativo'}",
-                    delta_color=impact_color,
+                    delta=(
+                        ("Positivo" if total_loans_impact >= 0
+                         else "Negativo")
+                    ),
+                    delta_color=(
+                        "normal" if total_loans_impact >= 0 else "inverse"
+                    ),
                     help="Impacto líquido dos empréstimos no saldo"
                 )
 
             with col8:
                 total_loans = len(data['loans'])
                 active_loans = len(
-                    [l for l in data['loans'] if not l.get('payed', False)]
+                    [loan for loan in data['loans']
+                     if not loan.get('payed', False)]
                 )
                 st.metric(
                     label="📋 Empréstimos",
@@ -354,7 +360,7 @@ class DashboardPage(BasePage):
             return
 
         # Processa dados para o gráfico
-        category_totals = {}
+        category_totals: Dict[str, float] = {}
         for expense in data['expenses']:
             category = expense.get('category', 'others')
             category_name = db_categories.EXPENSE_CATEGORIES.get(
@@ -481,7 +487,7 @@ class DashboardPage(BasePage):
             return
 
         # Processa dados para o gráfico
-        category_totals = {}
+        category_totals: Dict[str, float] = {}
         for revenue in data['revenues']:
             category = revenue.get('category', 'others')
             category_name = db_categories.REVENUE_CATEGORIES.get(

@@ -8,48 +8,26 @@ Este é um report de erro, vou detalha-lo para que possa entender mais precisame
 
 ---
 
-1. Erros ao acessar listagem de transferências:
-
-        NameError: free variable 'category_key' referenced before assignment in enclosing scope
-        Traceback:
-        File "/app/app.py", line 81, in <module>
-            main()
-        File "/app/app.py", line 74, in main
-            HomePage().main_menu()
-        File "/app/home/main.py", line 102, in main_menu
-            page_instance.main_menu(
-        File "/app/pages/transfers.py", line 53, in main_menu
-            self.render()
-        File "/app/pages/transfers.py", line 66, in render
-            self._render_transfers_list()
-        File "/app/pages/transfers.py", line 114, in _render_transfers_list
-            filtered_transfers = [
-        File "/app/pages/transfers.py", line 117, in <listcomp>
-            ) == category_key
-
-2. Erro ao acessar empréstimos:
-
-        UnboundLocalError: local variable 'api_loan_data' referenced before assignment
-        Traceback:
-        File "/app/app.py", line 81, in <module>
-            main()
-        File "/app/app.py", line 74, in main
-            HomePage().main_menu()
-        File "/app/home/main.py", line 102, in main_menu
-            page_instance.main_menu(
-        File "/app/pages/loans.py", line 53, in main_menu
-            self.render()
-        File "/app/pages/loans.py", line 68, in render
-            self._render_give_loan_form()
-        File "/app/pages/loans.py", line 411, in _render_give_loan_form
-            self._process_loan_form_submit("given", loan_data)
-        File "/app/pages/loans.py", line 585, in _process_loan_form_submit
-            api_loan_data['benefited'] = loan_data['benefited_id']
+Verifique o que está ocorrendo ao cadastrar um cartão de crédito, pois não acontece nada quando clico no botão 'Cadastrar Cartão'.
 
 ---
 
-## Instruções
+## Pós correção
 
-* Faça a varredura do arquivo onde os erros são apresentados.
+Após corrigir o problema:
 
-* Tendo como base a documentação passada anteriormente, encontre uma solução para cada erro e a implemente.
+  * Ative o venv, e execute o comando abaixo para detectar problemas de sintaxe:
+
+        flake8 --exclude venv > flake_errors.txt
+
+  * Leia o conteúdo do arquivo flake_errors.txt, e aplique as correções pedidas pelo flake8 pelo autopep8.
+
+  * Caso não haja como corrigir com o autopep8, encontre outra forma de corrigir.
+
+  * Em seguida, faça uma varredura do arquivo com o mypy 'nome_do_arquivo'.py, para verificar se a tipagem está adequada.
+
+  * Rode o comando flake acima novamente, para garantir que não há sintaxe ruim.
+
+  * Refaça o container, com o comando:
+
+      `docker compose up --build -d`

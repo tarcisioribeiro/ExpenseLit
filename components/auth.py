@@ -28,6 +28,7 @@ class AuthenticationComponent:
     Esta classe implementa toda a lógica de interface para
     login, logout e gerenciamento de sessão de usuário.
     """
+
     def __init__(self):
         """Inicializa o componente de autenticação."""
         self.session_keys = [
@@ -152,23 +153,6 @@ class AuthenticationComponent:
                 try:
                     user_permissions = api_client.get_user_permissions()
                     st.session_state['user_permissions'] = user_permissions
-
-                    # Verifica se é superusuário/admin e bloqueia
-                    if user_permissions.get('is_superuser', False):
-                        st.error("🚫 **Acesso Negado**")
-                        st.warning(
-                            """
-                            Administradores não podem acessar esta interface.
-                            Use o painel administrativo do Django.
-                            """
-                        )
-                        # Faz logout imediatamente
-                        logger.warning(
-                            f"""
-                            Tentativa de acesso bloqueada para: {username}
-                            """
-                        )
-                        return False
 
                 except ApiClientError as e:
                     # Se falhar ao buscar permissões, assume acesso limitado
@@ -303,9 +287,9 @@ class AuthenticationComponent:
         permissions = self.get_user_permissions()
         user_permissions = permissions.get('permissions', [])
 
-        # Superusuários são bloqueados nesta interface
+        # Superusuários têm todas as permissões
         if permissions.get('is_superuser', False):
-            return False
+            return True
 
         return permission in user_permissions
 
@@ -376,6 +360,7 @@ class AuthLogin:
     Esta classe gerencia o fluxo completo de autenticação e navegação
     da aplicação ExpenseLit.
     """
+
     def __init__(self):
         """Inicializa o componente de login."""
         self.auth_component = AuthenticationComponent()
@@ -690,7 +675,7 @@ class AuthLogin:
                         )
                     else:
                         st.error(f"❌ Erro ao criar usuário: {error_message}")
-                except:
+                except Exception:
                     st.error(f"❌ Erro ao criar usuário: {error_msg}")
             else:
                 st.error(f"❌ Erro ao criar usuário: {error_msg}")

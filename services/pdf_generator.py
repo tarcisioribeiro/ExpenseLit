@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 class PDFGenerator:
     """Classe para geração de PDFs de comprovantes e contratos."""
+
     def __init__(self):
         """Inicializa o gerador de PDF."""
         if not REPORTLAB_AVAILABLE:
@@ -126,7 +127,7 @@ class PDFGenerator:
             )],
             ["Status:", "✅ Paga" if expense_data.get(
                 'payed', False) else "⏳ Pendente"]
-            ]
+        ]
 
         if account_data:
             account_name = db_categories.INSTITUTIONS.get(
@@ -136,7 +137,7 @@ class PDFGenerator:
             expense_info.append(["Conta:", account_name])
 
         # Tabela com informações
-        table = Table(expense_info, colWidths=[2*inch, 4*inch])
+        table = Table(expense_info, colWidths=[2 * inch, 4 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#E8F4FD')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -211,7 +212,7 @@ class PDFGenerator:
             )],
             ["Status:", "✅ Recebida" if revenue_data.get(
                 'received', False) else "⏳ Pendente"]
-            ]
+        ]
 
         if account_data:
             account_name = db_categories.INSTITUTIONS.get(
@@ -221,7 +222,7 @@ class PDFGenerator:
             revenue_info.append(["Conta:", account_name])
 
         # Tabela com informações
-        table = Table(revenue_info, colWidths=[2*inch, 4*inch])
+        table = Table(revenue_info, colWidths=[2 * inch, 4 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#E8FDF0')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -315,10 +316,10 @@ class PDFGenerator:
             )],
             ["Status:", "✅ Quitado" if loan_data.get(
                 'payed', False) else "⏳ Em Aberto"]
-            ]
+        ]
 
         # Tabela com informações
-        table = Table(loan_info, colWidths=[2.5*inch, 3.5*inch])
+        table = Table(loan_info, colWidths=[2.5 * inch, 3.5 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#FDF4E8')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -429,7 +430,7 @@ realizado em <b>{format_date_for_display(loan_data.get('date', ''))}</b>.
             transfer_info.append(["Conta Destino:", dest_name])
 
         # Tabela com informações
-        table = Table(transfer_info, colWidths=[2*inch, 4*inch])
+        table = Table(transfer_info, colWidths=[2 * inch, 4 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#F0E8FD')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -538,7 +539,7 @@ realizado em <b>{format_date_for_display(loan_data.get('date', ''))}</b>.
                 ["ID Transação:", expense_data.get('transaction_id')])
 
         # Tabela com informações
-        table = Table(expense_info, colWidths=[2*inch, 4*inch])
+        table = Table(expense_info, colWidths=[2 * inch, 4 * inch])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#FDE8E8')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -584,6 +585,7 @@ Status: {'Fechada' if bill_data.get('closed', False) else 'Em aberto'}
 
 
 # Instância global do gerador
+pdf_generator: Optional[PDFGenerator]
 try:
     pdf_generator = PDFGenerator()
 except ImportError:
