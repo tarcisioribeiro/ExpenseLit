@@ -205,9 +205,13 @@ class TransfersPage:
 
                     # Taxa se houver
                     fee = transfer.get('fee', 0)
+                    try:
+                        fee_float = float(fee) if fee else 0.0
+                    except (ValueError, TypeError):
+                        fee_float = 0.0
                     fee_display = (
-                        f" (Taxa: {format_currency_br(fee)})"
-                        if fee and fee > 0 else ""
+                        f" (Taxa: {format_currency_br(fee_float)})"
+                        if fee_float > 0 else ""
                     )
 
                     st.markdown(f"""
@@ -772,8 +776,12 @@ class TransfersPage:
                 "transfered": transfered}
 
             # Adiciona campos opcionais se preenchidos
-            if fee > 0:
-                transfer_data["fee"] = str(fee)
+            try:
+                fee_float = float(fee) if fee else 0.0
+            except (ValueError, TypeError):
+                fee_float = 0.0
+            if fee_float > 0:
+                transfer_data["fee"] = str(fee_float)
             if transaction_id.strip():
                 transfer_data["transaction_id"] = transaction_id.strip()
             if confirmation_code.strip():
