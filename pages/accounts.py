@@ -276,7 +276,7 @@ class AccountsPage:
                 with col1:
                     name = st.text_input(
                         "📝 Nome da Conta *",
-                        value=account.get('name', ''),
+                        value=account.get('account_name', ''),
                         help="Nome identificador da conta"
                     )
 

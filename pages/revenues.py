@@ -213,10 +213,13 @@ class RevenuesPage:
                         revenue_date, '%Y-%m-%d'
                     )
                     br_revenue_date = revenue_date_iso.strftime('%d/%m/%Y')
+                    account_name = revenue.get('account_name', 'N/A')
                     st.markdown(f"""
                     **💰 Valor: R$ {float(value):.2f}**
 
                     {net_display}
+
+                    🏦 Conta: {account_name}
 
                     Data: 📅 {br_revenue_date}
                     """)

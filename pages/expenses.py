@@ -207,8 +207,11 @@ class ExpensesPage:
                         'payed', False
                     ) else "⏳ Pendente"
 
+                    account_name = expense.get('account_name', 'N/A')
                     st.markdown(f"""
                     **💰 Valor: R$ {float(value):.2f}**
+
+                    🏦 Conta: {account_name}
 
                     📅 Data: {br_expense_date}
 

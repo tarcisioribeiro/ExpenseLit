@@ -380,13 +380,7 @@ class TransfersPage:
                         options=categories,
                         index=category_index,
                         format_func=(
-                            lambda x: f"""{
-                                self._get_transfer_category_emoji(
-                                    db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
-                                        x, ''
-                                    )
-                                )
-                            } {x}"""
+                            lambda x: self._format_category_display(x)
                         )
                     )
 
@@ -523,6 +517,28 @@ class TransfersPage:
         """
         return db_categories.TRANSFER_CATEGORY_EMOJIS.get(category, "💰")
 
+    def _format_category_display(self, category_display: str) -> str:
+        """
+        Formata a exibição da categoria com emoji.
+
+        Parameters
+        ----------
+        category_display : str
+            Nome da categoria para exibição
+
+        Returns
+        -------
+        str
+            Categoria formatada com emoji
+        """
+        category_code = (
+            db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
+                category_display, ""
+            )
+        )
+        emoji = self._get_transfer_category_emoji(category_code)
+        return f"{emoji} {category_display}"
+
     def _render_add_transfer_form_standardized(self):
         """
         Renderiza formulário de adição de transferência.
@@ -558,13 +574,7 @@ class TransfersPage:
                 category = st.selectbox(
                     "📂 Categoria *",
                     options=categories,
-                    format_func=lambda x: (
-                        f"""{self._get_transfer_category_emoji(
-                            db_categories.TRANSLATED_TRANSFER_CATEGORIES.get(
-                                x, ''
-                            )
-                        )} {x}"""
-                    ),
+                    format_func=lambda x: self._format_category_display(x),
                     help="Tipo de transferência")
 
                 transfered = st.checkbox(
