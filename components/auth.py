@@ -318,6 +318,7 @@ class AuthenticationComponent:
         st.warning("🔒 **Acesso restrito.** Faça login para continuar.")
         self.render_login_form()
         st.stop()
+        return False  # Esta linha nunca será executada, mas satisfaz o mypy
 
     def render_session_info(self) -> None:
         """Renderiza informações da sessão no sidebar."""

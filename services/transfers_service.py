@@ -6,7 +6,7 @@ gerenciamento de transferências na expenselit-api.
 """
 
 import logging
-from datetime import date, time
+from datetime import date
 from typing import List, Dict, Any, Optional, Union
 
 from services.api_client import api_client, ApiClientError
@@ -85,8 +85,19 @@ class TransfersService:
 
             logger.info(f"Buscando transferências com parâmetros: {params}")
             response = api_client.get(self.ENDPOINT, params=params)
-            logger.info(f"Encontradas {len(response)} transferências")
-            return response
+
+            # Garantir que o retorno seja uma lista
+            if isinstance(response, dict):
+                # Se a resposta é um dict, pode conter 'results' ou ser um único item
+                if 'results' in response:
+                    result = response['results']
+                else:
+                    result = [response]
+            else:
+                result = response if isinstance(response, list) else []
+
+            logger.info(f"Encontradas {len(result)} transferências")
+            return result
 
         except ApiClientError as e:
             logger.error(f"Erro ao buscar transferências: {e}")
@@ -148,7 +159,9 @@ class TransfersService:
         """
         try:
             logger.info(
-                f"Criando nova transferência: {transfer_data.get('description')}")
+                f"Criando nova transferência: "
+                f"{transfer_data.get('description')}"
+            )
             response = api_client.post(self.ENDPOINT, data=transfer_data)
             logger.info(f"Transferência criada com ID: {response.get('id')}")
             return response

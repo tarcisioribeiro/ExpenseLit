@@ -8,7 +8,10 @@ Este é um report de erro, vou detalha-lo para que possa entender mais precisame
 
 ---
 
-Verifique o que está ocorrendo ao cadastrar um cartão de crédito, pois não acontece nada quando clico no botão 'Cadastrar Cartão'.
+Listagem de contas não mostra o saldo da conta corretamente.
+Listagem de receitas não exibe o nome da conta corretamente.
+Listagem de despesas não exibe o nome da conta corretamente.
+Listagem de transferência não exibe o nome da conta de origem e conta de transferência corretamente.
 
 ---
 
